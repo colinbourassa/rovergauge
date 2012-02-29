@@ -1,0 +1,122 @@
+----------
+RoverGauge
+----------
+RoverGauge is a graphical display and diagnostic tool that reads runtime data
+from a Lucas 14CUX engine management system. The 14CUX was paired with the
+Rover V8 engine in Land Rover vehicles from 1990 to 1995, and also in sports
+cars made by low-volume automakers (TVR, Morgan, etc.) throughout the 1990s.
+
+This software uses Google Project Hosting to store its code (and it depends on
+another piece of software that I wrote, comm14cux, which has its own
+Google Project page):
+
+http://code.google.com/p/rovergauge/
+http://code.google.com/p/comm14cux/
+
+There's more 14CUX information, including information about how to build the
+serial link cable, on my personal web site:
+
+http://alum.wpi.edu/~colinb/14cux_interface.html
+
+-------
+License
+-------
+RoverGauge is licensed under the GPL v3. See the file "LICENSE" for details.
+
+----------
+Disclaimer
+----------
+While this software has been shown to be reliable and is provided in good
+faith, it is provided with ABSOLUTELY NO WARRANTY.
+
+----------------------
+Installing and running
+----------------------
+If you're running Windows, the simplest way to get started is to download the
+Win32 binary archive. Most people will probably want to do this. The archive
+contains the RoverGauge executable, MinGW library, Qt libraries, and comm14cux
+library -- all of which are required to run. To avoid having to change your
+PATH environment variable, it's easiest to just put all the files in the same
+directory. (If, for some reason, you alreay have the support libraries, you can
+also get the RoverGauge executable by itself.)
+
+If you're running Linux, you can get a Debian package (.DEB) for your system's
+architecture.
+
+It's also possible to build RoverGauge from the code yourself. This can be done
+with Linux or Windows. In either case, you'll need the Qt SDK.
+
+------------------
+Usage and features
+------------------
+For RoverGauge to do anything useful, the computer on which it's running must
+be connected to the serial port in the 14CUX wiring harness. This requires
+building a custom cable using one of FTDI's USB-to-RS232 converters. You can
+find the details of this here:
+
+http://alum.wpi.edu/~colinb/14cux_interface.html
+
+When the USB FTDI device is connected to the PC, its driver will present it
+as a COM port if using Windows, or a /dev node if using Linux. Enter the name
+of the device (such as "COM3") in the "Serial device name" field of the
+"Edit settings" dialog, under the "Options" menu. (The software will attempt to
+populate the list of serial devices automatically, so that you can simply
+select it from the drop-down box.)
+
+Once the device name is set and the 14CUX is running, use the "Connect" button
+in the upper left of the main window to open the serial port and being reading
+data. The "Communications" lights in the upper right will show the status:
+green if everything is working and the 14CUX responds to read requests, or red
+if there's a problem. The red light will be lit if the 14CUX is off, if
+the serial cable wasn't wired correctly, or if the wrong COM port was chosen.
+
+The main window shows four gauges, which, from left to right, display:
+
+ * Coolant/engine temperature
+ * Road speed
+ * Engine RPM
+ * Fuel temperature (also used as an indicator of under-bonnet temperature)
+
+In addition to this, the display will show the throttle position, the reading
+from the mass airflow sensor, the neutral switch reading (indicating whether
+an automatic transmission is in gear), the main voltage, and fuel map data.
+
+The fuel map displayed by the software is the map currently in use by the
+vehicle. Each row represents a range of engine speed, and each column
+represents a range of engine load. Each cell in the grid shows the raw fueling
+value for that combination of engine speed and load, and the cell background
+is colored to provide a quick visual indication of the fueling at that position
+in the map. Engine speed increases left to right, and engine load increases
+top to bottom.
+
+The "Show fault codes" feature (in the "Options" menu) will display a dialog
+box with illuminated lamps next to each of the fault codes currently set in the
+ECU.
+
+The "Save PROM image" feature (in the "File" menu) will read the entire 16KB
+image from the 14CUX's PROM and save it to a file.
+
+---
+FAQ
+---
+Q: Is this an alternative to OBD-II code readers or OBD-II diagnostic software?
+
+A: No. The 14CUX system doesn't conform to the OBD-II standard. This software
+   uses a library that I wrote specifically to communicate with the 14CUX,
+   using the ECU's unusual baud rate and proprietary software protocol.
+   The details of all of this were discovered through reverse-engineering the
+   code in the 14CUX PROM.
+
+   As far as I know, the library I wrote (named "comm14cux") is only useful for
+   communicating with the Lucas 14CUX (and possibly the earlier 14CU.) If you
+   are aware of any other engine management system that uses the same baud rate
+   and software protocol, please let me know; It might be possible to expand
+   the capability of the library to other systems.
+
+
+Q: Can this software be used to modify the code or data in the ECU (such as
+   the fuel maps)?
+
+A: Unfortunately, no. When the ECU is running, it reads fueling values from
+   the PROM. Modifying the PROM requires removing and reprogramming the chip.
+
