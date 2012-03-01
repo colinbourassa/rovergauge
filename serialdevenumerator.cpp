@@ -21,10 +21,17 @@ SerialDevEnumerator::SerialDevEnumerator()
  * to be the one that is connected to the 14CUX ECU.
  * @return List of device names
  */
-QStringList SerialDevEnumerator::getSerialDevList()
+QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
 {
-    QList<QString> serialDevices;
-    serialDevices.append("");
+    QStringList serialDevices;
+    if (savedDevName.isNull() || savedDevName.isEmpty())
+    {
+        serialDevices.append("");
+    }
+    else
+    {
+        serialDevices.append(savedDevName);
+    }
 
 #ifdef linux
 
@@ -92,6 +99,7 @@ QStringList SerialDevEnumerator::getSerialDevList()
 
 #endif
 
+    serialDevices.removeDuplicates();
     return serialDevices;
 }
 

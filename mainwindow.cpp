@@ -202,6 +202,7 @@ void MainWindow::createWidgets()
     voltage->setStyleSheet("font-size: 16px;");
 
     fuelMapIndexLabel = new QLabel("Current fuel map:", this);
+    fuelMapFactorLabel = new QLabel("Adjustment factor:", this);
     fuelMapDisplay = new QTableWidget(8, 16, this);
     fuelMapDisplay->verticalHeader()->hide();
     fuelMapDisplay->horizontalHeader()->hide();
@@ -311,8 +312,10 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(startLoggingButton, row,   0, 1, 2);
     belowGaugesLeft->addWidget(stopLoggingButton,  row++, 2, 1, 2);
 
-    belowGaugesRight->addWidget(fuelMapIndexLabel, 0, 0);
-    belowGaugesRight->addWidget(fuelMapDisplay, 1, 0);
+    row = 0;
+    belowGaugesRight->addWidget(fuelMapIndexLabel,  row,   0, 1, 1);
+    belowGaugesRight->addWidget(fuelMapFactorLabel, row++, 1, 1, 1);
+    belowGaugesRight->addWidget(fuelMapDisplay,     row,   0, 1, 2);
 }
 
 /**
@@ -452,7 +455,9 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
 
     if (data != 0)
     {
-        populateFuelMapDisplay(data);
+        populateFuelMapDisplay(data);        
+        fuelMapFactorLabel->setText(
+            QString("Adjustment factor: %1").arg(cux->getFuelMapAdjustmentFactor()));
     }
 }
 

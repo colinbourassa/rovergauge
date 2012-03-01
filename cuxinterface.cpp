@@ -28,7 +28,8 @@ CUXInterface::CUXInterface(QString device, int interval, QObject *parent) :
     currentFuelMapRowIndex(0),
     currentFuelMapColumnIndex(0),
     mafReading(0),
-    promImage(0)
+    promImage(0),
+    fuelMapAdjFactor(0)
 {
 }
 
@@ -119,7 +120,7 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
 
         uint8_t *buffer = (uint8_t*)(fuelMaps[fuelMapId]->data());
 
-        if (cux->getFuelMap((int8_t)fuelMapId, buffer))
+        if (cux->getFuelMap((int8_t)fuelMapId, fuelMapAdjFactor, buffer))
         {
             emit fuelMapReady(fuelMapId);
         }
@@ -484,4 +485,13 @@ int CUXInterface::getMAFReading()
 QByteArray* CUXInterface::getPROMImage()
 {
     return promImage;
+}
+
+/**
+ * Returns the last-read fuel map adjustment factor.
+ * @return Last-read fuel map adjustment factor
+ */
+int CUXInterface::getFuelMapAdjustmentFactor()
+{
+    return fuelMapAdjFactor;
 }

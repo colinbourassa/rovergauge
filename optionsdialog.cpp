@@ -39,7 +39,7 @@ void OptionsDialog::setupWidgets()
     cancelButton = new QPushButton("Cancel", this);
 
     SerialDevEnumerator serialDevs;
-    serialDeviceBox->addItems(serialDevs.getSerialDevList());
+    serialDeviceBox->addItems(serialDevs.getSerialDevList(serialDeviceName));
     serialDeviceBox->setEditable(true);
     serialDeviceBox->setMinimumWidth(150);
 

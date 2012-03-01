@@ -34,6 +34,7 @@ public:
     float getMainVoltage();
     Comm14CUXVersion getVersion();
     QByteArray* getFuelMap(int fuelMapId);
+    int getFuelMapAdjustmentFactor();
     int getCurrentFuelMapIndex();
     int getFuelMapRowIndex();
     int getFuelMapColumnIndex();
@@ -91,6 +92,7 @@ private:
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;
+    uint16_t fuelMapAdjFactor;
 
     void pollEcu();
     bool connectToECU();

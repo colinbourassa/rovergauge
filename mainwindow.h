@@ -112,6 +112,7 @@ private:
     QLabel *voltage;
 
     QLabel *fuelMapIndexLabel;
+    QLabel *fuelMapFactorLabel;
     QTableWidget *fuelMapDisplay;
 
     QLabel *logFileNameLabel;
