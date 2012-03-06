@@ -10,11 +10,12 @@
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
+#include <QString>
 
 class OptionsDialog : public QDialog
 {
 public:
-    OptionsDialog();
+    OptionsDialog(QString title);
     QString getSerialDeviceName();
     bool getSerialDeviceChanged();
     int getPollIntervalMilliseconds();

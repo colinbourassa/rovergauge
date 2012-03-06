@@ -5,7 +5,7 @@
 /**
  * Constructor; sets up the options-dialog UI and sets settings-file field names.
  */
-OptionsDialog::OptionsDialog() :
+OptionsDialog::OptionsDialog(QString title) :
     serialDeviceChanged(false),
     settingsFileName("settings.ini"),
     settingsGroupName("Settings"),
@@ -13,6 +13,7 @@ OptionsDialog::OptionsDialog() :
     settingPollIntervalMSecs("PollIntervalMilliseconds"),
     settingSpeedMax("SpeedometerMaxMPH")
 {
+    this->setWindowTitle(title);
     readSettings();
     setupWidgets();
 }

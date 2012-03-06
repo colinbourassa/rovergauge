@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QMap>
 #include <QLabel>
+#include <QString>
 #include "comm14cux.h"
 #include <qledindicator/qledindicator.h>
 
@@ -43,7 +44,7 @@ enum FaultCode
 class FaultCodeDialog : public QDialog
 {
 public:
-    FaultCodeDialog(Comm14CUXFaultCodes faults);
+    FaultCodeDialog(QString title, Comm14CUXFaultCodes faults);
     ~FaultCodeDialog();
 
 protected:

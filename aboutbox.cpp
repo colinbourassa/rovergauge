@@ -3,10 +3,11 @@
 /**
  * Constructor. Receives a pointer to the QStyle of the parent form.
  */
-AboutBox::AboutBox(QStyle *parentStyle, Comm14CUXVersion cuxVersion) :
+AboutBox::AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion cuxVersion) :
     urlString(QString("http://code.google.com/p/rovergauge/")),
     aboutString(QString("A graphical interface to the 14CUX engine management system.\n\nUsing comm14cux "))
 {
+    this->setWindowTitle(title);
     ver.major = cuxVersion.major;
     ver.minor = cuxVersion.minor;
     ver.patch = cuxVersion.patch;

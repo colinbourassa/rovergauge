@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setMinimumSize(930, 550);
     this->setWindowTitle("RoverGauge");
-    options = new OptionsDialog();
+    options = new OptionsDialog(this->windowTitle());
 
     cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds());
     connect(cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
@@ -389,7 +389,7 @@ void MainWindow::onExitSelected()
 void MainWindow::onFaultCodesReady()
 {
     Comm14CUXFaultCodes faultCodes = cux->getFaultCodes();
-    FaultCodeDialog faultDialog(faultCodes);
+    FaultCodeDialog faultDialog(this->windowTitle(), faultCodes);
     faultDialog.exec();
 }
 
@@ -772,7 +772,7 @@ void MainWindow::onHelpAboutClicked()
 {
     if (aboutBox == 0)
     {
-        aboutBox = new AboutBox(style(), cux->getVersion());
+        aboutBox = new AboutBox(style(), this->windowTitle(), cux->getVersion());
     }
     aboutBox->exec();
 }

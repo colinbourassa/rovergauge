@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QStyle>
+#include <QString>
 #include "comm14cux.h"
 
 /**
@@ -16,7 +17,7 @@ class AboutBox : public QDialog
     Q_OBJECT
 
 public:
-    AboutBox(QStyle *parentStyle, Comm14CUXVersion version);
+    AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion version);
 
 private:
     void setupWidgets();

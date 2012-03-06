@@ -4,9 +4,10 @@
  * Constructor. Creates the fault code list, creates widgets, and sets them
  *  appropriately.
  */
-FaultCodeDialog::FaultCodeDialog(Comm14CUXFaultCodes faults):
+FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
     rows(5)
 {
+    this->setWindowTitle(title);
     populateFaultList();
     setupWidgets();
     lightLEDs(faults);
