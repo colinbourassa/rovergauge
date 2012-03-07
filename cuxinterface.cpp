@@ -313,13 +313,18 @@ void CUXInterface::pollEcu()
     {
         bool success = false;
 
+        // closely-grouped 16-bit values read consecutively for read efficiency...
         success |= cux->getMainVoltage(mainVoltage);
         success |= cux->getMAFReading(mafReading);
+        success |= cux->getThrottlePosition(throttlePos);
+        success |= cux->getEngineRPM(engineSpeedRPM);
+
+        // ...and likewise with the 8-bit values low in memory...
         success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
         success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
-        success |= cux->getThrottlePosition(throttlePos);
         success |= cux->getCoolantTemp(coolantTempF);
-        success |= cux->getEngineRPM(engineSpeedRPM);
+
+        // ...and higher in memory
         success |= cux->getGearSelection(gear);
         success |= cux->getRoadSpeed(roadSpeedMPH);
         success |= cux->getFuelTemp(fuelTempF);
