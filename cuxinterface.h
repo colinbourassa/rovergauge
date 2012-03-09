@@ -38,7 +38,8 @@ public:
     int getCurrentFuelMapIndex();
     int getFuelMapRowIndex();
     int getFuelMapColumnIndex();
-    int getMAFReading();
+    float getMAFReading();
+    float getIdleBypassPos();
     QByteArray* getPROMImage();
 
 public slots:
@@ -88,7 +89,8 @@ private:
     uint8_t currentFuelMapIndex;
     uint8_t currentFuelMapRowIndex;
     uint8_t currentFuelMapColumnIndex;
-    uint16_t mafReading;
+    float mafReading;
+    float idleBypassPos;
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;

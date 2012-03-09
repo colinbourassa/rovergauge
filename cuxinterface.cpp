@@ -27,7 +27,8 @@ CUXInterface::CUXInterface(QString device, int interval, QObject *parent) :
     currentFuelMapIndex(0),
     currentFuelMapRowIndex(0),
     currentFuelMapColumnIndex(0),
-    mafReading(0),
+    mafReading(0.0),
+    idleBypassPos(0.0),
     promImage(0),
     fuelMapAdjFactor(0)
 {
@@ -323,6 +324,7 @@ void CUXInterface::pollEcu()
         success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
         success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
         success |= cux->getCoolantTemp(coolantTempF);
+        success |= cux->getIdleBypassMotorPosition(idleBypassPos);
 
         // ...and higher in memory
         success |= cux->getGearSelection(gear);
@@ -478,7 +480,7 @@ int CUXInterface::getCurrentFuelMapIndex()
  * Returns the last-read MAF reading.
  * @return Last-read MAF reading
  */
-int CUXInterface::getMAFReading()
+float CUXInterface::getMAFReading()
 {
     return mafReading;
 }
@@ -499,4 +501,13 @@ QByteArray* CUXInterface::getPROMImage()
 int CUXInterface::getFuelMapAdjustmentFactor()
 {
     return fuelMapAdjFactor;
+}
+
+/**
+ * Returns the last-read idle bypass motor position.
+ * @return Last-read idle bypass motor position
+ */
+float CUXInterface::getIdleBypassPos()
+{
+    return idleBypassPos;
 }

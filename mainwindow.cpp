@@ -190,9 +190,15 @@ void MainWindow::createWidgets()
 
     mafReadingLabel = new QLabel("MAF reading:", this);
     mafReadingBar = new QProgressBar(this);
-    mafReadingBar->setRange(0, 1023);
+    mafReadingBar->setRange(0, 100);
     mafReadingBar->setValue(0);
     mafReadingBar->setMinimumWidth(300);
+
+    idleBypassLabel = new QLabel("Idle bypass position:", this);
+    idleBypassPosBar = new QProgressBar(this);
+    idleBypassPosBar->setRange(0, 100);
+    idleBypassPosBar->setValue(0);
+    idleBypassPosBar->setMinimumWidth(300);
 
     gearLabel = new QLabel("Selected gear:", this);
     gear = new QLabel(defaultRawLabel, this);
@@ -297,6 +303,8 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(throttleBar,        row++, 1, 1, 3);
     belowGaugesLeft->addWidget(mafReadingLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(mafReadingBar,      row++, 1, 1, 3);
+    belowGaugesLeft->addWidget(idleBypassLabel,    row,   0,        Qt::AlignRight);
+    belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
 
     belowGaugesLeft->addWidget(gearLabel,          row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(gear,               row++, 1, 1, 3);
@@ -455,9 +463,10 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
 
     if (data != 0)
     {
-        populateFuelMapDisplay(data);        
-        fuelMapFactorLabel->setText(
-            QString("Adjustment factor: %1").arg(cux->getFuelMapAdjustmentFactor()));
+        populateFuelMapDisplay(data);
+        QString hexPart =
+            QString("%1").arg(cux->getFuelMapAdjustmentFactor(), 0, 16).toUpper();
+        fuelMapFactorLabel->setText(QString("Adjustment factor: 0x") + hexPart);
     }
 }
 
@@ -474,7 +483,8 @@ void MainWindow::onDataReady()
     int throttlePos = cux->getThrottlePos() * 100;
     Comm14CUXGear gearReading = cux->getGear();
     float mainVoltage = cux->getMainVoltage();
-    int mafReading = cux->getMAFReading();
+    int mafReading = cux->getMAFReading() * 100;
+    int idleBypassPos = cux->getIdleBypassPos() * 100;
 
     int newFuelMapIndex = cux->getCurrentFuelMapIndex();
     int newFuelMapRow = cux->getFuelMapRowIndex();
@@ -549,12 +559,23 @@ void MainWindow::onDataReady()
         mafReading = mafReadingBar->maximum();
     }
 
+    // clip the idle bypass reading at min/max
+    if (idleBypassPos < idleBypassPosBar->minimum())
+    {
+        idleBypassPos = idleBypassPosBar->minimum();
+    }
+    else if (idleBypassPos > idleBypassPosBar->maximum())
+    {
+        idleBypassPos = idleBypassPosBar->maximum();
+    }
+
     speedo->setValue(roadSpeedMPH);
     revCounter->setValue(engineSpeedRPM);
     waterTemp->setValue(waterTempF);
     fuelTemp->setValue(fuelTempF);
     throttleBar->setValue(throttlePos);
     mafReadingBar->setValue(mafReading);
+    idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
 
     switch (gearReading)

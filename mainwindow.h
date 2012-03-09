@@ -106,6 +106,9 @@ private:
     QProgressBar *mafReadingBar;
     QLabel *mafReadingLabel;
 
+    QProgressBar *idleBypassPosBar;
+    QLabel *idleBypassLabel;
+
     QLabel *gearLabel;
     QLabel *gear;
     QLabel *voltageLabel;
