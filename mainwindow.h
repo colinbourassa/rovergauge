@@ -144,8 +144,6 @@ private:
     int currentFuelMapRow;
     int currentFuelMapCol;
 
-    bool promReadCancelled;
-
     void setupLayout();
     void createWidgets();
     void placeWidgets();

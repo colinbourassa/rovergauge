@@ -42,6 +42,8 @@ public:
     float getIdleBypassPos();
     QByteArray* getPROMImage();
 
+    void cancelRead();
+
 public slots:
     void onParentThreadStarted();
     void onParentThreadFinished();
@@ -78,6 +80,7 @@ private:
     bool stopPolling;
     bool shutdownThread;
     Comm14CUXFaultCodes faultCodes;
+    bool readCanceled;
 
     uint16_t roadSpeedMPH;
     uint16_t engineSpeedRPM;

@@ -23,8 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
       pleaseWaitBox(0),
       currentFuelMapIndex(0),
       currentFuelMapRow(-1),
-      currentFuelMapCol(-1),
-      promReadCancelled(false)
+      currentFuelMapCol(-1)
 {
     logDirectory = "logs";
     logExtension = ".log";
@@ -845,14 +844,12 @@ void MainWindow::onSavePROMImageSelected()
             "Read the PROM image from the ECU? This will take 20 to 30 seconds.",
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
-        promReadCancelled = false;
         if (pleaseWaitBox == 0)
         {
             pleaseWaitBox = new QMessageBox(
                 QMessageBox::Information, "In Progress",
-                QString("Please wait while the PROM image is read.\n\n") +
-                QString("Canceling will return you to the main window, although\n") +
-                QString("it may take time to resume reading data."), 0, this, Qt::Dialog);
+                QString("Please wait while the PROM image is read.\n\n"),
+                0, this, Qt::Dialog);
             pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
             connect(pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onPROMReadCancelled()));
         }
@@ -867,7 +864,7 @@ void MainWindow::onSavePROMImageSelected()
  */
 void MainWindow::onPROMReadCancelled()
 {
-    promReadCancelled = true;
+    cux->cancelRead();
 }
 
 /**
@@ -880,13 +877,14 @@ void MainWindow::onPROMImageReady()
         pleaseWaitBox->hide();
     }
 
-    if (!promReadCancelled)
+    QByteArray *promData = cux->getPROMImage();
+    if (promData != 0)
     {
-        QByteArray *promData = cux->getPROMImage();
-        if (promData != 0)
+        QString saveFileName =
+            QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
+
+        if (!saveFileName.isNull() && !saveFileName.isEmpty())
         {
-            QString saveFileName =
-                QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
             QFile saveFile(saveFileName);
 
             if (saveFile.open(QIODevice::WriteOnly))

@@ -90,12 +90,20 @@ void CUXInterface::onReadPROMImageRequested()
         if (cux->connect(deviceName.toStdString()) &&
             cux->dumpROM((uint8_t*)promImage->data()))
         {
-            emit promImageReady();
+            if (!readCanceled)
+            {
+                emit promImageReady();
+            }
         }
         else
         {
-            emit promImageReadFailed();
+            if (!readCanceled)
+            {
+                emit promImageReadFailed();
+            }
         }
+
+        readCanceled = false;
     }
     else
     {
@@ -357,6 +365,15 @@ void CUXInterface::pollEcu()
 void CUXInterface::onTimer()
 {
     pollEcu();
+}
+
+/**
+ * Cancels the pending read operation.
+ */
+void CUXInterface::cancelRead()
+{
+    readCanceled = true;
+    cux->cancelRead();
 }
 
 /**
