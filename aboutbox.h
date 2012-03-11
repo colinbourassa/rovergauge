@@ -29,11 +29,14 @@ private:
     Comm14CUXVersion ver;
 
     const QString urlString;
+    const QString urlLibString;
     const QString aboutString;
     QLabel *iconLabel;
     QLabel *info;
     QLabel *name;
+    QLabel *infoLib;
     QLabel *url;
+    QLabel *urlLib;
     QPushButton *ok;
 };
 

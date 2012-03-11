@@ -5,7 +5,8 @@
  */
 AboutBox::AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion cuxVersion) :
     urlString(QString("http://code.google.com/p/rovergauge/")),
-    aboutString(QString("A graphical interface to the 14CUX engine management system.\n\nUsing comm14cux "))
+    urlLibString(QString("http://code.google.com/p/libcomm14cux/")),
+    aboutString(QString("A graphical interface to the 14CUX engine management system."))
 {
     this->setWindowTitle(title);
     ver.major = cuxVersion.major;
@@ -45,10 +46,14 @@ void AboutBox::setupWidgets()
     defaultFont.setPointSize(14);
     name->setFont(defaultFont);
 
-    info = new QLabel(aboutString + makeVersionString(ver.major, ver.minor, ver.patch) + ".", this);
+    info = new QLabel(aboutString, this);
+    infoLib = new QLabel(QString("Using libcomm14cux %1.").arg(makeVersionString(ver.major, ver.minor, ver.patch)), this);
 
     url = new QLabel("<a href=\"" + urlString + "\">" + urlString + "</a>", this);
     url->setOpenExternalLinks(true);
+
+    urlLib = new QLabel("<a href=\"" + urlLibString + "\">" + urlLibString + "</a>", this);
+    urlLib->setOpenExternalLinks(true);
 
     ok = new QPushButton("Close", this);
     connect(ok, SIGNAL(clicked()), SLOT(accept()));
@@ -57,6 +62,8 @@ void AboutBox::setupWidgets()
     grid->addWidget(name, 0, 1, 1, 1, Qt::AlignLeft);
     grid->addWidget(info, 1, 1, 1, 1, Qt::AlignLeft);
     grid->addWidget(url, 2, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(ok, 3, 1, 1, 1, Qt::AlignRight);
+    grid->addWidget(infoLib, 3, 1, 1, 1, Qt::AlignLeft);
+    grid->addWidget(urlLib, 4, 1, 1, 1, Qt::AlignLeft);
+    grid->addWidget(ok, 5, 1, 1, 1, Qt::AlignRight);
 }
 
