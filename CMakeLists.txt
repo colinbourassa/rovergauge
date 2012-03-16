@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
-set (ROVERGAUGE_VER_MINOR 1)
+set (ROVERGAUGE_VER_MINOR 2)
 set (ROVERGAUGE_VER_PATCH 0)
 
 set (CPACK_SOURCE_GENERATOR "TGZ" "ZIP")
