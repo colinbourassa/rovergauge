@@ -69,18 +69,11 @@ void OptionsDialog::setupWidgets()
     speedUnitsBox->addItem("MPH");
     speedUnitsBox->addItem("ft/s");
     speedUnitsBox->addItem("km/h");
-    speedUnitsBox->addItem("knots");
     speedUnitsBox->setCurrentIndex((int)speedUnits);
 
     temperatureUnitsBox->setEditable(false);
     temperatureUnitsBox->addItem("Fahrenheit");
-    temperatureUnitsBox->addItem("Rankine");
     temperatureUnitsBox->addItem("Celcius");
-    temperatureUnitsBox->addItem("Kelvin");
-    temperatureUnitsBox->addItem("Reaumur");
-    temperatureUnitsBox->addItem("Delisle");
-    temperatureUnitsBox->addItem("Newton");
-    temperatureUnitsBox->addItem("Romer");
     temperatureUnitsBox->setCurrentIndex((int)tempUnits);
 
     redlineBox->setMinimum(0);

@@ -36,37 +36,18 @@ MainWindow::MainWindow(QWidget *parent)
     speedUnitSuffix->insert(MPH, " MPH");
     speedUnitSuffix->insert(FPS, " ft/s");
     speedUnitSuffix->insert(KPH, " km/h");
-    speedUnitSuffix->insert(Knots, " kn");
 
     tempUnitSuffix = new QHash<TemperatureUnits,QString>;
     tempUnitSuffix->insert(Fahrenheit, " F");
-    tempUnitSuffix->insert(Rankine, " R");
     tempUnitSuffix->insert(Celcius, " C");
-    tempUnitSuffix->insert(Kelvin, " K");
-    tempUnitSuffix->insert(Reaumur, " Re");
-    tempUnitSuffix->insert(Delisle, " De");
-    tempUnitSuffix->insert(Newton, " N");
-    tempUnitSuffix->insert(Romer, " Ro");
 
     tempRange = new QHash<TemperatureUnits,QPair<int, int> >;
     tempRange->insert(Fahrenheit, qMakePair(-40, 280));
-    tempRange->insert(Rankine, qMakePair(420, 700));
     tempRange->insert(Celcius, qMakePair(-40, 140));
-    tempRange->insert(Kelvin, qMakePair(230, 410));
-    tempRange->insert(Reaumur, qMakePair(-40, 120));
-    tempRange->insert(Delisle, qMakePair(-60, 210));
-    tempRange->insert(Newton, qMakePair(-20, 60));
-    tempRange->insert(Romer, qMakePair(-10, 65));
 
     tempLimits = new QHash<TemperatureUnits,QPair<int, int> >;
     tempLimits->insert(Fahrenheit, qMakePair(180, 210));
-    tempLimits->insert(Rankine, qMakePair(640, 669));
     tempLimits->insert(Celcius, qMakePair(80, 98));
-    tempLimits->insert(Kelvin, qMakePair(355, 372));
-    tempLimits->insert(Reaumur, qMakePair(66, 79));
-    tempLimits->insert(Delisle, qMakePair(10000, 10000));
-    tempLimits->insert(Newton, qMakePair(27, 32));
-    tempLimits->insert(Romer, qMakePair(50, 59));
 
     options = new OptionsDialog(this->windowTitle());
 
@@ -666,8 +647,6 @@ int MainWindow::convertSpeed(int speedMph, SpeedUnits desiredUnits)
     case KPH:
         speed *= 1.609344;
         break;
-    case Knots:
-        speed *= 0.868976;
     default:
         break;
     }
@@ -687,26 +666,8 @@ int MainWindow::convertTemperature(int tempF, TemperatureUnits desiredUnits)
 
     switch (desiredUnits)
     {
-    case Rankine:
-        temp += 459.67;
-        break;
     case Celcius:
         temp = (temp - 32) * (0.5555556);
-        break;
-    case Kelvin:
-        temp = (temp + 459.67) * (0.5555556);
-        break;
-    case Delisle:
-        temp = (212 - temp) * (0.5555556);
-        break;
-    case Romer:
-        temp = (temp - 32) * (0.291666667) + 7.5;
-        break;
-    case Reaumur:
-        temp = (temp - 32) * 0.444444444;
-        break;
-    case Newton:
-        temp = (temp - 32) * 0.183333333;
         break;
     case Fahrenheit:
     default:

@@ -18,20 +18,13 @@ enum SpeedUnits
 {
     MPH = 0,
     FPS = 1,
-    KPH = 2,
-    Knots = 3
+    KPH = 2
 };
 
 enum TemperatureUnits
 {
     Fahrenheit = 0,
-    Rankine    = 1,
-    Celcius    = 2,
-    Kelvin     = 3,
-    Reaumur    = 4,
-    Delisle    = 5,
-    Newton     = 6,
-    Romer      = 7
+    Celcius    = 1
 };
 
 class OptionsDialog : public QDialog
