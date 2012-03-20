@@ -11,7 +11,10 @@ OptionsDialog::OptionsDialog(QString title) :
     settingsGroupName("Settings"),
     settingSerialDev("SerialDevice"),
     settingPollIntervalMSecs("PollIntervalMilliseconds"),
-    settingSpeedMax("SpeedometerMaxMPH")
+    settingSpeedMax("SpeedometerMax"),
+    settingRedline("Redline"),
+    settingSpeedUnits("SpeedUnits"),
+    settingTemperatureUnits("TemperatureUnits")
 {
     this->setWindowTitle(title);
     readSettings();
@@ -36,6 +39,15 @@ void OptionsDialog::setupWidgets()
     speedMaxLabel = new QLabel("Maximum speed on speedometer:", this);
     speedMaxBox = new QSpinBox(this);
 
+    redlineLabel = new QLabel("Tachometer redline:", this);
+    redlineBox = new QSpinBox(this);
+
+    speedUnitsLabel = new QLabel("Speed units:", this);
+    speedUnitsBox = new QComboBox(this);
+
+    temperatureUnitsLabel = new QLabel("Temperature units:", this);
+    temperatureUnitsBox = new QComboBox(this);
+
     okButton = new QPushButton("OK", this);
     cancelButton = new QPushButton("Cancel", this);
 
@@ -46,11 +58,35 @@ void OptionsDialog::setupWidgets()
 
     pollIntervalBox->setMaximum(60000);
     pollIntervalBox->setMinimum(0);
+    pollIntervalBox->setSingleStep(50);
     pollIntervalBox->setValue(pollIntervalMilliseconds);
 
     speedMaxBox->setMaximum(250);
     speedMaxBox->setMinimum(10);
     speedMaxBox->setValue(speedMax);
+
+    speedUnitsBox->setEditable(false);
+    speedUnitsBox->addItem("MPH");
+    speedUnitsBox->addItem("ft/s");
+    speedUnitsBox->addItem("km/h");
+    speedUnitsBox->addItem("knots");
+    speedUnitsBox->setCurrentIndex((int)speedUnits);
+
+    temperatureUnitsBox->setEditable(false);
+    temperatureUnitsBox->addItem("Fahrenheit");
+    temperatureUnitsBox->addItem("Rankine");
+    temperatureUnitsBox->addItem("Celcius");
+    temperatureUnitsBox->addItem("Kelvin");
+    temperatureUnitsBox->addItem("Reaumur");
+    temperatureUnitsBox->addItem("Delisle");
+    temperatureUnitsBox->addItem("Newton");
+    temperatureUnitsBox->addItem("Romer");
+    temperatureUnitsBox->setCurrentIndex((int)tempUnits);
+
+    redlineBox->setMinimum(0);
+    redlineBox->setMaximum(12000);
+    redlineBox->setSingleStep(500);
+    redlineBox->setValue(redline);
 
     grid->addWidget(serialDeviceLabel, row, 0);
     grid->addWidget(serialDeviceBox, row++, 1);
@@ -61,8 +97,17 @@ void OptionsDialog::setupWidgets()
     grid->addWidget(speedMaxLabel, row, 0);
     grid->addWidget(speedMaxBox, row++, 1);
 
-    grid->addWidget(okButton, row, 1);
-    grid->addWidget(cancelButton, row++, 2);
+    grid->addWidget(redlineLabel, row, 0);
+    grid->addWidget(redlineBox, row++, 1);
+
+    grid->addWidget(speedUnitsLabel, row, 0);
+    grid->addWidget(speedUnitsBox, row++, 1);
+
+    grid->addWidget(temperatureUnitsLabel, row, 0);
+    grid->addWidget(temperatureUnitsBox, row++, 1);
+
+    grid->addWidget(okButton, row, 0);
+    grid->addWidget(cancelButton, row++, 1);
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -101,6 +146,9 @@ void OptionsDialog::accept()
     }
 
     speedMax = speedMaxBox->value();
+    redline = redlineBox->value();
+    tempUnits = (TemperatureUnits)(temperatureUnitsBox->currentIndex());
+    speedUnits = (SpeedUnits)(speedUnitsBox->currentIndex());
 
     writeSettings();
     done(QDialog::Accepted);
@@ -117,6 +165,9 @@ void OptionsDialog::readSettings()
     serialDeviceName = settings.value(settingSerialDev, "").toString();
     pollIntervalMilliseconds = settings.value(settingPollIntervalMSecs, 500).toInt();
     speedMax = settings.value(settingSpeedMax, 160).toInt();
+    redline = settings.value(settingRedline, 5500).toInt();
+    speedUnits = (SpeedUnits)(settings.value(settingSpeedUnits, MPH).toInt());
+    tempUnits = (TemperatureUnits)(settings.value(settingTemperatureUnits, Fahrenheit).toInt());
 
     settings.endGroup();
 }
@@ -132,6 +183,9 @@ void OptionsDialog::writeSettings()
     settings.setValue(settingSerialDev, serialDeviceName);
     settings.setValue(settingPollIntervalMSecs, pollIntervalMilliseconds);
     settings.setValue(settingSpeedMax, speedMax);
+    settings.setValue(settingRedline, redline);
+    settings.setValue(settingSpeedUnits, speedUnits);
+    settings.setValue(settingTemperatureUnits, tempUnits);
 
     settings.endGroup();
 }
@@ -174,4 +228,28 @@ QString OptionsDialog::getSerialDeviceName()
 int OptionsDialog::getSpeedMax()
 {
     return speedMax;
+}
+
+/**
+ * Returns the redline to be shown on the tachometer.
+ */
+int OptionsDialog::getRedline()
+{
+    return redline;
+}
+
+/**
+ * Returns the units used for the speedometer
+ */
+SpeedUnits OptionsDialog::getSpeedUnits()
+{
+    return speedUnits;
+}
+
+/**
+ * Returns the units used for the temperature gauges
+ */
+TemperatureUnits OptionsDialog::getTemperatureUnits()
+{
+    return tempUnits;
 }

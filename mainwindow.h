@@ -14,6 +14,8 @@
 #include <QThread>
 #include <QFrame>
 #include <QTableWidget>
+#include <QHash>
+#include <QPair>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
@@ -148,6 +150,13 @@ private:
     void createWidgets();
     void placeWidgets();
     void setupWidgets();
+
+    QHash<SpeedUnits,QString> *speedUnitSuffix;
+    QHash<TemperatureUnits,QString> *tempUnitSuffix;
+    QHash<TemperatureUnits,QPair<int,int> > *tempRange;
+    QHash<TemperatureUnits,QPair<int,int> > *tempLimits;
+    int convertSpeed(int speedMph, SpeedUnits desiredUnits);
+    int convertTemperature(int tempF, TemperatureUnits desiredUnits);
 
     void populateFuelMapDisplay(QByteArray* data);
     QColor getColorForFuelMapCell(unsigned char value);

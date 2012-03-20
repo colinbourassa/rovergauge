@@ -21,17 +21,53 @@ MainWindow::MainWindow(QWidget *parent)
       options(0),
       aboutBox(0),
       pleaseWaitBox(0),
+      logDirectory("logs"),
+      logExtension(".log"),
+      logToFile(false),
       currentFuelMapIndex(0),
       currentFuelMapRow(-1),
       currentFuelMapCol(-1)
 {
-    logDirectory = "logs";
-    logExtension = ".log";
-    logToFile = false;
-
     ui->setupUi(this);
     this->setMinimumSize(930, 550);
     this->setWindowTitle("RoverGauge");
+
+    speedUnitSuffix = new QHash<SpeedUnits,QString>();
+    speedUnitSuffix->insert(MPH, " MPH");
+    speedUnitSuffix->insert(FPS, " ft/s");
+    speedUnitSuffix->insert(KPH, " km/h");
+    speedUnitSuffix->insert(Knots, " kn");
+
+    tempUnitSuffix = new QHash<TemperatureUnits,QString>;
+    tempUnitSuffix->insert(Fahrenheit, " F");
+    tempUnitSuffix->insert(Rankine, " R");
+    tempUnitSuffix->insert(Celcius, " C");
+    tempUnitSuffix->insert(Kelvin, " K");
+    tempUnitSuffix->insert(Reaumur, " Re");
+    tempUnitSuffix->insert(Delisle, " De");
+    tempUnitSuffix->insert(Newton, " N");
+    tempUnitSuffix->insert(Romer, " Ro");
+
+    tempRange = new QHash<TemperatureUnits,QPair<int, int> >;
+    tempRange->insert(Fahrenheit, qMakePair(-40, 280));
+    tempRange->insert(Rankine, qMakePair(420, 700));
+    tempRange->insert(Celcius, qMakePair(-40, 140));
+    tempRange->insert(Kelvin, qMakePair(230, 410));
+    tempRange->insert(Reaumur, qMakePair(-40, 120));
+    tempRange->insert(Delisle, qMakePair(-60, 210));
+    tempRange->insert(Newton, qMakePair(-20, 60));
+    tempRange->insert(Romer, qMakePair(-10, 65));
+
+    tempLimits = new QHash<TemperatureUnits,QPair<int, int> >;
+    tempLimits->insert(Fahrenheit, qMakePair(180, 210));
+    tempLimits->insert(Rankine, qMakePair(640, 669));
+    tempLimits->insert(Celcius, qMakePair(80, 98));
+    tempLimits->insert(Kelvin, qMakePair(355, 372));
+    tempLimits->insert(Reaumur, qMakePair(66, 79));
+    tempLimits->insert(Delisle, qMakePair(10000, 10000));
+    tempLimits->insert(Newton, qMakePair(27, 32));
+    tempLimits->insert(Romer, qMakePair(50, 59));
+
     options = new OptionsDialog(this->windowTitle());
 
     cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds());
@@ -62,6 +98,10 @@ MainWindow::MainWindow(QWidget *parent)
  */
 MainWindow::~MainWindow()
 {
+    delete tempLimits;
+    delete tempRange;
+    delete speedUnitSuffix;
+    delete tempUnitSuffix;
     delete aboutBox;
     delete options;
     delete cux;
@@ -134,8 +174,6 @@ void MainWindow::setupLayout()
  */
 void MainWindow::createWidgets()
 {
-    QString defaultRawLabel = "";
-
     fileMenu = menuBar()->addMenu("&File");
     savePROMImageAction = fileMenu->addAction("&Save PROM image...");
     savePROMImageAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
@@ -200,7 +238,7 @@ void MainWindow::createWidgets()
     idleBypassPosBar->setMinimumWidth(300);
 
     gearLabel = new QLabel("Selected gear:", this);
-    gear = new QLabel(defaultRawLabel, this);
+    gear = new QLabel("", this);
 
     voltageLabel = new QLabel("Main voltage:", this);
     voltage = new QLabel("", this);
@@ -243,7 +281,7 @@ void MainWindow::createWidgets()
     speedo->setMinimum(0.0);
     speedo->setMaximum(160.0);
     speedo->setMaximum((double)options->getSpeedMax());
-    speedo->setSuffix(" mph");
+    speedo->setSuffix(speedUnitSuffix->value(options->getSpeedUnits()));
     speedo->setNominal(1000.0);
     speedo->setCritical(1000.0);
 
@@ -252,28 +290,34 @@ void MainWindow::createWidgets()
     revCounter->setMaximum(8000);
     revCounter->setSuffix(" RPM");
     revCounter->setNominal(100000.0);
-    revCounter->setCritical(5500.0);
+    revCounter->setCritical(options->getRedline());
+
+    TemperatureUnits tempUnits = options->getTemperatureUnits();
+    int tempMin = tempRange->value(tempUnits).first;
+    int tempMax = tempRange->value(tempUnits).second;
 
     waterTemp = new ManoMeter(this);
-    waterTemp->setMinimum(-20.0);
-    waterTemp->setMaximum(280.0);
-    waterTemp->setSuffix(" F");
-    waterTemp->setNominal(175.0);
-    waterTemp->setCritical(210.0);
+    waterTemp->setValue(tempMin);
+    waterTemp->setMaximum(tempMax);
+    waterTemp->setMinimum(tempMin);
+    waterTemp->setSuffix(tempUnitSuffix->value(tempUnits));
+    waterTemp->setNominal(tempLimits->value(tempUnits).first);
+    waterTemp->setCritical(tempLimits->value(tempUnits).second);
     waterTemp->setFixedSize(200, 200);
+
 
     waterTempLabel = new QLabel("Engine Temperature", this);
 
     fuelTemp = new ManoMeter(this);
-    fuelTemp->setMinimum(-20.0);
-    fuelTemp->setMaximum(280.0);
-    fuelTemp->setSuffix(" F");
-    fuelTemp->setNominal(1000.0);
-    fuelTemp->setCritical(1000.0);
+    fuelTemp->setValue(tempMin);
+    fuelTemp->setMaximum(tempMax);
+    fuelTemp->setMinimum(tempMin);
+    fuelTemp->setSuffix(tempUnitSuffix->value(tempUnits));
+    fuelTemp->setNominal(10000.0);
+    fuelTemp->setCritical(10000.0);
     fuelTemp->setFixedSize(200, 200);
 
     fuelTempLabel = new QLabel("Fuel Temperature", this);
-
 }
 
 /**
@@ -475,10 +519,11 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
-    int roadSpeedMPH = cux->getRoadSpeedMPH();
+    TemperatureUnits tempUnits = options->getTemperatureUnits();
+    int roadSpeedConv = convertSpeed(cux->getRoadSpeedMPH(), options->getSpeedUnits());
     int engineSpeedRPM = cux->getEngineSpeedRPM();
-    int waterTempF = cux->getCoolantTempF();
-    int fuelTempF = cux->getFuelTempF();
+    int waterTempConv = convertTemperature(cux->getCoolantTempF(), tempUnits);
+    int fuelTempConv = convertTemperature(cux->getFuelTempF(), tempUnits);
     int throttlePos = cux->getThrottlePos() * 100;
     Comm14CUXGear gearReading = cux->getGear();
     float mainVoltage = cux->getMainVoltage();
@@ -568,10 +613,10 @@ void MainWindow::onDataReady()
         idleBypassPos = idleBypassPosBar->maximum();
     }
 
-    speedo->setValue(roadSpeedMPH);
+    speedo->setValue(roadSpeedConv);
     revCounter->setValue(engineSpeedRPM);
-    waterTemp->setValue(waterTempF);
-    fuelTemp->setValue(fuelTempF);
+    waterTemp->setValue(waterTempConv);
+    fuelTemp->setValue(fuelTempConv);
     throttleBar->setValue(throttlePos);
     mafReadingBar->setValue(mafReading);
     idleBypassPosBar->setValue(idleBypassPos);
@@ -596,11 +641,79 @@ void MainWindow::onDataReady()
 
     if (logToFile && (logFileStream.status() == QTextStream::Ok))
     {
-        logFileStream << roadSpeedMPH << "," << engineSpeedRPM << "," << waterTempF << ","
-                      << fuelTempF << "," << throttlePos << "," << mainVoltage << ","
+        logFileStream << roadSpeedConv << "," << engineSpeedRPM << "," << waterTempConv << ","
+                      << fuelTempConv << "," << throttlePos << "," << mainVoltage << ","
                       << currentFuelMapIndex << "," << currentFuelMapRow << ","
                       << currentFuelMapCol << endl;
     }
+}
+
+/**
+ * Converts speed in miles per hour to the desired units.
+ * @param speedMph Speed in miles per hour
+ * @param desiredUnits Target units for the conversion
+ * @return Speed in the desired units
+ */
+int MainWindow::convertSpeed(int speedMph, SpeedUnits desiredUnits)
+{
+    double speed = speedMph;
+
+    switch (desiredUnits)
+    {
+    case FPS:
+        speed *= 1.46666667;
+        break;
+    case KPH:
+        speed *= 1.609344;
+        break;
+    case Knots:
+        speed *= 0.868976;
+    default:
+        break;
+    }
+
+    return (int)speed;
+}
+
+/**
+ * Converts temperature in Fahrenheit degrees to the desired units.
+ * @param tempF Temperature in Fahrenheit degrees
+ * @param desiredUnits Target units for the conversion
+ * @return Temperature in the desired units
+ */
+int MainWindow::convertTemperature(int tempF, TemperatureUnits desiredUnits)
+{
+    double temp = tempF;
+
+    switch (desiredUnits)
+    {
+    case Rankine:
+        temp += 459.67;
+        break;
+    case Celcius:
+        temp = (temp - 32) * (0.5555556);
+        break;
+    case Kelvin:
+        temp = (temp + 459.67) * (0.5555556);
+        break;
+    case Delisle:
+        temp = (212 - temp) * (0.5555556);
+        break;
+    case Romer:
+        temp = (temp - 32) * (0.291666667) + 7.5;
+        break;
+    case Reaumur:
+        temp = (temp - 32) * 0.444444444;
+        break;
+    case Newton:
+        temp = (temp - 32) * 0.183333333;
+        break;
+    case Fahrenheit:
+    default:
+        break;
+    }
+
+    return (int)temp;
 }
 
 /**
@@ -639,7 +752,33 @@ void MainWindow::onEditOptionsClicked()
     {
         // update the speedo and tach appropriately
         speedo->setMaximum((double)options->getSpeedMax());
+        speedo->setSuffix(speedUnitSuffix->value(options->getSpeedUnits()));
         speedo->repaint();
+
+        revCounter->setCritical(options->getRedline());
+
+        TemperatureUnits tempUnits = options->getTemperatureUnits();
+        QString tempUnitStr = tempUnitSuffix->value(tempUnits);
+
+        int tempMin = tempRange->value(tempUnits).first;
+        int tempMax = tempRange->value(tempUnits).second;
+        int tempNominal = tempLimits->value(tempUnits).first;
+        int tempCritical = tempLimits->value(tempUnits).second;
+
+        fuelTemp->setSuffix(tempUnitStr);
+        fuelTemp->setValue(tempMin);
+        fuelTemp->setMaximum(tempMax);
+        fuelTemp->setMinimum(tempMin);
+        fuelTemp->repaint();
+
+        waterTemp->setSuffix(tempUnitStr);
+        waterTemp->setValue(tempMin);
+        waterTemp->setMaximum(tempMax);
+        waterTemp->setMinimum(tempMin);
+        waterTemp->setNominal(tempNominal);
+        waterTemp->setCritical(tempCritical);
+        waterTemp->setMaximum(tempMax);
+        waterTemp->repaint();
 
         // if the user changed the serial device name and/or the polling
         // interval, stop the timer, re-connect to the 14CUX (if neccessary),
@@ -705,10 +844,11 @@ void MainWindow::onDisconnect()
 
     speedo->setValue(0.0);
     revCounter->setValue(0.0);
-    waterTemp->setValue(0.0);
-    fuelTemp->setValue(0.0);
+    waterTemp->setValue(waterTemp->minimum());
+    fuelTemp->setValue(fuelTemp->minimum());
     throttleBar->setValue(0);
     mafReadingBar->setValue(0);
+    idleBypassPosBar->setValue(0);
     voltage->setText("");
     gear->setText("");
 }
@@ -753,7 +893,7 @@ void MainWindow::onStartLogging()
 
             if (!alreadyExists)
             {
-                logFileStream << "#roadSpeedMPH,engineSpeedRPM,waterTempF,fuelTempF," <<
+                logFileStream << "#roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                                  "throttlePos,mainVoltage,currentFuelMapIndex," <<
                                  "currentFuelMapRow,currentFuelMapCol" << endl;
             }
