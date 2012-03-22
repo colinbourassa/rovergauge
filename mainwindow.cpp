@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
       logDirectory("logs"),
       logExtension(".log"),
       logToFile(false),
-      currentFuelMapIndex(0),
+      currentFuelMapIndex(-1),
       currentFuelMapRow(-1),
       currentFuelMapCol(-1)
 {
