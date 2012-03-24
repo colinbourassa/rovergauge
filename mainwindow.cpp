@@ -738,7 +738,6 @@ void MainWindow::onEditOptionsClicked()
         waterTemp->setMinimum(tempMin);
         waterTemp->setNominal(tempNominal);
         waterTemp->setCritical(tempCritical);
-        waterTemp->setMaximum(tempMax);
         waterTemp->repaint();
 
         // if the user changed the serial device name and/or the polling
