@@ -164,6 +164,14 @@ bool CUXInterface::connectToECU()
 void CUXInterface::disconnectFromECU()
 {
     stopPolling = true;
+
+    if (promImage != 0)
+    {
+        delete promImage;
+        promImage = 0;
+    }
+
+    fuelMaps.clear();
 }
 
 /**

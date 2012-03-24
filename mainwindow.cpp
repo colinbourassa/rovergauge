@@ -812,6 +812,10 @@ void MainWindow::onDisconnect()
     idleBypassPosBar->setValue(0);
     voltage->setText("");
     gear->setText("");
+
+    currentFuelMapIndex = -1;
+    currentFuelMapRow = -1;
+    currentFuelMapCol = -1;
 }
 
 /**
@@ -941,22 +945,31 @@ void MainWindow::onNotConnected()
  */
 void MainWindow::onSavePROMImageSelected()
 {
-    if (QMessageBox::question(this, "Confirm",
-            "Read the PROM image from the ECU? This will take 20 to 30 seconds.",
-            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    if (cux->isConnected())
     {
-        if (pleaseWaitBox == 0)
+        if (QMessageBox::question(this, "Confirm",
+                "Read the PROM image from the ECU? This will take 20 to 30 seconds.",
+                QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
-            pleaseWaitBox = new QMessageBox(
-                QMessageBox::Information, "In Progress",
-                QString("Please wait while the PROM image is read.\n\n"),
-                0, this, Qt::Dialog);
-            pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
-            connect(pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onPROMReadCancelled()));
-        }
-        pleaseWaitBox->show();
+            if (pleaseWaitBox == 0)
+            {
+                pleaseWaitBox = new QMessageBox(
+                    QMessageBox::Information, "In Progress",
+                    QString("Please wait while the PROM image is read.\n\n"),
+                    0, this, Qt::Dialog);
+                pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
+                connect(pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onPROMReadCancelled()));
+            }
+            pleaseWaitBox->show();
 
-        emit requestPROMImage();
+            emit requestPROMImage();
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "Error",
+            "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
+            QMessageBox::Ok);
     }
 }
 
