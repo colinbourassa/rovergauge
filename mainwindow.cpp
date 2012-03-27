@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
       currentFuelMapCol(-1)
 {
     ui->setupUi(this);
-    this->setMinimumSize(930, 550);
+    this->setMinimumSize(930, 600);
     this->setWindowTitle("RoverGauge");
 
     speedUnitSuffix = new QHash<SpeedUnits,QString>();
@@ -246,6 +246,14 @@ void MainWindow::createWidgets()
         }
     }
 
+    fuelPumpRelayStateLabel = new QLabel("Fuel pump relay", this);
+    fuelPumpRelayStateLed = new QLedIndicator(this);
+    fuelPumpRelayStateLed->setOnColor1(QColor(102, 255, 102));
+    fuelPumpRelayStateLed->setOnColor2(QColor(82, 204, 82));
+    fuelPumpRelayStateLed->setOffColor1(QColor(0, 102, 0));
+    fuelPumpRelayStateLed->setOffColor2(QColor(0, 51, 0));
+    fuelPumpRelayStateLed->setDisabled(true);
+
     logFileNameLabel = new QLabel("Log file name:", this);
     logFileNameBox = new QLineEdit(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss"), this);
     startLoggingButton = new QPushButton("Start logging");
@@ -284,8 +292,6 @@ void MainWindow::createWidgets()
     waterTemp->setSuffix(tempUnitSuffix->value(tempUnits));
     waterTemp->setNominal(tempLimits->value(tempUnits).first);
     waterTemp->setCritical(tempLimits->value(tempUnits).second);
-    waterTemp->setFixedSize(200, 200);
-
 
     waterTempLabel = new QLabel("Engine Temperature", this);
 
@@ -296,7 +302,6 @@ void MainWindow::createWidgets()
     fuelTemp->setSuffix(tempUnitSuffix->value(tempUnits));
     fuelTemp->setNominal(10000.0);
     fuelTemp->setCritical(10000.0);
-    fuelTemp->setFixedSize(200, 200);
 
     fuelTempLabel = new QLabel("Fuel Temperature", this);
 }
@@ -345,9 +350,13 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(stopLoggingButton,  row++, 2, 1, 2);
 
     row = 0;
-    belowGaugesRight->addWidget(fuelMapIndexLabel,  row,   0, 1, 1);
-    belowGaugesRight->addWidget(fuelMapFactorLabel, row++, 1, 1, 1);
-    belowGaugesRight->addWidget(fuelMapDisplay,     row,   0, 1, 2);
+    belowGaugesRight->setColumnMinimumWidth(0, 20);
+    belowGaugesRight->setColumnStretch(0, 0);
+    belowGaugesRight->addWidget(fuelMapIndexLabel,       row,   0, 1, 2);
+    belowGaugesRight->addWidget(fuelMapFactorLabel,      row++, 2, 1, 2);
+    belowGaugesRight->addWidget(fuelMapDisplay,          row++, 0, 1, 4);
+    belowGaugesRight->addWidget(fuelPumpRelayStateLed,   row,   0, 1, 1);
+    belowGaugesRight->addWidget(fuelPumpRelayStateLabel, row,   1, 1, 1);
 }
 
 /**
@@ -510,6 +519,7 @@ void MainWindow::onDataReady()
     float mainVoltage = cux->getMainVoltage();
     int mafReading = cux->getMAFReading() * 100;
     int idleBypassPos = cux->getIdleBypassPos() * 100;
+    bool fuelPumpRelay = cux->getFuelPumpRelayState();
 
     int newFuelMapIndex = cux->getCurrentFuelMapIndex();
     int newFuelMapRow = cux->getFuelMapRowIndex();
@@ -602,6 +612,7 @@ void MainWindow::onDataReady()
     mafReadingBar->setValue(mafReading);
     idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
+    fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
 
     switch (gearReading)
     {
@@ -811,6 +822,7 @@ void MainWindow::onDisconnect()
     idleBypassPosBar->setValue(0);
     voltage->setText("");
     gear->setText("");
+    fuelPumpRelayStateLed->setChecked(false);
 
     currentFuelMapIndex = -1;
     currentFuelMapRow = -1;
@@ -1032,3 +1044,4 @@ void MainWindow::onPROMImageReadFailed()
     QMessageBox::warning(this, "Error",
         "Communications error. PROM image could not be read.", QMessageBox::Ok);
 }
+

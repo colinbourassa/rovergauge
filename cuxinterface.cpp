@@ -29,6 +29,7 @@ CUXInterface::CUXInterface(QString device, int interval, QObject *parent) :
     currentFuelMapColumnIndex(0),
     mafReading(0.0),
     idleBypassPos(0.0),
+    fuelPumpRelayOn(false),
     promImage(0),
     fuelMapAdjFactor(0)
 {
@@ -348,6 +349,9 @@ void CUXInterface::pollEcu()
         success |= cux->getFuelTemp(fuelTempF);
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
 
+        // this one's done separately, since it's way at the bottom of memory
+        success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
+
         if (success)
         {
             emit readSuccess();
@@ -535,4 +539,13 @@ int CUXInterface::getFuelMapAdjustmentFactor()
 float CUXInterface::getIdleBypassPos()
 {
     return idleBypassPos;
+}
+
+/**
+ * Returns the last-read fuel pump relay state.
+ * @return Last-read fuel pump relay state
+ */
+bool CUXInterface::getFuelPumpRelayState()
+{
+    return fuelPumpRelayOn;
 }

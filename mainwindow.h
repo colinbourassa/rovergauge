@@ -119,6 +119,8 @@ private:
     QLabel *fuelMapIndexLabel;
     QLabel *fuelMapFactorLabel;
     QTableWidget *fuelMapDisplay;
+    QLabel *fuelPumpRelayStateLabel;
+    QLedIndicator *fuelPumpRelayStateLed;
 
     QLabel *logFileNameLabel;
     QLineEdit *logFileNameBox;

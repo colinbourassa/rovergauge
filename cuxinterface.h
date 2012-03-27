@@ -40,6 +40,7 @@ public:
     int getFuelMapColumnIndex();
     float getMAFReading();
     float getIdleBypassPos();
+    bool getFuelPumpRelayState();
     QByteArray* getPROMImage();
 
     void cancelRead();
@@ -94,6 +95,7 @@ private:
     uint8_t currentFuelMapColumnIndex;
     float mafReading;
     float idleBypassPos;
+    bool fuelPumpRelayOn;
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;
