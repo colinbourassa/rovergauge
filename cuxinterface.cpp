@@ -77,6 +77,24 @@ void CUXInterface::onFaultCodesRequested()
 }
 
 /**
+ * Clears the block of fault codes.
+ */
+void CUXInterface::onFaultCodesClearRequested()
+{
+    if (cux != 0 &&
+        cux->connect(deviceName.toStdString()) &&
+        cux->clearFaultCodes() &&
+        cux->getFaultCodes(faultCodes))
+    {
+        emit faultCodesClearSuccess(faultCodes);
+    }
+    else
+    {
+        emit faultCodesClearFailure();
+    }
+}
+
+/**
  * Reads the entire 16KB PROM.
  */
 void CUXInterface::onReadPROMImageRequested()

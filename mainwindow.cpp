@@ -431,6 +431,10 @@ void MainWindow::onFaultCodesReady()
 {
     Comm14CUXFaultCodes faultCodes = cux->getFaultCodes();
     FaultCodeDialog faultDialog(this->windowTitle(), faultCodes);
+    connect(&faultDialog, SIGNAL(clearFaultCodes()), cux, SLOT(onFaultCodesClearRequested()));
+    connect(cux, SIGNAL(faultCodesClearSuccess(Comm14CUXFaultCodes)),
+            &faultDialog, SLOT(onFaultClearSuccess(Comm14CUXFaultCodes)));
+    connect(cux, SIGNAL(faultCodesClearFailure()), &faultDialog, SLOT(onFaultClearFailure()));
     faultDialog.exec();
 }
 

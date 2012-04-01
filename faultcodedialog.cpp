@@ -1,3 +1,4 @@
+#include <QMessageBox>
 #include "faultcodedialog.h"
 
 /**
@@ -7,6 +8,7 @@
 FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
     rows(5)
 {
+    qRegisterMetaType<Comm14CUXFaultCodes>("Comm14CUXFaultCodes");
     this->setWindowTitle(title);
     populateFaultList();
     setupWidgets();
@@ -18,7 +20,25 @@ FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
  */
 FaultCodeDialog::~FaultCodeDialog()
 {
+}
 
+/**
+ * Displays a message box with an error message about failure to clear fault codes.
+ */
+void FaultCodeDialog::onFaultClearFailure()
+{
+    QMessageBox::warning(this, "Error", "Unable to clear fault codes. Check connections.",
+        QMessageBox::Ok);
+}
+
+/**
+ * Displays a message box indicating that fault codes were successfully cleared, and
+ * sets the fault LEDs to match the new set of codes.
+ */
+void FaultCodeDialog::onFaultClearSuccess(Comm14CUXFaultCodes faultCodes)
+{
+    QMessageBox::information(this, "Success", "Successfully cleared fault codes.", QMessageBox::Ok);
+    lightLEDs(faultCodes);
 }
 
 /**
@@ -80,8 +100,12 @@ void FaultCodeDialog::setupWidgets()
         position++;
     }
 
+    clearButton = new QPushButton("Clear codes", this);
+    grid->addWidget(clearButton, rows-1, (position/rows*2)+1, Qt::AlignCenter);
+    connect(clearButton, SIGNAL(clicked()), this, SIGNAL(clearFaultCodes()));
+
     closeButton = new QPushButton("Close", this);
-    grid->addWidget(closeButton, rows-1, (position/rows*2)+1, Qt::AlignCenter);
+    grid->addWidget(closeButton, rows, (position/rows*2)+1, Qt::AlignCenter);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
@@ -119,4 +143,3 @@ void FaultCodeDialog::accept()
 {
     done(QDialog::Accepted);
 }
-

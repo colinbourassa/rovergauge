@@ -43,9 +43,18 @@ enum FaultCode
  */
 class FaultCodeDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     FaultCodeDialog(QString title, Comm14CUXFaultCodes faults);
     ~FaultCodeDialog();
+
+signals:
+    void clearFaultCodes();
+
+public slots:
+    void onFaultClearSuccess(Comm14CUXFaultCodes faultCodes);
+    void onFaultClearFailure();
 
 protected:
     void accept();
@@ -53,6 +62,7 @@ protected:
 private:
     QGridLayout *grid;
     QPushButton *closeButton;
+    QPushButton *clearButton;
 
     QMap<FaultCode, QString> faultNames;
     QMap<FaultCode, QLedIndicator*> faultLights;

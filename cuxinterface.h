@@ -49,6 +49,7 @@ public slots:
     void onParentThreadStarted();
     void onParentThreadFinished();
     void onFaultCodesRequested();
+    void onFaultCodesClearRequested();
     void onFuelMapRequested(int fuelMapId);
     void onReadPROMImageRequested();
     void onStartPollingRequest();
@@ -62,6 +63,8 @@ signals:
     void readSuccess();
     void faultCodesReady();
     void faultCodesReadFailed();
+    void faultCodesClearSuccess(Comm14CUXFaultCodes faultCodes);
+    void faultCodesClearFailure();
     void fuelMapReady(int fuelMapId);
     void fuelMapReadFailed(int fuelMapId);
     void promImageReady();

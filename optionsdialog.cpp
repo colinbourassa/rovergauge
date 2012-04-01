@@ -7,7 +7,6 @@
  */
 OptionsDialog::OptionsDialog(QString title) :
     serialDeviceChanged(false),
-    settingsFileName("settings.ini"),
     settingsGroupName("Settings"),
     settingSerialDev("SerialDevice"),
     settingPollIntervalMSecs("PollIntervalMilliseconds"),
@@ -152,7 +151,7 @@ void OptionsDialog::accept()
  */
 void OptionsDialog::readSettings()
 {
-    QSettings settings(settingsFileName, QSettings::IniFormat);
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "RoverGauge");
 
     settings.beginGroup(settingsGroupName);
     serialDeviceName = settings.value(settingSerialDev, "").toString();
@@ -170,7 +169,7 @@ void OptionsDialog::readSettings()
  */
 void OptionsDialog::writeSettings()
 {
-    QSettings settings(settingsFileName, QSettings::IniFormat);
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "RoverGauge");
 
     settings.beginGroup(settingsGroupName);
     settings.setValue(settingSerialDev, serialDeviceName);
