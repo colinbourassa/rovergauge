@@ -7,12 +7,14 @@
 #include <QHash>
 #include <QByteArray>
 #include "comm14cux.h"
+#include "commonunits.h"
 
 class CUXInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit CUXInterface(QString device, int interval, QObject *parent = 0);
+    explicit CUXInterface(QString device, int interval, SpeedUnits sUnits,
+                          TemperatureUnits tUnits, QObject *parent = 0);
     ~CUXInterface();
 
     void setSerialDevice(QString device);
@@ -24,10 +26,10 @@ public:
     bool isConnected();
     void disconnectFromECU();
 
-    int getRoadSpeedMPH();
+    int getRoadSpeed();
     int getEngineSpeedRPM();
-    int getCoolantTempF();
-    int getFuelTempF();
+    int getCoolantTemp();
+    int getFuelTemp();
     float getThrottlePos();
     Comm14CUXGear getGear();
     Comm14CUXFaultCodes getFaultCodes();
@@ -42,6 +44,9 @@ public:
     float getIdleBypassPos();
     bool getFuelPumpRelayState();
     QByteArray* getPROMImage();
+
+    void setSpeedUnits(SpeedUnits units);
+    void setTemperatureUnits(TemperatureUnits units);
 
     void cancelRead();
 
@@ -104,9 +109,13 @@ private:
     QHash<int, QByteArray*> fuelMaps;
     uint16_t fuelMapAdjFactor;
 
+    SpeedUnits speedUnits;
+    TemperatureUnits tempUnits;
+
     void pollEcu();
     bool connectToECU();
+    int convertSpeed(int speedMph);
+    int convertTemperature(int tempF);
 };
 
 #endif // CUXINTERFACE_H
-

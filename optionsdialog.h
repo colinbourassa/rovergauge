@@ -13,19 +13,7 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QString>
-
-enum SpeedUnits
-{
-    MPH = 0,
-    FPS = 1,
-    KPH = 2
-};
-
-enum TemperatureUnits
-{
-    Fahrenheit = 0,
-    Celcius    = 1
-};
+#include "commonunits.h"
 
 class OptionsDialog : public QDialog
 {

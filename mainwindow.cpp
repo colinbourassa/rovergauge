@@ -21,9 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
       options(0),
       aboutBox(0),
       pleaseWaitBox(0),
-      logDirectory("logs"),
-      logExtension(".log"),
-      logToFile(false),
       currentFuelMapIndex(-1),
       currentFuelMapRow(-1),
       currentFuelMapCol(-1)
@@ -50,8 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     tempLimits->insert(Celcius, qMakePair(80, 98));
 
     options = new OptionsDialog(this->windowTitle());
+    cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds(),
+                           options->getSpeedUnits(), options->getTemperatureUnits());
+    logger = new Logger(cux);
 
-    cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds());
     connect(cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
     connect(cux, SIGNAL(connected()), this, SLOT(onConnect()));
     connect(cux, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
@@ -285,23 +284,23 @@ void MainWindow::createWidgets()
     int tempMin = tempRange->value(tempUnits).first;
     int tempMax = tempRange->value(tempUnits).second;
 
-    waterTemp = new ManoMeter(this);
-    waterTemp->setValue(tempMin);
-    waterTemp->setMaximum(tempMax);
-    waterTemp->setMinimum(tempMin);
-    waterTemp->setSuffix(tempUnitSuffix->value(tempUnits));
-    waterTemp->setNominal(tempLimits->value(tempUnits).first);
-    waterTemp->setCritical(tempLimits->value(tempUnits).second);
+    waterTempGauge = new ManoMeter(this);
+    waterTempGauge->setValue(tempMin);
+    waterTempGauge->setMaximum(tempMax);
+    waterTempGauge->setMinimum(tempMin);
+    waterTempGauge->setSuffix(tempUnitSuffix->value(tempUnits));
+    waterTempGauge->setNominal(tempLimits->value(tempUnits).first);
+    waterTempGauge->setCritical(tempLimits->value(tempUnits).second);
 
     waterTempLabel = new QLabel("Engine Temperature", this);
 
-    fuelTemp = new ManoMeter(this);
-    fuelTemp->setValue(tempMin);
-    fuelTemp->setMaximum(tempMax);
-    fuelTemp->setMinimum(tempMin);
-    fuelTemp->setSuffix(tempUnitSuffix->value(tempUnits));
-    fuelTemp->setNominal(10000.0);
-    fuelTemp->setCritical(10000.0);
+    fuelTempGauge = new ManoMeter(this);
+    fuelTempGauge->setValue(tempMin);
+    fuelTempGauge->setMaximum(tempMax);
+    fuelTempGauge->setMinimum(tempMin);
+    fuelTempGauge->setSuffix(tempUnitSuffix->value(tempUnits));
+    fuelTempGauge->setNominal(10000.0);
+    fuelTempGauge->setCritical(10000.0);
 
     fuelTempLabel = new QLabel("Fuel Temperature", this);
 }
@@ -321,10 +320,10 @@ void MainWindow::placeWidgets()
     speedoLayout->addWidget(speedo);
     revCounterLayout->addWidget(revCounter);
 
-    waterTempLayout->addWidget(waterTemp);
+    waterTempLayout->addWidget(waterTempGauge);
     waterTempLayout->addWidget(waterTempLabel, 0, Qt::AlignCenter);
 
-    fuelTempLayout->addWidget(fuelTemp);
+    fuelTempLayout->addWidget(fuelTempGauge);
     fuelTempLayout->addWidget(fuelTempLabel, 0, Qt::AlignCenter);
 
     unsigned char row = 0;
@@ -513,11 +512,10 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
-    TemperatureUnits tempUnits = options->getTemperatureUnits();
-    int roadSpeedConv = convertSpeed(cux->getRoadSpeedMPH(), options->getSpeedUnits());
+    int roadSpeed = cux->getRoadSpeed();
     int engineSpeedRPM = cux->getEngineSpeedRPM();
-    int waterTempConv = convertTemperature(cux->getCoolantTempF(), tempUnits);
-    int fuelTempConv = convertTemperature(cux->getFuelTempF(), tempUnits);
+    int waterTemp = cux->getCoolantTemp();
+    int fuelTemp = cux->getFuelTemp();
     int throttlePos = cux->getThrottlePos() * 100;
     Comm14CUXGear gearReading = cux->getGear();
     float mainVoltage = cux->getMainVoltage();
@@ -608,10 +606,10 @@ void MainWindow::onDataReady()
         idleBypassPos = idleBypassPosBar->maximum();
     }
 
-    speedo->setValue(roadSpeedConv);
+    speedo->setValue(roadSpeed);
     revCounter->setValue(engineSpeedRPM);
-    waterTemp->setValue(waterTempConv);
-    fuelTemp->setValue(fuelTempConv);
+    waterTempGauge->setValue(waterTemp);
+    fuelTempGauge->setValue(fuelTemp);
     throttleBar->setValue(throttlePos);
     mafReadingBar->setValue(mafReading);
     idleBypassPosBar->setValue(idleBypassPos);
@@ -635,61 +633,7 @@ void MainWindow::onDataReady()
             break;
     }
 
-    if (logToFile && (logFileStream.status() == QTextStream::Ok))
-    {
-        logFileStream << roadSpeedConv << "," << engineSpeedRPM << "," << waterTempConv << ","
-                      << fuelTempConv << "," << throttlePos << "," << mainVoltage << ","
-                      << currentFuelMapIndex << "," << currentFuelMapRow << ","
-                      << currentFuelMapCol << endl;
-    }
-}
-
-/**
- * Converts speed in miles per hour to the desired units.
- * @param speedMph Speed in miles per hour
- * @param desiredUnits Target units for the conversion
- * @return Speed in the desired units
- */
-int MainWindow::convertSpeed(int speedMph, SpeedUnits desiredUnits)
-{
-    double speed = speedMph;
-
-    switch (desiredUnits)
-    {
-    case FPS:
-        speed *= 1.46666667;
-        break;
-    case KPH:
-        speed *= 1.609344;
-        break;
-    default:
-        break;
-    }
-
-    return (int)speed;
-}
-
-/**
- * Converts temperature in Fahrenheit degrees to the desired units.
- * @param tempF Temperature in Fahrenheit degrees
- * @param desiredUnits Target units for the conversion
- * @return Temperature in the desired units
- */
-int MainWindow::convertTemperature(int tempF, TemperatureUnits desiredUnits)
-{
-    double temp = tempF;
-
-    switch (desiredUnits)
-    {
-    case Celcius:
-        temp = (temp - 32) * (0.5555556);
-        break;
-    case Fahrenheit:
-    default:
-        break;
-    }
-
-    return (int)temp;
+    logger->logData();
 }
 
 /**
@@ -727,8 +671,9 @@ void MainWindow::onEditOptionsClicked()
     if (options->exec() == QDialog::Accepted)
     {
         // update the speedo and tach appropriately
+        SpeedUnits speedUnits = options->getSpeedUnits();
         speedo->setMaximum((double)options->getSpeedMax());
-        speedo->setSuffix(speedUnitSuffix->value(options->getSpeedUnits()));
+        speedo->setSuffix(speedUnitSuffix->value(speedUnits));
         speedo->repaint();
 
         revCounter->setCritical(options->getRedline());
@@ -741,19 +686,22 @@ void MainWindow::onEditOptionsClicked()
         int tempNominal = tempLimits->value(tempUnits).first;
         int tempCritical = tempLimits->value(tempUnits).second;
 
-        fuelTemp->setSuffix(tempUnitStr);
-        fuelTemp->setValue(tempMin);
-        fuelTemp->setMaximum(tempMax);
-        fuelTemp->setMinimum(tempMin);
-        fuelTemp->repaint();
+        fuelTempGauge->setSuffix(tempUnitStr);
+        fuelTempGauge->setValue(tempMin);
+        fuelTempGauge->setMaximum(tempMax);
+        fuelTempGauge->setMinimum(tempMin);
+        fuelTempGauge->repaint();
 
-        waterTemp->setSuffix(tempUnitStr);
-        waterTemp->setValue(tempMin);
-        waterTemp->setMaximum(tempMax);
-        waterTemp->setMinimum(tempMin);
-        waterTemp->setNominal(tempNominal);
-        waterTemp->setCritical(tempCritical);
-        waterTemp->repaint();
+        waterTempGauge->setSuffix(tempUnitStr);
+        waterTempGauge->setValue(tempMin);
+        waterTempGauge->setMaximum(tempMax);
+        waterTempGauge->setMinimum(tempMin);
+        waterTempGauge->setNominal(tempNominal);
+        waterTempGauge->setCritical(tempCritical);
+        waterTempGauge->repaint();
+
+        cux->setSpeedUnits(speedUnits);
+        cux->setTemperatureUnits(tempUnits);
 
         // if the user changed the serial device name and/or the polling
         // interval, stop the timer, re-connect to the 14CUX (if neccessary),
@@ -781,7 +729,7 @@ void MainWindow::onEditOptionsClicked()
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    logFile.close();
+    logger->closeLog();
 
     if ((cuxThread != 0) && cuxThread->isRunning())
     {
@@ -819,8 +767,8 @@ void MainWindow::onDisconnect()
 
     speedo->setValue(0.0);
     revCounter->setValue(0.0);
-    waterTemp->setValue(waterTemp->minimum());
-    fuelTemp->setValue(fuelTemp->minimum());
+    waterTempGauge->setValue(waterTempGauge->minimum());
+    fuelTempGauge->setValue(fuelTempGauge->minimum());
     throttleBar->setValue(0);
     mafReadingBar->setValue(0);
     idleBypassPosBar->setValue(0);
@@ -858,39 +806,15 @@ void MainWindow::onReadSuccess()
  */
 void MainWindow::onStartLogging()
 {
-    // if the 'logs' directory exists, or if we're able to create it...
-    if (QDir(logDirectory).exists() ||
-        QDir().mkdir(logDirectory))
+    if (logger->openLog(logFileNameBox->text()))
     {
-        // set the name of the log file and open it for writing
-        QString logFilePath = logDirectory + QDir::separator() + logFileNameBox->text() + logExtension;
-        bool alreadyExists = QFileInfo(logFilePath).exists();
-        logFile.setFileName(logFilePath);
-        if (logFile.open(QFile::WriteOnly | QFile::Append))
-        {
-            logFileStream.setDevice(&logFile);
-            logToFile = true;
-
-            if (!alreadyExists)
-            {
-                logFileStream << "#roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
-                                 "throttlePos,mainVoltage,currentFuelMapIndex," <<
-                                 "currentFuelMapRow,currentFuelMapCol" << endl;
-            }
-
-            startLoggingButton->setEnabled(false);
-            stopLoggingButton->setEnabled(true);
-        }
-        else
-        {
-            QMessageBox::warning(this, "Error",
-                "Failed to open log file (" + logFilePath + ")", QMessageBox::Ok);
-        }
+        startLoggingButton->setEnabled(false);
+        stopLoggingButton->setEnabled(true);
     }
     else
     {
         QMessageBox::warning(this, "Error",
-            "Unable to create log file directory (\"" + logDirectory + "\")", QMessageBox::Ok);
+            "Failed to open log file (" + logger->getLogPath() + ")", QMessageBox::Ok);
     }
 }
 
@@ -899,8 +823,7 @@ void MainWindow::onStartLogging()
  */
 void MainWindow::onStopLogging()
 {
-    logFile.close();
-    logToFile = false;
+    logger->closeLog();
     stopLoggingButton->setEnabled(false);
     startLoggingButton->setEnabled(true);
 }

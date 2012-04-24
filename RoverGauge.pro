@@ -14,13 +14,16 @@ SOURCES += main.cpp \
     faultcodedialog.cpp \
     serialdevenumerator.cpp \
     cuxinterface.cpp \
-    aboutbox.cpp
+    aboutbox.cpp \
+    logger.cpp
 HEADERS += mainwindow.h \
     optionsdialog.h \
     faultcodedialog.h \
     serialdevenumerator.h \
     cuxinterface.h \
-    aboutbox.h
+    aboutbox.h \
+    logger.h \
+    commonunits.h
 FORMS += mainwindow.ui
 include(qledindicator/qledindicator.pri)
 include(analogwidgets/analogwidgets.pri)

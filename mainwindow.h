@@ -21,6 +21,7 @@
 #include "optionsdialog.h"
 #include "cuxinterface.h"
 #include "aboutbox.h"
+#include "logger.h"
 
 namespace Ui
 {
@@ -96,8 +97,8 @@ private:
 
     ManoMeter *speedo;
     ManoMeter *revCounter;
-    ManoMeter *waterTemp;
-    ManoMeter *fuelTemp;
+    ManoMeter *waterTempGauge;
+    ManoMeter *fuelTempGauge;
 
     QLabel *waterTempLabel;
     QLabel *fuelTempLabel;
@@ -133,11 +134,7 @@ private:
     AboutBox *aboutBox;
     QMessageBox *pleaseWaitBox;
 
-    QString logDirectory;
-    QString logExtension;
-    QFile logFile;
-    QTextStream logFileStream;
-    bool logToFile;
+    Logger *logger;
 
     QFrame *horizontalLineA;
     QFrame *horizontalLineB;
@@ -157,8 +154,6 @@ private:
     QHash<TemperatureUnits,QString> *tempUnitSuffix;
     QHash<TemperatureUnits,QPair<int,int> > *tempRange;
     QHash<TemperatureUnits,QPair<int,int> > *tempLimits;
-    int convertSpeed(int speedMph, SpeedUnits desiredUnits);
-    int convertTemperature(int tempF, TemperatureUnits desiredUnits);
 
     void populateFuelMapDisplay(QByteArray* data);
     QColor getColorForFuelMapCell(unsigned char value);

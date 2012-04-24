@@ -9,7 +9,8 @@
  *  with the 14CUX.
  * @param interval Interval in milliseconds at which to poll the 14CUX.
  */
-CUXInterface::CUXInterface(QString device, int interval, QObject *parent) :
+CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
+                           TemperatureUnits tUnits, QObject *parent) :
     QObject(parent),
     intervalMsecs(interval),
     deviceName(device),
@@ -31,7 +32,9 @@ CUXInterface::CUXInterface(QString device, int interval, QObject *parent) :
     idleBypassPos(0.0),
     fuelPumpRelayOn(false),
     promImage(0),
-    fuelMapAdjFactor(0)
+    fuelMapAdjFactor(0),
+    speedUnits(sUnits),
+    tempUnits(tUnits)
 {
 }
 
@@ -381,9 +384,9 @@ void CUXInterface::pollEcu()
         }
 
         int msecUntilNext = nextDue - QDateTime::currentMSecsSinceEpoch();
-        if (msecUntilNext < 10)
+        if (msecUntilNext < 0)
         {
-            msecUntilNext = 10;
+            msecUntilNext = 0;
         }
         timer->start(msecUntilNext);
     }
@@ -408,11 +411,11 @@ void CUXInterface::cancelRead()
 
 /**
  * Returns the last-read road speed value.
- * @return Last-read road speed in MPH.
+ * @return Last-read road speed in the desired units.
  */
-int CUXInterface::getRoadSpeedMPH()
+int CUXInterface::getRoadSpeed()
 {
-    return roadSpeedMPH;
+    return convertSpeed(roadSpeedMPH);
 }
 
 /**
@@ -426,20 +429,20 @@ int CUXInterface::getEngineSpeedRPM()
 
 /**
  * Returns the last-read coolant temperature value.
- * @return Last-read coolant temperature in degrees F
+ * @return Last-read coolant temperature in the desired units
  */
-int CUXInterface::getCoolantTempF()
+int CUXInterface::getCoolantTemp()
 {
-    return coolantTempF;
+    return convertTemperature(coolantTempF);
 }
 
 /**
  * Returns the last-read fuel temperature value.
- * @return Last-read fuel temperatures in degrees F
+ * @return Last-read fuel temperatures in the desired units
  */
-int CUXInterface::getFuelTempF()
+int CUXInterface::getFuelTemp()
 {
-    return fuelTempF;
+    return convertTemperature(fuelTempF);
 }
 
 /**
@@ -566,4 +569,68 @@ float CUXInterface::getIdleBypassPos()
 bool CUXInterface::getFuelPumpRelayState()
 {
     return fuelPumpRelayOn;
+}
+
+/**
+ * Sets the desired output units for temperature measurements
+ * @param units Desired units
+ */
+void CUXInterface::setSpeedUnits(SpeedUnits units)
+{
+    speedUnits = units;
+}
+
+/**
+ * Sets the desired output units for temperature measurements
+ * @param units Desired units
+ */
+void CUXInterface::setTemperatureUnits(TemperatureUnits units)
+{
+    tempUnits = units;
+}
+
+/**
+ * Converts speed in miles per hour to the desired units.
+ * @param speedMph Speed in miles per hour
+ * @return Speed in the desired units
+ */
+int CUXInterface::convertSpeed(int speedMph)
+{
+    double speed = speedMph;
+
+    switch (speedUnits)
+    {
+    case FPS:
+        speed *= 1.46666667;
+        break;
+    case KPH:
+        speed *= 1.609344;
+        break;
+    default:
+        break;
+    }
+
+    return (int)speed;
+}
+
+/**
+ * Converts temperature in Fahrenheit degrees to the desired units.
+ * @param tempF Temperature in Fahrenheit degrees
+ * @return Temperature in the desired units
+ */
+int CUXInterface::convertTemperature(int tempF)
+{
+    double temp = tempF;
+
+    switch (tempUnits)
+    {
+    case Celcius:
+        temp = (temp - 32) * (0.5555556);
+        break;
+    case Fahrenheit:
+    default:
+        break;
+    }
+
+    return (int)temp;
 }
