@@ -16,6 +16,7 @@
 #include <QTableWidget>
 #include <QHash>
 #include <QPair>
+#include <QTimer>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
@@ -56,6 +57,7 @@ signals:
     void requestFuelMapData(int fuelMapId);
     void requestPROMImage();
     void requestThreadShutdown();
+    void requestFuelPumpRun();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -122,6 +124,9 @@ private:
     QTableWidget *fuelMapDisplay;
     QLabel *fuelPumpRelayStateLabel;
     QLedIndicator *fuelPumpRelayStateLed;
+    QPushButton *fuelPumpOneshotButton;
+    QPushButton *fuelPumpContinuousButton;
+    QTimer *fuelPumpRefreshTimer;
 
     QLabel *logFileNameLabel;
     QLineEdit *logFileNameBox;
@@ -169,6 +174,9 @@ private slots:
     void onDisconnectClicked();
     void onStartLogging();
     void onStopLogging();
+    void onFuelPumpOneshot();
+    void onFuelPumpContinuous();
+    void onFuelPumpRefreshTimer();
 };
 
 #endif // MAINWINDOW_H

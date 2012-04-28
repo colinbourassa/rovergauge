@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
                            options->getSpeedUnits(), options->getTemperatureUnits());
     logger = new Logger(cux);
 
+    fuelPumpRefreshTimer = new QTimer(this);
+    fuelPumpRefreshTimer->setInterval(1000);
+
     connect(cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
     connect(cux, SIGNAL(connected()), this, SLOT(onConnect()));
     connect(cux, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
@@ -68,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(requestThreadShutdown()), cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(int)), cux, SLOT(onFuelMapRequested(int)));
     connect(this, SIGNAL(requestPROMImage()), cux, SLOT(onReadPROMImageRequested()));
+    connect(this, SIGNAL(requestFuelPumpRun()), cux, SLOT(onFuelPumpRunRequest()));
+    connect(fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRefreshTimer()));
 
     setWindowIcon(QIcon(":/icons/key.png"));
     setupWidgets();
@@ -253,6 +258,15 @@ void MainWindow::createWidgets()
     fuelPumpRelayStateLed->setOffColor2(QColor(0, 51, 0));
     fuelPumpRelayStateLed->setDisabled(true);
 
+    fuelPumpOneshotButton = new QPushButton("Run pump (one shot)");
+    fuelPumpOneshotButton->setEnabled(false);
+    connect(fuelPumpOneshotButton, SIGNAL(clicked()), this, SLOT(onFuelPumpOneshot()));
+
+    fuelPumpContinuousButton = new QPushButton("Run pump (continuous)");
+    fuelPumpContinuousButton->setEnabled(false);
+    fuelPumpContinuousButton->setCheckable(true);
+    connect(fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
+
     logFileNameLabel = new QLabel("Log file name:", this);
     logFileNameBox = new QLineEdit(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss"), this);
     startLoggingButton = new QPushButton("Start logging");
@@ -351,11 +365,13 @@ void MainWindow::placeWidgets()
     row = 0;
     belowGaugesRight->setColumnMinimumWidth(0, 20);
     belowGaugesRight->setColumnStretch(0, 0);
-    belowGaugesRight->addWidget(fuelMapIndexLabel,       row,   0, 1, 2);
-    belowGaugesRight->addWidget(fuelMapFactorLabel,      row++, 2, 1, 2);
-    belowGaugesRight->addWidget(fuelMapDisplay,          row++, 0, 1, 4);
-    belowGaugesRight->addWidget(fuelPumpRelayStateLed,   row,   0, 1, 1);
-    belowGaugesRight->addWidget(fuelPumpRelayStateLabel, row,   1, 1, 1);
+    belowGaugesRight->addWidget(fuelMapIndexLabel,        row,   0, 1, 2);
+    belowGaugesRight->addWidget(fuelMapFactorLabel,       row++, 2, 1, 2);
+    belowGaugesRight->addWidget(fuelMapDisplay,           row++, 0, 1, 4);
+    belowGaugesRight->addWidget(fuelPumpRelayStateLed,    row,   0, 1, 1);
+    belowGaugesRight->addWidget(fuelPumpRelayStateLabel,  row,   1, 1, 1);
+    belowGaugesRight->addWidget(fuelPumpOneshotButton,    row,   2, 1, 1);
+    belowGaugesRight->addWidget(fuelPumpContinuousButton, row,   3, 1, 1);
 }
 
 /**
@@ -751,6 +767,8 @@ void MainWindow::onConnect()
     statusBar()->showMessage("Connected");
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
+    fuelPumpOneshotButton->setEnabled(true);
+    fuelPumpContinuousButton->setEnabled(true);
 }
 
 /**
@@ -764,6 +782,8 @@ void MainWindow::onDisconnect()
     statusBar()->showMessage("Not connected");
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
+    fuelPumpOneshotButton->setEnabled(true);
+    fuelPumpContinuousButton->setEnabled(true);
 
     speedo->setValue(0.0);
     revCounter->setValue(0.0);
@@ -970,5 +990,41 @@ void MainWindow::onPROMImageReadFailed()
 
     QMessageBox::warning(this, "Error",
         "Communications error. PROM image could not be read.", QMessageBox::Ok);
+}
+
+/**
+ * Signals the worker thread to run the fuel pump.
+ */
+void MainWindow::onFuelPumpOneshot()
+{
+    emit requestFuelPumpRun();
+}
+
+/**
+ * Starts a timer that periodically re-sends the signal to run the fuel
+ * pump, thus keeping the pump running continuously.
+ */
+void MainWindow::onFuelPumpContinuous()
+{
+    if (fuelPumpContinuousButton->isChecked())
+    {
+        emit requestFuelPumpRun();
+        fuelPumpRefreshTimer->start();
+        fuelPumpOneshotButton->setEnabled(false);
+        fuelPumpContinuousButton->setText("");
+    }
+    else
+    {
+        fuelPumpRefreshTimer->stop();
+        fuelPumpOneshotButton->setEnabled(true);
+    }
+}
+
+/**
+ * Signals the worker thread to run the fuel pump.
+ */
+void MainWindow::onFuelPumpRefreshTimer()
+{
+    emit requestFuelPumpRun();
 }
 

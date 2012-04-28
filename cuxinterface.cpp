@@ -159,6 +159,17 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
 }
 
 /**
+ * Responds to a signal requesting that the fuel pump be run.
+ */
+void CUXInterface::onFuelPumpRunRequest()
+{
+    if ((cux != 0) && cux->connect(deviceName.toStdString()))
+    {
+        cux->runFuelPump();
+    }
+}
+
+/**
  * Attempts to open the serial device that is connected to the 14CUX.
  * @return True if serial device was opened successfully; false otherwise.
  */

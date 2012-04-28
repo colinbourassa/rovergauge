@@ -59,6 +59,7 @@ public slots:
     void onReadPROMImageRequested();
     void onStartPollingRequest();
     void onShutdownThreadRequest();
+    void onFuelPumpRunRequest();
 
 signals:
     void dataReady();
