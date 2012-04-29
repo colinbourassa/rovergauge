@@ -18,7 +18,7 @@
 class OptionsDialog : public QDialog
 {
 public:
-    OptionsDialog(QString title);
+    OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
     bool getSerialDeviceChanged();
     int getPollIntervalMilliseconds();

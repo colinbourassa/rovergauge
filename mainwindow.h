@@ -20,6 +20,7 @@
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
+#include "idleaircontroldialog.h"
 #include "cuxinterface.h"
 #include "aboutbox.h"
 #include "logger.h"
@@ -71,6 +72,7 @@ private:
     QMenu *optionsMenu;
     QAction *editOptionsAction;
     QAction *showFaultsAction;
+    QAction *showIdleAirControlDialog;
     QMenu *helpMenu;
     QAction *aboutAction;
 
@@ -136,6 +138,7 @@ private:
     QThread *cuxThread;
     CUXInterface *cux;
     OptionsDialog *options;
+    IdleAirControlDialog *iacDialog;
     AboutBox *aboutBox;
     QMessageBox *pleaseWaitBox;
 
@@ -177,6 +180,7 @@ private slots:
     void onFuelPumpOneshot();
     void onFuelPumpContinuous();
     void onFuelPumpRefreshTimer();
+    void onIdleAirControlClicked();
 };
 
 #endif // MAINWINDOW_H

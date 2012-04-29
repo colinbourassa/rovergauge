@@ -5,7 +5,7 @@
 /**
  * Constructor; sets up the options-dialog UI and sets settings-file field names.
  */
-OptionsDialog::OptionsDialog(QString title) :
+OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     serialDeviceChanged(false),
     settingsGroupName("Settings"),
     settingSerialDev("SerialDevice"),

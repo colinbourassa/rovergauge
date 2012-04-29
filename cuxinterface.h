@@ -60,6 +60,7 @@ public slots:
     void onStartPollingRequest();
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
+    void onIdleAirControlMovementRequest(int direction, int steps);
 
 signals:
     void dataReady();

@@ -170,6 +170,20 @@ void CUXInterface::onFuelPumpRunRequest()
 }
 
 /**
+ * Responds to a signal requesting that the idle air control valve be moved.
+ * @param direction Direction of travel for the idle air control valve;
+ *  0 to open and 1 to close
+ * @param steps Number of steps to move the valve in the specified direction
+ */
+void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
+{
+    if ((cux != 0) && cux->connect(deviceName.toStdString()))
+    {
+        cux->driveIdleAirControlMotor((uint8_t)direction, (uint8_t)steps);
+    }
+}
+
+/**
  * Attempts to open the serial device that is connected to the 14CUX.
  * @return True if serial device was opened successfully; false otherwise.
  */

@@ -46,9 +46,14 @@ MainWindow::MainWindow(QWidget *parent)
     tempLimits->insert(Fahrenheit, qMakePair(180, 210));
     tempLimits->insert(Celcius, qMakePair(80, 98));
 
-    options = new OptionsDialog(this->windowTitle());
+    options = new OptionsDialog(this->windowTitle(), this);
     cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds(),
                            options->getSpeedUnits(), options->getTemperatureUnits());
+
+    iacDialog = new IdleAirControlDialog(this->windowTitle(), this);
+    connect(iacDialog, SIGNAL(requestIdleAirControlMovement(int,int)),
+            cux, SLOT(onIdleAirControlMovementRequest(int,int)));
+
     logger = new Logger(cux);
 
     fuelPumpRefreshTimer = new QTimer(this);
@@ -172,6 +177,8 @@ void MainWindow::createWidgets()
     showFaultsAction = optionsMenu->addAction("Show fault &codes...");
     showFaultsAction->setIcon(style()->standardIcon(QStyle::SP_DialogNoButton));
     connect(showFaultsAction, SIGNAL(triggered()), cux, SLOT(onFaultCodesRequested()));
+    showIdleAirControlDialog = optionsMenu->addAction("&Idle air control...");
+    connect(showIdleAirControlDialog, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
     editOptionsAction = optionsMenu->addAction("&Edit settings...");
     editOptionsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));    
     connect(editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
@@ -1011,7 +1018,6 @@ void MainWindow::onFuelPumpContinuous()
         emit requestFuelPumpRun();
         fuelPumpRefreshTimer->start();
         fuelPumpOneshotButton->setEnabled(false);
-        fuelPumpContinuousButton->setText("");
     }
     else
     {
@@ -1028,3 +1034,10 @@ void MainWindow::onFuelPumpRefreshTimer()
     emit requestFuelPumpRun();
 }
 
+/**
+ * Displays the idle-air-control dialog.
+ */
+void MainWindow::onIdleAirControlClicked()
+{
+    iacDialog->show();
+}

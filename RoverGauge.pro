@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     serialdevenumerator.cpp \
     cuxinterface.cpp \
     aboutbox.cpp \
-    logger.cpp
+    logger.cpp \
+    idleaircontroldialog.cpp
 HEADERS += mainwindow.h \
     optionsdialog.h \
     faultcodedialog.h \
@@ -23,7 +24,8 @@ HEADERS += mainwindow.h \
     cuxinterface.h \
     aboutbox.h \
     logger.h \
-    commonunits.h
+    commonunits.h \
+    idleaircontroldialog.h
 FORMS += mainwindow.ui
 include(qledindicator/qledindicator.pri)
 include(analogwidgets/analogwidgets.pri)
