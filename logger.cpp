@@ -36,7 +36,8 @@ bool Logger::openLog(QString fileName)
             {
                 logFileStream << "#time,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                                  "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
-                                 "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol" << endl;
+                                 "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
+                                 "targetIdle" << endl;
             }
 
             success = true;
@@ -73,7 +74,8 @@ void Logger::logData()
                       << cux->getMainVoltage() << ","
                       << cux->getCurrentFuelMapIndex() << ","
                       << cux->getFuelMapRowIndex() << ","
-                      << cux->getFuelMapColumnIndex()
+                      << cux->getFuelMapColumnIndex() << ","
+                      << cux->getTargetIdleSpeed()
                       << endl;
     }
 }
@@ -86,3 +88,4 @@ QString Logger::getLogPath()
 {
     return lastAttemptedLog;
 }
+

@@ -28,6 +28,7 @@ public:
 
     int getRoadSpeed();
     int getEngineSpeedRPM();
+    int getTargetIdleSpeed();
     int getCoolantTemp();
     int getFuelTemp();
     float getThrottlePos();
@@ -95,6 +96,7 @@ private:
 
     uint16_t roadSpeedMPH;
     uint16_t engineSpeedRPM;
+    uint16_t targetIdleSpeed;
     int16_t coolantTempF;
     int16_t fuelTempF;
     float throttlePos;

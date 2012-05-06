@@ -20,6 +20,7 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     shutdownThread(false),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
+    targetIdleSpeed(0),
     coolantTempF(0),
     fuelTempF(0),
     throttlePos(0.0),
@@ -394,6 +395,7 @@ void CUXInterface::pollEcu()
         success |= cux->getRoadSpeed(roadSpeedMPH);
         success |= cux->getFuelTemp(fuelTempF);
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
+        success |= cux->getTargetIdle(targetIdleSpeed);
 
         // this one's done separately, since it's way at the bottom of memory
         success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
@@ -450,6 +452,15 @@ int CUXInterface::getRoadSpeed()
 int CUXInterface::getEngineSpeedRPM()
 {
     return engineSpeedRPM;
+}
+
+/**
+ * Returns the last-read target idle speed value.
+ * @return Last-read target idle speed in RPM
+ */
+int CUXInterface::getTargetIdleSpeed()
+{
+    return targetIdleSpeed;
 }
 
 /**

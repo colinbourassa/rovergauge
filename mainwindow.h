@@ -116,6 +116,9 @@ private:
     QProgressBar *idleBypassPosBar;
     QLabel *idleBypassLabel;
 
+    QLabel *targetIdleLabel;
+    QLabel *targetIdle;
+
     QLabel *gearLabel;
     QLabel *gear;
     QLabel *voltageLabel;

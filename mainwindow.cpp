@@ -229,12 +229,14 @@ void MainWindow::createWidgets()
     idleBypassPosBar->setValue(0);
     idleBypassPosBar->setMinimumWidth(300);
 
+    targetIdleLabel = new QLabel("Target idle RPM:", this);
+    targetIdle = new QLabel("", this);
+
     gearLabel = new QLabel("Selected gear:", this);
     gear = new QLabel("", this);
 
     voltageLabel = new QLabel("Main voltage:", this);
     voltage = new QLabel("", this);
-    voltage->setStyleSheet("font-size: 16px;");
 
     fuelMapIndexLabel = new QLabel("Current fuel map:", this);
     fuelMapFactorLabel = new QLabel("Adjustment factor:", this);
@@ -354,6 +356,9 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(mafReadingBar,      row++, 1, 1, 3);
     belowGaugesLeft->addWidget(idleBypassLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
+
+    belowGaugesLeft->addWidget(targetIdleLabel,    row,   0,        Qt::AlignRight);
+    belowGaugesLeft->addWidget(targetIdle,         row++, 1, 1, 3);
 
     belowGaugesLeft->addWidget(gearLabel,          row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(gear,               row++, 1, 1, 3);
@@ -537,6 +542,7 @@ void MainWindow::onDataReady()
 {
     int roadSpeed = cux->getRoadSpeed();
     int engineSpeedRPM = cux->getEngineSpeedRPM();
+    int targetIdleSpeedRPM = cux->getTargetIdleSpeed();
     int waterTemp = cux->getCoolantTemp();
     int fuelTemp = cux->getFuelTemp();
     int throttlePos = cux->getThrottlePos() * 100;
@@ -638,6 +644,14 @@ void MainWindow::onDataReady()
     idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
     fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
+    if (targetIdleSpeedRPM > 0)
+    {
+        targetIdle->setText(QString::number(targetIdleSpeedRPM));
+    }
+    else
+    {
+        targetIdle->setText("");
+    }
 
     switch (gearReading)
     {
