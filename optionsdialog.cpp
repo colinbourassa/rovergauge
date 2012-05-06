@@ -110,11 +110,7 @@ void OptionsDialog::setupWidgets()
  */
 void OptionsDialog::accept()
 {
-#ifdef WIN32
-    QString newSerialDeviceName = QString("\\\\.\\%1").arg(serialDeviceBox->currentText());
-#else
     QString newSerialDeviceName = serialDeviceBox->currentText();
-#endif
 
     // set a flag if the serial device has been changed;
     // the main application needs to know if it should
@@ -215,7 +211,11 @@ int OptionsDialog::getPollIntervalMilliseconds()
  */
 QString OptionsDialog::getSerialDeviceName()
 {
+#ifdef WIN32
+    return QString("\\\\.\\%1").arg(serialDeviceName);
+#else
     return serialDeviceName;
+#endif
 }
 
 /**

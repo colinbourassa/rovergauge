@@ -803,8 +803,8 @@ void MainWindow::onDisconnect()
     statusBar()->showMessage("Not connected");
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
-    fuelPumpOneshotButton->setEnabled(true);
-    fuelPumpContinuousButton->setEnabled(true);
+    fuelPumpOneshotButton->setEnabled(false);
+    fuelPumpContinuousButton->setEnabled(false);
 
     speedo->setValue(0.0);
     revCounter->setValue(0.0);
