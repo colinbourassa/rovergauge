@@ -32,8 +32,8 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     mafReading(0.0),
     idleBypassPos(0.0),
     fuelPumpRelayOn(false),
-    leftFuelTrim(0),
-    rightFuelTrim(0),
+    leftLambdaTrim(0),
+    rightLambdaTrim(0),
     promImage(0),
     fuelMapAdjFactor(0),
     speedUnits(sUnits),
@@ -381,8 +381,8 @@ void CUXInterface::pollEcu()
         bool success = false;
 
         // closely-grouped 16-bit values read consecutively for read efficiency...
-        success |= cux->getFuelTrim(Comm14CUXBank_Left, leftFuelTrim);
-        success |= cux->getFuelTrim(Comm14CUXBank_Right, rightFuelTrim);
+        success |= cux->getLambdaTrim(Comm14CUXBank_Left, leftLambdaTrim);
+        success |= cux->getLambdaTrim(Comm14CUXBank_Right, rightLambdaTrim);
         success |= cux->getMainVoltage(mainVoltage);
         success |= cux->getMAFReading(mafReading);
         success |= cux->getThrottlePosition(throttlePos);
@@ -629,14 +629,22 @@ void CUXInterface::setTemperatureUnits(TemperatureUnits units)
     tempUnits = units;
 }
 
-int CUXInterface::getLeftFuelTrim()
+/**
+ * Returns the last-read lambda-based fuel trim for the left bank
+ * @return Last-read lambda-based fuel trim
+ */
+int CUXInterface::getLeftLambdaTrim()
 {
-    return leftFuelTrim;
+    return leftLambdaTrim;
 }
 
-int CUXInterface::getRightFuelTrim()
+/**
+ * Returns the last-read lambda-based fuel trim for the right bank
+ * @return Last-read lambda-based fuel trim
+ */
+int CUXInterface::getRightLambdaTrim()
 {
-    return rightFuelTrim;
+    return rightLambdaTrim;
 }
 
 /**

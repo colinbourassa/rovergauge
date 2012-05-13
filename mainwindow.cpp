@@ -569,8 +569,8 @@ void MainWindow::onDataReady()
     int mafReading = cux->getMAFReading() * 100;
     int idleBypassPos = cux->getIdleBypassPos() * 100;
     bool fuelPumpRelay = cux->getFuelPumpRelayState();
-    int leftFuelTrim = cux->getLeftFuelTrim();
-    int rightFuelTrim = cux->getRightFuelTrim();
+    int leftLambdaTrim = cux->getLeftLambdaTrim();
+    int rightLambdaTrim = cux->getRightLambdaTrim();
 
     int newFuelMapIndex = cux->getCurrentFuelMapIndex();
     int newFuelMapRow = cux->getFuelMapRowIndex();
@@ -664,25 +664,25 @@ void MainWindow::onDataReady()
     idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
     fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
-    leftFuelTrimBar->setValue(leftFuelTrim);
-    rightFuelTrimBar->setValue(rightFuelTrim);
+    leftFuelTrimBar->setValue(leftLambdaTrim);
+    rightFuelTrimBar->setValue(rightLambdaTrim);
 
-    if (leftFuelTrim >= 0)
+    if (leftLambdaTrim >= 0)
     {
-        leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftFuelTrim * 100 / leftFuelTrimBar->maximum()));
+        leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->maximum()));
     }
     else
     {
-        leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftFuelTrim * 100 / leftFuelTrimBar->minimum()));
+        leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->minimum()));
     }
 
-    if (rightFuelTrim >= 0)
+    if (rightLambdaTrim >= 0)
     {
-        rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightFuelTrim * 100 / rightFuelTrimBar->maximum()));
+        rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->maximum()));
     }
     else
     {
-        rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightFuelTrim * 100 / rightFuelTrimBar->minimum()));
+        rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->minimum()));
     }
 
     if (targetIdleSpeedRPM > 0)
@@ -857,6 +857,10 @@ void MainWindow::onDisconnect()
     voltage->setText("");
     gear->setText("");
     fuelPumpRelayStateLed->setChecked(false);
+    leftFuelTrimBar->setValue(0);
+    leftFuelTrimBarLabel->setText("+0%");
+    rightFuelTrimBar->setValue(0);
+    rightFuelTrimBarLabel->setText("+0%");
 
     currentFuelMapIndex = -1;
     currentFuelMapRow = -1;

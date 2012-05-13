@@ -37,7 +37,7 @@ bool Logger::openLog(QString fileName)
                 logFileStream << "#time,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                                  "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                                  "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                                 "targetIdle" << endl;
+                                 "targetIdle,leftLambdaTrim,rightLambdaTrim" << endl;
             }
 
             success = true;
@@ -75,7 +75,9 @@ void Logger::logData()
                       << cux->getCurrentFuelMapIndex() << ","
                       << cux->getFuelMapRowIndex() << ","
                       << cux->getFuelMapColumnIndex() << ","
-                      << cux->getTargetIdleSpeed()
+                      << cux->getTargetIdleSpeed() << ","
+                      << cux->getLeftLambdaTrim() << ","
+                      << cux->getRightLambdaTrim()
                       << endl;
     }
 }
