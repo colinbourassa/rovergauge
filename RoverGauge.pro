@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     cuxinterface.cpp \
     aboutbox.cpp \
     logger.cpp \
-    idleaircontroldialog.cpp
+    idleaircontroldialog.cpp \
+    fueltrimbar.cpp
 HEADERS += mainwindow.h \
     optionsdialog.h \
     faultcodedialog.h \
@@ -25,7 +26,8 @@ HEADERS += mainwindow.h \
     aboutbox.h \
     logger.h \
     commonunits.h \
-    idleaircontroldialog.h
+    idleaircontroldialog.h \
+    fueltrimbar.h
 FORMS += mainwindow.ui
 include(qledindicator/qledindicator.pri)
 include(analogwidgets/analogwidgets.pri)

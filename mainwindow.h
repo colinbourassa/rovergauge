@@ -17,6 +17,7 @@
 #include <QHash>
 #include <QPair>
 #include <QTimer>
+#include <QSlider>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
@@ -24,6 +25,7 @@
 #include "cuxinterface.h"
 #include "aboutbox.h"
 #include "logger.h"
+#include "fueltrimbar.h"
 
 namespace Ui
 {
@@ -115,6 +117,14 @@ private:
 
     QProgressBar *idleBypassPosBar;
     QLabel *idleBypassLabel;
+
+    FuelTrimBar *leftFuelTrimBar;
+    QLabel *leftFuelTrimBarLabel;
+    QLabel *leftFuelTrimLabel;
+
+    FuelTrimBar *rightFuelTrimBar;
+    QLabel *rightFuelTrimBarLabel;
+    QLabel *rightFuelTrimLabel;
 
     QLabel *targetIdleLabel;
     QLabel *targetIdle;

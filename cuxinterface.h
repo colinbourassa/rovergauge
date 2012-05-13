@@ -45,6 +45,8 @@ public:
     float getIdleBypassPos();
     bool getFuelPumpRelayState();
     QByteArray* getPROMImage();
+    int getLeftFuelTrim();
+    int getRightFuelTrim();
 
     void setSpeedUnits(SpeedUnits units);
     void setTemperatureUnits(TemperatureUnits units);
@@ -108,6 +110,8 @@ private:
     float mafReading;
     float idleBypassPos;
     bool fuelPumpRelayOn;
+    int16_t leftFuelTrim;
+    int16_t rightFuelTrim;
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;

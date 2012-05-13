@@ -379,6 +379,8 @@ void CUXInterface::pollEcu()
         bool success = false;
 
         // closely-grouped 16-bit values read consecutively for read efficiency...
+        success |= cux->getFuelTrim(Comm14CUXBank_Left, leftFuelTrim);
+        success |= cux->getFuelTrim(Comm14CUXBank_Right, rightFuelTrim);
         success |= cux->getMainVoltage(mainVoltage);
         success |= cux->getMAFReading(mafReading);
         success |= cux->getThrottlePosition(throttlePos);
@@ -623,6 +625,16 @@ void CUXInterface::setSpeedUnits(SpeedUnits units)
 void CUXInterface::setTemperatureUnits(TemperatureUnits units)
 {
     tempUnits = units;
+}
+
+int CUXInterface::getLeftFuelTrim()
+{
+    return leftFuelTrim;
+}
+
+int CUXInterface::getRightFuelTrim()
+{
+    return rightFuelTrim;
 }
 
 /**

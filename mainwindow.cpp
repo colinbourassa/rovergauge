@@ -229,6 +229,16 @@ void MainWindow::createWidgets()
     idleBypassPosBar->setValue(0);
     idleBypassPosBar->setMinimumWidth(300);
 
+    leftFuelTrimLabel = new QLabel("Fuel trim (left):", this);
+    leftFuelTrimBar = new FuelTrimBar(this);
+    leftFuelTrimBar->setValue(0);
+    leftFuelTrimBarLabel = new QLabel("+0%", this);
+
+    rightFuelTrimLabel = new QLabel("Fuel trim (right):", this);
+    rightFuelTrimBar = new FuelTrimBar(this);
+    rightFuelTrimBar->setValue(0);
+    rightFuelTrimBarLabel = new QLabel("+0%", this);
+
     targetIdleLabel = new QLabel("Target idle RPM:", this);
     targetIdle = new QLabel("", this);
 
@@ -365,6 +375,14 @@ void MainWindow::placeWidgets()
 
     belowGaugesLeft->addWidget(voltageLabel,       row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(voltage,            row++, 1, 1, 3);
+
+    belowGaugesLeft->addWidget(leftFuelTrimLabel,  row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(leftFuelTrimBarLabel, row, 1, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(leftFuelTrimBar,    row++, 2, 1, 2);
+
+    belowGaugesLeft->addWidget(rightFuelTrimLabel, row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(rightFuelTrimBarLabel,row, 1, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(rightFuelTrimBar,   row++, 2, 1, 2);
 
     belowGaugesLeft->addWidget(horizontalLineC,    row++, 0, 1, 4);
 
@@ -551,6 +569,8 @@ void MainWindow::onDataReady()
     int mafReading = cux->getMAFReading() * 100;
     int idleBypassPos = cux->getIdleBypassPos() * 100;
     bool fuelPumpRelay = cux->getFuelPumpRelayState();
+    int leftFuelTrim = cux->getLeftFuelTrim();
+    int rightFuelTrim = cux->getRightFuelTrim();
 
     int newFuelMapIndex = cux->getCurrentFuelMapIndex();
     int newFuelMapRow = cux->getFuelMapRowIndex();
@@ -644,6 +664,27 @@ void MainWindow::onDataReady()
     idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
     fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
+    leftFuelTrimBar->setValue(leftFuelTrim);
+    rightFuelTrimBar->setValue(rightFuelTrim);
+
+    if (leftFuelTrim >= 0)
+    {
+        leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftFuelTrim * 100 / leftFuelTrimBar->maximum()));
+    }
+    else
+    {
+        leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftFuelTrim * 100 / leftFuelTrimBar->minimum()));
+    }
+
+    if (rightFuelTrim >= 0)
+    {
+        rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightFuelTrim * 100 / rightFuelTrimBar->maximum()));
+    }
+    else
+    {
+        rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightFuelTrim * 100 / rightFuelTrimBar->minimum()));
+    }
+
     if (targetIdleSpeedRPM > 0)
     {
         targetIdle->setText(QString::number(targetIdleSpeedRPM));
