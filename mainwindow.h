@@ -180,6 +180,9 @@ private:
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCell();
 
+    void setGearLabel(Comm14CUXGear gearReading);
+    void setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim);
+
 private slots:
     void onSavePROMImageSelected();
     void onPROMReadCancelled();

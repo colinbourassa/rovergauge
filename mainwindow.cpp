@@ -229,12 +229,12 @@ void MainWindow::createWidgets()
     idleBypassPosBar->setValue(0);
     idleBypassPosBar->setMinimumWidth(300);
 
-    leftFuelTrimLabel = new QLabel("Fuel trim (left):", this);
+    leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
     leftFuelTrimBar = new FuelTrimBar(this);
     leftFuelTrimBar->setValue(0);
     leftFuelTrimBarLabel = new QLabel("+0%", this);
 
-    rightFuelTrimLabel = new QLabel("Fuel trim (right):", this);
+    rightFuelTrimLabel = new QLabel("Lambda fuel trim (right):", this);
     rightFuelTrimBar = new FuelTrimBar(this);
     rightFuelTrimBar->setValue(0);
     rightFuelTrimBarLabel = new QLabel("+0%", this);
@@ -664,26 +664,6 @@ void MainWindow::onDataReady()
     idleBypassPosBar->setValue(idleBypassPos);
     voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
     fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
-    leftFuelTrimBar->setValue(leftLambdaTrim);
-    rightFuelTrimBar->setValue(rightLambdaTrim);
-
-    if (leftLambdaTrim >= 0)
-    {
-        leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->maximum()));
-    }
-    else
-    {
-        leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->minimum()));
-    }
-
-    if (rightLambdaTrim >= 0)
-    {
-        rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->maximum()));
-    }
-    else
-    {
-        rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->minimum()));
-    }
 
     if (targetIdleSpeedRPM > 0)
     {
@@ -694,6 +674,60 @@ void MainWindow::onDataReady()
         targetIdle->setText("");
     }
 
+    setLambdaTrimIndicators(leftLambdaTrim, rightLambdaTrim);
+    setGearLabel(gearReading);
+    logger->logData();
+}
+
+/**
+ * Sets the lambda fuel trim indicators to the provided values
+ */
+void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim)
+{
+    if ((currentFuelMapIndex == 0) ||
+        (currentFuelMapIndex == 4) ||
+        (currentFuelMapIndex == 5))
+    {
+        leftFuelTrimBar->setEnabled(true);
+        leftFuelTrimBar->setValue(leftLambdaTrim);
+        rightFuelTrimBar->setEnabled(true);
+        rightFuelTrimBar->setValue(rightLambdaTrim);
+
+        if (leftLambdaTrim >= 0)
+        {
+            leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->maximum()));
+        }
+        else
+        {
+            leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->minimum()));
+        }
+
+        if (rightLambdaTrim >= 0)
+        {
+            rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->maximum()));
+        }
+        else
+        {
+            rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->minimum()));
+        }
+    }
+    else
+    {
+        leftFuelTrimBar->setValue(0);
+        leftFuelTrimBar->setEnabled(false);
+        rightFuelTrimBar->setValue(0);
+        rightFuelTrimBar->setEnabled(false);
+
+        leftFuelTrimBarLabel->setText("+0%");
+        rightFuelTrimBarLabel->setText("+0%");
+    }
+}
+
+/**
+ * Sets the label indicating the current gear selection
+ */
+void MainWindow::setGearLabel(Comm14CUXGear gearReading)
+{
     switch (gearReading)
     {
         case Comm14CUXGear_ParkOrNeutral:
@@ -710,8 +744,6 @@ void MainWindow::onDataReady()
             gear->setText("(no reading)");
             break;
     }
-
-    logger->logData();
 }
 
 /**
