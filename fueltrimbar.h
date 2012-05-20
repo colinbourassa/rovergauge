@@ -9,6 +9,7 @@ class FuelTrimBar : public QProgressBar
 public:
     explicit FuelTrimBar(QWidget *parent = 0);
     void paintEvent(QPaintEvent *e);
+    void setValue(int value);
 
 signals:
 

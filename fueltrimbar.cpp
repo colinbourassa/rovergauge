@@ -17,6 +17,25 @@ FuelTrimBar::FuelTrimBar(QWidget *parent) :
 }
 
 /**
+ * Clips at the minimum and maximum values.
+ */
+void FuelTrimBar::setValue(int value)
+{
+    int adjVal = value;
+
+    if (adjVal > maximumVal)
+    {
+        adjVal = maximumVal;
+    }
+    else if (adjVal < minimumVal)
+    {
+        adjVal = minimumVal;
+    }
+
+    QProgressBar::setValue(adjVal);
+}
+
+/**
  * Draws a progress bar that extends left or right from the center point.
  */
 void FuelTrimBar::paintEvent(QPaintEvent *)
@@ -27,15 +46,7 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     bar.initFrom(this);
     bar.minimum = minimumVal;
     bar.maximum = maximumVal;
-
-    if (currentVal > maximumVal)
-    {
-        currentVal = maximumVal;
-    }
-    else if (currentVal < minimumVal)
-    {
-        currentVal = minimumVal;
-    }
+    bar.progress = (currentVal >= 0) ? qAbs(maximumVal) : qAbs(minimumVal);
 
     style()->drawControl(QStyle::CE_ProgressBarGroove, &bar, &painter, this);
 
@@ -49,6 +60,6 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     int midPoint = left + ((right - left) / 2);
     int startPoint = (currentVal >= 0) ? midPoint : midPoint - barWidth;
 
-    bar.rect = QRect(startPoint, top, barWidth * 2, height);
+    bar.rect = QRect(startPoint, top, barWidth + 2, height);
     style()->drawControl(QStyle::CE_ProgressBarContents, &bar, &painter, this);
 }

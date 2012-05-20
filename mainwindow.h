@@ -17,7 +17,6 @@
 #include <QHash>
 #include <QPair>
 #include <QTimer>
-#include <QSlider>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"

@@ -81,6 +81,9 @@ In addition to this, the display will show the throttle position, the reading
 from the mass airflow sensor, the neutral switch reading (indicating whether
 an automatic transmission is in gear), the main voltage, and fuel map data.
 
+Note that the measurement of the main voltage may vary slightly between
+different ECUs.
+
 The fuel map displayed by the software is the map currently in use by the
 vehicle. Each row represents a range of engine speed, and each column
 represents a range of engine load. Each cell in the grid shows the raw fueling
@@ -88,6 +91,12 @@ value for that combination of engine speed and load, and the cell background
 is colored to provide a quick visual indication of the fueling at that position
 in the map. Engine speed increases left to right, and engine load increases
 top to bottom.
+
+A number of other adjustments are applied to the fueling value. One of these is
+the "adjustment factor", which is a 16-bit value that is shown just above the
+fuel map display. For closed-loop fuel maps (maps 0, 4, and 5), feeback from
+the exhaust oxygen sensors is used to trim the fueling for the left and right
+banks separately. This trim value is displayed as "Lambda fuel trim".
 
 The "Show fault codes" feature (in the "Options" menu) will display a dialog
 box with illuminated lamps next to each of the fault codes currently set in the

@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
       currentFuelMapCol(-1)
 {
     ui->setupUi(this);
-    this->setMinimumSize(930, 600);
+    this->setMinimumSize(940, 610);
     this->setWindowTitle("RoverGauge");
 
     speedUnitSuffix = new QHash<SpeedUnits,QString>();
@@ -250,6 +250,8 @@ void MainWindow::createWidgets()
 
     fuelMapIndexLabel = new QLabel("Current fuel map:", this);
     fuelMapFactorLabel = new QLabel("Adjustment factor:", this);
+
+    setStyleSheet("QTableWidget {background-color: transparent;}");
     fuelMapDisplay = new QTableWidget(8, 16, this);
     fuelMapDisplay->verticalHeader()->hide();
     fuelMapDisplay->horizontalHeader()->hide();
@@ -687,29 +689,21 @@ void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim
     if ((currentFuelMapIndex == 0) ||
         (currentFuelMapIndex == 4) ||
         (currentFuelMapIndex == 5))
-    {
+    {        
+        QString leftLabel = (leftLambdaTrim >= 0) ?
+            QString("+%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->maximum()) :
+            QString("-%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->minimum());
+        QString rightLabel = (rightLambdaTrim >= 0) ?
+            QString("+%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->maximum()) :
+            QString("-%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->minimum());
+
         leftFuelTrimBar->setEnabled(true);
         leftFuelTrimBar->setValue(leftLambdaTrim);
         rightFuelTrimBar->setEnabled(true);
         rightFuelTrimBar->setValue(rightLambdaTrim);
 
-        if (leftLambdaTrim >= 0)
-        {
-            leftFuelTrimBarLabel->setText(QString("+%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->maximum()));
-        }
-        else
-        {
-            leftFuelTrimBarLabel->setText(QString("-%1%").arg(leftLambdaTrim * 100 / leftFuelTrimBar->minimum()));
-        }
-
-        if (rightLambdaTrim >= 0)
-        {
-            rightFuelTrimBarLabel->setText(QString("+%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->maximum()));
-        }
-        else
-        {
-            rightFuelTrimBarLabel->setText(QString("-%1%").arg(rightLambdaTrim * 100 / rightFuelTrimBar->minimum()));
-        }
+        leftFuelTrimBarLabel->setText(leftLabel);
+        rightFuelTrimBarLabel->setText(rightLabel);
     }
     else
     {
@@ -893,6 +887,9 @@ void MainWindow::onDisconnect()
     leftFuelTrimBarLabel->setText("+0%");
     rightFuelTrimBar->setValue(0);
     rightFuelTrimBarLabel->setText("+0%");
+
+    leftFuelTrimBar->repaint();
+    rightFuelTrimBar->repaint();
 
     currentFuelMapIndex = -1;
     currentFuelMapRow = -1;
