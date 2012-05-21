@@ -71,7 +71,7 @@ if (MINGW)
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
   else ()
-    message (STATUS "Warning: libcomm14cux not found; will not be included in package D")
+    message (STATUS "Warning: libcomm14cux not found; will not be included in package")
   endif ()
 
   # convert Unix-style newline characters into Windows-style
