@@ -289,7 +289,7 @@ void MainWindow::createWidgets()
     connect(fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
 
     logFileNameLabel = new QLabel("Log file name:", this);
-    logFileNameBox = new QLineEdit(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss"), this);
+    logFileNameBox = new QLineEdit(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"), this);
     startLoggingButton = new QPushButton("Start logging");
     startLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     stopLoggingButton = new QPushButton("Stop logging");
