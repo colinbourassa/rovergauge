@@ -66,7 +66,7 @@ void CUXInterface::onFaultCodesRequested()
     {
         memset(&faultCodes, 0, sizeof(faultCodes));
 
-        if (cux->connect(deviceName.toStdString()) &&
+        if (cux->connect(deviceName.toStdString().c_str()) &&
             cux->getFaultCodes(faultCodes))
         {
             emit faultCodesReady();
@@ -88,7 +88,7 @@ void CUXInterface::onFaultCodesRequested()
 void CUXInterface::onFaultCodesClearRequested()
 {
     if (cux != 0 &&
-        cux->connect(deviceName.toStdString()) &&
+        cux->connect(deviceName.toStdString().c_str()) &&
         cux->clearFaultCodes() &&
         cux->getFaultCodes(faultCodes))
     {
@@ -112,7 +112,7 @@ void CUXInterface::onReadPROMImageRequested()
             promImage = new QByteArray(16384, 0x00);
         }
 
-        if (cux->connect(deviceName.toStdString()) &&
+        if (cux->connect(deviceName.toStdString().c_str()) &&
             cux->dumpROM((uint8_t*)promImage->data()))
         {
             if (!readCanceled)
@@ -143,7 +143,7 @@ void CUXInterface::onReadPROMImageRequested()
  */
 void CUXInterface::onFuelMapRequested(int fuelMapId)
 {
-    if ((cux != 0) && cux->connect(deviceName.toStdString()))
+    if ((cux != 0) && cux->connect(deviceName.toStdString().c_str()))
     {
         // create a storage area for the fuel map data if it
         // doesn't already exist
@@ -166,7 +166,7 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
  */
 void CUXInterface::onFuelPumpRunRequest()
 {
-    if ((cux != 0) && cux->connect(deviceName.toStdString()))
+    if ((cux != 0) && cux->connect(deviceName.toStdString().c_str()))
     {
         cux->runFuelPump();
     }
@@ -180,7 +180,7 @@ void CUXInterface::onFuelPumpRunRequest()
  */
 void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
 {
-    if ((cux != 0) && cux->connect(deviceName.toStdString()))
+    if ((cux != 0) && cux->connect(deviceName.toStdString().c_str()))
     {
         cux->driveIdleAirControlMotor((uint8_t)direction, (uint8_t)steps);
     }
@@ -197,7 +197,7 @@ bool CUXInterface::connectToECU()
     // the library object should have previously been instantiated
     if (cux != 0)
     {
-        status = cux->connect(deviceName.toStdString());
+        status = cux->connect(deviceName.toStdString().c_str());
 
         if (status)
         {
@@ -353,8 +353,8 @@ void CUXInterface::onStartPollingRequest()
  * Reads specific locations from the ECU and stores the data locally, then
  * calculates the amount of time to wait until the next read cycle. If the
  * timer interval is set to less than the amount of time that it takes to
- * actually read and process the data, then the timer interval will be set
- * to a minimum value of 10ms.
+ * actually read and process the data, then the read cycle will immediately
+ * repeat.
  */
 void CUXInterface::pollEcu()
 {
@@ -381,8 +381,8 @@ void CUXInterface::pollEcu()
         bool success = false;
 
         // closely-grouped 16-bit values read consecutively for read efficiency...
-        success |= cux->getLambdaTrim(Comm14CUXBank_Left, leftLambdaTrim);
-        success |= cux->getLambdaTrim(Comm14CUXBank_Right, rightLambdaTrim);
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
         success |= cux->getMainVoltage(mainVoltage);
         success |= cux->getMAFReading(mafReading);
         success |= cux->getThrottlePosition(throttlePos);
