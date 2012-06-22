@@ -95,6 +95,7 @@ private:
     bool shutdownThread;
     Comm14CUXFaultCodes faultCodes;
     bool readCanceled;
+    unsigned long readCount;
 
     uint16_t roadSpeedMPH;
     uint16_t engineSpeedRPM;
@@ -121,6 +122,7 @@ private:
     TemperatureUnits tempUnits;
 
     void pollEcu();
+    bool readData();
     bool connectToECU();
     int convertSpeed(int speedMph);
     int convertTemperature(int tempF);

@@ -18,6 +18,8 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     timer(0),
     stopPolling(false),
     shutdownThread(false),
+    readCanceled(false),
+    readCount(0),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
     targetIdleSpeed(0),
@@ -378,33 +380,7 @@ void CUXInterface::pollEcu()
     }
     else
     {
-        bool success = false;
-
-        // closely-grouped 16-bit values read consecutively for read efficiency...
-        success |= cux->getLambdaTrim(Comm14CUXBank_Left, leftLambdaTrim);
-        success |= cux->getLambdaTrim(Comm14CUXBank_Right, rightLambdaTrim);
-        success |= cux->getMainVoltage(mainVoltage);
-        success |= cux->getMAFReading(mafReading);
-        success |= cux->getThrottlePosition(throttlePos);
-        success |= cux->getEngineRPM(engineSpeedRPM);
-
-        // ...and likewise with the 8-bit values low in memory...
-        success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
-        success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
-        success |= cux->getCoolantTemp(coolantTempF);
-        success |= cux->getIdleBypassMotorPosition(idleBypassPos);
-
-        // ...and higher in memory
-        success |= cux->getGearSelection(gear);
-        success |= cux->getRoadSpeed(roadSpeedMPH);
-        success |= cux->getFuelTemp(fuelTempF);
-        success |= cux->getCurrentFuelMap(currentFuelMapIndex);
-        success |= cux->getTargetIdle(targetIdleSpeed);
-
-        // this one's done separately, since it's way at the bottom of memory
-        success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
-
-        if (success)
+        if (readData())
         {
             emit readSuccess();
             emit dataReady();
@@ -414,6 +390,8 @@ void CUXInterface::pollEcu()
             emit readError();
         }
 
+        readCount++;
+
         int msecUntilNext = nextDue - QDateTime::currentMSecsSinceEpoch();
         if (msecUntilNext < 0)
         {
@@ -421,6 +399,58 @@ void CUXInterface::pollEcu()
         }
         timer->start(msecUntilNext);
     }
+}
+
+/**
+ * Reads data from the 14CUX via calls to the library, and stores the data in
+ * member variables.
+ * @return True if at least one value was read successfully; false otherwise.
+ */
+bool CUXInterface::readData()
+{
+    // closely-grouped 16-bit values read consecutively for read efficiency...
+    success |= cux->getLambdaTrim(Comm14CUXBank_Left, leftLambdaTrim);
+    success |= cux->getLambdaTrim(Comm14CUXBank_Right, rightLambdaTrim);
+    if (readCount % 2 == 0)
+    {
+        success |= cux->getMainVoltage(mainVoltage);
+    }
+    success |= cux->getMAFReading(mafReading);
+    success |= cux->getThrottlePosition(throttlePos);
+    success |= cux->getEngineRPM(engineSpeedRPM);
+
+    // ...and likewise with the 8-bit values low in memory...
+    success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
+    success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
+    if ((readCount + 1) % 5 == 0)
+    {
+        success |= cux->getCoolantTemp(coolantTempF);
+    }
+    success |= cux->getIdleBypassMotorPosition(idleBypassPos);
+
+    // ...and higher in memory
+    if (readCount % 3 == 0)
+    {
+        success |= cux->getGearSelection(gear);
+    }
+    success |= cux->getRoadSpeed(roadSpeedMPH);
+    if (readCount % 5 == 0)
+    {
+        success |= cux->getFuelTemp(fuelTempF);
+    }
+    if (readCount % 50 == 0)
+    {
+        success |= cux->getCurrentFuelMap(currentFuelMapIndex);
+    }
+    if (readCount % 7 == 0)
+    {
+        success |= cux->getTargetIdle(targetIdleSpeed);
+    }
+
+    // this one's done separately, since it's way at the bottom of memory
+    success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
+
+    return success;
 }
 
 /**
