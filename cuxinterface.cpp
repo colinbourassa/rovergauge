@@ -20,6 +20,8 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     shutdownThread(false),
     readCanceled(false),
     readCount(0),
+    shortTermLambdaTrim(true),
+    airflowType(Comm14CUXAirflowType_Linearized),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
     targetIdleSpeed(0),
@@ -408,14 +410,24 @@ void CUXInterface::pollEcu()
  */
 bool CUXInterface::readData()
 {
+    bool success = false;
+
     // closely-grouped 16-bit values read consecutively for read efficiency...
-    success |= cux->getLambdaTrim(Comm14CUXBank_Left, leftLambdaTrim);
-    success |= cux->getLambdaTrim(Comm14CUXBank_Right, rightLambdaTrim);
+    if (shortTermLambdaTrim)
+    {
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
+    }
+    else if ((readCount + 2) % 5 == 0)
+    {
+        success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
+        success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
+    }
     if (readCount % 2 == 0)
     {
         success |= cux->getMainVoltage(mainVoltage);
     }
-    success |= cux->getMAFReading(mafReading);
+    success |= cux->getMAFReading(airflowType, mafReading);
     success |= cux->getThrottlePosition(throttlePos);
     success |= cux->getEngineRPM(engineSpeedRPM);
 
@@ -657,6 +669,25 @@ void CUXInterface::setSpeedUnits(SpeedUnits units)
 void CUXInterface::setTemperatureUnits(TemperatureUnits units)
 {
     tempUnits = units;
+}
+
+/**
+ * Sets the type of lambda trim to read (short- or long-term)
+ * @param isShortTerm Set to true if short-term lambda trim should be read;
+ *   set to false for long-term
+ */
+void CUXInterface::setLambdaTrimType(bool isShortTerm)
+{
+    shortTermLambdaTrim = isShortTerm;
+}
+
+/**
+ * Sets the type of MAF reading to take (direct or linearized).
+ * @param type Selects either Direct or Linearized MAF readings.
+ */
+void CUXInterface::setMAFReadingType(Comm14CUXAirflowType type)
+{
+    airflowType = type;
 }
 
 /**

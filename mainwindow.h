@@ -117,6 +117,16 @@ private:
     QProgressBar *idleBypassPosBar;
     QLabel *idleBypassLabel;
 
+    QLabel *mafReadingTypeLabel;
+    QButtonGroup *mafReadingButtonGroup;
+    QRadioButton *mafReadingDirectButton;
+    QRadioButton *mafReadingLinearButton;
+
+    QLabel *lambdaTrimTypeLabel;
+    QButtonGroup *lambdaTrimButtonGroup;
+    QRadioButton *lambdaTrimShortButton;
+    QRadioButton *lambdaTrimLongButton;
+
     FuelTrimBar *leftFuelTrimBar;
     QLabel *leftFuelTrimBarLabel;
     QLabel *leftFuelTrimLabel;
@@ -196,6 +206,8 @@ private slots:
     void onFuelPumpContinuous();
     void onFuelPumpRefreshTimer();
     void onIdleAirControlClicked();
+    void onLambdaTrimButtonClicked(int id);
+    void onMAFReadingButtonClicked(int id);
 };
 
 #endif // MAINWINDOW_H

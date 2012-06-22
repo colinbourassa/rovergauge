@@ -211,11 +211,15 @@ void MainWindow::createWidgets()
 
     commsLedLabel = new QLabel("Communications:");
 
-    throttleLabel = new QLabel("Throttle position:", this);
-    throttleBar = new QProgressBar(this);
-    throttleBar->setRange(0, 100);
-    throttleBar->setValue(0);
-    throttleBar->setMinimumWidth(300);
+    mafReadingTypeLabel = new QLabel("MAF reading type:", this);
+    mafReadingLinearButton = new QRadioButton("Linear", this);
+    mafReadingLinearButton->setChecked(true);
+    mafReadingDirectButton = new QRadioButton("Direct", this);
+
+    mafReadingButtonGroup = new QButtonGroup(this);
+    mafReadingButtonGroup->addButton(mafReadingLinearButton, 1);
+    mafReadingButtonGroup->addButton(mafReadingDirectButton, 2);
+    connect(mafReadingButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMAFReadingButtonClicked(int)));
 
     mafReadingLabel = new QLabel("MAF reading:", this);
     mafReadingBar = new QProgressBar(this);
@@ -223,11 +227,27 @@ void MainWindow::createWidgets()
     mafReadingBar->setValue(0);
     mafReadingBar->setMinimumWidth(300);
 
+    throttleLabel = new QLabel("Throttle position:", this);
+    throttleBar = new QProgressBar(this);
+    throttleBar->setRange(0, 100);
+    throttleBar->setValue(0);
+    throttleBar->setMinimumWidth(300);
+
     idleBypassLabel = new QLabel("Idle bypass position:", this);
     idleBypassPosBar = new QProgressBar(this);
     idleBypassPosBar->setRange(0, 100);
     idleBypassPosBar->setValue(0);
     idleBypassPosBar->setMinimumWidth(300);
+
+    lambdaTrimTypeLabel = new QLabel("Lambda trim type:", this);
+    lambdaTrimShortButton = new QRadioButton("Short term", this);
+    lambdaTrimShortButton->setChecked(true);
+    lambdaTrimLongButton = new QRadioButton("Long term", this);
+
+    lambdaTrimButtonGroup = new QButtonGroup(this);
+    lambdaTrimButtonGroup->addButton(lambdaTrimShortButton, 1);
+    lambdaTrimButtonGroup->addButton(lambdaTrimLongButton, 2);
+    connect(lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
 
     leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
     leftFuelTrimBar = new FuelTrimBar(this);
@@ -298,8 +318,6 @@ void MainWindow::createWidgets()
     connect(startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
     connect(stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
 
-    statusBar()->showMessage("Not connected");
-
     speedo = new ManoMeter(this);
     speedo->setMinimum(0.0);
     speedo->setMaximum(160.0);
@@ -362,10 +380,15 @@ void MainWindow::placeWidgets()
     fuelTempLayout->addWidget(fuelTempLabel, 0, Qt::AlignCenter);
 
     unsigned char row = 0;
-    belowGaugesLeft->addWidget(throttleLabel,      row,   0,        Qt::AlignRight);
-    belowGaugesLeft->addWidget(throttleBar,        row++, 1, 1, 3);
+
+    belowGaugesLeft->addWidget(mafReadingTypeLabel,    row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(mafReadingLinearButton, row,   1, 1, 1);
+    belowGaugesLeft->addWidget(mafReadingDirectButton, row++, 2, 1, 1);
+
     belowGaugesLeft->addWidget(mafReadingLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(mafReadingBar,      row++, 1, 1, 3);
+    belowGaugesLeft->addWidget(throttleLabel,      row,   0,        Qt::AlignRight);
+    belowGaugesLeft->addWidget(throttleBar,        row++, 1, 1, 3);
     belowGaugesLeft->addWidget(idleBypassLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
 
@@ -378,6 +401,10 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(voltageLabel,       row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(voltage,            row++, 1, 1, 3);
 
+    belowGaugesLeft->addWidget(lambdaTrimTypeLabel,   row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(lambdaTrimShortButton, row,   1, 1, 1);
+    belowGaugesLeft->addWidget(lambdaTrimLongButton,  row++, 2, 1, 1);
+
     belowGaugesLeft->addWidget(leftFuelTrimLabel,  row,   0, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(leftFuelTrimBarLabel, row, 1, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(leftFuelTrimBar,    row++, 2, 1, 2);
@@ -385,14 +412,6 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(rightFuelTrimLabel, row,   0, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(rightFuelTrimBarLabel,row, 1, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(rightFuelTrimBar,   row++, 2, 1, 2);
-
-    belowGaugesLeft->addWidget(horizontalLineC,    row++, 0, 1, 4);
-
-    belowGaugesLeft->addWidget(logFileNameLabel,   row,   0, 1, 1);
-    belowGaugesLeft->addWidget(logFileNameBox,     row++, 1, 1, 3);
-
-    belowGaugesLeft->addWidget(startLoggingButton, row,   0, 1, 2);
-    belowGaugesLeft->addWidget(stopLoggingButton,  row++, 2, 1, 2);
 
     row = 0;
     belowGaugesRight->setColumnMinimumWidth(0, 20);
@@ -403,7 +422,14 @@ void MainWindow::placeWidgets()
     belowGaugesRight->addWidget(fuelPumpRelayStateLed,    row,   0, 1, 1);
     belowGaugesRight->addWidget(fuelPumpRelayStateLabel,  row,   1, 1, 1);
     belowGaugesRight->addWidget(fuelPumpOneshotButton,    row,   2, 1, 1);
-    belowGaugesRight->addWidget(fuelPumpContinuousButton, row,   3, 1, 1);
+    belowGaugesRight->addWidget(fuelPumpContinuousButton, row++, 3, 1, 1);
+
+    belowGaugesRight->addWidget(horizontalLineC,    row++, 0, 1, 4);
+    belowGaugesRight->addWidget(logFileNameLabel,   row,   0, 1, 2);
+    belowGaugesRight->addWidget(logFileNameBox,     row++, 2, 1, 2);
+
+    belowGaugesRight->addWidget(startLoggingButton, row,   2, 1, 1);
+    belowGaugesRight->addWidget(stopLoggingButton,  row++, 3, 1, 1);
 }
 
 /**
@@ -852,7 +878,6 @@ void MainWindow::onConnect()
 {
     connectButton->setEnabled(false);
     disconnectButton->setEnabled(true);
-    statusBar()->showMessage("Connected");
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
     fuelPumpOneshotButton->setEnabled(true);
@@ -867,7 +892,6 @@ void MainWindow::onDisconnect()
 {
     connectButton->setEnabled(true);
     disconnectButton->setEnabled(false);
-    statusBar()->showMessage("Not connected");
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
     fuelPumpOneshotButton->setEnabled(false);
@@ -1128,4 +1152,29 @@ void MainWindow::onFuelPumpRefreshTimer()
 void MainWindow::onIdleAirControlClicked()
 {
     iacDialog->show();
+}
+
+/**
+ * Sets the type of lambda trim to read from the ECU.
+ * @param Set to 1 for short-term, 2 for long-term
+ */
+void MainWindow::onLambdaTrimButtonClicked(int id)
+{
+    cux->setLambdaTrimType(id == 1);
+}
+
+/**
+ * Sets the type of MAF reading to read from the ECU.
+ * @param Set to 1 for Direct, 2 for Linearized
+ */
+void MainWindow::onMAFReadingButtonClicked(int id)
+{
+    if (id == 1)
+    {
+        cux->setMAFReadingType(Comm14CUXAirflowType_Linearized);
+    }
+    else
+    {
+        cux->setMAFReadingType(Comm14CUXAirflowType_Direct);
+    }
 }

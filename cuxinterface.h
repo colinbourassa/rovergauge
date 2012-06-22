@@ -19,6 +19,8 @@ public:
 
     void setSerialDevice(QString device);
     void setIntervalMsecs(int msecs);
+    void setLambdaTrimType(bool isShortTerm);
+    void setMAFReadingType(Comm14CUXAirflowType type);
 
     QString getSerialDevice();
     int getIntervalMsecs();
@@ -96,6 +98,9 @@ private:
     Comm14CUXFaultCodes faultCodes;
     bool readCanceled;
     unsigned long readCount;
+
+    bool shortTermLambdaTrim;
+    Comm14CUXAirflowType airflowType;
 
     uint16_t roadSpeedMPH;
     uint16_t engineSpeedRPM;
