@@ -46,30 +46,30 @@ void FaultCodeDialog::onFaultClearSuccess(Comm14CUXFaultCodes faultCodes)
  */
 void FaultCodeDialog::populateFaultList()
 {
-    faultNames.insert(FaultCode_ECUMemoryCheck, QString("ECU Memory Check"));
-    faultNames.insert(FaultCode_LambdaSensorLeft, QString("Lambda Sensor (left)"));
-    faultNames.insert(FaultCode_LambdaSensorRight, QString("Lambda Sensor (right)"));
-    faultNames.insert(FaultCode_MisfireLeft, QString("Misfire (left)"));
-    faultNames.insert(FaultCode_MisfireRight, QString("Misfire (right)"));
-    faultNames.insert(FaultCode_AirflowMeter, QString("Airflow Meter"));
-    faultNames.insert(FaultCode_TuneResistor, QString("Tune Resistor out of range"));
-    faultNames.insert(FaultCode_InjectorLeft, QString("Injector Left"));
-    faultNames.insert(FaultCode_InjectorRight, QString("Injector Right"));
-    faultNames.insert(FaultCode_CoolantTempSensor, QString("Coolant Temp Sensor"));
-    faultNames.insert(FaultCode_ThrottlePot, QString("Throttle Pot"));
-    faultNames.insert(FaultCode_ThrottlePotHiMAFLo, QString("Throttle Pot Hi / MAF Lo"));
-    faultNames.insert(FaultCode_ThrottlePotLoMAFHi, QString("Throttle Pot Lo / MAF Hi"));
-    faultNames.insert(FaultCode_PurgeValveLeak, QString("Purge Valve Leak"));
-    faultNames.insert(FaultCode_MixtureTooLean, QString("Mixture too lean"));
-    faultNames.insert(FaultCode_IntakeAirLeak, QString("Intake air leak"));
-    faultNames.insert(FaultCode_LowFuelPressure, QString("Low fuel pressure"));
-    faultNames.insert(FaultCode_IdleStepper, QString("Idle Stepper"));
-    faultNames.insert(FaultCode_RoadSpeedSensor, QString("Road Speed Sensor"));
-    faultNames.insert(FaultCode_NeutralSwitch, QString("Neutral Switch"));
-    faultNames.insert(FaultCode_FuelPressureOrLeak, QString("Ambiguous: low fuel pressure or air leak"));
-    faultNames.insert(FaultCode_FuelTempSensor, QString("Fuel Temp Sensor"));
-    faultNames.insert(FaultCode_BatteryDisconnected, QString("Battery Disconnected"));
-    faultNames.insert(FaultCode_ECMMemoryCleared, QString("ECM Memory Cleared"));
+    faultNames.insert(FaultCode_ECUMemoryCheck, QString("(29) ECU checksum error"));
+    faultNames.insert(FaultCode_LambdaSensorLeft, QString("(44) Lambda sensor (left)"));
+    faultNames.insert(FaultCode_LambdaSensorRight, QString("(45) Lambda sensor (right)"));
+    faultNames.insert(FaultCode_MisfireLeft, QString("(40) Misfire (left)"));
+    faultNames.insert(FaultCode_MisfireRight, QString("(50) Misfire (right)"));
+    faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
+    faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune Resistor out of range"));
+    faultNames.insert(FaultCode_InjectorLeft, QString("(34) Injector bank (left)"));
+    faultNames.insert(FaultCode_InjectorRight, QString("(36) Injector bank (right)"));
+    faultNames.insert(FaultCode_CoolantTempSensor, QString("(14) Coolant temp sensor"));
+    faultNames.insert(FaultCode_ThrottlePot, QString("(17) Throttle pot"));
+    faultNames.insert(FaultCode_ThrottlePotHiMAFLo, QString("(18) Throttle pot hi / MAF lo"));
+    faultNames.insert(FaultCode_ThrottlePotLoMAFHi, QString("(19) Throttle pot lo / MAF hi"));
+    faultNames.insert(FaultCode_PurgeValveLeak, QString("(88) Purge valve leak"));
+    faultNames.insert(FaultCode_MixtureTooLean, QString("(26) Mixture too lean"));
+    faultNames.insert(FaultCode_IntakeAirLeak, QString("(28) Intake air leak"));
+    faultNames.insert(FaultCode_LowFuelPressure, QString("(23) Low fuel pressure"));
+    faultNames.insert(FaultCode_IdleStepper, QString("(48) Idle Air Control stepper motor"));
+    faultNames.insert(FaultCode_RoadSpeedSensor, QString("(68) Road speed sensor"));
+    faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral switch"));
+    faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
+    faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
+    faultNames.insert(FaultCode_BatteryDisconnected, QString("Battery disconnected"));
+    faultNames.insert(FaultCode_ECMMemoryCleared, QString("ECM memory cleared"));
 }
 
 /**
