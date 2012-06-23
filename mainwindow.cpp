@@ -1178,3 +1178,4 @@ void MainWindow::onMAFReadingButtonClicked(int id)
         cux->setMAFReadingType(Comm14CUXAirflowType_Direct);
     }
 }
+
