@@ -450,7 +450,7 @@ bool CUXInterface::readData()
     {
         success |= cux->getFuelTemp(fuelTempF);
     }
-    if (readCount % 50 == 0)
+    if (readCount % 29 == 0)
     {
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
     }

@@ -63,3 +63,4 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     bar.rect = QRect(startPoint, top, barWidth + 2, height);
     style()->drawControl(QStyle::CE_ProgressBarContents, &bar, &painter, this);
 }
+

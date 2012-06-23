@@ -1161,11 +1161,15 @@ void MainWindow::onIdleAirControlClicked()
 void MainWindow::onLambdaTrimButtonClicked(int id)
 {
     cux->setLambdaTrimType(id == 1);
+    leftFuelTrimBar->setValue(0);
+    leftFuelTrimBarLabel->setText("+0%");
+    rightFuelTrimBar->setValue(0);
+    rightFuelTrimBarLabel->setText("+0%");
 }
 
 /**
  * Sets the type of MAF reading to read from the ECU.
- * @param Set to 1 for Direct, 2 for Linearized
+ * @param Set to 1 for Linearized, 2 for Direct
  */
 void MainWindow::onMAFReadingButtonClicked(int id)
 {
@@ -1177,5 +1181,6 @@ void MainWindow::onMAFReadingButtonClicked(int id)
     {
         cux->setMAFReadingType(Comm14CUXAirflowType_Direct);
     }
+    mafReadingBar->setValue(0);
 }
 
