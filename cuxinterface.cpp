@@ -20,7 +20,7 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     shutdownThread(false),
     readCanceled(false),
     readCount(0),
-    shortTermLambdaTrim(true),
+    lambdaTrimType(0),
     airflowType(Comm14CUXAirflowType_Linearized),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
@@ -413,12 +413,7 @@ bool CUXInterface::readData()
     bool success = false;
 
     // closely-grouped 16-bit values read consecutively for read efficiency...
-    if (shortTermLambdaTrim)
-    {
-        success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
-        success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
-    }
-    else if ((readCount + 2) % 5 == 0)
+    if (lambdaTrimType == 1)
     {
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
@@ -676,9 +671,9 @@ void CUXInterface::setTemperatureUnits(TemperatureUnits units)
  * @param isShortTerm Set to true if short-term lambda trim should be read;
  *   set to false for long-term
  */
-void CUXInterface::setLambdaTrimType(bool isShortTerm)
+void CUXInterface::setLambdaTrimType(int type)
 {
-    shortTermLambdaTrim = isShortTerm;
+    lambdaTrimType = type;
 }
 
 /**

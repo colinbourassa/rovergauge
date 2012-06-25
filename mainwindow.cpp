@@ -240,13 +240,11 @@ void MainWindow::createWidgets()
     idleBypassPosBar->setMinimumWidth(300);
 
     lambdaTrimTypeLabel = new QLabel("Lambda trim type:", this);
-    lambdaTrimShortButton = new QRadioButton("Short term", this);
-    lambdaTrimShortButton->setChecked(true);
     lambdaTrimLongButton = new QRadioButton("Long term", this);
+    lambdaTrimLongButton->setChecked(true);
 
     lambdaTrimButtonGroup = new QButtonGroup(this);
-    lambdaTrimButtonGroup->addButton(lambdaTrimShortButton, 1);
-    lambdaTrimButtonGroup->addButton(lambdaTrimLongButton, 2);
+    lambdaTrimButtonGroup->addButton(lambdaTrimLongButton, 1);
     connect(lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
 
     leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
@@ -402,8 +400,7 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(voltage,            row++, 1, 1, 3);
 
     belowGaugesLeft->addWidget(lambdaTrimTypeLabel,   row,   0, 1, 1,  Qt::AlignRight);
-    belowGaugesLeft->addWidget(lambdaTrimShortButton, row,   1, 1, 1);
-    belowGaugesLeft->addWidget(lambdaTrimLongButton,  row++, 2, 1, 1);
+    belowGaugesLeft->addWidget(lambdaTrimLongButton,  row++, 1, 1, 1);
 
     belowGaugesLeft->addWidget(leftFuelTrimLabel,  row,   0, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(leftFuelTrimBarLabel, row, 1, 1, 1,  Qt::AlignRight);
@@ -1160,7 +1157,7 @@ void MainWindow::onIdleAirControlClicked()
  */
 void MainWindow::onLambdaTrimButtonClicked(int id)
 {
-    cux->setLambdaTrimType(id == 1);
+    cux->setLambdaTrimType(id);
     leftFuelTrimBar->setValue(0);
     leftFuelTrimBarLabel->setText("+0%");
     rightFuelTrimBar->setValue(0);

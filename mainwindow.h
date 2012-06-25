@@ -124,7 +124,6 @@ private:
 
     QLabel *lambdaTrimTypeLabel;
     QButtonGroup *lambdaTrimButtonGroup;
-    QRadioButton *lambdaTrimShortButton;
     QRadioButton *lambdaTrimLongButton;
 
     FuelTrimBar *leftFuelTrimBar;
