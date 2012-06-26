@@ -33,6 +33,7 @@ void FuelTrimBar::setValue(int value)
     }
 
     QProgressBar::setValue(adjVal);
+    repaint();
 }
 
 /**
@@ -50,7 +51,7 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
 
     style()->drawControl(QStyle::CE_ProgressBarGroove, &bar, &painter, this);
 
-    // compute the dimensions and locations of the bar
+    // compute the dimensions and location of the bar
     float percentOfWidth = (float)(qAbs(currentVal)) / (float)(maximumVal - minimumVal);
     int left = bar.rect.topLeft().x();
     int right = bar.rect.topRight().x();
