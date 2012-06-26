@@ -33,7 +33,14 @@ void FuelTrimBar::setValue(int value)
     }
 
     QProgressBar::setValue(adjVal);
-    repaint();
+
+    // For some reason, paintEvent() was not being called by the framework
+    // when small values were set on this control. This ensures that the
+    // control will always be redrawn.
+    if (value < 5)
+    {
+        repaint();
+    }
 }
 
 /**
