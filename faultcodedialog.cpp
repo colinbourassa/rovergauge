@@ -6,7 +6,7 @@
  *  appropriately.
  */
 FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
-    rows(5)
+    rows(8)
 {
     qRegisterMetaType<Comm14CUXFaultCodes>("Comm14CUXFaultCodes");
     this->setWindowTitle(title);
@@ -46,7 +46,7 @@ void FaultCodeDialog::onFaultClearSuccess(Comm14CUXFaultCodes faultCodes)
  */
 void FaultCodeDialog::populateFaultList()
 {
-    faultNames.insert(FaultCode_ECUMemoryCheck, QString("(29) ECU checksum error"));
+    faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
     faultNames.insert(FaultCode_LambdaSensorLeft, QString("(44) Lambda sensor (left)"));
     faultNames.insert(FaultCode_LambdaSensorRight, QString("(45) Lambda sensor (right)"));
     faultNames.insert(FaultCode_MisfireLeft, QString("(40) Misfire (left)"));
@@ -68,8 +68,8 @@ void FaultCodeDialog::populateFaultList()
     faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral switch"));
     faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
     faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
-    faultNames.insert(FaultCode_BatteryDisconnected, QString("Battery disconnected"));
-    faultNames.insert(FaultCode_ECMMemoryCleared, QString("ECM memory cleared"));
+    faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
+    faultNames.insert(FaultCode_RAMChecksumFailure, QString("(03) Bad checksum on battery-backed RAM"));
 }
 
 /**
@@ -106,11 +106,11 @@ void FaultCodeDialog::setupWidgets()
     }
 
     clearButton = new QPushButton("Clear codes", this);
-    grid->addWidget(clearButton, rows-1, (position/rows*2)+1, Qt::AlignCenter);
+    grid->addWidget(clearButton, rows, position/rows*2 - 1, Qt::AlignCenter);
     connect(clearButton, SIGNAL(clicked()), this, SIGNAL(clearFaultCodes()));
 
     closeButton = new QPushButton("Close", this);
-    grid->addWidget(closeButton, rows, (position/rows*2)+1, Qt::AlignCenter);
+    grid->addWidget(closeButton, rows+1, position/rows*2 - 1, Qt::AlignCenter);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
@@ -120,7 +120,7 @@ void FaultCodeDialog::setupWidgets()
  */
 void FaultCodeDialog::lightLEDs(Comm14CUXFaultCodes faults)
 {
-    faultLights[FaultCode_ECUMemoryCheck]->setChecked(faults.ECU_Memory_Check);
+    faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
     faultLights[FaultCode_LambdaSensorLeft]->setChecked(faults.Lambda_Sensor_Left);
     faultLights[FaultCode_LambdaSensorRight]->setChecked(faults.Lambda_Sensor_Right);
     faultLights[FaultCode_MisfireLeft]->setChecked(faults.Misfire_Left_Bank);
@@ -143,7 +143,7 @@ void FaultCodeDialog::lightLEDs(Comm14CUXFaultCodes faults)
     faultLights[FaultCode_FuelPressureOrLeak]->setChecked(faults.Low_Fuel_Pressure_or_Air_Leak);
     faultLights[FaultCode_FuelTempSensor]->setChecked(faults.Fuel_Temp_Sensor);
     faultLights[FaultCode_BatteryDisconnected]->setChecked(faults.Battery_Disconnected);
-    faultLights[FaultCode_ECMMemoryCleared]->setChecked(faults.ECM_Memory_Cleared);
+    faultLights[FaultCode_RAMChecksumFailure]->setChecked(faults.RAM_Checksum_Failure);
 }
 
 /**

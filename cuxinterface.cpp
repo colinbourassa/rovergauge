@@ -20,7 +20,7 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     shutdownThread(false),
     readCanceled(false),
     readCount(0),
-    lambdaTrimType(0),
+    lambdaTrimType(1),
     airflowType(Comm14CUXAirflowType_Linearized),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
@@ -415,13 +415,20 @@ bool CUXInterface::readData()
     // closely-grouped 16-bit values read consecutively for read efficiency...
     if (lambdaTrimType == 1)
     {
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
+        success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
+    }
+    else if ( (lambdaTrimType == 2) && (((readCount + 2) % 5) == 0) )
+    {
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
     }
+
     if (readCount % 2 == 0)
     {
         success |= cux->getMainVoltage(mainVoltage);
     }
+
     success |= cux->getMAFReading(airflowType, mafReading);
     success |= cux->getThrottlePosition(throttlePos);
     success |= cux->getEngineRPM(engineSpeedRPM);
@@ -429,10 +436,12 @@ bool CUXInterface::readData()
     // ...and likewise with the 8-bit values low in memory...
     success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
     success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
+
     if ((readCount + 1) % 5 == 0)
     {
         success |= cux->getCoolantTemp(coolantTempF);
     }
+
     success |= cux->getIdleBypassMotorPosition(idleBypassPos);
 
     // ...and higher in memory
@@ -440,15 +449,19 @@ bool CUXInterface::readData()
     {
         success |= cux->getGearSelection(gear);
     }
+
     success |= cux->getRoadSpeed(roadSpeedMPH);
+
     if (readCount % 5 == 0)
     {
         success |= cux->getFuelTemp(fuelTempF);
     }
+
     if (readCount % 29 == 0)
     {
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
     }
+
     if (readCount % 7 == 0)
     {
         success |= cux->getTargetIdle(targetIdleSpeed);

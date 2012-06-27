@@ -15,7 +15,7 @@
  */
 enum FaultCode
 {
-    FaultCode_ECUMemoryCheck      = 0,
+    FaultCode_PROMChecksumFailure = 0,
     FaultCode_LambdaSensorLeft    = 1,
     FaultCode_LambdaSensorRight   = 2,
     FaultCode_MisfireLeft         = 3,
@@ -38,7 +38,7 @@ enum FaultCode
     FaultCode_FuelPressureOrLeak  = 20,
     FaultCode_FuelTempSensor      = 21,
     FaultCode_BatteryDisconnected = 22,
-    FaultCode_ECMMemoryCleared    = 23,
+    FaultCode_RAMChecksumFailure  = 23,
     FaultCode_TotalCount          = 24
 };
 
