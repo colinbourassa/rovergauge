@@ -175,6 +175,9 @@ private:
     int currentFuelMapRow;
     int currentFuelMapCol;
 
+    int widthPixels;
+    int heightPixels;
+
     void setupLayout();
     void createWidgets();
     void placeWidgets();

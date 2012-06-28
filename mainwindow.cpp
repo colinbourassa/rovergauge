@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QThread>
 #include <QFileDialog>
+#include <QDesktopWidget>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
@@ -23,11 +24,24 @@ MainWindow::MainWindow(QWidget *parent)
       pleaseWaitBox(0),
       currentFuelMapIndex(-1),
       currentFuelMapRow(-1),
-      currentFuelMapCol(-1)
+      currentFuelMapCol(-1),
+      widthPixels(940),
+      heightPixels(620)
 {
+    QDesktopWidget desktop;
+    const QRect screenGeo = desktop.screenGeometry();
+    if (screenGeo.height() < heightPixels)
+    {
+        heightPixels = screenGeo.height() * 0.9;
+    }
+    if (screenGeo.width() < widthPixels)
+    {
+        widthPixels = screenGeo.width() * 0.9;
+    }
+
     ui->setupUi(this);
-    this->setMinimumSize(940, 610);
     this->setWindowTitle("RoverGauge");
+    this->setMinimumSize(widthPixels, heightPixels);
 
     speedUnitSuffix = new QHash<SpeedUnits,QString>();
     speedUnitSuffix->insert(MPH, " MPH");
