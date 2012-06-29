@@ -30,11 +30,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     QDesktopWidget desktop;
     const QRect screenGeo = desktop.screenGeometry();
-    if (screenGeo.height() < heightPixels)
+    if ((screenGeo.height() * 0.95) < heightPixels)
     {
         heightPixels = screenGeo.height() * 0.9;
     }
-    if (screenGeo.width() < widthPixels)
+    if ((screenGeo.width() * 0.95) < widthPixels)
     {
         widthPixels = screenGeo.width() * 0.9;
     }
