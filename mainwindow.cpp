@@ -241,6 +241,16 @@ void MainWindow::createWidgets()
     mafReadingBar->setValue(0);
     mafReadingBar->setMinimumWidth(300);
 
+    throttleTypeLabel = new QLabel("Throttle reading type:", this);
+    throttleTypeAbsoluteButton = new QRadioButton("Absolute", this);
+    throttleTypeAbsoluteButton->setChecked(true);
+    throttleTypeCorrectedButton = new QRadioButton("Corrected", this);
+
+    throttleTypeButtonGroup = new QButtonGroup(this);
+    throttleTypeButtonGroup->addButton(throttleTypeAbsoluteButton, 1);
+    throttleTypeButtonGroup->addButton(throttleTypeCorrectedButton, 2);
+    connect(throttleTypeButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onThrottleTypeButtonClicked(int)));
+
     throttleLabel = new QLabel("Throttle position:", this);
     throttleBar = new QProgressBar(this);
     throttleBar->setRange(0, 100);
@@ -401,8 +411,14 @@ void MainWindow::placeWidgets()
 
     belowGaugesLeft->addWidget(mafReadingLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(mafReadingBar,      row++, 1, 1, 3);
+
+    belowGaugesLeft->addWidget(throttleTypeLabel,           row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(throttleTypeAbsoluteButton,  row,   1, 1, 1);
+    belowGaugesLeft->addWidget(throttleTypeCorrectedButton, row++, 2, 1, 1);
+
     belowGaugesLeft->addWidget(throttleLabel,      row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(throttleBar,        row++, 1, 1, 3);
+
     belowGaugesLeft->addWidget(idleBypassLabel,    row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
 
@@ -1198,3 +1214,11 @@ void MainWindow::onMAFReadingButtonClicked(int id)
     mafReadingBar->setValue(0);
 }
 
+/**
+ * Sets the type of throttle position to display.
+ * @param Set to 1 for Absolute, 2 for Corrected
+ */
+void MainWindow::onThrottleTypeButtonClicked(int id)
+{
+    cux->setThrottleReadingType(id == 2);
+}

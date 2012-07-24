@@ -21,6 +21,7 @@ public:
     void setIntervalMsecs(int msecs);
     void setLambdaTrimType(int type);
     void setMAFReadingType(Comm14CUXAirflowType type);
+    void setThrottleReadingType(bool isCorrected);
 
     QString getSerialDevice();
     int getIntervalMsecs();
@@ -101,6 +102,7 @@ private:
 
     int lambdaTrimType;
     Comm14CUXAirflowType airflowType;
+    bool correctedThrottlePos;
 
     uint16_t roadSpeedMPH;
     uint16_t engineSpeedRPM;

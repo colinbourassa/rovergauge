@@ -127,6 +127,11 @@ private:
     QRadioButton *lambdaTrimShortButton;
     QRadioButton *lambdaTrimLongButton;
 
+    QLabel *throttleTypeLabel;
+    QButtonGroup *throttleTypeButtonGroup;
+    QRadioButton *throttleTypeAbsoluteButton;
+    QRadioButton *throttleTypeCorrectedButton;
+
     FuelTrimBar *leftFuelTrimBar;
     QLabel *leftFuelTrimBarLabel;
     QLabel *leftFuelTrimLabel;
@@ -211,6 +216,7 @@ private slots:
     void onIdleAirControlClicked();
     void onLambdaTrimButtonClicked(int id);
     void onMAFReadingButtonClicked(int id);
+    void onThrottleTypeButtonClicked(int id);
 };
 
 #endif // MAINWINDOW_H
