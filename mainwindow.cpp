@@ -1220,5 +1220,13 @@ void MainWindow::onMAFReadingButtonClicked(int id)
  */
 void MainWindow::onThrottleTypeButtonClicked(int id)
 {
-    cux->setThrottleReadingType(id == 2);
+    if (id == 1)
+    {
+        cux->setThrottleReadingType(Comm14CUXThrottlePosType_Absolute);
+    }
+    else
+    {
+        cux->setThrottleReadingType(Comm14CUXThrottlePosType_Corrected);
+    }
 }
+

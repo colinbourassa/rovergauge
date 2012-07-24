@@ -22,7 +22,7 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     readCount(0),
     lambdaTrimType(1),
     airflowType(Comm14CUXAirflowType_Linearized),
-    correctedThrottlePos(false),
+    throttlePosType(Comm14CUXThrottlePosType_Corrected),
     roadSpeedMPH(0),
     engineSpeedRPM(0),
     targetIdleSpeed(0),
@@ -431,7 +431,7 @@ bool CUXInterface::readData()
     }
 
     success |= cux->getMAFReading(airflowType, mafReading);
-    success |= cux->getThrottlePosition(throttlePos, correctedThrottlePos);
+    success |= cux->getThrottlePosition(throttlePosType, throttlePos);
     success |= cux->getEngineRPM(engineSpeedRPM);
 
     // ...and likewise with the 8-bit values low in memory...
@@ -701,12 +701,11 @@ void CUXInterface::setMAFReadingType(Comm14CUXAirflowType type)
 
 /**
  * Sets the type of throttle position reading to take (corrected or absolute).
- * @param isCorrected True to select corrected reading; false to select
- *   absolute reading.
+ * @param type Selects either Absolute or Corrected throttle position type
  */
-void CUXInterface::setThrottleReadingType(bool isCorrected)
+void CUXInterface::setThrottleReadingType(Comm14CUXThrottlePosType type)
 {
-    correctedThrottlePos = isCorrected;
+    throttlePosType = type;
 }
 
 /**
