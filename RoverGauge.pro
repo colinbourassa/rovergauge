@@ -2,7 +2,7 @@ TARGET = rovergauge
 TEMPLATE = app
 DEFINES += "ROVERGAUGE_VER_MAJOR=0"
 DEFINES += "ROVERGAUGE_VER_MINOR=3"
-DEFINES += "ROVERGAUGE_VER_PATCH=4"
+DEFINES += "ROVERGAUGE_VER_PATCH=5"
 LIBS += -lcomm14cux
 win32 {
   LIBS += -LC:/comm14cux
@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     aboutbox.cpp \
     logger.cpp \
     idleaircontroldialog.cpp \
-    fueltrimbar.cpp
+    fueltrimbar.cpp \
+    tunerevisiontable.cpp
 HEADERS += mainwindow.h \
     optionsdialog.h \
     faultcodedialog.h \
@@ -27,7 +28,8 @@ HEADERS += mainwindow.h \
     logger.h \
     commonunits.h \
     idleaircontroldialog.h \
-    fueltrimbar.h
+    fueltrimbar.h \
+    tunerevisiontable.h
 FORMS += mainwindow.ui
 include(qledindicator/qledindicator.pri)
 include(analogwidgets/analogwidgets.pri)

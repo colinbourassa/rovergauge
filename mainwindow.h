@@ -25,6 +25,7 @@
 #include "aboutbox.h"
 #include "logger.h"
 #include "fueltrimbar.h"
+#include "commonunits.h"
 
 namespace Ui
 {
@@ -49,7 +50,7 @@ public slots:
     void onFaultCodesReady();
     void onFaultCodesReadFailed();
     void onFuelMapDataReady(int fuelMapId);
-    void onPROMImageReady();
+    void onPROMImageReady(bool displayTune);
     void onPROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
@@ -57,7 +58,7 @@ public slots:
 signals:
     void requestToStartPolling();
     void requestFuelMapData(int fuelMapId);
-    void requestPROMImage();
+    void requestPROMImage(bool displayTuneNumber);
     void requestThreadShutdown();
     void requestFuelPumpRun();
 
@@ -74,6 +75,7 @@ private:
     QAction *editOptionsAction;
     QAction *showFaultsAction;
     QAction *showIdleAirControlDialog;
+    QAction *checkPROMRevisionAction;
     QMenu *helpMenu;
     QAction *aboutAction;
 
@@ -196,6 +198,8 @@ private:
     void populateFuelMapDisplay(QByteArray* data);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCell();
+    void sendPROMImageRequest(QString prompt, bool displayTuneNumber);
+    QString byteArrayToHexString(QByteArray bytes);
 
     void setGearLabel(Comm14CUXGear gearReading);
     void setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim);
@@ -203,6 +207,7 @@ private:
 private slots:
     void onSavePROMImageSelected();
     void onPROMReadCancelled();
+    void onCheckPROMRevisionSelected();
     void onExitSelected();
     void onEditOptionsClicked();
     void onHelpAboutClicked();

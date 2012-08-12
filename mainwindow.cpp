@@ -7,9 +7,11 @@
 #include <QThread>
 #include <QFileDialog>
 #include <QDesktopWidget>
+#include <QCryptographicHash>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
+#include "tunerevisiontable.h"
 
 /**
  * Constructor; sets up main UI
@@ -84,12 +86,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(cux, SIGNAL(fuelMapReady(int)), this, SLOT(onFuelMapDataReady(int)));
     connect(cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
     connect(cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
-    connect(cux, SIGNAL(promImageReady()), this, SLOT(onPROMImageReady()));
+    connect(cux, SIGNAL(promImageReady(bool)), this, SLOT(onPROMImageReady(bool)));
     connect(cux, SIGNAL(promImageReadFailed()), this, SLOT(onPROMImageReadFailed()));
     connect(this, SIGNAL(requestToStartPolling()), cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(int)), cux, SLOT(onFuelMapRequested(int)));
-    connect(this, SIGNAL(requestPROMImage()), cux, SLOT(onReadPROMImageRequested()));
+    connect(this, SIGNAL(requestPROMImage(bool)), cux, SLOT(onReadPROMImageRequested(bool)));
     connect(this, SIGNAL(requestFuelPumpRun()), cux, SLOT(onFuelPumpRunRequest()));
     connect(fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRefreshTimer()));
 
@@ -193,6 +195,8 @@ void MainWindow::createWidgets()
     connect(showFaultsAction, SIGNAL(triggered()), cux, SLOT(onFaultCodesRequested()));
     showIdleAirControlDialog = optionsMenu->addAction("&Idle air control...");
     connect(showIdleAirControlDialog, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
+    checkPROMRevisionAction = optionsMenu->addAction("Check PROM &revision...");
+    connect(checkPROMRevisionAction, SIGNAL(triggered()), this, SLOT(onCheckPROMRevisionSelected()));
     editOptionsAction = optionsMenu->addAction("&Edit settings...");
     editOptionsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));    
     connect(editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
@@ -1048,14 +1052,35 @@ void MainWindow::onNotConnected()
 }
 
 /**
- * Emits a signal that requests the PROM image from the interface.
+ * Requests the PROM image so that it can be saved to disk.
  */
 void MainWindow::onSavePROMImageSelected()
 {
+    sendPROMImageRequest(
+        QString("Read the PROM image from the ECU? This will take approximately 25 seconds."), false);
+}
+
+/**
+ * Requests the PROM image so that its tune number can be identified.
+ * Also allows the option of saving the image to disk.
+ */
+void MainWindow::onCheckPROMRevisionSelected()
+{
+    sendPROMImageRequest(
+        QString("Checking the PROM revision requires reading the entire image from the ECU.\n") +
+        QString("This will take approximately 25 seconds. Proceed?"), true);
+}
+
+/**
+ * Prompts the user to continue, and sends a request to read the PROM image.
+ * @param prompt String used to prompt the user to continue.
+ * @param displayTune True to determine the tune number after the image has been read; false to skip this.
+ */
+void MainWindow::sendPROMImageRequest(QString prompt, bool displayTune)
+{
     if (cux->isConnected())
     {
-        if (QMessageBox::question(this, "Confirm",
-                "Read the PROM image from the ECU? This will take 20 to 30 seconds.",
+        if (QMessageBox::question(this, "Confirm", prompt,
                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
             if (pleaseWaitBox == 0)
@@ -1069,7 +1094,7 @@ void MainWindow::onSavePROMImageSelected()
             }
             pleaseWaitBox->show();
 
-            emit requestPROMImage();
+            emit requestPROMImage(displayTune);
         }
     }
     else
@@ -1081,7 +1106,7 @@ void MainWindow::onSavePROMImageSelected()
 }
 
 /**
- * Sets a flag that indicates we should ignore the
+ * Sets a flag that indicates we should ignore any PROM image that is returned.
  */
 void MainWindow::onPROMReadCancelled()
 {
@@ -1090,8 +1115,9 @@ void MainWindow::onPROMReadCancelled()
 
 /**
  * Prompts the user for a file in which to save the PROM image.
+ * @param displayTuneNumber True to determine the tune number after the image has been read; false to skip this.
  */
-void MainWindow::onPROMImageReady()
+void MainWindow::onPROMImageReady(bool displayTuneNumber)
 {
     if (pleaseWaitBox != 0)
     {
@@ -1099,29 +1125,51 @@ void MainWindow::onPROMImageReady()
     }
 
     QByteArray *promData = cux->getPROMImage();
+    bool saveToFile = true;
+
     if (promData != 0)
     {
-        QString saveFileName =
-            QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
-
-        if (!saveFileName.isNull() && !saveFileName.isEmpty())
+        if (displayTuneNumber)
         {
-            QFile saveFile(saveFileName);
-
-            if (saveFile.open(QIODevice::WriteOnly))
+            QByteArray md5SumBin = QCryptographicHash::hash(*promData, QCryptographicHash::Md5);
+            QString md5sum = byteArrayToHexString(md5SumBin);
+            TuneRevisionTable table;
+            QMessageBox tuneRevMsgBox(
+                QMessageBox::Information, "Tune information",
+                QString("Tune revision:\n%1\n\nDo you wish to save the PROM image to a file?").arg(
+                            table.lookup(md5sum)),
+                0, this, Qt::Dialog);
+            tuneRevMsgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            if (tuneRevMsgBox.exec() == QMessageBox::No)
             {
-                if (saveFile.write(*promData) != promData->capacity())
+                saveToFile = false;
+            }
+        }
+
+        if (saveToFile)
+        {
+            QString saveFileName =
+                    QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
+
+            if (!saveFileName.isNull() && !saveFileName.isEmpty())
+            {
+                QFile saveFile(saveFileName);
+
+                if (saveFile.open(QIODevice::WriteOnly))
+                {
+                    if (saveFile.write(*promData) != promData->capacity())
+                    {
+                        QMessageBox::warning(this, "Error",
+                            QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+                    }
+
+                    saveFile.close();
+                }
+                else
                 {
                     QMessageBox::warning(this, "Error",
                         QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
                 }
-
-                saveFile.close();
-            }
-            else
-            {
-                QMessageBox::warning(this, "Error",
-                    QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
             }
         }
     }
@@ -1230,3 +1278,21 @@ void MainWindow::onThrottleTypeButtonClicked(int id)
     }
 }
 
+/**
+ * Converts a QByteArray to a hex string that represents each byte consecutively
+ * (two printable digits per byte, in the style of md5sum output.)
+ * @param bytes Input byte array
+ * @return Hex string representation of the byte array
+ */
+QString MainWindow::byteArrayToHexString(QByteArray bytes)
+{
+    QString str("");
+    QChar fillChar('0');
+
+    for (int index = 0; index < bytes.length(); index++)
+    {
+        str.append(QString("%1").arg((unsigned char)bytes.at(index),2,16,fillChar));
+    }
+
+    return str.toUpper();
+}

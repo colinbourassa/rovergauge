@@ -62,7 +62,7 @@ public slots:
     void onFaultCodesRequested();
     void onFaultCodesClearRequested();
     void onFuelMapRequested(int fuelMapId);
-    void onReadPROMImageRequested();
+    void onReadPROMImageRequested(bool displayTune);
     void onStartPollingRequest();
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
@@ -80,7 +80,7 @@ signals:
     void faultCodesClearFailure();
     void fuelMapReady(int fuelMapId);
     void fuelMapReadFailed(int fuelMapId);
-    void promImageReady();
+    void promImageReady(bool displayTune);
     void promImageReadFailed();
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();

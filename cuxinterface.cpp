@@ -108,7 +108,7 @@ void CUXInterface::onFaultCodesClearRequested()
 /**
  * Reads the entire 16KB PROM.
  */
-void CUXInterface::onReadPROMImageRequested()
+void CUXInterface::onReadPROMImageRequested(bool displayTune)
 {
     if (cux != 0)
     {
@@ -122,7 +122,7 @@ void CUXInterface::onReadPROMImageRequested()
         {
             if (!readCanceled)
             {
-                emit promImageReady();
+                emit promImageReady(displayTune);
             }
         }
         else
