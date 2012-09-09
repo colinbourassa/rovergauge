@@ -126,6 +126,8 @@ private:
 
     QLabel *lambdaTrimTypeLabel;
     QButtonGroup *lambdaTrimButtonGroup;
+    QLabel *lambdaTrimLowLimitLabel;
+    QLabel *lambdaTrimHighLimitLabel;
     QRadioButton *lambdaTrimShortButton;
     QRadioButton *lambdaTrimLongButton;
 

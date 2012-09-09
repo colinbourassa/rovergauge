@@ -277,6 +277,9 @@ void MainWindow::createWidgets()
     lambdaTrimButtonGroup->addButton(lambdaTrimLongButton, 2);
     connect(lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
 
+    lambdaTrimLowLimitLabel = new QLabel("(Lean)", this);
+    lambdaTrimHighLimitLabel = new QLabel("(Rich)", this);
+
     leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
     leftFuelTrimBar = new FuelTrimBar(this);
     leftFuelTrimBar->setValue(0);
@@ -446,6 +449,9 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(rightFuelTrimLabel, row,   0, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(rightFuelTrimBarLabel,row, 1, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(rightFuelTrimBar,   row++, 2, 1, 2);
+
+    belowGaugesLeft->addWidget(lambdaTrimLowLimitLabel,  row,   2, 1, 1, Qt::AlignLeft);
+    belowGaugesLeft->addWidget(lambdaTrimHighLimitLabel, row++, 3, 1, 1, Qt::AlignRight);
 
     row = 0;
     belowGaugesRight->setColumnMinimumWidth(0, 20);
