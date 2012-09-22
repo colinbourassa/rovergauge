@@ -277,8 +277,8 @@ void MainWindow::createWidgets()
     lambdaTrimButtonGroup->addButton(lambdaTrimLongButton, 2);
     connect(lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
 
-    lambdaTrimLowLimitLabel = new QLabel("(Lean)", this);
-    lambdaTrimHighLimitLabel = new QLabel("(Rich)", this);
+    lambdaTrimLowLimitLabel = new QLabel("(Reducing)", this);
+    lambdaTrimHighLimitLabel = new QLabel("(Increasing)", this);
 
     leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
     leftFuelTrimBar = new FuelTrimBar(this);
