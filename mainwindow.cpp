@@ -1140,12 +1140,27 @@ void MainWindow::onPROMImageReady(bool displayTuneNumber)
             QByteArray md5SumBin = QCryptographicHash::hash(*promData, QCryptographicHash::Md5);
             QString md5sum = byteArrayToHexString(md5SumBin);
             TuneRevisionTable table;
-            QMessageBox tuneRevMsgBox(
-                QMessageBox::Information, "Tune information",
-                QString("Tune revision:\n%1\n\nDo you wish to save the PROM image to a file?").arg(
-                            table.lookup(md5sum)),
-                0, this, Qt::Dialog);
+            QString revNumber = table.lookup(md5sum);
+            QString msg;
+
+            // if the hash of this tune image isn't in our database, then also
+            // display the tune number stored in the PROM image itself
+            if (revNumber.isEmpty())
+            {
+                QString revFromImage = QString("R%1%2").
+                    arg(promData->at(0x3FE9), 2, 16, QChar('0')).
+                    arg(promData->at(0x3FEA), 2, 16, QChar('0'));
+
+                msg = QString("Tune revision not found in database. Revision reported by ECU is %1.\n\nDo you wish to save the PROM image to a file?").arg(revFromImage);
+            }
+            else // otherwise, display the tune number discovered by matching the hash
+            {
+                msg = QString("Tune revision:\n%1\n\nDo you wish to save the PROM image to a file?").arg(table.lookup(md5sum));
+            }
+
+            QMessageBox tuneRevMsgBox(QMessageBox::Information, "Tune information", msg, 0, this, Qt::Dialog);
             tuneRevMsgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
             if (tuneRevMsgBox.exec() == QMessageBox::No)
             {
                 saveToFile = false;
