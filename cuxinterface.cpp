@@ -9,10 +9,9 @@
  *  with the 14CUX.
  * @param interval Interval in milliseconds at which to poll the 14CUX.
  */
-CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
-                           TemperatureUnits tUnits, QObject *parent) :
+CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits tUnits,
+                           QObject *parent) :
     QObject(parent),
-    intervalMsecs(interval),
     deviceName(device),
     cux(0),
     timer(0),
@@ -42,7 +41,9 @@ CUXInterface::CUXInterface(QString device, int interval, SpeedUnits sUnits,
     promImage(0),
     fuelMapAdjFactor(0),
     speedUnits(sUnits),
-    tempUnits(tUnits)
+    tempUnits(tUnits),
+    lastMidFreqReadTime(0),
+    lastLowFreqReadTime(0)
 {
 }
 
@@ -270,15 +271,6 @@ void CUXInterface::setSerialDevice(QString device)
 }
 
 /**
- * Sets the interval between querying the ECU for new data.
- * @param msecs Poll interval in milliseconds.
- */
-void CUXInterface::setIntervalMsecs(int msecs)
-{
-    intervalMsecs = msecs;
-}
-
-/**
  * Returns the name of the serial device that is being used to communicate
  * with the 14CUX ECU.
  * @return Serial device, such as "/dev/ttyUSB0" or "COM2"
@@ -355,18 +347,12 @@ void CUXInterface::onStartPollingRequest()
 }
 
 /**
- * Reads specific locations from the ECU and stores the data locally, then
- * calculates the amount of time to wait until the next read cycle. If the
- * timer interval is set to less than the amount of time that it takes to
- * actually read and process the data, then the read cycle will immediately
- * repeat.
+ * Reads specific locations from the ECU and stores the data locally.
  */
 void CUXInterface::pollEcu()
 {
-    qint64 nextDue = QDateTime::currentMSecsSinceEpoch() + intervalMsecs;
-
     // if we're being asked to stop the thread, or if the 14CUX interface is
-    // no longer connected
+    // no longer connected...
     if (stopPolling || shutdownThread ||
         (cux == 0) || (!cux->isConnected()) )
     {
@@ -394,13 +380,7 @@ void CUXInterface::pollEcu()
         }
 
         readCount++;
-
-        int msecUntilNext = nextDue - QDateTime::currentMSecsSinceEpoch();
-        if (msecUntilNext < 0)
-        {
-            msecUntilNext = 0;
-        }
-        timer->start(msecUntilNext);
+        timer->start(0);
     }
 }
 
@@ -412,67 +392,93 @@ void CUXInterface::pollEcu()
 bool CUXInterface::readData()
 {
     bool success = false;
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
 
-    // closely-grouped 16-bit values read consecutively for read efficiency...
-    if (lambdaTrimType == 1)
+    success |= readHighFreqData();
+    if (now > (lastMidFreqReadTime + 200))
+    {
+        success |= readMidFreqData();
+    }
+    if (now > (lastLowFreqReadTime + 800))
+    {
+        success |= readLowFreqData();
+    }
+    return success;
+}
+
+bool CUXInterface::readHighFreqData()
+{
+    bool success = false;
+
+    // 16-bit values
+    success |= cux->getMAFReading(airflowType, mafReading);
+    success |= cux->getThrottlePosition(throttlePosType, throttlePos);
+    if (lambdaTrimType == 1) // if the frontend if expecting short-term lambda trim
     {
         success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
     }
-    else if ( (lambdaTrimType == 2) && (((readCount + 2) % 5) == 0) )
+    success |= cux->getEngineRPM(engineSpeedRPM);
+
+    // 8-bit values
+    success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
+    success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
+    success |= cux->getIdleBypassMotorPosition(idleBypassPos);
+
+    return success;
+}
+
+bool CUXInterface::readMidFreqData()
+{
+    bool success = false;
+
+    // 16-bit values
+    if (lambdaTrimType == 2) // if the frontend is expecting long-term lambda trim
     {
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
     }
+    success |= cux->getMainVoltage(mainVoltage);
+    success |= cux->getTargetIdle(targetIdleSpeed);
+
+    // 8-bit values
+    success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
+    success |= cux->getGearSelection(gear);
+    success |= cux->getRoadSpeed(roadSpeedMPH);
+
+    if (success)
+    {
+        lastMidFreqReadTime = QDateTime::currentMSecsSinceEpoch();
+    }
+
+    return success;
+}
+
+bool CUXInterface::readLowFreqData()
+{
+    bool success = false;
 
     if (readCount % 2 == 0)
     {
-        success |= cux->getMainVoltage(mainVoltage);
-    }
-
-    success |= cux->getMAFReading(airflowType, mafReading);
-    success |= cux->getThrottlePosition(throttlePosType, throttlePos);
-    success |= cux->getEngineRPM(engineSpeedRPM);
-
-    // ...and likewise with the 8-bit values low in memory...
-    success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
-    success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
-
-    if ((readCount + 1) % 5 == 0)
-    {
         success |= cux->getCoolantTemp(coolantTempF);
     }
-
-    success |= cux->getIdleBypassMotorPosition(idleBypassPos);
-
-    // ...and higher in memory
-    if (readCount % 3 == 0)
-    {
-        success |= cux->getGearSelection(gear);
-    }
-
-    success |= cux->getRoadSpeed(roadSpeedMPH);
-
-    if (readCount % 5 == 0)
+    else
     {
         success |= cux->getFuelTemp(fuelTempF);
     }
-
-    if (readCount % 29 == 0)
+    if (readCount % 7 == 0)
     {
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
     }
 
-    if (readCount % 7 == 0)
+    if (success)
     {
-        success |= cux->getTargetIdle(targetIdleSpeed);
+        lastLowFreqReadTime = QDateTime::currentMSecsSinceEpoch();
     }
-
-    // this one's done separately, since it's way at the bottom of memory
-    success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
 
     return success;
 }
+
 
 /**
  * Responds to the single-shot timer expiring by polling the ECU for new data.

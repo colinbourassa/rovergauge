@@ -21,8 +21,6 @@ public:
     OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
     bool getSerialDeviceChanged();
-    int getPollIntervalMilliseconds();
-    bool getPollIntervalChanged();
     int getSpeedMax();
     int getRedline();
     SpeedUnits getSpeedUnits();
@@ -35,8 +33,6 @@ private:
     QGridLayout *grid;
     QLabel *serialDeviceLabel;
     QComboBox *serialDeviceBox;
-    QLabel *pollIntervalLabel;
-    QSpinBox *pollIntervalBox;
     QLabel *speedMaxLabel;
     QSpinBox *speedMaxBox;
     QLabel *redlineLabel;
@@ -52,20 +48,17 @@ private:
     QPushButton *cancelButton;
 
     QString serialDeviceName;
-    int pollIntervalMilliseconds;
     int speedMax;
     int redline;
     TemperatureUnits tempUnits;
     SpeedUnits speedUnits;
 
     bool serialDeviceChanged;
-    bool pollIntervalChanged;
 
     const QString settingsFileName;
     const QString settingsGroupName;
 
     const QString settingSerialDev;
-    const QString settingPollIntervalMSecs;
     const QString settingSpeedMax;
     const QString settingRedline;
     const QString settingSpeedUnits;

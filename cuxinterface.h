@@ -13,12 +13,11 @@ class CUXInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit CUXInterface(QString device, int interval, SpeedUnits sUnits,
+    explicit CUXInterface(QString device, SpeedUnits sUnits,
                           TemperatureUnits tUnits, QObject *parent = 0);
     ~CUXInterface();
 
     void setSerialDevice(QString device);
-    void setIntervalMsecs(int msecs);
     void setLambdaTrimType(int type);
     void setMAFReadingType(Comm14CUXAirflowType type);
     void setThrottleReadingType(Comm14CUXThrottlePosType type);
@@ -128,8 +127,14 @@ private:
     SpeedUnits speedUnits;
     TemperatureUnits tempUnits;
 
+    qint64 lastMidFreqReadTime;
+    qint64 lastLowFreqReadTime;
+
     void pollEcu();
     bool readData();
+    bool readHighFreqData();
+    bool readMidFreqData();
+    bool readLowFreqData();
     bool connectToECU();
     int convertSpeed(int speedMph);
     int convertTemperature(int tempF);

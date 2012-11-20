@@ -63,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
     tempLimits->insert(Celcius, qMakePair(80, 98));
 
     options = new OptionsDialog(this->windowTitle(), this);
-    cux = new CUXInterface(options->getSerialDeviceName(), options->getPollIntervalMilliseconds(),
-                           options->getSpeedUnits(), options->getTemperatureUnits());
+    cux = new CUXInterface(options->getSerialDeviceName(), options->getSpeedUnits(),
+                           options->getTemperatureUnits());
 
     iacDialog = new IdleAirControlDialog(this->windowTitle(), this);
     connect(iacDialog, SIGNAL(requestIdleAirControlMovement(int,int)),
@@ -883,11 +883,6 @@ void MainWindow::onEditOptionsClicked()
                 cux->disconnectFromECU();
             }
             cux->setSerialDevice(options->getSerialDeviceName());
-        }
-
-        if (options->getPollIntervalChanged())
-        {
-            cux->setIntervalMsecs(options->getPollIntervalMilliseconds());
         }
     }
 }

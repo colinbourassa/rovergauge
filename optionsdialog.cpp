@@ -9,7 +9,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     serialDeviceChanged(false),
     settingsGroupName("Settings"),
     settingSerialDev("SerialDevice"),
-    settingPollIntervalMSecs("PollIntervalMilliseconds"),
     settingSpeedMax("SpeedometerMax"),
     settingRedline("Redline"),
     settingSpeedUnits("SpeedUnits"),
@@ -32,9 +31,6 @@ void OptionsDialog::setupWidgets()
     serialDeviceLabel = new QLabel("Serial device name:", this);
     serialDeviceBox = new QComboBox(this);
 
-    pollIntervalLabel = new QLabel("Poll interval in milliseconds:", this);
-    pollIntervalBox = new QSpinBox(this);
-
     speedMaxLabel = new QLabel("Maximum speed on speedometer:", this);
     speedMaxBox = new QSpinBox(this);
 
@@ -54,11 +50,6 @@ void OptionsDialog::setupWidgets()
     serialDeviceBox->addItems(serialDevs.getSerialDevList(serialDeviceName));
     serialDeviceBox->setEditable(true);
     serialDeviceBox->setMinimumWidth(150);
-
-    pollIntervalBox->setMaximum(60000);
-    pollIntervalBox->setMinimum(0);
-    pollIntervalBox->setSingleStep(50);
-    pollIntervalBox->setValue(pollIntervalMilliseconds);
 
     speedMaxBox->setMaximum(250);
     speedMaxBox->setMinimum(10);
@@ -82,9 +73,6 @@ void OptionsDialog::setupWidgets()
 
     grid->addWidget(serialDeviceLabel, row, 0);
     grid->addWidget(serialDeviceBox, row++, 1);
-
-    grid->addWidget(pollIntervalLabel, row, 0);
-    grid->addWidget(pollIntervalBox, row++, 1);
 
     grid->addWidget(speedMaxLabel, row, 0);
     grid->addWidget(speedMaxBox, row++, 1);
@@ -125,18 +113,6 @@ void OptionsDialog::accept()
         serialDeviceChanged = false;
     }
 
-    // caller would probably also like to know whether it
-    // should change its poll timer interval
-    if (pollIntervalMilliseconds != pollIntervalBox->value())
-    {
-        pollIntervalMilliseconds = pollIntervalBox->value();
-        pollIntervalChanged = true;
-    }
-    else
-    {
-        pollIntervalChanged = false;
-    }
-
     speedMax = speedMaxBox->value();
     redline = redlineBox->value();
     tempUnits = (TemperatureUnits)(temperatureUnitsBox->currentIndex());
@@ -155,7 +131,6 @@ void OptionsDialog::readSettings()
 
     settings.beginGroup(settingsGroupName);
     serialDeviceName = settings.value(settingSerialDev, "").toString();
-    pollIntervalMilliseconds = settings.value(settingPollIntervalMSecs, 500).toInt();
     speedMax = settings.value(settingSpeedMax, 160).toInt();
     redline = settings.value(settingRedline, 5500).toInt();
     speedUnits = (SpeedUnits)(settings.value(settingSpeedUnits, MPH).toInt());
@@ -173,7 +148,6 @@ void OptionsDialog::writeSettings()
 
     settings.beginGroup(settingsGroupName);
     settings.setValue(settingSerialDev, serialDeviceName);
-    settings.setValue(settingPollIntervalMSecs, pollIntervalMilliseconds);
     settings.setValue(settingSpeedMax, speedMax);
     settings.setValue(settingRedline, redline);
     settings.setValue(settingSpeedUnits, speedUnits);
@@ -188,22 +162,6 @@ void OptionsDialog::writeSettings()
 bool OptionsDialog::getSerialDeviceChanged()
 {
     return serialDeviceChanged;
-}
-
-/**
- * Returns a flag indicating whether the poll interval has been changed.
- */
-bool OptionsDialog::getPollIntervalChanged()
-{
-    return pollIntervalChanged;
-}
-
-/**
- * Returns the poll interval in seconds.
- */
-int OptionsDialog::getPollIntervalMilliseconds()
-{
-    return pollIntervalMilliseconds;
 }
 
 /**
