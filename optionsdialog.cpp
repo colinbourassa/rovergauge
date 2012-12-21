@@ -14,6 +14,38 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     settingSpeedUnits("SpeedUnits"),
     settingTemperatureUnits("TemperatureUnits")
 {
+    sampleTypeNames[SampleType_MAF] = "SampleType_MAF";
+    sampleTypeNames[SampleType_Throttle] = "SampleType_Throttle";
+    sampleTypeNames[SampleType_IdleBypassPosition] = "SampleType_IdleBypassPosition";
+    sampleTypeNames[SampleType_TargetIdleRPM] = "SampleType_TargetIdleRPM";
+    sampleTypeNames[SampleType_GearSelection] = "SampleType_GearSelection";
+    sampleTypeNames[SampleType_MainVoltage] = "SampleType_MainVoltage";
+    sampleTypeNames[SampleType_LambdaTrim] = "SampleType_LambdaTrim";
+    sampleTypeNames[SampleType_CurrentFuelMap] = "SampleType_CurrentFuelMap";
+    sampleTypeNames[SampleType_FuelMapRow] = "SampleType_FuelMapRow";
+    sampleTypeNames[SampleType_FuelMapColumn] = "SampleType_FuelMapColumn";
+    sampleTypeNames[SampleType_FuelPumpRelay] = "SampleType_FuelPumpRelay";
+    sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
+    sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
+    sampleTypeNames[SampleType_EngineRPM] = "SampleType_EngineRPM";
+    sampleTypeNames[SampleType_FuelTemperature] = "SampleType_FuelTemperature";
+
+    sampleTypeLabels[SampleType_MAF] = "Mass airflow";
+    sampleTypeLabels[SampleType_Throttle] = "Throttle position";
+    sampleTypeLabels[SampleType_IdleBypassPosition] = "Idle bypass position";
+    sampleTypeLabels[SampleType_TargetIdleRPM] = "Target idle RPM";
+    sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
+    sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
+    sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim";
+    sampleTypeLabels[SampleType_CurrentFuelMap] = "Current fuel map";
+    sampleTypeLabels[SampleType_FuelMapRow] = "Fuel map row";
+    sampleTypeLabels[SampleType_FuelMapColumn] = "Fuel map column";
+    sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
+    sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
+    sampleTypeLabels[SampleType_RoadSpeed] = "Road speed";
+    sampleTypeLabels[SampleType_EngineRPM] = "Engine RPM";
+    sampleTypeLabels[SampleType_FuelTemperature] = "Fuel temperature";
+
     this->setWindowTitle(title);
     readSettings();
     setupWidgets();
@@ -24,7 +56,10 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
  */
 void OptionsDialog::setupWidgets()
 {
-    int row = 0;
+    unsigned int row = 0;
+    unsigned char numCheckboxesPerColumn = 0;
+    unsigned char checkboxIndex = 0;
+    unsigned int checkboxStartingRow = row;
 
     grid = new QGridLayout(this);
 
@@ -42,6 +77,25 @@ void OptionsDialog::setupWidgets()
 
     temperatureUnitsLabel = new QLabel("Temperature units:", this);
     temperatureUnitsBox = new QComboBox(this);
+
+    horizontalLineA = new QFrame(this);
+    horizontalLineA->setFrameShape(QFrame::HLine);
+    horizontalLineA->setFrameShadow(QFrame::Sunken);
+
+    horizontalLineB = new QFrame(this);
+    horizontalLineB->setFrameShape(QFrame::HLine);
+    horizontalLineB->setFrameShadow(QFrame::Sunken);
+
+    enabledSamplesLabel = new QLabel("Enabled readings:", this);
+    foreach (SampleType sType, sampleTypeNames.keys())
+    {
+        enabledSamplesBoxes.insert(sType, new QCheckBox(sampleTypeLabels[sType], this));
+        enabledSamplesBoxes[sType]->setChecked(enabledSamples[sType]);
+    }
+    numCheckboxesPerColumn = enabledSamplesBoxes.count() / 2;
+
+    checkAllButton = new QPushButton("Enable all", this);
+    uncheckAllButton = new QPushButton("Disable all", this);
 
     okButton = new QPushButton("OK", this);
     cancelButton = new QPushButton("Cancel", this);
@@ -86,11 +140,53 @@ void OptionsDialog::setupWidgets()
     grid->addWidget(temperatureUnitsLabel, row, 0);
     grid->addWidget(temperatureUnitsBox, row++, 1);
 
+    grid->addWidget(horizontalLineA, row++, 0, 1, 2);
+
+    grid->addWidget(enabledSamplesLabel, row++, 0);
+
+    grid->addWidget(checkAllButton, row, 0);
+    grid->addWidget(uncheckAllButton, row++, 1);
+
+    checkboxStartingRow = row;
+
+    foreach (QCheckBox *sampleCheckBox, enabledSamplesBoxes)
+    {
+        grid->addWidget(sampleCheckBox, row, (checkboxIndex <= numCheckboxesPerColumn) ? 0 : 1);
+        row = (checkboxIndex == numCheckboxesPerColumn) ? checkboxStartingRow : (row + 1);
+        checkboxIndex += 1;
+    }
+
+    if (enabledSamplesBoxes.count() % 2 == 1)
+    {
+        row++;
+    }
+
+    grid->addWidget(horizontalLineB, row++, 0, 1, 2);
+
     grid->addWidget(okButton, row, 0);
     grid->addWidget(cancelButton, row++, 1);
 
+    connect(checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
+    connect(uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
+
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+void OptionsDialog::checkAll()
+{
+    foreach (QCheckBox *box, enabledSamplesBoxes)
+    {
+        box->setChecked(true);
+    }
+}
+
+void OptionsDialog::uncheckAll()
+{
+    foreach (QCheckBox *box, enabledSamplesBoxes)
+    {
+        box->setChecked(false);
+    }
 }
 
 /**
@@ -118,6 +214,11 @@ void OptionsDialog::accept()
     tempUnits = (TemperatureUnits)(temperatureUnitsBox->currentIndex());
     speedUnits = (SpeedUnits)(speedUnitsBox->currentIndex());
 
+    foreach (SampleType sType, sampleTypeNames.keys())
+    {
+        enabledSamples[sType] = enabledSamplesBoxes[sType]->isChecked();
+    }
+
     writeSettings();
     done(QDialog::Accepted);
 }
@@ -136,6 +237,11 @@ void OptionsDialog::readSettings()
     speedUnits = (SpeedUnits)(settings.value(settingSpeedUnits, MPH).toInt());
     tempUnits = (TemperatureUnits)(settings.value(settingTemperatureUnits, Fahrenheit).toInt());
 
+    foreach (SampleType sType, sampleTypeNames.keys())
+    {
+        enabledSamples[sType] = settings.value(sampleTypeNames[sType], true).toBool();
+    }
+
     settings.endGroup();
 }
 
@@ -152,6 +258,11 @@ void OptionsDialog::writeSettings()
     settings.setValue(settingRedline, redline);
     settings.setValue(settingSpeedUnits, speedUnits);
     settings.setValue(settingTemperatureUnits, tempUnits);
+
+    foreach (SampleType sType, sampleTypeNames.keys())
+    {
+        settings.setValue(sampleTypeNames[sType], enabledSamples[sType]);
+    }
 
     settings.endGroup();
 }
