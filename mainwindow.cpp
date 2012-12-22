@@ -908,46 +908,67 @@ void MainWindow::onEditOptionsClicked()
 
 void MainWindow::dimUnusedControls()
 {
-    mafReadingBar->setEnabled(enabledSamples[SampleType_MAF]);
-    throttleBar->setEnabled(enabledSamples[SampleType_Throttle]);
-    idleBypassPosBar->setEnabled(enabledSamples[SampleType_IdleBypassPosition]);
-    gear->setEnabled(enabledSamples[SampleType_GearSelection]);
-    voltage->setEnabled(enabledSamples[SampleType_MainVoltage]);
-    targetIdle->setEnabled(enabledSamples[SampleType_TargetIdleRPM]);
+    bool enabled = enabledSamples[SampleType_MAF];
+    mafReadingLabel->setEnabled(enabled);
+    mafReadingBar->setEnabled(enabled);
+    mafReadingTypeLabel->setEnabled(enabled);
+    mafReadingDirectButton->setEnabled(enabled);
+    mafReadingLinearButton->setEnabled(enabled);
 
-    // there's only one 'enable' flag for both the left and right lambda
-    // fuel trim, so just read it from the hash table once
-    if (enabledSamples[SampleType_LambdaTrim])
-    {
-        leftFuelTrimBar->setEnabled(true);
-        rightFuelTrimBar->setEnabled(true);
-    }
-    else
-    {
-        leftFuelTrimBar->setEnabled(false);
-        rightFuelTrimBar->setEnabled(false);
-    }
+    enabled = enabledSamples[SampleType_Throttle];
+    throttleLabel->setEnabled(enabled);
+    throttleBar->setEnabled(enabled);
+    throttleTypeLabel->setEnabled(enabled);
+    throttleTypeAbsoluteButton->setEnabled(enabled);
+    throttleTypeCorrectedButton->setEnabled(enabled);
 
-    // there's only one 'enable' flag for all the displayed fuel map
-    // information, so just read it from the hash table once
-    if (enabledSamples[SampleType_FuelMap])
-    {
-        fuelMapIndexLabel->setEnabled(true);
-        fuelMapFactorLabel->setEnabled(true);
-        fuelMapOpacity->setEnabled(false);
-    }
-    else
-    {
-        fuelMapIndexLabel->setEnabled(false);
-        fuelMapFactorLabel->setEnabled(false);
-        fuelMapOpacity->setEnabled(true);
-    }
+    enabled = enabledSamples[SampleType_IdleBypassPosition];
+    idleBypassLabel->setEnabled(enabled);
+    idleBypassPosBar->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_GearSelection];
+    gearLabel->setEnabled(enabled);
+    gear->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_MainVoltage];
+    voltageLabel->setEnabled(enabled);
+    voltage->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_TargetIdleRPM];
+    targetIdleLabel->setEnabled(enabled);
+    targetIdle->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_LambdaTrim];
+    lambdaTrimTypeLabel->setEnabled(enabled);
+    lambdaTrimLowLimitLabel->setEnabled(enabled);
+    lambdaTrimHighLimitLabel->setEnabled(enabled);
+    lambdaTrimShortButton->setEnabled(enabled);
+    lambdaTrimLongButton->setEnabled(enabled);
+    leftFuelTrimBar->setEnabled(enabled);
+    leftFuelTrimLabel->setEnabled(enabled);
+    leftFuelTrimBarLabel->setEnabled(enabled);
+    rightFuelTrimBar->setEnabled(enabled);
+    rightFuelTrimBarLabel->setEnabled(enabled);
+    rightFuelTrimLabel->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_FuelPumpRelay];
+    fuelPumpRelayStateLabel->setEnabled(enabled);
+    fuelPumpRelayStateLed->setEnabled(enabled);
+
+    enabled = enabledSamples[SampleType_FuelMap];
+    fuelMapIndexLabel->setEnabled(enabled);
+    fuelMapFactorLabel->setEnabled(enabled);
+    fuelMapOpacity->setEnabled(!enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
     // graphical effect; the 'enabled' bit is therefore inverted because it's
     // controlling the state of the graphical effect (rather than the widget).
-    waterTempGaugeOpacity->setEnabled(!enabledSamples[SampleType_EngineTemperature]);
-    fuelTempGaugeOpacity->setEnabled(!enabledSamples[SampleType_FuelTemperature]);
+    enabled = enabledSamples[SampleType_EngineTemperature];
+    waterTempGaugeOpacity->setEnabled(!enabled);
+    waterTempLabel->setEnabled(enabled);
+    enabled = enabledSamples[SampleType_FuelTemperature];
+    fuelTempGaugeOpacity->setEnabled(!enabled);
+    fuelTempLabel->setEnabled(enabled);
     revCounterOpacity->setEnabled(!enabledSamples[SampleType_EngineRPM]);
     speedometerOpacity->setEnabled(!enabledSamples[SampleType_RoadSpeed]);
 }
