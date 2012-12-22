@@ -21,9 +21,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     sampleTypeNames[SampleType_GearSelection] = "SampleType_GearSelection";
     sampleTypeNames[SampleType_MainVoltage] = "SampleType_MainVoltage";
     sampleTypeNames[SampleType_LambdaTrim] = "SampleType_LambdaTrim";
-    sampleTypeNames[SampleType_CurrentFuelMap] = "SampleType_CurrentFuelMap";
-    sampleTypeNames[SampleType_FuelMapRow] = "SampleType_FuelMapRow";
-    sampleTypeNames[SampleType_FuelMapColumn] = "SampleType_FuelMapColumn";
+    sampleTypeNames[SampleType_FuelMap] = "SampleType_FuelMap";
     sampleTypeNames[SampleType_FuelPumpRelay] = "SampleType_FuelPumpRelay";
     sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
     sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
@@ -37,9 +35,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
     sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
     sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim";
-    sampleTypeLabels[SampleType_CurrentFuelMap] = "Current fuel map";
-    sampleTypeLabels[SampleType_FuelMapRow] = "Fuel map row";
-    sampleTypeLabels[SampleType_FuelMapColumn] = "Fuel map column";
+    sampleTypeLabels[SampleType_FuelMap] = "Fuel map data";
     sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
     sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
     sampleTypeLabels[SampleType_RoadSpeed] = "Road speed";
@@ -265,6 +261,11 @@ void OptionsDialog::writeSettings()
     }
 
     settings.endGroup();
+}
+
+QHash<SampleType,bool> OptionsDialog::getEnabledSamples()
+{
+    return enabledSamples;
 }
 
 /**

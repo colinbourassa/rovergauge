@@ -410,20 +410,31 @@ bool CUXInterface::readHighFreqData()
 {
     bool success = false;
 
-    // 16-bit values
-    success |= cux->getMAFReading(airflowType, mafReading);
-    success |= cux->getThrottlePosition(throttlePosType, throttlePos);
-    if (lambdaTrimType == 1) // if the frontend if expecting short-term lambda trim
+    if (enabledSamples[SampleType_MAF])
+        success |= cux->getMAFReading(airflowType, mafReading);
+
+    if (enabledSamples[SampleType_Throttle])
+        success |= cux->getThrottlePosition(throttlePosType, throttlePos);
+
+    // if the frontend if expecting short-term lambda trim
+    // (as opposed to long-term trim)
+    if (enabledSamples[SampleType_LambdaTrim] && (lambdaTrimType == 1))
     {
         success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
     }
-    success |= cux->getEngineRPM(engineSpeedRPM);
 
-    // 8-bit values
-    success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
-    success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
-    success |= cux->getIdleBypassMotorPosition(idleBypassPos);
+    if (enabledSamples[SampleType_EngineRPM])
+        success |= cux->getEngineRPM(engineSpeedRPM);
+
+    if (enabledSamples[SampleType_FuelMap])
+    {
+        success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
+        success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
+    }
+
+    if (enabledSamples[SampleType_IdleBypassPosition])
+        success |= cux->getIdleBypassMotorPosition(idleBypassPos);
 
     return success;
 }
@@ -432,19 +443,28 @@ bool CUXInterface::readMidFreqData()
 {
     bool success = false;
 
-    // 16-bit values
-    if (lambdaTrimType == 2) // if the frontend is expecting long-term lambda trim
+    // if the frontend is expecting long-term lambda trim
+    // (as opposed to short-term trim)
+    if (enabledSamples[SampleType_LambdaTrim] && (lambdaTrimType == 2))
     {
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
         success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
     }
-    success |= cux->getMainVoltage(mainVoltage);
-    success |= cux->getTargetIdle(targetIdleSpeed);
 
-    // 8-bit values
-    success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
-    success |= cux->getGearSelection(gear);
-    success |= cux->getRoadSpeed(roadSpeedMPH);
+    if (enabledSamples[SampleType_MainVoltage])
+        success |= cux->getMainVoltage(mainVoltage);
+
+    if (enabledSamples[SampleType_TargetIdleRPM])
+        success |= cux->getTargetIdle(targetIdleSpeed);
+
+    if (enabledSamples[SampleType_FuelPumpRelay])
+        success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
+
+    if (enabledSamples[SampleType_GearSelection])
+        success |= cux->getGearSelection(gear);
+
+    if (enabledSamples[SampleType_RoadSpeed])
+        success |= cux->getRoadSpeed(roadSpeedMPH);
 
     if (success)
     {
@@ -454,22 +474,26 @@ bool CUXInterface::readMidFreqData()
     return success;
 }
 
+/**
+ * Reads data that changes at a low rate, such as temperatures.
+ * @return True if a read was scheduled and completed successfully,
+ *  false otherwise.
+ */
 bool CUXInterface::readLowFreqData()
 {
     bool success = false;
 
-    if (readCount % 2 == 0)
-    {
+    // alternate between reading coolant temperature and fuel temperature
+    if (enabledSamples[SampleType_EngineTemperature] && (readCount % 2 == 0))
         success |= cux->getCoolantTemp(coolantTempF);
-    }
-    else
-    {
+    else if (enabledSamples[SampleType_FuelTemperature])
         success |= cux->getFuelTemp(fuelTempF);
-    }
-    if (readCount % 7 == 0)
-    {
+
+    // less frequently, check the ID of the current fuel map
+    // (this would only change as a result of a different
+    //  tune resistor being switched in)
+    if (enabledSamples[SampleType_FuelMap] && (readCount % 7 == 0))
         success |= cux->getCurrentFuelMap(currentFuelMapIndex);
-    }
 
     if (success)
     {
@@ -478,7 +502,6 @@ bool CUXInterface::readLowFreqData()
 
     return success;
 }
-
 
 /**
  * Responds to the single-shot timer expiring by polling the ECU for new data.
@@ -776,4 +799,12 @@ int CUXInterface::convertTemperature(int tempF)
     }
 
     return (int)temp;
+}
+
+/**
+ * Updates the list of sample types that are enabled/disabled for reading
+ */
+void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
+{
+    enabledSamples = samples;
 }

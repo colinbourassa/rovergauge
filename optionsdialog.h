@@ -13,28 +13,9 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QString>
-#include <QMap>
+#include <QHash>
 #include <QFrame>
 #include "commonunits.h"
-
-enum SampleType
-{
-    SampleType_MAF,
-    SampleType_Throttle,
-    SampleType_IdleBypassPosition,
-    SampleType_TargetIdleRPM,
-    SampleType_GearSelection,
-    SampleType_MainVoltage,
-    SampleType_LambdaTrim,
-    SampleType_CurrentFuelMap,
-    SampleType_FuelMapRow,
-    SampleType_FuelMapColumn,
-    SampleType_FuelPumpRelay,
-    SampleType_EngineTemperature,
-    SampleType_RoadSpeed,
-    SampleType_EngineRPM,
-    SampleType_FuelTemperature
-};
 
 class OptionsDialog : public QDialog
 {
@@ -48,7 +29,7 @@ public:
     int getRedline();
     SpeedUnits getSpeedUnits();
     TemperatureUnits getTemperatureUnits();
-    QMap<SampleType,bool> getEnabledSamples();
+    QHash<SampleType,bool> getEnabledSamples();
 
 protected:
     void accept();
@@ -77,7 +58,7 @@ private:
     QLabel *enabledSamplesLabel;
     QPushButton *checkAllButton;
     QPushButton *uncheckAllButton;
-    QMap<SampleType,QCheckBox*> enabledSamplesBoxes;
+    QHash<SampleType,QCheckBox*> enabledSamplesBoxes;
 
     QPushButton *okButton;
     QPushButton *cancelButton;
@@ -88,9 +69,9 @@ private:
     TemperatureUnits tempUnits;
     SpeedUnits speedUnits;
 
-    QMap<SampleType,bool> enabledSamples;
-    QMap<SampleType,QString> sampleTypeNames;
-    QMap<SampleType,QString> sampleTypeLabels;
+    QHash<SampleType,bool> enabledSamples;
+    QHash<SampleType,QString> sampleTypeNames;
+    QHash<SampleType,QString> sampleTypeLabels;
     bool serialDeviceChanged;
 
     const QString settingsFileName;

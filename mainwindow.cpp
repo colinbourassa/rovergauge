@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QDesktopWidget>
 #include <QCryptographicHash>
+#include <QGraphicsOpacityEffect>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
@@ -66,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent)
     cux = new CUXInterface(options->getSerialDeviceName(), options->getSpeedUnits(),
                            options->getTemperatureUnits());
 
+    enabledSamples = options->getEnabledSamples();
+    cux->setEnabledSamples(enabledSamples);
+
     iacDialog = new IdleAirControlDialog(this->windowTitle(), this);
     connect(iacDialog, SIGNAL(requestIdleAirControlMovement(int,int)),
             cux, SLOT(onIdleAirControlMovementRequest(int,int)));
@@ -97,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/icons/key.png"));
     setupWidgets();
+
+    dimUnusedControls();
 }
 
 /**
@@ -387,6 +393,31 @@ void MainWindow::createWidgets()
     fuelTempGauge->setCritical(10000.0);
 
     fuelTempLabel = new QLabel("Fuel Temperature", this);
+
+    waterTempGaugeOpacity = new QGraphicsOpacityEffect(this);
+    waterTempGaugeOpacity->setOpacity(0.5);
+    waterTempGaugeOpacity->setEnabled(false);
+    waterTempGauge->setGraphicsEffect(waterTempGaugeOpacity);
+
+    fuelTempGaugeOpacity = new QGraphicsOpacityEffect(this);
+    fuelTempGaugeOpacity->setOpacity(0.5);
+    fuelTempGaugeOpacity->setEnabled(false);
+    fuelTempGauge->setGraphicsEffect(fuelTempGaugeOpacity);
+
+    speedometerOpacity = new QGraphicsOpacityEffect(this);
+    speedometerOpacity->setOpacity(0.5);
+    speedometerOpacity->setEnabled(false);
+    speedo->setGraphicsEffect(speedometerOpacity);
+
+    revCounterOpacity = new QGraphicsOpacityEffect(this);
+    revCounterOpacity->setOpacity(0.5);
+    revCounterOpacity->setEnabled(false);
+    revCounter->setGraphicsEffect(revCounterOpacity);
+
+    fuelMapOpacity = new QGraphicsOpacityEffect(this);
+    fuelMapOpacity->setOpacity(0.5);
+    fuelMapOpacity->setEnabled(false);
+    fuelMapDisplay->setGraphicsEffect(fuelMapOpacity);
 }
 
 /**
@@ -626,124 +657,105 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
-    int roadSpeed = cux->getRoadSpeed();
-    int engineSpeedRPM = cux->getEngineSpeedRPM();
-    int targetIdleSpeedRPM = cux->getTargetIdleSpeed();
-    int waterTemp = cux->getCoolantTemp();
-    int fuelTemp = cux->getFuelTemp();
-    int throttlePos = cux->getThrottlePos() * 100;
-    Comm14CUXGear gearReading = cux->getGear();
-    float mainVoltage = cux->getMainVoltage();
-    int mafReading = cux->getMAFReading() * 100;
-    int idleBypassPos = cux->getIdleBypassPos() * 100;
-    bool fuelPumpRelay = cux->getFuelPumpRelayState();
-    int leftLambdaTrim = cux->getLeftLambdaTrim();
-    int rightLambdaTrim = cux->getRightLambdaTrim();
-
-    int newFuelMapIndex = cux->getCurrentFuelMapIndex();
-    int newFuelMapRow = cux->getFuelMapRowIndex();
-    int newFuelMapCol = cux->getFuelMapColumnIndex();
-
-    QByteArray *fuelMapData = 0;
-
-    // if the active fuel map has changed, prepare to update the display
-    if (currentFuelMapIndex != newFuelMapIndex)
+    // if fuel map display updates are enabled...
+    if (enabledSamples[SampleType_FuelMap])
     {
-        currentFuelMapIndex = newFuelMapIndex;
-        fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(currentFuelMapIndex));
-        fuelMapData = cux->getFuelMap(currentFuelMapIndex);
+        int newFuelMapIndex = cux->getCurrentFuelMapIndex();
+        int newFuelMapRow = cux->getFuelMapRowIndex();
+        int newFuelMapCol = cux->getFuelMapColumnIndex();
+        QByteArray *fuelMapData = 0;
 
-        if (fuelMapData != 0)
+        // if the active fuel map has changed, prepare to update the display
+        if (currentFuelMapIndex != newFuelMapIndex)
         {
-            populateFuelMapDisplay(fuelMapData);
-        }
-        else
-        {
-            // The data for the current fuel map hasn't been read out of the
-            // ECU yet, so put in a request. We'll update the display when
-            // we receive the signal that the new data is ready.
-            emit requestFuelMapData(currentFuelMapIndex);
-        }
-    }
+            currentFuelMapIndex = newFuelMapIndex;
+            fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(currentFuelMapIndex));
+            fuelMapData = cux->getFuelMap(currentFuelMapIndex);
 
-    // if the row/column index into the fuel map has changed
-    if ((currentFuelMapRow != newFuelMapRow) || (currentFuelMapCol != newFuelMapCol))
-    {
-        // if the fuel map data hasn't been retrieved on this pass, that means
-        // that the fuel map itself hasn't changed and the currently-displayed
-        // map needs an update
-        if ((fuelMapData == 0) &&
-            (currentFuelMapRow >= 0) && (currentFuelMapRow < fuelMapDisplay->rowCount()) &&
-            (currentFuelMapCol >= 0) && (currentFuelMapCol < fuelMapDisplay->columnCount()))
-        {
-            // set the currently-highlighted cell back to its original colors
-            QTableWidgetItem *item = fuelMapDisplay->item(currentFuelMapRow, currentFuelMapCol);
-            bool ok = false;
-            unsigned char value = (unsigned char)(item->text().toInt(&ok, 16));
-            if (ok)
+            if (fuelMapData != 0)
             {
-                item->setBackgroundColor(getColorForFuelMapCell(value));
-                item->setTextColor(Qt::black);
+                populateFuelMapDisplay(fuelMapData);
+            }
+            else
+            {
+                // The data for the current fuel map hasn't been read out of the
+                // ECU yet, so put in a request. We'll update the display when
+                // we receive the signal that the new data is ready.
+                emit requestFuelMapData(currentFuelMapIndex);
             }
         }
 
-        currentFuelMapRow = newFuelMapRow;
-        currentFuelMapCol = newFuelMapCol;
+        // if the row/column index into the fuel map has changed
+        if ((currentFuelMapRow != newFuelMapRow) || (currentFuelMapCol != newFuelMapCol))
+        {
+            // if the fuel map data hasn't been retrieved on this pass, that means
+            // that the fuel map itself hasn't changed and the currently-displayed
+            // map needs an update
+            if ((fuelMapData == 0) &&
+                (currentFuelMapRow >= 0) && (currentFuelMapRow < fuelMapDisplay->rowCount()) &&
+                (currentFuelMapCol >= 0) && (currentFuelMapCol < fuelMapDisplay->columnCount()))
+            {
+                // set the currently-highlighted cell back to its original colors
+                QTableWidgetItem *item = fuelMapDisplay->item(currentFuelMapRow, currentFuelMapCol);
+                bool ok = false;
+                unsigned char value = (unsigned char)(item->text().toInt(&ok, 16));
+                if (ok)
+                {
+                    item->setBackgroundColor(getColorForFuelMapCell(value));
+                    item->setTextColor(Qt::black);
+                }
+            }
 
-        highlightActiveFuelMapCell();
-    }
+            currentFuelMapRow = newFuelMapRow;
+            currentFuelMapCol = newFuelMapCol;
 
-    // clip the throttle percentage at the min/max
-    if (throttlePos < throttleBar->minimum())
-    {
-        throttlePos = throttleBar->minimum();
-    }
-    else if (throttlePos > throttleBar->maximum())
-    {
-        throttlePos = throttleBar->maximum();
-    }
-
-    // clip the MAF reading at min/max
-    if (mafReading < mafReadingBar->minimum())
-    {
-        mafReading = mafReadingBar->minimum();
-    }
-    else if (mafReading > mafReadingBar->maximum())
-    {
-        mafReading = mafReadingBar->maximum();
-    }
-
-    // clip the idle bypass reading at min/max
-    if (idleBypassPos < idleBypassPosBar->minimum())
-    {
-        idleBypassPos = idleBypassPosBar->minimum();
-    }
-    else if (idleBypassPos > idleBypassPosBar->maximum())
-    {
-        idleBypassPos = idleBypassPosBar->maximum();
+            highlightActiveFuelMapCell();
+        }
     }
 
-    speedo->setValue(roadSpeed);
-    revCounter->setValue(engineSpeedRPM);
-    waterTempGauge->setValue(waterTemp);
-    fuelTempGauge->setValue(fuelTemp);
-    throttleBar->setValue(throttlePos);
-    mafReadingBar->setValue(mafReading);
-    idleBypassPosBar->setValue(idleBypassPos);
-    voltage->setText(QString::number(mainVoltage, 'f', 1) + "VDC");
-    fuelPumpRelayStateLed->setChecked(fuelPumpRelay);
+    if (enabledSamples[SampleType_Throttle])
+        throttleBar->setValue(cux->getThrottlePos() * 100);
 
-    if (targetIdleSpeedRPM > 0)
+    if (enabledSamples[SampleType_MAF])
+        mafReadingBar->setValue(cux->getMAFReading() * 100);
+
+    if (enabledSamples[SampleType_IdleBypassPosition])
+        idleBypassPosBar->setValue(cux->getIdleBypassPos() * 100);
+
+    if (enabledSamples[SampleType_RoadSpeed])
+        speedo->setValue(cux->getRoadSpeed());
+
+    if (enabledSamples[SampleType_EngineRPM])
+        revCounter->setValue(cux->getEngineSpeedRPM());
+
+    if (enabledSamples[SampleType_EngineTemperature])
+        waterTempGauge->setValue(cux->getCoolantTemp());
+
+    if (enabledSamples[SampleType_FuelTemperature])
+        fuelTempGauge->setValue(cux->getFuelTemp());
+
+    if (enabledSamples[SampleType_MainVoltage])
+        voltage->setText(QString::number(cux->getMainVoltage(), 'f', 1) + "VDC");
+
+    if (enabledSamples[SampleType_FuelPumpRelay])
+        fuelPumpRelayStateLed->setChecked(cux->getFuelPumpRelayState());
+
+    if (enabledSamples[SampleType_TargetIdleRPM])
     {
-        targetIdle->setText(QString::number(targetIdleSpeedRPM));
-    }
-    else
-    {
-        targetIdle->setText("");
+        int targetIdleSpeedRPM = cux->getTargetIdleSpeed();
+
+        if (targetIdleSpeedRPM > 0)
+            targetIdle->setText(QString::number(targetIdleSpeedRPM));
+        else
+            targetIdle->setText("");
     }
 
-    setLambdaTrimIndicators(leftLambdaTrim, rightLambdaTrim);
-    setGearLabel(gearReading);
+    if (enabledSamples[SampleType_LambdaTrim])
+        setLambdaTrimIndicators(cux->getLeftLambdaTrim(), cux->getRightLambdaTrim());
+
+    if (enabledSamples[SampleType_GearSelection])
+        setGearLabel(cux->getGear());
+
     logger->logData();
 }
 
@@ -752,6 +764,9 @@ void MainWindow::onDataReady()
  */
 void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim)
 {
+    // only fuel maps 0, 4, and 5 operate in a closed-loop manner,
+    // so the lambda feedback will only be relevant if one of those
+    // maps is selected
     if ((currentFuelMapIndex == 0) ||
         (currentFuelMapIndex == 4) ||
         (currentFuelMapIndex == 5))
@@ -873,6 +888,10 @@ void MainWindow::onEditOptionsClicked()
         cux->setSpeedUnits(speedUnits);
         cux->setTemperatureUnits(tempUnits);
 
+        enabledSamples = options->getEnabledSamples();
+        cux->setEnabledSamples(enabledSamples);
+        dimUnusedControls();
+
         // if the user changed the serial device name and/or the polling
         // interval, stop the timer, re-connect to the 14CUX (if neccessary),
         // and restart the timer
@@ -885,6 +904,52 @@ void MainWindow::onEditOptionsClicked()
             cux->setSerialDevice(options->getSerialDeviceName());
         }
     }
+}
+
+void MainWindow::dimUnusedControls()
+{
+    mafReadingBar->setEnabled(enabledSamples[SampleType_MAF]);
+    throttleBar->setEnabled(enabledSamples[SampleType_Throttle]);
+    idleBypassPosBar->setEnabled(enabledSamples[SampleType_IdleBypassPosition]);
+    gear->setEnabled(enabledSamples[SampleType_GearSelection]);
+    voltage->setEnabled(enabledSamples[SampleType_MainVoltage]);
+    targetIdle->setEnabled(enabledSamples[SampleType_TargetIdleRPM]);
+
+    // there's only one 'enable' flag for both the left and right lambda
+    // fuel trim, so just read it from the hash table once
+    if (enabledSamples[SampleType_LambdaTrim])
+    {
+        leftFuelTrimBar->setEnabled(true);
+        rightFuelTrimBar->setEnabled(true);
+    }
+    else
+    {
+        leftFuelTrimBar->setEnabled(false);
+        rightFuelTrimBar->setEnabled(false);
+    }
+
+    // there's only one 'enable' flag for all the displayed fuel map
+    // information, so just read it from the hash table once
+    if (enabledSamples[SampleType_FuelMap])
+    {
+        fuelMapIndexLabel->setEnabled(true);
+        fuelMapFactorLabel->setEnabled(true);
+        fuelMapOpacity->setEnabled(false);
+    }
+    else
+    {
+        fuelMapIndexLabel->setEnabled(false);
+        fuelMapFactorLabel->setEnabled(false);
+        fuelMapOpacity->setEnabled(true);
+    }
+
+    // These controls are shown in a disabled state by applying a 50% opacity
+    // graphical effect; the 'enabled' bit is therefore inverted because it's
+    // controlling the state of the graphical effect (rather than the widget).
+    waterTempGaugeOpacity->setEnabled(!enabledSamples[SampleType_EngineTemperature]);
+    fuelTempGaugeOpacity->setEnabled(!enabledSamples[SampleType_FuelTemperature]);
+    revCounterOpacity->setEnabled(!enabledSamples[SampleType_EngineRPM]);
+    speedometerOpacity->setEnabled(!enabledSamples[SampleType_RoadSpeed]);
 }
 
 /**

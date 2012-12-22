@@ -17,6 +17,7 @@
 #include <QHash>
 #include <QPair>
 #include <QTimer>
+#include <QGraphicsOpacityEffect>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
@@ -180,6 +181,14 @@ private:
     QFrame *horizontalLineC;
     QFrame *verticalLineA;
 
+    QGraphicsOpacityEffect *waterTempGaugeOpacity;
+    QGraphicsOpacityEffect *fuelTempGaugeOpacity;
+    QGraphicsOpacityEffect *speedometerOpacity;
+    QGraphicsOpacityEffect *revCounterOpacity;
+    QGraphicsOpacityEffect *fuelMapOpacity;
+
+    QHash<SampleType,bool> enabledSamples;
+
     int currentFuelMapIndex;
     int currentFuelMapRow;
     int currentFuelMapCol;
@@ -202,6 +211,7 @@ private:
     void highlightActiveFuelMapCell();
     void sendPROMImageRequest(QString prompt, bool displayTuneNumber);
     QString byteArrayToHexString(QByteArray bytes);
+    void dimUnusedControls();
 
     void setGearLabel(Comm14CUXGear gearReading);
     void setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim);

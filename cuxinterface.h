@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QHash>
 #include <QByteArray>
+#include <QHash>
 #include "comm14cux.h"
 #include "commonunits.h"
 
@@ -21,6 +22,7 @@ public:
     void setLambdaTrimType(int type);
     void setMAFReadingType(Comm14CUXAirflowType type);
     void setThrottleReadingType(Comm14CUXThrottlePosType type);
+    void setEnabledSamples(QHash<SampleType,bool> samples);
 
     QString getSerialDevice();
     int getIntervalMsecs();
@@ -98,6 +100,7 @@ private:
     Comm14CUXFaultCodes faultCodes;
     bool readCanceled;
     unsigned long readCount;
+    QHash<SampleType,bool> enabledSamples;
 
     int lambdaTrimType;
     Comm14CUXAirflowType airflowType;
