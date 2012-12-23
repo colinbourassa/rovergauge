@@ -107,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 /**
  * Destructor; cleans up instance of 14CUX communications library
+ *  and miscellaneous data storage
  */
 MainWindow::~MainWindow()
 {
@@ -473,13 +474,13 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(lambdaTrimShortButton, row,   1, 1, 1);
     belowGaugesLeft->addWidget(lambdaTrimLongButton,  row++, 2, 1, 1);
 
-    belowGaugesLeft->addWidget(leftFuelTrimLabel,  row,   0, 1, 1,  Qt::AlignRight);
-    belowGaugesLeft->addWidget(leftFuelTrimBarLabel, row, 1, 1, 1,  Qt::AlignRight);
-    belowGaugesLeft->addWidget(leftFuelTrimBar,    row++, 2, 1, 2);
+    belowGaugesLeft->addWidget(leftFuelTrimLabel,     row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(leftFuelTrimBarLabel,  row,   1, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(leftFuelTrimBar,       row++, 2, 1, 2);
 
-    belowGaugesLeft->addWidget(rightFuelTrimLabel, row,   0, 1, 1,  Qt::AlignRight);
-    belowGaugesLeft->addWidget(rightFuelTrimBarLabel,row, 1, 1, 1,  Qt::AlignRight);
-    belowGaugesLeft->addWidget(rightFuelTrimBar,   row++, 2, 1, 2);
+    belowGaugesLeft->addWidget(rightFuelTrimLabel,    row,   0, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(rightFuelTrimBarLabel, row,   1, 1, 1,  Qt::AlignRight);
+    belowGaugesLeft->addWidget(rightFuelTrimBar,      row++, 2, 1, 2);
 
     belowGaugesLeft->addWidget(lambdaTrimLowLimitLabel,  row,   2, 1, 1, Qt::AlignLeft);
     belowGaugesLeft->addWidget(lambdaTrimHighLimitLabel, row++, 3, 1, 1, Qt::AlignRight);
@@ -906,6 +907,9 @@ void MainWindow::onEditOptionsClicked()
     }
 }
 
+/**
+ * Dims/grays controls for fields that are disabled, and activates all other controls
+ */
 void MainWindow::dimUnusedControls()
 {
     bool enabled = enabledSamples[SampleType_MAF];
@@ -914,6 +918,8 @@ void MainWindow::dimUnusedControls()
     mafReadingTypeLabel->setEnabled(enabled);
     mafReadingDirectButton->setEnabled(enabled);
     mafReadingLinearButton->setEnabled(enabled);
+    if (!enabled)
+        mafReadingBar->setValue(0);
 
     enabled = enabledSamples[SampleType_Throttle];
     throttleLabel->setEnabled(enabled);
@@ -921,10 +927,14 @@ void MainWindow::dimUnusedControls()
     throttleTypeLabel->setEnabled(enabled);
     throttleTypeAbsoluteButton->setEnabled(enabled);
     throttleTypeCorrectedButton->setEnabled(enabled);
+    if (!enabled)
+        throttleBar->setValue(0);
 
     enabled = enabledSamples[SampleType_IdleBypassPosition];
     idleBypassLabel->setEnabled(enabled);
     idleBypassPosBar->setEnabled(enabled);
+    if (!enabled)
+        idleBypassPosBar->setValue(0);
 
     enabled = enabledSamples[SampleType_GearSelection];
     gearLabel->setEnabled(enabled);
@@ -950,6 +960,13 @@ void MainWindow::dimUnusedControls()
     rightFuelTrimBar->setEnabled(enabled);
     rightFuelTrimBarLabel->setEnabled(enabled);
     rightFuelTrimLabel->setEnabled(enabled);
+    if (!enabled)
+    {
+        leftFuelTrimBar->setValue(0);
+        leftFuelTrimBarLabel->setText("");
+        rightFuelTrimBar->setValue(0);
+        rightFuelTrimBarLabel->setText("");
+    }
 
     enabled = enabledSamples[SampleType_FuelPumpRelay];
     fuelPumpRelayStateLabel->setEnabled(enabled);
@@ -969,6 +986,7 @@ void MainWindow::dimUnusedControls()
     enabled = enabledSamples[SampleType_FuelTemperature];
     fuelTempGaugeOpacity->setEnabled(!enabled);
     fuelTempLabel->setEnabled(enabled);
+
     revCounterOpacity->setEnabled(!enabledSamples[SampleType_EngineRPM]);
     speedometerOpacity->setEnabled(!enabledSamples[SampleType_RoadSpeed]);
 }
