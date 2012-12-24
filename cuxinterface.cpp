@@ -2,7 +2,6 @@
 #include <QDateTime>
 #include <string.h>
 #include "cuxinterface.h"
-#include <stdio.h>
 
 /**
  * Constructor. Sets the serial device and poll interval in milliseconds.
@@ -150,7 +149,6 @@ void CUXInterface::onReadPROMImageRequested(bool displayTune)
  */
 void CUXInterface::onFuelMapRequested(int fuelMapId)
 {
-    printf("CUXInterface::onFuelMapRequested\n");
     if ((cux != 0) && cux->connect(deviceName.toStdString().c_str()))
     {
         // create a storage area for the fuel map data if it
@@ -162,10 +160,8 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
 
         uint8_t *buffer = (uint8_t*)(fuelMaps[fuelMapId]->data());
 
-        printf("CUXInterface::onFuelMapRequested: calling getFuelMap()\n");
         if (cux->getFuelMap((int8_t)fuelMapId, fuelMapAdjFactor, buffer))
         {
-            printf("CUXInterface::onFuelMapRequested: emitting fuelMapReady\n");
             emit fuelMapReady(fuelMapId);
         }
     }
@@ -850,5 +846,11 @@ int CUXInterface::convertTemperature(int tempF)
  */
 void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
 {
-    enabledSamples = samples;
+    // the fields are updated one at a time, because a replacement of the entire
+    // hash table (using the assignment operator) can disrupt other threads that
+    // are reading the table at that time
+    foreach (SampleType field, samples.keys())
+    {
+        enabledSamples[field] = samples[field];
+    }
 }
