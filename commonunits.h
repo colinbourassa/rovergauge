@@ -16,6 +16,10 @@ enum TemperatureUnits
 
 enum SampleType
 {
+    SampleType_EngineTemperature,
+    SampleType_RoadSpeed,
+    SampleType_EngineRPM,
+    SampleType_FuelTemperature,
     SampleType_MAF,
     SampleType_Throttle,
     SampleType_IdleBypassPosition,
@@ -24,11 +28,7 @@ enum SampleType
     SampleType_MainVoltage,
     SampleType_LambdaTrim,
     SampleType_FuelMap,
-    SampleType_FuelPumpRelay,
-    SampleType_EngineTemperature,
-    SampleType_RoadSpeed,
-    SampleType_EngineRPM,
-    SampleType_FuelTemperature
+    SampleType_FuelPumpRelay
 };
 
 #endif // COMMONUNITS_H

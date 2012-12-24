@@ -14,6 +14,10 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     settingSpeedUnits("SpeedUnits"),
     settingTemperatureUnits("TemperatureUnits")
 {
+    sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
+    sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
+    sampleTypeNames[SampleType_EngineRPM] = "SampleType_EngineRPM";
+    sampleTypeNames[SampleType_FuelTemperature] = "SampleType_FuelTemperature";
     sampleTypeNames[SampleType_MAF] = "SampleType_MAF";
     sampleTypeNames[SampleType_Throttle] = "SampleType_Throttle";
     sampleTypeNames[SampleType_IdleBypassPosition] = "SampleType_IdleBypassPosition";
@@ -23,11 +27,11 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     sampleTypeNames[SampleType_LambdaTrim] = "SampleType_LambdaTrim";
     sampleTypeNames[SampleType_FuelMap] = "SampleType_FuelMap";
     sampleTypeNames[SampleType_FuelPumpRelay] = "SampleType_FuelPumpRelay";
-    sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
-    sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
-    sampleTypeNames[SampleType_EngineRPM] = "SampleType_EngineRPM";
-    sampleTypeNames[SampleType_FuelTemperature] = "SampleType_FuelTemperature";
 
+    sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
+    sampleTypeLabels[SampleType_RoadSpeed] = "Road speed";
+    sampleTypeLabels[SampleType_EngineRPM] = "Engine RPM";
+    sampleTypeLabels[SampleType_FuelTemperature] = "Fuel temperature";
     sampleTypeLabels[SampleType_MAF] = "Mass airflow";
     sampleTypeLabels[SampleType_Throttle] = "Throttle position";
     sampleTypeLabels[SampleType_IdleBypassPosition] = "Idle bypass position";
@@ -37,10 +41,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim";
     sampleTypeLabels[SampleType_FuelMap] = "Fuel map data";
     sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
-    sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
-    sampleTypeLabels[SampleType_RoadSpeed] = "Road speed";
-    sampleTypeLabels[SampleType_EngineRPM] = "Engine RPM";
-    sampleTypeLabels[SampleType_FuelTemperature] = "Fuel temperature";
 
     this->setWindowTitle(title);
     readSettings();
