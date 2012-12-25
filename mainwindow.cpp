@@ -13,6 +13,7 @@
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
 #include "tunerevisiontable.h"
+#include <stdio.h>
 
 /**
  * Constructor; sets up main UI
@@ -533,10 +534,12 @@ void MainWindow::onConnectClicked()
     // yet; it'll signal us when it's ready.
     if (cuxThread->isRunning())
     {
+        printf("onConnectClicked(): cux thread is already running; emitting requestToStartPolling...\n");
         emit requestToStartPolling();
     }
     else
     {
+        printf("onConnectCliked(): starting cux thread for the first time\n");
         cuxThread->start();
     }
 }
@@ -548,6 +551,7 @@ void MainWindow::onConnectClicked()
  */
 void MainWindow::onInterfaceReady()
 {
+    printf("onInterfaceReady(): emitting requestToStartPolling\n");
     emit requestToStartPolling();
 }
 
@@ -642,9 +646,10 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data)
 void MainWindow::onFuelMapDataReady(int fuelMapId)
 {
     QByteArray *data = cux->getFuelMap(fuelMapId);
-
+    printf("onFuelMapDataReady(): got fuel map data\n");
     if (data != 0)
     {
+        printf("onFuelMapDataReady(): calling populateFuelMapDisplay()\n");
         populateFuelMapDisplay(data);
         QString hexPart =
             QString("%1").arg(cux->getFuelMapAdjustmentFactor(), 0, 16).toUpper();
@@ -669,12 +674,14 @@ void MainWindow::onDataReady()
         // if the active fuel map has changed, prepare to update the display
         if (currentFuelMapIndex != newFuelMapIndex)
         {
+            printf("onDataReady(): new fuel map index!\n");
             currentFuelMapIndex = newFuelMapIndex;
             fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(currentFuelMapIndex));
             fuelMapData = cux->getFuelMap(currentFuelMapIndex);
 
             if (fuelMapData != 0)
             {
+                printf("onDataReady(): fuel map data available, calling populateFuelMapDisplay...\n");
                 populateFuelMapDisplay(fuelMapData);
             }
             else
@@ -682,6 +689,7 @@ void MainWindow::onDataReady()
                 // The data for the current fuel map hasn't been read out of the
                 // ECU yet, so put in a request. We'll update the display when
                 // we receive the signal that the new data is ready.
+                printf("onDataReady(): emitting request for fuel map data...\n");
                 emit requestFuelMapData(currentFuelMapIndex);
             }
         }
@@ -689,6 +697,7 @@ void MainWindow::onDataReady()
         // if the row/column index into the fuel map has changed
         if ((currentFuelMapRow != newFuelMapRow) || (currentFuelMapCol != newFuelMapCol))
         {
+            printf("onDataReady(): fuel map row (%d) or column (%d) changed\n", newFuelMapRow, newFuelMapCol);
             // if the fuel map data hasn't been retrieved on this pass, that means
             // that the fuel map itself hasn't changed and the currently-displayed
             // map needs an update
@@ -889,8 +898,11 @@ void MainWindow::onEditOptionsClicked()
         cux->setSpeedUnits(speedUnits);
         cux->setTemperatureUnits(tempUnits);
 
+        printf("onEditOptionsClicked(): saving enabled samples list...\n");
         enabledSamples = options->getEnabledSamples();
+        printf("onEditOptionsClicked(): setting enabled options in cux interface...\n");
         cux->setEnabledSamples(enabledSamples);
+        printf("onEditOptionsClicked(): dimming unused controls...\n");
         dimUnusedControls();
 
         // if the user changed the serial device name and/or the polling

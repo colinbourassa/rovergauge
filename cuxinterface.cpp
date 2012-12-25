@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <string.h>
 #include "cuxinterface.h"
+#include <stdio.h>
 
 /**
  * Constructor. Sets the serial device and poll interval in milliseconds.
@@ -149,6 +150,7 @@ void CUXInterface::onReadPROMImageRequested(bool displayTune)
  */
 void CUXInterface::onFuelMapRequested(int fuelMapId)
 {
+    printf("CUXInterface::onFuelMapRequested\n");
     if ((cux != 0) && cux->connect(deviceName.toStdString().c_str()))
     {
         // create a storage area for the fuel map data if it
@@ -160,8 +162,10 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
 
         uint8_t *buffer = (uint8_t*)(fuelMaps[fuelMapId]->data());
 
+        printf("CUXInterface::onFuelMapRequested: calling getFuelMap()\n");
         if (cux->getFuelMap((int8_t)fuelMapId, fuelMapAdjFactor, buffer))
         {
+            printf("CUXInterface::onFuelMapRequested: emitting fuelMapReady\n");
             emit fuelMapReady(fuelMapId);
         }
     }
@@ -351,6 +355,8 @@ void CUXInterface::onStartPollingRequest()
  */
 void CUXInterface::pollEcu()
 {
+    ReadResult res = ReadResult_NoStatement;
+
     // if we're being asked to stop the thread, or if the 14CUX interface is
     // no longer connected...
     if (stopPolling || shutdownThread ||
@@ -369,12 +375,13 @@ void CUXInterface::pollEcu()
     }
     else
     {
-        if (readData())
+        res = readData();
+        if (res == ReadResult_Success)
         {
             emit readSuccess();
             emit dataReady();
         }
-        else
+        else if (res == ReadResult_Failure)
         {
             emit readError();
         }
@@ -389,89 +396,91 @@ void CUXInterface::pollEcu()
  * member variables.
  * @return True if at least one value was read successfully; false otherwise.
  */
-bool CUXInterface::readData()
+CUXInterface::ReadResult CUXInterface::readData()
 {
-    bool success = false;
+    ReadResult totalResult = ReadResult_NoStatement;
     qint64 now = QDateTime::currentMSecsSinceEpoch();
 
-    success |= readHighFreqData();
+    totalResult = mergeResult(totalResult, readHighFreqData());
+
     if (now > (lastMidFreqReadTime + 200))
     {
-        success |= readMidFreqData();
+        totalResult = mergeResult(totalResult, readMidFreqData());
     }
     if (now > (lastLowFreqReadTime + 800))
     {
-        success |= readLowFreqData();
+        totalResult = mergeResult(totalResult, readLowFreqData());
     }
-    return success;
+
+    return totalResult;
 }
 
-bool CUXInterface::readHighFreqData()
+CUXInterface::ReadResult CUXInterface::readHighFreqData()
 {
-    bool success = false;
+    ReadResult result = ReadResult_NoStatement;
 
     if (enabledSamples[SampleType_MAF])
-        success |= cux->getMAFReading(airflowType, mafReading);
+        result = mergeResult(result, cux->getMAFReading(airflowType, mafReading));
 
     if (enabledSamples[SampleType_Throttle])
-        success |= cux->getThrottlePosition(throttlePosType, throttlePos);
+        result = mergeResult(result, cux->getThrottlePosition(throttlePosType, throttlePos));
 
     // if the frontend if expecting short-term lambda trim
     // (as opposed to long-term trim)
     if (enabledSamples[SampleType_LambdaTrim] && (lambdaTrimType == 1))
     {
-        success |= cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim);
-        success |= cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim);
+        result = mergeResult(result, cux->getLambdaTrimShort(Comm14CUXBank_Left, leftLambdaTrim));
+        result = mergeResult(result, cux->getLambdaTrimShort(Comm14CUXBank_Right, rightLambdaTrim));
     }
 
     if (enabledSamples[SampleType_EngineRPM])
-        success |= cux->getEngineRPM(engineSpeedRPM);
+        result = mergeResult(result, cux->getEngineRPM(engineSpeedRPM));
 
     if (enabledSamples[SampleType_FuelMap])
     {
-        success |= cux->getFuelMapRowIndex(currentFuelMapRowIndex);
-        success |= cux->getFuelMapColumnIndex(currentFuelMapColumnIndex);
+        result = mergeResult(result, cux->getFuelMapRowIndex(currentFuelMapRowIndex));
+        result = mergeResult(result, cux->getFuelMapColumnIndex(currentFuelMapColumnIndex));
     }
 
     if (enabledSamples[SampleType_IdleBypassPosition])
-        success |= cux->getIdleBypassMotorPosition(idleBypassPos);
+        result = mergeResult(result, cux->getIdleBypassMotorPosition(idleBypassPos));
 
-    return success;
+    return result;
 }
 
-bool CUXInterface::readMidFreqData()
+CUXInterface::ReadResult CUXInterface::readMidFreqData()
 {
-    bool success = false;
+    ReadResult result = ReadResult_NoStatement;
 
     // if the frontend is expecting long-term lambda trim
     // (as opposed to short-term trim)
     if (enabledSamples[SampleType_LambdaTrim] && (lambdaTrimType == 2))
     {
-        success |= cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim);
-        success |= cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim);
+        result = mergeResult(result, cux->getLambdaTrimLong(Comm14CUXBank_Left, leftLambdaTrim));
+        result = mergeResult(result, cux->getLambdaTrimLong(Comm14CUXBank_Right, rightLambdaTrim));
     }
 
     if (enabledSamples[SampleType_MainVoltage])
-        success |= cux->getMainVoltage(mainVoltage);
+        result = mergeResult(result, cux->getMainVoltage(mainVoltage));
 
     if (enabledSamples[SampleType_TargetIdleRPM])
-        success |= cux->getTargetIdle(targetIdleSpeed);
+        result = mergeResult(result, cux->getTargetIdle(targetIdleSpeed));
 
     if (enabledSamples[SampleType_FuelPumpRelay])
-        success |= cux->getFuelPumpRelayState(fuelPumpRelayOn);
+        result = mergeResult(result, cux->getFuelPumpRelayState(fuelPumpRelayOn));
 
     if (enabledSamples[SampleType_GearSelection])
-        success |= cux->getGearSelection(gear);
+        result = mergeResult(result, cux->getGearSelection(gear));
 
     if (enabledSamples[SampleType_RoadSpeed])
-        success |= cux->getRoadSpeed(roadSpeedMPH);
+        result = mergeResult(result, cux->getRoadSpeed(roadSpeedMPH));
 
-    if (success)
+    if (result == ReadResult_Success)
     {
         lastMidFreqReadTime = QDateTime::currentMSecsSinceEpoch();
     }
 
-    return success;
+    return result;
 }
 
 /**
@@ -479,28 +488,28 @@ bool CUXInterface::readMidFreqData()
  * @return True if a read was scheduled and completed successfully,
  *  false otherwise.
  */
-bool CUXInterface::readLowFreqData()
+CUXInterface::ReadResult CUXInterface::readLowFreqData()
 {
-    bool success = false;
+    ReadResult result = ReadResult_NoStatement;
 
     // alternate between reading coolant temperature and fuel temperature
     if (enabledSamples[SampleType_EngineTemperature] && (readCount % 2 == 0))
-        success |= cux->getCoolantTemp(coolantTempF);
+        result = mergeResult(result, cux->getCoolantTemp(coolantTempF));
     else if (enabledSamples[SampleType_FuelTemperature])
-        success |= cux->getFuelTemp(fuelTempF);
+        result = mergeResult(result, cux->getFuelTemp(fuelTempF));
 
     // less frequently, check the ID of the current fuel map
     // (this would only change as a result of a different
     //  tune resistor being switched in)
     if (enabledSamples[SampleType_FuelMap] && (readCount % 7 == 0))
-        success |= cux->getCurrentFuelMap(currentFuelMapIndex);
+        result = mergeResult(result, cux->getCurrentFuelMap(currentFuelMapIndex));
 
-    if (success)
+    if (result == ReadResult_Success)
     {
         lastLowFreqReadTime = QDateTime::currentMSecsSinceEpoch();
     }
 
-    return success;
+    return result;
 }
 
 /**
@@ -509,6 +518,41 @@ bool CUXInterface::readLowFreqData()
 void CUXInterface::onTimer()
 {
     pollEcu();
+}
+
+/**
+ * Merges the result of a group of read attempts with a running aggregation of read results.
+ */
+CUXInterface::ReadResult CUXInterface::mergeResult(ReadResult total, ReadResult single)
+{
+    ReadResult returnRes = total;
+
+    if (((total == ReadResult_NoStatement) || (single == ReadResult_Success)) ||
+        ((total == ReadResult_Failure)     && (single == ReadResult_Success)))
+    {
+        returnRes = single;
+    }
+
+    return returnRes;
+}
+
+/**
+ * Merges the result of a read attempt with a running aggregation of read results.
+ */
+CUXInterface::ReadResult CUXInterface::mergeResult(ReadResult total, bool single)
+{
+    ReadResult result = total;
+
+    if (total == ReadResult_NoStatement)
+    {
+        result = single ? ReadResult_Success : ReadResult_Failure;
+    }
+    else if ((total == ReadResult_Failure) && single)
+    {
+        result = ReadResult_Success;
+    }
+
+    return result;
 }
 
 /**

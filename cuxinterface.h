@@ -12,6 +12,13 @@
 
 class CUXInterface : public QObject
 {
+    enum ReadResult
+    {
+        ReadResult_Success,
+        ReadResult_Failure,
+        ReadResult_NoStatement
+    };
+
     Q_OBJECT
 public:
     explicit CUXInterface(QString device, SpeedUnits sUnits,
@@ -134,13 +141,15 @@ private:
     qint64 lastLowFreqReadTime;
 
     void pollEcu();
-    bool readData();
-    bool readHighFreqData();
-    bool readMidFreqData();
-    bool readLowFreqData();
+    ReadResult readData();
+    ReadResult readHighFreqData();
+    ReadResult readMidFreqData();
+    ReadResult readLowFreqData();
     bool connectToECU();
     int convertSpeed(int speedMph);
     int convertTemperature(int tempF);
+    ReadResult mergeResult(ReadResult total, ReadResult single);
+    ReadResult mergeResult(ReadResult total, bool single);
 };
 
 #endif // CUXINTERFACE_H
