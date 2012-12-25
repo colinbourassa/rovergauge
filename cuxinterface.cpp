@@ -190,6 +190,10 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
     {
         cux->driveIdleAirControlMotor((uint8_t)direction, (uint8_t)steps);
     }
+    else
+    {
+        emit notConnected();
+    }
 }
 
 /**
