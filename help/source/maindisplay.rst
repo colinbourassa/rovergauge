@@ -1,10 +1,10 @@
 Main display
 ============
- * **MIL:** Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least fault code is set.
- * **Communications:** The green lamp is lit when the software is successfully reading data from the ECU, and the red lamp is lit when there was a problem communicating with the ECU (caused by a bad connection, disconnected cable, misconfigured USB adapter, etc.) Both lamps will be off if there has not been any attempt to read from the ECU.
+ * **MIL:** Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least one fault code is set.
+ * **Communications:** The green lamp is lit when the software is successfully reading data from the ECU, and the red lamp is lit when there was a problem communicating with the ECU (caused by a bad connection, disconnected cable, misconfigured USB adapter, or other problem.) Both lamps will be off if there has not been any attempt to read from the ECU.
  * **Engine temperature:** Displays the temperature read by the engine/coolant temperature sensor. The green and red colored areas (representing "nominal" and "warning" temperature levels) are approximate.
  * **Road speed:** Displays road speed. Note that some vehicles (including TVR) use a different road speed transducer setup, and the measurement on those vehicles may not be updated above a certain speed.
- * **RPM (tachometer):** Displays engine speed in revolutions per minute. The redline is an adjustable cosmetic feature in this software, and does not represent any electronic limit in the ECU.
+ * **RPM (tachometer):** Displays engine speed in revolutions per minute. The redline represents the RPM limit stored in the ECU.
  * **Fuel temperature:** Displays the fuel temperature, which is also sometimes considered as the under-bonnet temperature.
  * **MAF reading:** Displays the reading from the mass airflow sensor as percentage of its maximum range. This display has two modes:
  

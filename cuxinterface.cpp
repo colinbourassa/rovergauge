@@ -38,6 +38,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     fuelPumpRelayOn(false),
     leftLambdaTrim(0),
     rightLambdaTrim(0),
+    milOn(false),
     promImage(0),
     fuelMapAdjFactor(0),
     speedUnits(sUnits),
@@ -109,7 +110,7 @@ void CUXInterface::onFaultCodesClearRequested()
 /**
  * Reads the entire 16KB PROM.
  */
-void CUXInterface::onReadPROMImageRequested(bool displayTune)
+void CUXInterface::onReadPROMImageRequested()
 {
     if (cux != 0)
     {
@@ -123,7 +124,7 @@ void CUXInterface::onReadPROMImageRequested(bool displayTune)
         {
             if (!readCanceled)
             {
-                emit promImageReady(displayTune);
+                emit promImageReady();
             }
         }
         else
@@ -163,6 +164,11 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
         if (cux->getFuelMap((int8_t)fuelMapId, fuelMapAdjFactor, buffer))
         {
             emit fuelMapReady(fuelMapId);
+        }
+
+        if (cux->getRPMLimit(rpmLimit))
+        {
+            emit rpmLimitReady(rpmLimit);
         }
     }
 }
@@ -212,6 +218,11 @@ bool CUXInterface::connectToECU()
         if (status)
         {
             emit connected();
+
+            if (cux->getTuneRevision(tuneRevision))
+            {
+                emit revisionNumberReady(tuneRevision);
+            }
         }
     }
 
@@ -503,6 +514,12 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     //  tune resistor being switched in)
     if (enabledSamples[SampleType_FuelMap] && (readCount % 7 == 0))
         result = mergeResult(result, cux->getCurrentFuelMap(currentFuelMapIndex));
+
+    // even less frequently, check to see if the MIL is on
+    if (readCount % 37)
+    {
+        // TODO
+    }
 
     if (result == ReadResult_Success)
     {

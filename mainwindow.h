@@ -51,7 +51,9 @@ public slots:
     void onFaultCodesReady();
     void onFaultCodesReadFailed();
     void onFuelMapDataReady(int fuelMapId);
-    void onPROMImageReady(bool displayTune);
+    void onTuneRevisionReady(int tuneRevisionNum);
+    void onRPMLimitReady(int rpmLimit);
+    void onPROMImageReady();
     void onPROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
@@ -59,7 +61,7 @@ public slots:
 signals:
     void requestToStartPolling();
     void requestFuelMapData(int fuelMapId);
-    void requestPROMImage(bool displayTuneNumber);
+    void requestPROMImage();
     void requestThreadShutdown();
     void requestFuelPumpRun();
 
@@ -76,7 +78,6 @@ private:
     QAction *editOptionsAction;
     QAction *showFaultsAction;
     QAction *showIdleAirControlDialog;
-    QAction *checkPROMRevisionAction;
     QMenu *helpMenu;
     QAction *aboutAction;
 
@@ -98,6 +99,11 @@ private:
 
     QPushButton *connectButton;
     QPushButton *disconnectButton;
+
+    QLabel *tuneRevNumberLabel;
+
+    QLabel *milLabel;
+    QLedIndicator *milLed;
 
     QLabel *commsLedLabel;
     QLedIndicator *commsGoodLed;
@@ -180,6 +186,8 @@ private:
     QFrame *horizontalLineB;
     QFrame *horizontalLineC;
     QFrame *verticalLineA;
+    QFrame *verticalLineB;
+    QFrame *verticalLineC;
 
     QGraphicsOpacityEffect *waterTempGaugeOpacity;
     QGraphicsOpacityEffect *fuelTempGaugeOpacity;
@@ -209,8 +217,7 @@ private:
     void populateFuelMapDisplay(QByteArray* data);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCell();
-    void sendPROMImageRequest(QString prompt, bool displayTuneNumber);
-    QString byteArrayToHexString(QByteArray bytes);
+    void sendPROMImageRequest(QString prompt);
     void dimUnusedControls();
 
     void setGearLabel(Comm14CUXGear gearReading);
@@ -219,7 +226,6 @@ private:
 private slots:
     void onSavePROMImageSelected();
     void onPROMReadCancelled();
-    void onCheckPROMRevisionSelected();
     void onExitSelected();
     void onEditOptionsClicked();
     void onHelpAboutClicked();

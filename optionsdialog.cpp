@@ -65,9 +65,6 @@ void OptionsDialog::setupWidgets()
     speedMaxLabel = new QLabel("Maximum speed on speedometer:", this);
     speedMaxBox = new QSpinBox(this);
 
-    redlineLabel = new QLabel("Tachometer redline:", this);
-    redlineBox = new QSpinBox(this);
-
     speedUnitsLabel = new QLabel("Speed units:", this);
     speedUnitsBox = new QComboBox(this);
 
@@ -116,19 +113,11 @@ void OptionsDialog::setupWidgets()
     temperatureUnitsBox->addItem("Celcius");
     temperatureUnitsBox->setCurrentIndex((int)tempUnits);
 
-    redlineBox->setMinimum(0);
-    redlineBox->setMaximum(12000);
-    redlineBox->setSingleStep(500);
-    redlineBox->setValue(redline);
-
     grid->addWidget(serialDeviceLabel, row, 0);
     grid->addWidget(serialDeviceBox, row++, 1);
 
     grid->addWidget(speedMaxLabel, row, 0);
     grid->addWidget(speedMaxBox, row++, 1);
-
-    grid->addWidget(redlineLabel, row, 0);
-    grid->addWidget(redlineBox, row++, 1);
 
     grid->addWidget(speedUnitsLabel, row, 0);
     grid->addWidget(speedUnitsBox, row++, 1);
@@ -206,7 +195,6 @@ void OptionsDialog::accept()
     }
 
     speedMax = speedMaxBox->value();
-    redline = redlineBox->value();
     tempUnits = (TemperatureUnits)(temperatureUnitsBox->currentIndex());
     speedUnits = (SpeedUnits)(speedUnitsBox->currentIndex());
 

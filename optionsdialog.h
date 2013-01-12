@@ -44,8 +44,6 @@ private:
     QComboBox *serialDeviceBox;
     QLabel *speedMaxLabel;
     QSpinBox *speedMaxBox;
-    QLabel *redlineLabel;
-    QSpinBox *redlineBox;
 
     QLabel *temperatureUnitsLabel;
     QComboBox *temperatureUnitsBox;

@@ -58,6 +58,7 @@ public:
     QByteArray* getPROMImage();
     int getLeftLambdaTrim();
     int getRightLambdaTrim();
+    bool isMILOn();
 
     void setSpeedUnits(SpeedUnits units);
     void setTemperatureUnits(TemperatureUnits units);
@@ -70,7 +71,7 @@ public slots:
     void onFaultCodesRequested();
     void onFaultCodesClearRequested();
     void onFuelMapRequested(int fuelMapId);
-    void onReadPROMImageRequested(bool displayTune);
+    void onReadPROMImageRequested();
     void onStartPollingRequest();
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
@@ -88,7 +89,9 @@ signals:
     void faultCodesClearFailure();
     void fuelMapReady(int fuelMapId);
     void fuelMapReadFailed(int fuelMapId);
-    void promImageReady(bool displayTune);
+    void rpmLimitReady(int rpmLimiter);
+    void revisionNumberReady(int tuneRevisionNum);
+    void promImageReady();
     void promImageReadFailed();
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();
@@ -129,6 +132,9 @@ private:
     bool fuelPumpRelayOn;
     int16_t leftLambdaTrim;
     int16_t rightLambdaTrim;
+    bool milOn;
+    uint16_t tuneRevision;
+    uint16_t rpmLimit;
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;

@@ -12,7 +12,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
-#include "tunerevisiontable.h"
 
 /**
  * Constructor; sets up main UI
@@ -88,14 +87,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(cux, SIGNAL(faultCodesReady()), this, SLOT(onFaultCodesReady()));
     connect(cux, SIGNAL(faultCodesReadFailed()), this, SLOT(onFaultCodesReadFailed()));
     connect(cux, SIGNAL(fuelMapReady(int)), this, SLOT(onFuelMapDataReady(int)));
+    connect(cux, SIGNAL(revisionNumberReady(int)), this, SLOT(onTuneRevisionReady(int)));
     connect(cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
     connect(cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
-    connect(cux, SIGNAL(promImageReady(bool)), this, SLOT(onPROMImageReady(bool)));
+    connect(cux, SIGNAL(promImageReady()), this, SLOT(onPROMImageReady()));
     connect(cux, SIGNAL(promImageReadFailed()), this, SLOT(onPROMImageReadFailed()));
+    connect(cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
     connect(this, SIGNAL(requestToStartPolling()), cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(int)), cux, SLOT(onFuelMapRequested(int)));
-    connect(this, SIGNAL(requestPROMImage(bool)), cux, SLOT(onReadPROMImageRequested(bool)));
+    connect(this, SIGNAL(requestPROMImage()), cux, SLOT(onReadPROMImageRequested()));
     connect(this, SIGNAL(requestFuelPumpRun()), cux, SLOT(onFuelPumpRunRequest()));
     connect(fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRefreshTimer()));
 
@@ -137,6 +138,14 @@ void MainWindow::setupLayout()
     commsLedLayout = new QHBoxLayout();
     commsLedLayout->setAlignment(Qt::AlignRight);
     aboveGaugesRow->addLayout(commsLedLayout);
+
+    verticalLineC = new QFrame(this);
+    verticalLineC->setFrameShape(QFrame::VLine);
+    verticalLineC->setFrameShadow(QFrame::Sunken);
+
+    verticalLineB = new QFrame(this);
+    verticalLineB->setFrameShape(QFrame::VLine);
+    verticalLineB->setFrameShadow(QFrame::Sunken);
 
     horizontalLineA = new QFrame(this);
     horizontalLineA->setFrameShape(QFrame::HLine);
@@ -180,6 +189,7 @@ void MainWindow::setupLayout()
 
     belowGaugesRight = new QGridLayout();
     belowGaugesRow->addLayout(belowGaugesRight);
+
 }
 
 /**
@@ -202,8 +212,6 @@ void MainWindow::createWidgets()
     connect(showFaultsAction, SIGNAL(triggered()), cux, SLOT(onFaultCodesRequested()));
     showIdleAirControlDialog = optionsMenu->addAction("&Idle air control...");
     connect(showIdleAirControlDialog, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
-    checkPROMRevisionAction = optionsMenu->addAction("Check PROM &revision...");
-    connect(checkPROMRevisionAction, SIGNAL(triggered()), this, SLOT(onCheckPROMRevisionSelected()));
     editOptionsAction = optionsMenu->addAction("&Edit settings...");
     editOptionsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));    
     connect(editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
@@ -213,12 +221,23 @@ void MainWindow::createWidgets()
     aboutAction->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
 
-    connectButton = new QPushButton("Connect");
+    connectButton = new QPushButton("Connect", this);
     connect(connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
 
-    disconnectButton = new QPushButton("Disconnect");
+    disconnectButton = new QPushButton("Disconnect", this);
     disconnectButton->setEnabled(false);
     connect(disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
+
+    tuneRevNumberLabel = new QLabel("", this);
+
+    milLed = new QLedIndicator(this);
+    milLed->setOnColor1(QColor(255, 0, 0));
+    milLed->setOnColor2(QColor(176, 0, 2));
+    milLed->setOffColor1(QColor(20, 0, 0));
+    milLed->setOffColor2(QColor(90, 0, 2));
+    milLed->setDisabled(true);
+
+    milLabel = new QLabel("MIL:", this);
 
     commsGoodLed = new QLedIndicator(this);
     commsGoodLed->setOnColor1(QColor(102, 255, 102));
@@ -234,7 +253,7 @@ void MainWindow::createWidgets()
     commsBadLed->setOffColor2(QColor(90, 0, 2));
     commsBadLed->setDisabled(true);
 
-    commsLedLabel = new QLabel("Communications:");
+    commsLedLabel = new QLabel("Communications:", this);
 
     mafReadingTypeLabel = new QLabel("MAF reading type:", this);
     mafReadingLinearButton = new QRadioButton("Linear", this);
@@ -369,7 +388,7 @@ void MainWindow::createWidgets()
     revCounter->setMaximum(8000);
     revCounter->setSuffix(" RPM");
     revCounter->setNominal(100000.0);
-    revCounter->setCritical(options->getRedline());
+    revCounter->setCritical(8000);
 
     TemperatureUnits tempUnits = options->getTemperatureUnits();
     int tempMin = tempRange->value(tempUnits).first;
@@ -429,6 +448,11 @@ void MainWindow::placeWidgets()
     connectionButtonLayout->addWidget(connectButton);
     connectionButtonLayout->addWidget(disconnectButton);
 
+    commsLedLayout->addWidget(tuneRevNumberLabel);
+    commsLedLayout->addWidget(verticalLineC);
+    commsLedLayout->addWidget(milLabel);
+    commsLedLayout->addWidget(milLed);
+    commsLedLayout->addWidget(verticalLineB);
     commsLedLayout->addWidget(commsLedLabel);
     commsLedLayout->addWidget(commsGoodLed);
     commsLedLayout->addWidget(commsBadLed);
@@ -1170,18 +1194,7 @@ void MainWindow::onNotConnected()
 void MainWindow::onSavePROMImageSelected()
 {
     sendPROMImageRequest(
-        QString("Read the PROM image from the ECU? This will take approximately 25 seconds."), false);
-}
-
-/**
- * Requests the PROM image so that its tune number can be identified.
- * Also allows the option of saving the image to disk.
- */
-void MainWindow::onCheckPROMRevisionSelected()
-{
-    sendPROMImageRequest(
-        QString("Checking the PROM revision requires reading the entire image from the ECU.\n") +
-        QString("This will take approximately 25 seconds. Proceed?"), true);
+        QString("Read the PROM image from the ECU? This will take approximately 25 seconds."));
 }
 
 /**
@@ -1189,7 +1202,7 @@ void MainWindow::onCheckPROMRevisionSelected()
  * @param prompt String used to prompt the user to continue.
  * @param displayTune True to determine the tune number after the image has been read; false to skip this.
  */
-void MainWindow::sendPROMImageRequest(QString prompt, bool displayTune)
+void MainWindow::sendPROMImageRequest(QString prompt)
 {
     if (cux->isConnected())
     {
@@ -1207,7 +1220,7 @@ void MainWindow::sendPROMImageRequest(QString prompt, bool displayTune)
             }
             pleaseWaitBox->show();
 
-            emit requestPROMImage(displayTune);
+            emit requestPROMImage();
         }
     }
     else
@@ -1230,7 +1243,7 @@ void MainWindow::onPROMReadCancelled()
  * Prompts the user for a file in which to save the PROM image.
  * @param displayTuneNumber True to determine the tune number after the image has been read; false to skip this.
  */
-void MainWindow::onPROMImageReady(bool displayTuneNumber)
+void MainWindow::onPROMImageReady()
 {
     if (pleaseWaitBox != 0)
     {
@@ -1238,66 +1251,30 @@ void MainWindow::onPROMImageReady(bool displayTuneNumber)
     }
 
     QByteArray *promData = cux->getPROMImage();
-    bool saveToFile = true;
 
     if (promData != 0)
     {
-        if (displayTuneNumber)
+        QString saveFileName =
+                QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
+
+        if (!saveFileName.isNull() && !saveFileName.isEmpty())
         {
-            QByteArray md5SumBin = QCryptographicHash::hash(*promData, QCryptographicHash::Md5);
-            QString md5sum = byteArrayToHexString(md5SumBin);
-            TuneRevisionTable table;
-            QString revNumber = table.lookup(md5sum);
-            QString msg;
+            QFile saveFile(saveFileName);
 
-            // if the hash of this tune image isn't in our database, then also
-            // display the tune number stored in the PROM image itself
-            if (revNumber.isEmpty())
+            if (saveFile.open(QIODevice::WriteOnly))
             {
-                QString revFromImage = QString("R%1%2").
-                    arg(promData->at(0x3FE9), 2, 16, QChar('0')).
-                    arg(promData->at(0x3FEA), 2, 16, QChar('0'));
-
-                msg = QString("Tune revision not found in database. Revision reported by ECU is %1.\n\nDo you wish to save the PROM image to a file?").arg(revFromImage);
-            }
-            else // otherwise, display the tune number discovered by matching the hash
-            {
-                msg = QString("Tune revision:\n%1\n\nDo you wish to save the PROM image to a file?").arg(table.lookup(md5sum));
-            }
-
-            QMessageBox tuneRevMsgBox(QMessageBox::Information, "Tune information", msg, 0, this, Qt::Dialog);
-            tuneRevMsgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-
-            if (tuneRevMsgBox.exec() == QMessageBox::No)
-            {
-                saveToFile = false;
-            }
-        }
-
-        if (saveToFile)
-        {
-            QString saveFileName =
-                    QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
-
-            if (!saveFileName.isNull() && !saveFileName.isEmpty())
-            {
-                QFile saveFile(saveFileName);
-
-                if (saveFile.open(QIODevice::WriteOnly))
-                {
-                    if (saveFile.write(*promData) != promData->capacity())
-                    {
-                        QMessageBox::warning(this, "Error",
-                            QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
-                    }
-
-                    saveFile.close();
-                }
-                else
+                if (saveFile.write(*promData) != promData->capacity())
                 {
                     QMessageBox::warning(this, "Error",
                         QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
                 }
+
+                saveFile.close();
+            }
+            else
+            {
+                QMessageBox::warning(this, "Error",
+                    QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
             }
         }
     }
@@ -1407,20 +1384,20 @@ void MainWindow::onThrottleTypeButtonClicked(int id)
 }
 
 /**
- * Converts a QByteArray to a hex string that represents each byte consecutively
- * (two printable digits per byte, in the style of md5sum output.)
- * @param bytes Input byte array
- * @return Hex string representation of the byte array
+ * Displays the tune revision number (read from the PROM)
+ * @param tuneRevisionNum Decimal representation of the revision number
  */
-QString MainWindow::byteArrayToHexString(QByteArray bytes)
+void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 {
-    QString str("");
-    QChar fillChar('0');
-
-    for (int index = 0; index < bytes.length(); index++)
-    {
-        str.append(QString("%1").arg((unsigned char)bytes.at(index),2,16,fillChar));
-    }
-
-    return str.toUpper();
+    tuneRevNumberLabel->setText(QString("Tune revision: R%04").arg(tuneRevisionNum));
 }
+
+/**
+ * Paints a redline on the tachometer, based on the electronic RPM limit
+ * @param rpmLimit Engine speed limit in RPM
+ */
+void MainWindow::onRPMLimitReady(int rpmLimit)
+{
+    revCounter->setCritical((double)rpmLimit);
+}
+
