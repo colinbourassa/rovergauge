@@ -79,6 +79,7 @@ private:
     QAction *showFaultsAction;
     QAction *showIdleAirControlDialog;
     QMenu *helpMenu;
+    QAction *helpAction;
     QAction *aboutAction;
 
     QVBoxLayout *layout;
@@ -153,6 +154,7 @@ private:
 
     QLabel *targetIdleLabel;
     QLabel *targetIdle;
+    QLedIndicator *idleModeLed;
 
     QLabel *gearLabel;
     QLabel *gear;
@@ -228,6 +230,7 @@ private slots:
     void onPROMReadCancelled();
     void onExitSelected();
     void onEditOptionsClicked();
+    void onHelpContentsClicked();
     void onHelpAboutClicked();
     void onConnectClicked();
     void onDisconnectClicked();

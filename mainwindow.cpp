@@ -217,6 +217,11 @@ void MainWindow::createWidgets()
     connect(editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
 
     helpMenu = menuBar()->addMenu("&Help");
+
+    helpAction = helpMenu->addAction("&Contents...");
+    helpAction->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
+    connect(helpAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
+
     aboutAction = helpMenu->addAction("&About");
     aboutAction->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
@@ -316,8 +321,15 @@ void MainWindow::createWidgets()
     rightFuelTrimBar->setValue(0);
     rightFuelTrimBarLabel = new QLabel("+0%", this);
 
-    targetIdleLabel = new QLabel("Target idle RPM:", this);
+    targetIdleLabel = new QLabel("Idle mode / RPM:", this);
     targetIdle = new QLabel("", this);
+
+    idleModeLed = new QLedIndicator(this);
+    idleModeLed->setOnColor1(QColor(102, 255, 102));
+    idleModeLed->setOnColor2(QColor(82, 204, 82));
+    idleModeLed->setOffColor1(QColor(0, 102, 0));
+    idleModeLed->setOffColor2(QColor(0, 51, 0));
+    idleModeLed->setDisabled(true);
 
     gearLabel = new QLabel("Selected gear:", this);
     gear = new QLabel("", this);
@@ -486,7 +498,8 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
 
     belowGaugesLeft->addWidget(targetIdleLabel,    row,   0,        Qt::AlignRight);
-    belowGaugesLeft->addWidget(targetIdle,         row++, 1, 1, 3);
+    belowGaugesLeft->addWidget(idleModeLed,        row,   1, 1, 1, Qt::AlignLeft);
+    belowGaugesLeft->addWidget(targetIdle,         row++, 2, 1, 1);
 
     belowGaugesLeft->addWidget(gearLabel,          row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(gear,               row++, 1, 1, 3);
@@ -1148,6 +1161,14 @@ void MainWindow::onHelpAboutClicked()
         aboutBox = new AboutBox(style(), this->windowTitle(), cux->getVersion());
     }
     aboutBox->exec();
+}
+
+/**
+ * Displays the online help.
+ */
+void MainWindow::onHelpContentsClicked()
+{
+    QMessageBox::information(this, "Help", "Help contents go here.", QMessageBox::Ok);
 }
 
 /**
