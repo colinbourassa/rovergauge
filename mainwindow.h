@@ -152,6 +152,7 @@ private:
     QLabel *rightFuelTrimBarLabel;
     QLabel *rightFuelTrimLabel;
 
+    QHBoxLayout *idleSpeedLayout;
     QLabel *targetIdleLabel;
     QLabel *targetIdle;
     QLedIndicator *idleModeLed;

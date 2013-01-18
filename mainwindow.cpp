@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
       currentFuelMapIndex(-1),
       currentFuelMapRow(-1),
       currentFuelMapCol(-1),
-      widthPixels(940),
+      widthPixels(970),
       heightPixels(620)
 {
     QDesktopWidget desktop;
@@ -181,6 +181,8 @@ void MainWindow::setupLayout()
 
     belowGaugesLeft = new QGridLayout();
     belowGaugesRow->addLayout(belowGaugesLeft);
+
+    idleSpeedLayout = new QHBoxLayout();
 
     verticalLineA = new QFrame(this);
     verticalLineA->setFrameShape(QFrame::VLine);
@@ -489,6 +491,7 @@ void MainWindow::placeWidgets()
 
     unsigned char row = 0;
 
+    belowGaugesLeft->setColumnStretch(0, 0);
     belowGaugesLeft->addWidget(mafReadingTypeLabel,    row,   0, 1, 1,  Qt::AlignRight);
     belowGaugesLeft->addWidget(mafReadingLinearButton, row,   1, 1, 1);
     belowGaugesLeft->addWidget(mafReadingDirectButton, row++, 2, 1, 1);
@@ -507,8 +510,10 @@ void MainWindow::placeWidgets()
     belowGaugesLeft->addWidget(idleBypassPosBar,   row++, 1, 1, 3);
 
     belowGaugesLeft->addWidget(targetIdleLabel,    row,   0,        Qt::AlignRight);
-    belowGaugesLeft->addWidget(idleModeLed,        row,   1, 1, 1, Qt::AlignLeft);
-    belowGaugesLeft->addWidget(targetIdle,         row++, 2, 1, 1);
+    belowGaugesLeft->addLayout(idleSpeedLayout,    row++, 1, 1, 3);
+    idleSpeedLayout->addWidget(idleModeLed);
+    idleSpeedLayout->addWidget(targetIdle);
+    idleSpeedLayout->addStretch(0);
 
     belowGaugesLeft->addWidget(gearLabel,          row,   0,        Qt::AlignRight);
     belowGaugesLeft->addWidget(gear,               row++, 1, 1, 3);
