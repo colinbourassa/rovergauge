@@ -59,6 +59,7 @@ public:
     int getLeftLambdaTrim();
     int getRightLambdaTrim();
     bool isMILOn();
+    bool getIdleMode();
 
     void setSpeedUnits(SpeedUnits units);
     void setTemperatureUnits(TemperatureUnits units);
@@ -135,6 +136,7 @@ private:
     bool milOn;
     uint16_t tuneRevision;
     uint16_t rpmLimit;
+    bool idleMode;
 
     QByteArray *promImage;
     QHash<int, QByteArray*> fuelMaps;

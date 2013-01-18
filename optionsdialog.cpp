@@ -35,7 +35,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     sampleTypeLabels[SampleType_MAF] = "Mass airflow";
     sampleTypeLabels[SampleType_Throttle] = "Throttle position";
     sampleTypeLabels[SampleType_IdleBypassPosition] = "Idle bypass position";
-    sampleTypeLabels[SampleType_TargetIdleRPM] = "Target idle RPM";
+    sampleTypeLabels[SampleType_TargetIdleRPM] = "Idle mode / target RPM";
     sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
     sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
     sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim";

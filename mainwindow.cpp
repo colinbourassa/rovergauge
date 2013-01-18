@@ -189,7 +189,6 @@ void MainWindow::setupLayout()
 
     belowGaugesRight = new QGridLayout();
     belowGaugesRow->addLayout(belowGaugesRight);
-
 }
 
 /**
@@ -321,7 +320,7 @@ void MainWindow::createWidgets()
     rightFuelTrimBar->setValue(0);
     rightFuelTrimBarLabel = new QLabel("+0%", this);
 
-    targetIdleLabel = new QLabel("Idle mode / RPM:", this);
+    targetIdleLabel = new QLabel("Idle mode / target RPM:", this);
     targetIdle = new QLabel("", this);
 
     idleModeLed = new QLedIndicator(this);
@@ -450,6 +449,16 @@ void MainWindow::createWidgets()
     fuelMapOpacity->setOpacity(0.5);
     fuelMapOpacity->setEnabled(false);
     fuelMapDisplay->setGraphicsEffect(fuelMapOpacity);
+
+    fuelPumpLedOpacity = new QGraphicsOpacityEffect(this);
+    fuelPumpLedOpacity->setOpacity(0.5);
+    fuelPumpLedOpacity->setEnabled(false);
+    fuelPumpRelayStateLed->setGraphicsEffect(fuelPumpLedOpacity);
+
+    idleModeLedOpacity = new QGraphicsOpacityEffect(this);
+    idleModeLedOpacity->setOpacity(0.5);
+    idleModeLedOpacity->setEnabled(false);
+    idleModeLed->setGraphicsEffect(idleModeLedOpacity);
 }
 
 /**
@@ -694,6 +703,8 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
+    milLed->setChecked(cux->isMILOn());
+
     // if fuel map display updates are enabled...
     if (enabledSamples[SampleType_FuelMap])
     {
@@ -785,6 +796,8 @@ void MainWindow::onDataReady()
             targetIdle->setText(QString::number(targetIdleSpeedRPM));
         else
             targetIdle->setText("");
+
+        idleModeLed->setChecked(cux->getIdleMode());
     }
 
     if (enabledSamples[SampleType_LambdaTrim])
@@ -898,8 +911,6 @@ void MainWindow::onEditOptionsClicked()
         speedo->setSuffix(speedUnitSuffix->value(speedUnits));
         speedo->repaint();
 
-        revCounter->setCritical(options->getRedline());
-
         TemperatureUnits tempUnits = options->getTemperatureUnits();
         QString tempUnitStr = tempUnitSuffix->value(tempUnits);
 
@@ -992,6 +1003,7 @@ void MainWindow::dimUnusedControls()
     enabled = enabledSamples[SampleType_TargetIdleRPM];
     targetIdleLabel->setEnabled(enabled);
     targetIdle->setEnabled(enabled);
+    idleModeLedOpacity->setEnabled(!enabled);
 
     enabled = enabledSamples[SampleType_LambdaTrim];
     lambdaTrimTypeLabel->setEnabled(enabled);
@@ -1016,6 +1028,7 @@ void MainWindow::dimUnusedControls()
     enabled = enabledSamples[SampleType_FuelPumpRelay];
     fuelPumpRelayStateLabel->setEnabled(enabled);
     fuelPumpRelayStateLed->setEnabled(enabled);
+    fuelPumpLedOpacity->setEnabled(!enabled);
 
     enabled = enabledSamples[SampleType_FuelMap];
     fuelMapIndexLabel->setEnabled(enabled);
@@ -1076,6 +1089,7 @@ void MainWindow::onDisconnect()
 {
     connectButton->setEnabled(true);
     disconnectButton->setEnabled(false);
+    milLed->setChecked(false);
     commsGoodLed->setChecked(false);
     commsBadLed->setChecked(false);
     fuelPumpOneshotButton->setEnabled(false);
@@ -1088,6 +1102,8 @@ void MainWindow::onDisconnect()
     throttleBar->setValue(0);
     mafReadingBar->setValue(0);
     idleBypassPosBar->setValue(0);
+    idleModeLed->setChecked(false);
+    targetIdleLabel->setText("");
     voltage->setText("");
     gear->setText("");
     fuelPumpRelayStateLed->setChecked(false);

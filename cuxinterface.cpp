@@ -39,6 +39,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     leftLambdaTrim(0),
     rightLambdaTrim(0),
     milOn(false),
+    idleMode(false),
     promImage(0),
     fuelMapAdjFactor(0),
     speedUnits(sUnits),
@@ -475,7 +476,10 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
         result = mergeResult(result, cux->getMainVoltage(mainVoltage));
 
     if (enabledSamples[SampleType_TargetIdleRPM])
+    {
         result = mergeResult(result, cux->getTargetIdle(targetIdleSpeed));
+        result = mergeResult(result, cux->getIdleMode(idleMode));
+    }
 
     if (enabledSamples[SampleType_FuelPumpRelay])
         result = mergeResult(result, cux->getFuelPumpRelayState(fuelPumpRelayOn));
@@ -503,6 +507,16 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
 
+    uint8_t milByte = 0;
+    if (cux->readMem(0x0002, 1, &milByte))
+    {
+        milOn = !(milByte & 0x01);
+    }
+    else
+    {
+        milOn = false;
+    }
+
     // alternate between reading coolant temperature and fuel temperature
     if (enabledSamples[SampleType_EngineTemperature] && (readCount % 2 == 0))
         result = mergeResult(result, cux->getCoolantTemp(coolantTempF));
@@ -514,12 +528,6 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     //  tune resistor being switched in)
     if (enabledSamples[SampleType_FuelMap] && (readCount % 7 == 0))
         result = mergeResult(result, cux->getCurrentFuelMap(currentFuelMapIndex));
-
-    // even less frequently, check to see if the MIL is on
-    if (readCount % 37)
-    {
-        // TODO
-    }
 
     if (result == ReadResult_Success)
     {
@@ -660,6 +668,11 @@ float CUXInterface::getMainVoltage()
 Comm14CUXFaultCodes CUXInterface::getFaultCodes()
 {
     return faultCodes;
+}
+
+bool CUXInterface::isMILOn()
+{
+    return milOn;
 }
 
 /**
@@ -814,6 +827,11 @@ int CUXInterface::getLeftLambdaTrim()
 int CUXInterface::getRightLambdaTrim()
 {
     return rightLambdaTrim;
+}
+
+bool CUXInterface::getIdleMode()
+{
+    return idleMode;
 }
 
 /**

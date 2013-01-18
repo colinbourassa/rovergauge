@@ -197,6 +197,9 @@ private:
     QGraphicsOpacityEffect *revCounterOpacity;
     QGraphicsOpacityEffect *fuelMapOpacity;
 
+    QGraphicsOpacityEffect *idleModeLedOpacity;
+    QGraphicsOpacityEffect *fuelPumpLedOpacity;
+
     QHash<SampleType,bool> enabledSamples;
 
     int currentFuelMapIndex;
