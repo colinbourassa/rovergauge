@@ -507,12 +507,9 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
 
-    uint8_t milByte = 0;
-    if (cux->readMem(0x0002, 1, &milByte))
-    {
-        milOn = !(milByte & 0x01);
-    }
-    else
+    // attempt to read the MIL status; if it can't be read,
+    // default it to off on the display
+    if (!cux->isMILOn(milOn))
     {
         milOn = false;
     }
@@ -893,3 +890,4 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
         enabledSamples[field] = samples[field];
     }
 }
+
