@@ -27,6 +27,9 @@
 #include "logger.h"
 #include "fueltrimbar.h"
 #include "commonunits.h"
+#ifdef ENABLE_SIM_MODE
+    #include "simulationmodedialog.h"
+#endif
 
 namespace Ui
 {
@@ -81,6 +84,10 @@ private:
     QMenu *helpMenu;
     QAction *helpAction;
     QAction *aboutAction;
+    #ifdef ENABLE_SIM_MODE
+        QAction *simDialogAction;
+        SimulationModeDialog *simDialog;
+    #endif
 
     QVBoxLayout *layout;
 
@@ -247,6 +254,9 @@ private slots:
     void onLambdaTrimButtonClicked(int id);
     void onMAFReadingButtonClicked(int id);
     void onThrottleTypeButtonClicked(int id);
+#ifdef ENABLE_SIM_MODE
+    void onSimDialogClicked();
+#endif
 };
 
 #endif // MAINWINDOW_H

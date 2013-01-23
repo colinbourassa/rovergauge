@@ -19,6 +19,9 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+#ifdef ENABLE_SIM_MODE
+      simDialog(0),
+#endif
       cuxThread(0),
       cux(0),
       options(0),
@@ -216,6 +219,11 @@ void MainWindow::createWidgets()
     editOptionsAction = optionsMenu->addAction("&Edit settings...");
     editOptionsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));    
     connect(editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
+#ifdef ENABLE_SIM_MODE
+    optionsMenu->addSeparator();
+    simDialogAction = optionsMenu->addAction("&Simulation mode control...");
+    connect(simDialogAction, SIGNAL(triggered()), this, SLOT(onSimDialogClicked()));
+#endif
 
     helpMenu = menuBar()->addMenu("&Help");
 
@@ -1443,3 +1451,13 @@ void MainWindow::onRPMLimitReady(int rpmLimit)
     revCounter->setCritical((double)rpmLimit);
 }
 
+#ifdef ENABLE_SIM_MODE
+void MainWindow::onSimDialogClicked()
+{
+    if (simDialog == 0)
+    {
+        simDialog = new SimulationModeDialog(QString(this->windowTitle() + " - Simulation Mode"), this);
+    }
+    simDialog->show();
+}
+#endif
