@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QComboBox>
 #include "stdint.h"
 
 typedef struct
@@ -59,36 +60,65 @@ private:
     QLabel *o2SensorReferenceLabel;
     QLabel *diagnosticPlugLabel;
 
-    QLineEdit *inertiaSwitchVal;
-    QLineEdit *heatedScreenVal;
-    QLineEdit *airflowAVal;
-    QLineEdit *airflowBVal;
-    QLineEdit *airflowCVal;
-    QLineEdit *throttlePositionVal;
-    QLineEdit *coolantTempVal;
-    QLineEdit *fuelTempVal;
-    QLineEdit *neutralSwitchVal;
-    QLineEdit *airConLoadVal;
-    QLineEdit *roadSpeedVal;
-    QLineEdit *mainRelayVal;
-    QLineEdit *tuneResistorVal;
-    QLineEdit *o2SensorReferenceVal;
-    QLineEdit *diagnosticPlugVal;
+    QLabel *inertiaSwitchVal;
+    QLabel *heatedScreenVal;
+    QLabel *airflowAVal;
+    QLabel *airflowBVal;
+    QLabel *airflowCVal;
+    QLabel *throttlePositionVal;
+    QLabel *coolantTempVal;
+    QLabel *fuelTempVal;
+    QLabel *neutralSwitchVal;
+    QLabel *airConLoadVal;
+    QLabel *roadSpeedVal;
+    QLabel *mainRelayVal;
+    QLabel *tuneResistorVal;
+    QLabel *o2SensorReferenceVal;
+    QLabel *diagnosticPlugVal;
+
+    QLineEdit *inertiaSwitchRawVal;
+    QLineEdit *heatedScreenRawVal;
+    QLineEdit *airflowARawVal;
+    QLineEdit *airflowBRawVal;
+    QLineEdit *airflowCRawVal;
+    QLineEdit *throttlePositionRawVal;
+    QLineEdit *coolantTempRawVal;
+    QLineEdit *fuelTempRawVal;
+    QLineEdit *neutralSwitchRawVal;
+    QLineEdit *airConLoadRawVal;
+    QLineEdit *roadSpeedRawVal;
+    QLineEdit *mainRelayRawVal;
+    QLineEdit *tuneResistorRawVal;
+    QLineEdit *o2SensorReferenceRawVal;
+    QLineEdit *diagnosticPlugRawVal;
 
     QCheckBox *inertiaSwitchBox;
-    QCheckBox *neutralSwitchBox;
     QCheckBox *heatedScreenBox;
+    QComboBox *neutralSwitchBox;
     QSlider *coolantTempSlider;
     QSlider *fuelTempSlider;
+    QSlider *roadSpeedSlider;
+    QSlider *throttleSlider;
+    QSlider *mainRelaySlider;
 
     QPushButton *writeButton;
     QPushButton *closeButton;
 
     void setupWidgets();
+    double Peak_LorentzianModifiedPeakG_model(double x_in);
 
 private slots:
     void onWriteClicked();
     void onCloseClicked();
+
+    void onInertiaSwitchChanged(bool checked);
+    void onHeatedScreenChanged(bool checked);
+    void onNeutralSwitchChanged(int val);
+    void onRoadSpeedChanged(int val);
+    void onCoolantTempChanged(int val);
+    void onFuelTempChanged(int val);
+    void onThrottleChanged(int val);
+    void onMainRelayVoltageChanged(int val);
 };
 
 #endif // SIMULATIONMODEDIALOG_H
