@@ -10,27 +10,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
-#include "stdint.h"
-
-typedef struct
-{
-    uint8_t roadSpeed;
-    uint8_t airConLoad;
-    uint16_t airflowA;
-    uint16_t airflowB;
-    uint16_t airflowC;
-    uint16_t throttle;
-    uint8_t coolantTemp;
-    uint8_t fuelTemp;
-    uint8_t o2SensorReference;
-    uint8_t mainRelay;
-    uint8_t inertiaSwitch;
-    uint8_t neutralSwitch;
-    uint8_t heatedScreen;
-    uint8_t diagnosticPlug;
-    uint8_t tuneResistor;
-
-} SimulationInputValues;
+#include "commonunits.h"
 
 class SimulationModeDialog : public QDialog
 {
@@ -46,9 +26,8 @@ private:
 
     QLabel *inertiaSwitchLabel;
     QLabel *heatedScreenLabel;
-    QLabel *airflowALabel;
-    QLabel *airflowBLabel;
-    QLabel *airflowCLabel;
+    QLabel *mafLabel;
+    QLabel *mafTrimLabel;
     QLabel *throttlePositionLabel;
     QLabel *coolantTempLabel;
     QLabel *fuelTempLabel;
@@ -59,12 +38,13 @@ private:
     QLabel *tuneResistorLabel;
     QLabel *o2SensorReferenceLabel;
     QLabel *diagnosticPlugLabel;
+    QLabel *o2LeftDutyLabel;
+    QLabel *o2RightDutyLabel;
 
     QLabel *inertiaSwitchVal;
     QLabel *heatedScreenVal;
-    QLabel *airflowAVal;
-    QLabel *airflowBVal;
-    QLabel *airflowCVal;
+    QLabel *mafVal;
+    QLabel *mafTrimVal;
     QLabel *throttlePositionVal;
     QLabel *coolantTempVal;
     QLabel *fuelTempVal;
@@ -75,12 +55,13 @@ private:
     QLabel *tuneResistorVal;
     QLabel *o2SensorReferenceVal;
     QLabel *diagnosticPlugVal;
+    QLabel *o2LeftDutyVal;
+    QLabel *o2RightDutyVal;
 
     QLineEdit *inertiaSwitchRawVal;
     QLineEdit *heatedScreenRawVal;
-    QLineEdit *airflowARawVal;
-    QLineEdit *airflowBRawVal;
-    QLineEdit *airflowCRawVal;
+    QLineEdit *mafRawVal;
+    QLineEdit *mafTrimRawVal;
     QLineEdit *throttlePositionRawVal;
     QLineEdit *coolantTempRawVal;
     QLineEdit *fuelTempRawVal;
@@ -91,26 +72,37 @@ private:
     QLineEdit *tuneResistorRawVal;
     QLineEdit *o2SensorReferenceRawVal;
     QLineEdit *diagnosticPlugRawVal;
+    QLineEdit *o2LeftDutyRawVal;
+    QLineEdit *o2RightDutyRawVal;
 
     QCheckBox *inertiaSwitchBox;
     QCheckBox *heatedScreenBox;
+    QCheckBox *airConLoadBox;
+    QCheckBox *diagnosticPlugBox;
     QComboBox *neutralSwitchBox;
+    QSlider *mafSlider;
+    QSlider *mafTrimSlider;
     QSlider *coolantTempSlider;
     QSlider *fuelTempSlider;
     QSlider *roadSpeedSlider;
     QSlider *throttleSlider;
     QSlider *mainRelaySlider;
+    QSlider *o2LeftDutySlider;
+    QSlider *o2RightDutySlider;
 
     QPushButton *writeButton;
     QPushButton *closeButton;
 
     void setupWidgets();
     double Peak_LorentzianModifiedPeakG_model(double x_in);
+    unsigned int convertVoltageToQuadraticCounts(float voltage);
 
 private slots:
     void onWriteClicked();
     void onCloseClicked();
 
+    void onMafChanged(int val);
+    void onMafTrimChanged(int val);
     void onInertiaSwitchChanged(bool checked);
     void onHeatedScreenChanged(bool checked);
     void onNeutralSwitchChanged(int val);
@@ -119,6 +111,10 @@ private slots:
     void onFuelTempChanged(int val);
     void onThrottleChanged(int val);
     void onMainRelayVoltageChanged(int val);
+    void onAirConLoadChanged(bool checked);
+    void onDiagnosticPlugChanged(bool checked);
+    void onO2LeftDutyChanged(int val);
+    void onO2RightDutyChanged(int val);
 };
 
 #endif // SIMULATIONMODEDIALOG_H

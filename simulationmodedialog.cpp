@@ -15,9 +15,8 @@ void SimulationModeDialog::setupWidgets()
 
     inertiaSwitchLabel = new QLabel("Inertia switch:", this);
     heatedScreenLabel = new QLabel("Heated screen:", this);
-    airflowALabel = new QLabel("Airflow A:", this);
-    airflowBLabel = new QLabel("Airflow B:", this);
-    airflowCLabel = new QLabel("Airflow C:", this);
+    mafLabel = new QLabel("MAF:", this);
+    mafTrimLabel = new QLabel("MAF trim:", this);
     throttlePositionLabel = new QLabel("Throttle position:", this);
     coolantTempLabel = new QLabel("Coolant temperature:", this);
     fuelTempLabel = new QLabel("Fuel temperature:", this);
@@ -27,13 +26,14 @@ void SimulationModeDialog::setupWidgets()
     mainRelayLabel = new QLabel("Main relay voltage:", this);
     tuneResistorLabel = new QLabel("Tune resistor:", this);
     o2SensorReferenceLabel = new QLabel("O2 sensor reference:", this);
-    diagnosticPlugLabel = new QLabel("Diagnostic plug:", this);
+    diagnosticPlugLabel = new QLabel("Diagnostic display:", this);
+    o2LeftDutyLabel = new QLabel("O2 left duty cycle:", this);
+    o2RightDutyLabel = new QLabel("O2 right duty cycle:", this);
 
     inertiaSwitchVal = new QLabel(this);
     heatedScreenVal = new QLabel(this);
-    airflowAVal = new QLabel(this);
-    airflowBVal = new QLabel(this);
-    airflowCVal = new QLabel(this);
+    mafVal = new QLabel(this);
+    mafTrimVal = new QLabel(this);
     throttlePositionVal = new QLabel(this);
     coolantTempVal = new QLabel(this);
     fuelTempVal = new QLabel(this);
@@ -44,12 +44,13 @@ void SimulationModeDialog::setupWidgets()
     tuneResistorVal = new QLabel(this);
     o2SensorReferenceVal = new QLabel(this);
     diagnosticPlugVal = new QLabel(this);
+    o2LeftDutyVal = new QLabel(this);
+    o2RightDutyVal = new QLabel(this);
 
     inertiaSwitchRawVal = new QLineEdit(this);
     heatedScreenRawVal = new QLineEdit(this);
-    airflowARawVal = new QLineEdit(this);
-    airflowBRawVal = new QLineEdit(this);
-    airflowCRawVal = new QLineEdit(this);
+    mafRawVal = new QLineEdit(this);
+    mafTrimRawVal = new QLineEdit(this);
     throttlePositionRawVal = new QLineEdit(this);
     coolantTempRawVal = new QLineEdit(this);
     fuelTempRawVal = new QLineEdit(this);
@@ -60,12 +61,20 @@ void SimulationModeDialog::setupWidgets()
     tuneResistorRawVal = new QLineEdit(this);
     o2SensorReferenceRawVal = new QLineEdit(this);
     diagnosticPlugRawVal = new QLineEdit(this);
+    o2LeftDutyRawVal = new QLineEdit(this);
+    o2RightDutyRawVal = new QLineEdit(this);
 
     inertiaSwitchBox = new QCheckBox(this);
-    connect(inertiaSwitchBox, SIGNAL(clicked(bool)), this, SLOT(onInertiaSwitchChanged(bool)));
+    connect(inertiaSwitchBox, SIGNAL(toggled(bool)), this, SLOT(onInertiaSwitchChanged(bool)));
 
     heatedScreenBox = new QCheckBox(this);
-    connect(heatedScreenBox, SIGNAL(clicked(bool)), this, SLOT(onHeatedScreenChanged(bool)));
+    connect(heatedScreenBox, SIGNAL(toggled(bool)), this, SLOT(onHeatedScreenChanged(bool)));
+
+    airConLoadBox = new QCheckBox(this);
+    connect(airConLoadBox, SIGNAL(toggled(bool)), this, SLOT(onAirConLoadChanged(bool)));
+
+    diagnosticPlugBox = new QCheckBox(this);
+    connect(diagnosticPlugBox, SIGNAL(toggled(bool)), this, SLOT(onDiagnosticPlugChanged(bool)));
 
     neutralSwitchBox = new QComboBox(this);
     neutralSwitchBox->addItem("Park/Neutral");
@@ -73,38 +82,64 @@ void SimulationModeDialog::setupWidgets()
     neutralSwitchBox->addItem("Drive/Reverse");
     connect(neutralSwitchBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onNeutralSwitchChanged(int)));
 
+    mafSlider = new QSlider(Qt::Horizontal, this);
+    mafSlider->setMinimum(0);
+    mafSlider->setMaximum(50);
+    mafSlider->setMinimumWidth(200);
+    connect(mafSlider, SIGNAL(valueChanged(int)), this, SLOT(onMafChanged(int)));
+
+    mafTrimSlider = new QSlider(Qt::Horizontal, this);
+    mafTrimSlider->setMinimum(0);
+    mafTrimSlider->setMaximum(50);
+    mafTrimSlider->setMinimumWidth(200);
+    connect(mafTrimSlider, SIGNAL(valueChanged(int)), this, SLOT(onMafTrimChanged(int)));
+    mafTrimSlider->setEnabled(false);
+
     coolantTempSlider = new QSlider(Qt::Horizontal, this);
     coolantTempSlider->setMinimum(-40);
     coolantTempSlider->setMaximum(250);
     coolantTempSlider->setMinimumWidth(200);
-    connect(coolantTempSlider, SIGNAL(sliderMoved(int)), this, SLOT(onCoolantTempChanged(int)));
+    connect(coolantTempSlider, SIGNAL(valueChanged(int)), this, SLOT(onCoolantTempChanged(int)));
 
     fuelTempSlider = new QSlider(Qt::Horizontal, this);
     fuelTempSlider->setMinimum(-40);
     fuelTempSlider->setMaximum(250);
     fuelTempSlider->setMinimumWidth(200);
-    connect(fuelTempSlider, SIGNAL(sliderMoved(int)), this, SLOT(onFuelTempChanged(int)));
+    connect(fuelTempSlider, SIGNAL(valueChanged(int)), this, SLOT(onFuelTempChanged(int)));
 
     roadSpeedSlider = new QSlider(Qt::Horizontal, this);
     roadSpeedSlider->setMinimum(0);
     roadSpeedSlider->setMaximum(158);
     roadSpeedSlider->setMinimumWidth(200);
-    connect(roadSpeedSlider, SIGNAL(sliderMoved(int)), this, SLOT(onRoadSpeedChanged(int)));
+    connect(roadSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onRoadSpeedChanged(int)));
 
     throttleSlider = new QSlider(Qt::Horizontal, this);
     throttleSlider->setMinimum(0);
     throttleSlider->setMaximum(100);
     throttleSlider->setMinimumWidth(200);
-    connect(throttleSlider, SIGNAL(sliderMoved(int)), this, SLOT(onThrottleChanged(int)));
+    connect(throttleSlider, SIGNAL(valueChanged(int)), this, SLOT(onThrottleChanged(int)));
 
     mainRelaySlider = new QSlider(Qt::Horizontal, this);
     mainRelaySlider->setMinimum(80);
     mainRelaySlider->setMaximum(160);
     mainRelaySlider->setMinimumWidth(200);
-    connect(mainRelaySlider, SIGNAL(sliderMoved(int)), this, SLOT(onMainRelayVoltageChanged(int)));
+    connect(mainRelaySlider, SIGNAL(valueChanged(int)), this, SLOT(onMainRelayVoltageChanged(int)));
+
+    o2LeftDutySlider = new QSlider(Qt::Horizontal, this);
+    o2LeftDutySlider->setMinimum(0);
+    o2LeftDutySlider->setMaximum(10);
+    o2LeftDutySlider->setMinimumWidth(200);
+    connect(o2LeftDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2LeftDutyChanged(int)));
+
+    o2RightDutySlider = new QSlider(Qt::Horizontal, this);
+    o2RightDutySlider->setMinimum(0);
+    o2RightDutySlider->setMaximum(10);
+    o2RightDutySlider->setMinimumWidth(200);
+    connect(o2RightDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2RightDutyChanged(int)));
 
     writeButton = new QPushButton("Write", this);
     connect(writeButton, SIGNAL(clicked()), this, SLOT(onWriteClicked()));
+
     closeButton = new QPushButton("Close", this);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
 
@@ -120,14 +155,15 @@ void SimulationModeDialog::setupWidgets()
     grid->addWidget(heatedScreenVal,        row,   2, Qt::AlignLeft);
     grid->addWidget(heatedScreenRawVal,     row++, 3, Qt::AlignLeft);
 
-    grid->addWidget(airflowALabel,          row,   0, Qt::AlignRight);
-    grid->addWidget(airflowARawVal,         row++, 3, Qt::AlignLeft);
+    grid->addWidget(mafLabel,               row,   0, Qt::AlignRight);
+    grid->addWidget(mafSlider,              row,   1, Qt::AlignCenter);
+    grid->addWidget(mafVal,                 row,   2, Qt::AlignLeft);
+    grid->addWidget(mafRawVal,              row++, 3, Qt::AlignLeft);
 
-    grid->addWidget(airflowBLabel,          row,   0, Qt::AlignRight);
-    grid->addWidget(airflowBRawVal,         row++, 3, Qt::AlignLeft);
-
-    grid->addWidget(airflowCLabel,          row,   0, Qt::AlignRight);
-    grid->addWidget(airflowCRawVal,         row++, 3, Qt::AlignLeft);
+    grid->addWidget(mafTrimLabel,           row,   0, Qt::AlignRight);
+    grid->addWidget(mafTrimSlider,          row,   1, Qt::AlignCenter);
+    grid->addWidget(mafTrimVal,             row,   2, Qt::AlignLeft);
+    grid->addWidget(mafTrimRawVal,          row++, 3, Qt::AlignLeft);
 
     grid->addWidget(throttlePositionLabel,  row,   0, Qt::AlignRight);
     grid->addWidget(throttleSlider,         row,   1, Qt::AlignCenter);
@@ -150,6 +186,7 @@ void SimulationModeDialog::setupWidgets()
     grid->addWidget(neutralSwitchRawVal,    row++, 3, Qt::AlignLeft);
 
     grid->addWidget(airConLoadLabel,        row,   0, Qt::AlignRight);
+    grid->addWidget(airConLoadBox,          row,   1, Qt::AlignCenter);
     grid->addWidget(airConLoadVal,          row,   2, Qt::AlignLeft);
     grid->addWidget(airConLoadRawVal,       row++, 3, Qt::AlignLeft);
 
@@ -171,12 +208,39 @@ void SimulationModeDialog::setupWidgets()
     grid->addWidget(o2SensorReferenceVal,   row,   2, Qt::AlignLeft);
     grid->addWidget(o2SensorReferenceRawVal,row++, 3, Qt::AlignLeft);
 
+    grid->addWidget(o2LeftDutyLabel,        row,   0, Qt::AlignRight);
+    grid->addWidget(o2LeftDutySlider,       row,   1, Qt::AlignCenter);
+    grid->addWidget(o2LeftDutyVal,          row,   2, Qt::AlignLeft);
+    grid->addWidget(o2LeftDutyRawVal,       row++, 3, Qt::AlignLeft);
+
+    grid->addWidget(o2RightDutyLabel,       row,   0, Qt::AlignRight);
+    grid->addWidget(o2RightDutySlider,      row,   1, Qt::AlignCenter);
+    grid->addWidget(o2RightDutyVal,         row,   2, Qt::AlignLeft);
+    grid->addWidget(o2RightDutyRawVal,      row++, 3, Qt::AlignLeft);
+
     grid->addWidget(diagnosticPlugLabel,    row,   0, Qt::AlignRight);
+    grid->addWidget(diagnosticPlugBox,      row,   1, Qt::AlignCenter);
     grid->addWidget(diagnosticPlugVal,      row,   2, Qt::AlignLeft);
     grid->addWidget(diagnosticPlugRawVal,   row++, 3, Qt::AlignLeft);
 
     grid->addWidget(writeButton, row, 1);
     grid->addWidget(closeButton, row, 2);
+
+    inertiaSwitchBox->setChecked(true);
+    neutralSwitchBox->setCurrentIndex(1);
+    coolantTempSlider->setValue(50);
+    fuelTempSlider->setValue(50);
+    throttleSlider->setValue(4);
+    tuneResistorRawVal->setText("0xFF");
+    mainRelaySlider->setValue(140);
+    o2SensorReferenceRawVal->setText("0x16");
+    o2LeftDutySlider->setValue(5);
+    o2RightDutySlider->setValue(5);
+    onHeatedScreenChanged(false);
+    onAirConLoadChanged(false);
+    onRoadSpeedChanged(0);
+    onMafTrimChanged(0);
+    onDiagnosticPlugChanged(false);
 }
 
 void SimulationModeDialog::onCloseClicked()
@@ -189,9 +253,8 @@ void SimulationModeDialog::onWriteClicked()
     SimulationInputValues vals;
     bool ok = true;
     vals.airConLoad = airConLoadRawVal->text().toInt(&ok, 16);
-    vals.airflowA = airflowARawVal->text().toInt(&ok, 16);
-    vals.airflowB = airflowBRawVal->text().toInt(&ok, 16);
-    vals.airflowC = airflowCRawVal->text().toInt(&ok, 16);
+    vals.maf = mafRawVal->text().toInt(&ok, 16);
+    vals.mafTrim = mafTrimRawVal->text().toInt(&ok, 16);
     vals.coolantTemp = coolantTempRawVal->text().toInt(&ok, 16);
     vals.diagnosticPlug = diagnosticPlugRawVal->text().toInt(&ok, 16);
     vals.fuelTemp = fuelTempRawVal->text().toInt(&ok, 16);
@@ -203,6 +266,8 @@ void SimulationModeDialog::onWriteClicked()
     vals.roadSpeed = roadSpeedRawVal->text().toInt(&ok, 16);
     vals.throttle = throttlePositionRawVal->text().toInt(&ok, 16);
     vals.tuneResistor = tuneResistorRawVal->text().toInt(&ok, 16);
+    vals.o2LeftDutyCycle = o2LeftDutyRawVal->text().toInt(&ok, 16);
+    vals.o2RightDutyCycle = o2RightDutyRawVal->text().toInt(&ok, 16);
 
     emit writeSimulationInputValues(vals);
 }
@@ -233,7 +298,10 @@ void SimulationModeDialog::onRoadSpeedChanged(int val)
 
 void SimulationModeDialog::onMainRelayVoltageChanged(int val)
 {
-    mainRelayVal->setText(QString("%1 VDC").arg(val / 10.0));
+    float voltage = val / 10.0;
+    mainRelayVal->setText(QString("%1 VDC").arg(voltage));
+    unsigned int storedVal = convertVoltageToQuadraticCounts(voltage);
+    mainRelayRawVal->setText(QString("%1").sprintf("0x%02X", storedVal));
 }
 
 void SimulationModeDialog::onNeutralSwitchChanged(int val)
@@ -281,6 +349,56 @@ void SimulationModeDialog::onInertiaSwitchChanged(bool checked)
     }
 }
 
+void SimulationModeDialog::onAirConLoadChanged(bool checked)
+{
+    if (checked)
+    {
+        airConLoadVal->setText("On");
+        airConLoadRawVal->setText("0xFF");
+    }
+    else
+    {
+        airConLoadVal->setText("Off");
+        airConLoadRawVal->setText("0x00");
+    }
+}
+
+void SimulationModeDialog::onDiagnosticPlugChanged(bool checked)
+{
+    if (checked)
+    {
+        diagnosticPlugVal->setText("Connected");
+        diagnosticPlugRawVal->setText("0xFF");
+    }
+    else
+    {
+        diagnosticPlugVal->setText("Disconnected");
+        diagnosticPlugRawVal->setText("0x00");
+    }
+}
+
+void SimulationModeDialog::onMafChanged(int val)
+{
+    mafVal->setText(QString("%1 VDC").arg(val / 10.0));
+}
+
+void SimulationModeDialog::onMafTrimChanged(int val)
+{
+    mafTrimRawVal->setText("0x00");
+}
+
+void SimulationModeDialog::onO2LeftDutyChanged(int val)
+{
+    o2LeftDutyVal->setText(QString("%1% duty").arg(val * 10));
+    o2LeftDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+}
+
+void SimulationModeDialog::onO2RightDutyChanged(int val)
+{
+    o2RightDutyVal->setText(QString("%1% duty").arg(val * 10));
+    o2RightDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+}
+
 double SimulationModeDialog::Peak_LorentzianModifiedPeakG_model(double x_in)
 {
     double temp;
@@ -294,3 +412,11 @@ double SimulationModeDialog::Peak_LorentzianModifiedPeakG_model(double x_in)
     return temp;
 }
 
+unsigned int SimulationModeDialog::convertVoltageToQuadraticCounts(float voltage)
+{
+    uint8_t  adc = (voltage + 0.09) / 0.07;
+    uint8_t  a   = (adc * adc >> 8);
+    uint16_t b   = ((0x64 * a) - (adc * 0xBD) + 0x6180) >> 2;
+
+    return b;
+}

@@ -891,3 +891,8 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     }
 }
 
+
+void CUXInterface::onSimModeWriteRequest(SimulationInputValues simVals)
+{
+
+}

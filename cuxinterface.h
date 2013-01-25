@@ -77,6 +77,7 @@ public slots:
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
     void onIdleAirControlMovementRequest(int direction, int steps);
+    void onSimModeWriteRequest(SimulationInputValues simVals);
 
 signals:
     void dataReady();
