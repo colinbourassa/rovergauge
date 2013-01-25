@@ -894,5 +894,19 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
 
 void CUXInterface::onSimModeWriteRequest(SimulationInputValues simVals)
 {
-
+    // TODO: add 16-bit vals
+    cux->writeMem(0x2060, simVals.inertiaSwitch);
+    cux->writeMem(0x2061, simVals.heatedScreen);
+    cux->writeMem(0x2066, simVals.coolantTemp);
+    cux->writeMem(0x2067, simVals.neutralSwitch);
+    cux->writeMem(0x2068, simVals.airConLoad);
+    cux->writeMem(0x2069, simVals.roadSpeed);
+    cux->writeMem(0x206A, simVals.mainRelay);
+    cux->writeMem(0x206B, simVals.mafTrim);
+    cux->writeMem(0x206C, simVals.tuneResistor);
+    cux->writeMem(0x206D, simVals.fuelTemp);
+    cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
+    cux->writeMem(0x2071, simVals.o2RightDutyCycle);
+    cux->writeMem(0x206F, simVals.o2SensorReference);
+    cux->writeMem(0x2070, simVals.diagnosticPlug);
 }

@@ -231,6 +231,7 @@ void SimulationModeDialog::setupWidgets()
     coolantTempSlider->setValue(50);
     fuelTempSlider->setValue(50);
     throttleSlider->setValue(4);
+    mafSlider->setValue(16);
     tuneResistorRawVal->setText("0xFF");
     mainRelaySlider->setValue(140);
     o2SensorReferenceRawVal->setText("0x16");
@@ -241,6 +242,7 @@ void SimulationModeDialog::setupWidgets()
     onRoadSpeedChanged(0);
     onMafTrimChanged(0);
     onDiagnosticPlugChanged(false);
+    mafTrimRawVal->setText("0x00");
 }
 
 void SimulationModeDialog::onCloseClicked()
@@ -380,11 +382,11 @@ void SimulationModeDialog::onDiagnosticPlugChanged(bool checked)
 void SimulationModeDialog::onMafChanged(int val)
 {
     mafVal->setText(QString("%1 VDC").arg(val / 10.0));
+    mafRawVal->setText(QString("%1").sprintf("0x%04X", (val*1024)/50));
 }
 
 void SimulationModeDialog::onMafTrimChanged(int val)
 {
-    mafTrimRawVal->setText("0x00");
 }
 
 void SimulationModeDialog::onO2LeftDutyChanged(int val)
