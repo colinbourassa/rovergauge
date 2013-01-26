@@ -77,7 +77,7 @@ public slots:
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
     void onIdleAirControlMovementRequest(int direction, int steps);
-    void onSimModeWriteRequest(SimulationInputValues simVals);
+    void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals);
 
 signals:
     void dataReady();
@@ -98,6 +98,8 @@ signals:
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();
     void notConnected();
+    void simModeWriteSuccess();
+    void simModeWriteFailure();
 
 private slots:
     void onTimer();
