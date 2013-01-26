@@ -12,7 +12,7 @@ SimulationModeDialog::SimulationModeDialog(const QString title, QWidget *parent)
 void SimulationModeDialog::setupWidgets()
 {
     grid = new QGridLayout(this);
-    buttonLayout = new QHBoxLayout(this);
+    buttonLayout = new QHBoxLayout();
 
     inertiaSwitchLabel = new QLabel("Inertia switch:", this);
     heatedScreenLabel = new QLabel("Heated screen:", this);
