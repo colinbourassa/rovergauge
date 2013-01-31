@@ -12,6 +12,7 @@ SimulationModeDialog::SimulationModeDialog(const QString title, QWidget *parent)
 void SimulationModeDialog::setupWidgets()
 {
     m_grid = new QGridLayout(this);
+    m_buttonLayout = new QHBoxLayout();
 
     m_inertiaSwitchLabel = new QLabel("Inertia switch:", this);
     m_heatedScreenLabel = new QLabel("Heated screen:", this);
@@ -137,6 +138,9 @@ void SimulationModeDialog::setupWidgets()
     m_o2RightDutySlider->setMinimumWidth(200);
     connect(m_o2RightDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2RightDutyChanged(int)));
 
+    m_enableSimModeButton = new QPushButton("Enable Sim Mode", this);
+    connect(m_enableSimModeButton, SIGNAL(clicked()), this, SLOT(onEnabledSimModeClicked()));
+
     m_writeButton = new QPushButton("Write", this);
     connect(m_writeButton, SIGNAL(clicked()), this, SLOT(onWriteClicked()));
 
@@ -223,8 +227,10 @@ void SimulationModeDialog::setupWidgets()
     m_grid->addWidget(m_diagnosticPlugVal,      row,   2, Qt::AlignLeft);
     m_grid->addWidget(m_diagnosticPlugRawVal,   row++, 3, Qt::AlignLeft);
 
-    m_grid->addWidget(m_writeButton, row, 1);
-    m_grid->addWidget(m_closeButton, row, 2);
+    m_grid->addLayout(m_buttonLayout, row, 0, 1, 4);
+    m_buttonLayout->addWidget(m_enableSimModeButton);
+    m_buttonLayout->addWidget(m_writeButton);
+    m_buttonLayout->addWidget(m_closeButton);
 
     m_inertiaSwitchBox->setChecked(true);
     m_neutralSwitchBox->setCurrentIndex(1);
@@ -245,12 +251,32 @@ void SimulationModeDialog::setupWidgets()
     m_mafTrimRawVal->setText("0x00");
 }
 
+void SimulationModeDialog::onEnabledSimModeClicked()
+{
+    doWrite(true);
+}
+
 void SimulationModeDialog::onCloseClicked()
 {
     this->hide();
 }
 
 void SimulationModeDialog::onWriteClicked()
+{
+    doWrite(false);
+}
+
+void SimulationModeDialog::onWriteSuccess()
+{
+    QMessageBox::information(this, "Success", "Simulation mode write success", QMessageBox::Ok);
+}
+
+void SimulationModeDialog::onWriteFailure()
+{
+    QMessageBox::warning(this, "Failure", "Simulation mode write failed.", QMessageBox::Ok);
+}
+
+void SimulationModeDialog::doWrite(bool enableSimMode)
 {
     SimulationInputValues vals;
     bool ok = true;
@@ -271,7 +297,7 @@ void SimulationModeDialog::onWriteClicked()
     vals.o2LeftDutyCycle = m_o2LeftDutyRawVal->text().toInt(&ok, 16);
     vals.o2RightDutyCycle = m_o2RightDutyRawVal->text().toInt(&ok, 16);
 
-    emit writeSimulationInputValues(vals);
+    emit writeSimulationInputValues(enableSimMode, vals);
 }
 
 void SimulationModeDialog::onCoolantTempChanged(int val)
@@ -418,7 +444,8 @@ unsigned int SimulationModeDialog::convertVoltageToQuadraticCounts(float voltage
 {
     uint8_t  adc = (voltage + 0.09) / 0.07;
     uint8_t  a   = (adc * adc >> 8);
-    uint16_t b   = ((0x64 * a) - (adc * 0xBD) + 0x6180) >> 2;
+    uint16_t b   = ((0x64 * a) - (adc * 0xBD) + 0x6408) >> 2;
 
     return b;
 }
+

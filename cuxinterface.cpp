@@ -63,7 +63,7 @@ CUXInterface::~CUXInterface()
  */
 Comm14CUXVersion CUXInterface::getVersion()
 {
-    return m_cux->getVersion();
+    return Comm14CUX::getVersion();
 }
 
 /**
@@ -883,22 +883,50 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     }
 }
 
-
-void CUXInterface::onSimModeWriteRequest(SimulationInputValues simVals)
+void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals)
 {
-    // TODO: add 16-bit vals
-    m_cux->writeMem(0x2060, simVals.inertiaSwitch);
-    m_cux->writeMem(0x2061, simVals.heatedScreen);
-    m_cux->writeMem(0x2066, simVals.coolantTemp);
-    m_cux->writeMem(0x2067, simVals.neutralSwitch);
-    m_cux->writeMem(0x2068, simVals.airConLoad);
-    m_cux->writeMem(0x2069, simVals.roadSpeed);
-    m_cux->writeMem(0x206A, simVals.mainRelay);
-    m_cux->writeMem(0x206B, simVals.mafTrim);
-    m_cux->writeMem(0x206C, simVals.tuneResistor);
-    m_cux->writeMem(0x206D, simVals.fuelTemp);
-    m_cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
-    m_cux->writeMem(0x2071, simVals.o2RightDutyCycle);
-    m_cux->writeMem(0x206F, simVals.o2SensorReference);
-    m_cux->writeMem(0x2070, simVals.diagnosticPlug);
+    if ((m_cux != 0) &&
+         m_cux->connect(m_deviceName.toStdString().c_str()))
+    {
+        bool success = true;
+
+        success &= m_cux->writeMem(0x2060, simVals.inertiaSwitch);
+        success &= m_cux->writeMem(0x2061, simVals.heatedScreen);
+        success &= m_cux->writeMem(0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
+        success &= m_cux->writeMem(0x2063, (uint8_t)(simVals.maf & (0x00FF)));
+        success &= m_cux->writeMem(0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
+        success &= m_cux->writeMem(0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
+        success &= m_cux->writeMem(0x2066, simVals.coolantTemp);
+        success &= m_cux->writeMem(0x2067, simVals.neutralSwitch);
+        success &= m_cux->writeMem(0x2068, simVals.airConLoad);
+        success &= m_cux->writeMem(0x2069, simVals.roadSpeed);
+        success &= m_cux->writeMem(0x206A, simVals.mainRelay);
+        success &= m_cux->writeMem(0x206B, simVals.mafTrim);
+        success &= m_cux->writeMem(0x206C, simVals.tuneResistor);
+        success &= m_cux->writeMem(0x206D, simVals.fuelTemp);
+        success &= m_cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
+        success &= m_cux->writeMem(0x206F, simVals.o2SensorReference);
+        success &= m_cux->writeMem(0x2070, simVals.diagnosticPlug);
+        success &= m_cux->writeMem(0x2071, simVals.o2RightDutyCycle);
+
+        if (enableSimMode && success)
+        {
+            success &= m_cux->writeMem(0x2072, 0x55);
+            success &= m_cux->clearFaultCodes();
+        }
+
+        if (success)
+        {
+            emit simModeWriteSuccess();
+        }
+        else
+        {
+            emit simModeWriteFailure();
+        }
+    }
+    else
+    {
+        emit notConnected();
+    }
 }
+

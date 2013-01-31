@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QHBoxLayout>
 #include "commonunits.h"
 
 class SimulationModeDialog : public QDialog
@@ -19,10 +20,11 @@ public:
     explicit SimulationModeDialog(const QString title, QWidget *parent = 0);
 
 signals:
-    void writeSimulationInputValues(SimulationInputValues values);
+    void writeSimulationInputValues(bool enableSimMode, SimulationInputValues values);
 
 private:
     QGridLayout *m_grid;
+    QHBoxLayout *m_buttonLayout;
 
     QLabel *m_inertiaSwitchLabel;
     QLabel *m_heatedScreenLabel;
@@ -90,16 +92,22 @@ private:
     QSlider *m_o2LeftDutySlider;
     QSlider *m_o2RightDutySlider;
 
+    QPushButton *m_enableSimModeButton;
     QPushButton *m_writeButton;
     QPushButton *m_closeButton;
 
     void setupWidgets();
     double Peak_LorentzianModifiedPeakG_model(double x_in);
     unsigned int convertVoltageToQuadraticCounts(float voltage);
+    void doWrite(bool enableSimMode);
 
 private slots:
+    void onEnabledSimModeClicked();
     void onWriteClicked();
     void onCloseClicked();
+
+    void onWriteSuccess();
+    void onWriteFailure();
 
     void onMafChanged(int val);
     void onMafTrimChanged(int val);

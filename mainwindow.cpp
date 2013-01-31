@@ -1187,7 +1187,7 @@ void MainWindow::onHelpAboutClicked()
 {
     if (m_aboutBox == 0)
     {
-        m_aboutBox = new AboutBox(style(), this->windowTitle(), m_cux->getVersion());
+        m_aboutBox = new AboutBox(style(), this->windowTitle(), Comm14CUX::getVersion());
     }
     m_aboutBox->exec();
 }
@@ -1457,7 +1457,12 @@ void MainWindow::onSimDialogClicked()
     if (m_simDialog == 0)
     {
         m_simDialog = new SimulationModeDialog(QString(this->windowTitle() + " - Simulation Mode"), this);
+        connect(m_cux, SIGNAL(simModeWriteSuccess()), m_simDialog, SLOT(onWriteSuccess()));
+        connect(m_cux, SIGNAL(simModeWriteFailure()), m_simDialog, SLOT(onWriteFailure()));
+        connect(m_simDialog, SIGNAL(writeSimulationInputValues(bool,SimulationInputValues)),
+                m_cux, SLOT(onSimModeWriteRequest(bool,SimulationInputValues)));
     }
     m_simDialog->show();
 }
 #endif
+
