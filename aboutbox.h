@@ -23,21 +23,21 @@ private:
     void setupWidgets();
     QString makeVersionString(int maj, int min, int patch);
 
-    QStyle *style;
-    QGridLayout *grid;
+    QStyle *m_style;
+    QGridLayout *m_grid;
 
-    Comm14CUXVersion ver;
+    Comm14CUXVersion m_ver;
 
-    const QString urlString;
-    const QString urlLibString;
-    const QString aboutString;
-    QLabel *iconLabel;
-    QLabel *info;
-    QLabel *name;
-    QLabel *infoLib;
-    QLabel *url;
-    QLabel *urlLib;
-    QPushButton *ok;
+    const QString m_urlString;
+    const QString m_urlLibString;
+    const QString m_aboutString;
+    QLabel *m_iconLabel;
+    QLabel *m_info;
+    QLabel *m_name;
+    QLabel *m_infoLib;
+    QLabel *m_url;
+    QLabel *m_urlLib;
+    QPushButton *m_ok;
 };
 
 #endif // ABOUTBOX_H

@@ -39,47 +39,46 @@ private slots:
     void uncheckAll();
 
 private:
-    QGridLayout *grid;
-    QLabel *serialDeviceLabel;
-    QComboBox *serialDeviceBox;
-    QLabel *speedMaxLabel;
-    QSpinBox *speedMaxBox;
+    QGridLayout *m_grid;
+    QLabel *m_serialDeviceLabel;
+    QComboBox *m_serialDeviceBox;
+    QLabel *m_speedMaxLabel;
+    QSpinBox *m_speedMaxBox;
 
-    QLabel *temperatureUnitsLabel;
-    QComboBox *temperatureUnitsBox;
+    QLabel *m_temperatureUnitsLabel;
+    QComboBox *m_temperatureUnitsBox;
 
-    QLabel *speedUnitsLabel;
-    QComboBox *speedUnitsBox;
+    QLabel *m_speedUnitsLabel;
+    QComboBox *m_speedUnitsBox;
 
-    QFrame *horizontalLineA;
-    QFrame *horizontalLineB;
-    QLabel *enabledSamplesLabel;
-    QPushButton *checkAllButton;
-    QPushButton *uncheckAllButton;
-    QHash<SampleType,QCheckBox*> enabledSamplesBoxes;
+    QFrame *m_horizontalLineA;
+    QFrame *m_horizontalLineB;
+    QLabel *m_enabledSamplesLabel;
+    QPushButton *m_checkAllButton;
+    QPushButton *m_uncheckAllButton;
+    QHash<SampleType,QCheckBox*> m_enabledSamplesBoxes;
 
-    QPushButton *okButton;
-    QPushButton *cancelButton;
+    QPushButton *m_okButton;
+    QPushButton *m_cancelButton;
 
-    QString serialDeviceName;
-    int speedMax;
-    int redline;
-    TemperatureUnits tempUnits;
-    SpeedUnits speedUnits;
+    QString m_serialDeviceName;
+    int m_speedMax;
+    TemperatureUnits m_tempUnits;
+    SpeedUnits m_speedUnits;
 
-    QHash<SampleType,bool> enabledSamples;
-    QHash<SampleType,QString> sampleTypeNames;
-    QHash<SampleType,QString> sampleTypeLabels;
-    bool serialDeviceChanged;
+    QHash<SampleType,bool> m_enabledSamples;
+    QHash<SampleType,QString> m_sampleTypeNames;
+    QHash<SampleType,QString> m_sampleTypeLabels;
+    bool m_serialDeviceChanged;
 
-    const QString settingsFileName;
-    const QString settingsGroupName;
+    const QString m_settingsFileName;
+    const QString m_settingsGroupName;
 
-    const QString settingSerialDev;
-    const QString settingSpeedMax;
-    const QString settingRedline;
-    const QString settingSpeedUnits;
-    const QString settingTemperatureUnits;
+    const QString m_settingSerialDev;
+    const QString m_settingSpeedMax;
+    const QString m_settingRedline;
+    const QString m_settingSpeedUnits;
+    const QString m_settingTemperatureUnits;
 
     void setupWidgets();
     void readSettings();

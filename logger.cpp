@@ -7,9 +7,9 @@
  * well as log directory and log file extension.
  */
 Logger::Logger(CUXInterface *cuxIFace) :
-    logExtension(".txt"), logDir("logs")
+    m_logExtension(".txt"), m_logDir("logs")
 {
-    cux = cuxIFace;
+    m_cux = cuxIFace;
 }
 
 /**
@@ -20,21 +20,21 @@ bool Logger::openLog(QString fileName)
 {
     bool success = false;
 
-    lastAttemptedLog = logDir + QDir::separator() + fileName + logExtension;
+    m_lastAttemptedLog = m_logDir + QDir::separator() + fileName + m_logExtension;
 
     // if the 'logs' directory exists, or if we're able to create it...
-    if (!logFile.isOpen() && (QDir(logDir).exists() || QDir().mkdir(logDir)))
+    if (!m_logFile.isOpen() && (QDir(m_logDir).exists() || QDir().mkdir(m_logDir)))
     {
         // set the name of the log file and open it for writing
-        bool alreadyExists = QFileInfo(lastAttemptedLog).exists();
-        logFile.setFileName(lastAttemptedLog);
-        if (logFile.open(QFile::WriteOnly | QFile::Append))
+        bool alreadyExists = QFileInfo(m_lastAttemptedLog).exists();
+        m_logFile.setFileName(m_lastAttemptedLog);
+        if (m_logFile.open(QFile::WriteOnly | QFile::Append))
         {
-            logFileStream.setDevice(&logFile);
+            m_logFileStream.setDevice(&m_logFile);
 
             if (!alreadyExists)
             {
-                logFileStream << "#time,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
+                m_logFileStream << "#time,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                                  "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                                  "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
                                  "targetIdle,leftLambdaTrim,rightLambdaTrim" << endl;
@@ -52,7 +52,7 @@ bool Logger::openLog(QString fileName)
  */
 void Logger::closeLog()
 {
-    logFile.close();
+    m_logFile.close();
 }
 
 /**
@@ -61,23 +61,23 @@ void Logger::closeLog()
  */
 void Logger::logData()
 {
-    if (logFile.isOpen() && (logFileStream.status() == QTextStream::Ok))
+    if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
     {
-        logFileStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << ","
-                      << cux->getRoadSpeed() << ","
-                      << cux->getEngineSpeedRPM() << ","
-                      << cux->getCoolantTemp() << ","
-                      << cux->getFuelTemp() << ","
-                      << cux->getThrottlePos() << ","
-                      << cux->getMAFReading() << ","
-                      << cux->getIdleBypassPos() << ","
-                      << cux->getMainVoltage() << ","
-                      << cux->getCurrentFuelMapIndex() << ","
-                      << cux->getFuelMapRowIndex() << ","
-                      << cux->getFuelMapColumnIndex() << ","
-                      << cux->getTargetIdleSpeed() << ","
-                      << cux->getLeftLambdaTrim() << ","
-                      << cux->getRightLambdaTrim()
+        m_logFileStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << ","
+                      << m_cux->getRoadSpeed() << ","
+                      << m_cux->getEngineSpeedRPM() << ","
+                      << m_cux->getCoolantTemp() << ","
+                      << m_cux->getFuelTemp() << ","
+                      << m_cux->getThrottlePos() << ","
+                      << m_cux->getMAFReading() << ","
+                      << m_cux->getIdleBypassPos() << ","
+                      << m_cux->getMainVoltage() << ","
+                      << m_cux->getCurrentFuelMapIndex() << ","
+                      << m_cux->getFuelMapRowIndex() << ","
+                      << m_cux->getFuelMapColumnIndex() << ","
+                      << m_cux->getTargetIdleSpeed() << ","
+                      << m_cux->getLeftLambdaTrim() << ","
+                      << m_cux->getRightLambdaTrim()
                       << endl;
     }
 }
@@ -88,6 +88,6 @@ void Logger::logData()
  */
 QString Logger::getLogPath()
 {
-    return lastAttemptedLog;
+    return m_lastAttemptedLog;
 }
 

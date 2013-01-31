@@ -16,8 +16,8 @@ signals:
 public slots:
 
 private:
-    const int minimumVal;
-    const int maximumVal;
+    const int m_minimumVal;
+    const int m_maximumVal;
 };
 
 #endif // FUELTRIMBAR_H

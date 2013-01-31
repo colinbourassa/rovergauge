@@ -65,15 +65,15 @@ protected:
     void accept();
 
 private:
-    QGridLayout *grid;
-    QPushButton *closeButton;
-    QPushButton *clearButton;
+    QGridLayout *m_grid;
+    QPushButton *m_closeButton;
+    QPushButton *m_clearButton;
 
-    QMap<FaultCode, QString> faultNames;
-    QMap<FaultCode, QLedIndicator*> faultLights;
-    QMap<FaultCode, QLabel*> faultLabels;
+    QMap<FaultCode, QString> m_faultNames;
+    QMap<FaultCode, QLedIndicator*> m_faultLights;
+    QMap<FaultCode, QLabel*> m_faultLabels;
 
-    const int rows;
+    const int m_rows;
 
     void populateFaultList();
     void setupWidgets();

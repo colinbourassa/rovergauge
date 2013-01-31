@@ -16,12 +16,12 @@ public:
     QString getLogPath();
 
 private:
-    CUXInterface *cux;
-    QString logExtension;
-    QString logDir;
-    QFile logFile;
-    QTextStream logFileStream;
-    QString lastAttemptedLog;
+    CUXInterface *m_cux;
+    QString m_logExtension;
+    QString m_logDir;
+    QFile m_logFile;
+    QTextStream m_logFileStream;
+    QString m_lastAttemptedLog;
 };
 
 #endif // LOGGER_H

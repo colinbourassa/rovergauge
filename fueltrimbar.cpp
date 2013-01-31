@@ -8,12 +8,12 @@
  */
 FuelTrimBar::FuelTrimBar(QWidget *parent) :
     QProgressBar(parent),
-    minimumVal(-256),
-    maximumVal(255)
+    m_minimumVal(-256),
+    m_maximumVal(255)
 
 {
-    this->setMaximum(maximumVal);
-    this->setMinimum(minimumVal);
+    this->setMaximum(m_maximumVal);
+    this->setMinimum(m_minimumVal);
 }
 
 /**
@@ -23,13 +23,13 @@ void FuelTrimBar::setValue(int value)
 {
     int adjVal = value;
 
-    if (adjVal > maximumVal)
+    if (adjVal > m_maximumVal)
     {
-        adjVal = maximumVal;
+        adjVal = m_maximumVal;
     }
-    else if (adjVal < minimumVal)
+    else if (adjVal < m_minimumVal)
     {
-        adjVal = minimumVal;
+        adjVal = m_minimumVal;
     }
 
     QProgressBar::setValue(adjVal);
@@ -52,14 +52,14 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     QStylePainter painter(this);
     QStyleOptionProgressBarV2 bar;
     bar.initFrom(this);
-    bar.minimum = minimumVal;
-    bar.maximum = maximumVal;
-    bar.progress = (currentVal >= 0) ? qAbs(maximumVal) : qAbs(minimumVal);
+    bar.minimum = m_minimumVal;
+    bar.maximum = m_maximumVal;
+    bar.progress = (currentVal >= 0) ? qAbs(m_maximumVal) : qAbs(m_minimumVal);
 
     style()->drawControl(QStyle::CE_ProgressBarGroove, &bar, &painter, this);
 
     // compute the dimensions and location of the bar
-    float percentOfWidth = (float)(qAbs(currentVal)) / (float)(maximumVal - minimumVal);
+    float percentOfWidth = (float)(qAbs(currentVal)) / (float)(m_maximumVal - m_minimumVal);
     int left = bar.rect.topLeft().x();
     int right = bar.rect.topRight().x();
     int top = bar.rect.topLeft().y();
@@ -71,4 +71,3 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     bar.rect = QRect(startPoint, top, barWidth + 2, height);
     style()->drawControl(QStyle::CE_ProgressBarContents, &bar, &painter, this);
 }
-

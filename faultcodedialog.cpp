@@ -6,7 +6,7 @@
  *  appropriately.
  */
 FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
-    rows(8)
+    m_rows(8)
 {
     qRegisterMetaType<Comm14CUXFaultCodes>("Comm14CUXFaultCodes");
     this->setWindowTitle(title);
@@ -46,30 +46,30 @@ void FaultCodeDialog::onFaultClearSuccess(Comm14CUXFaultCodes faultCodes)
  */
 void FaultCodeDialog::populateFaultList()
 {
-    faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
-    faultNames.insert(FaultCode_LambdaSensorLeft, QString("(44) Lambda sensor (left)"));
-    faultNames.insert(FaultCode_LambdaSensorRight, QString("(45) Lambda sensor (right)"));
-    faultNames.insert(FaultCode_MisfireLeft, QString("(40) Misfire (left)"));
-    faultNames.insert(FaultCode_MisfireRight, QString("(50) Misfire (right)"));
-    faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
-    faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune Resistor out of range"));
-    faultNames.insert(FaultCode_InjectorLeft, QString("(34) Injector bank (left)"));
-    faultNames.insert(FaultCode_InjectorRight, QString("(36) Injector bank (right)"));
-    faultNames.insert(FaultCode_CoolantTempSensor, QString("(14) Coolant temp sensor"));
-    faultNames.insert(FaultCode_ThrottlePot, QString("(17) Throttle pot"));
-    faultNames.insert(FaultCode_ThrottlePotHiMAFLo, QString("(18) Throttle pot hi / MAF lo"));
-    faultNames.insert(FaultCode_ThrottlePotLoMAFHi, QString("(19) Throttle pot lo / MAF hi"));
-    faultNames.insert(FaultCode_PurgeValveLeak, QString("(88) Purge valve leak"));
-    faultNames.insert(FaultCode_MixtureTooLean, QString("(26) Mixture too lean"));
-    faultNames.insert(FaultCode_IntakeAirLeak, QString("(28) Intake air leak"));
-    faultNames.insert(FaultCode_LowFuelPressure, QString("(23) Low fuel pressure"));
-    faultNames.insert(FaultCode_IdleStepper, QString("(48) Idle Air Control stepper motor"));
-    faultNames.insert(FaultCode_RoadSpeedSensor, QString("(68) Road speed sensor"));
-    faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral switch"));
-    faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
-    faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
-    faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
-    faultNames.insert(FaultCode_RAMChecksumFailure, QString("(03) Bad checksum on battery-backed RAM"));
+    m_faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
+    m_faultNames.insert(FaultCode_LambdaSensorLeft, QString("(44) Lambda sensor (left)"));
+    m_faultNames.insert(FaultCode_LambdaSensorRight, QString("(45) Lambda sensor (right)"));
+    m_faultNames.insert(FaultCode_MisfireLeft, QString("(40) Misfire (left)"));
+    m_faultNames.insert(FaultCode_MisfireRight, QString("(50) Misfire (right)"));
+    m_faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
+    m_faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune Resistor out of range"));
+    m_faultNames.insert(FaultCode_InjectorLeft, QString("(34) Injector bank (left)"));
+    m_faultNames.insert(FaultCode_InjectorRight, QString("(36) Injector bank (right)"));
+    m_faultNames.insert(FaultCode_CoolantTempSensor, QString("(14) Coolant temp sensor"));
+    m_faultNames.insert(FaultCode_ThrottlePot, QString("(17) Throttle pot"));
+    m_faultNames.insert(FaultCode_ThrottlePotHiMAFLo, QString("(18) Throttle pot hi / MAF lo"));
+    m_faultNames.insert(FaultCode_ThrottlePotLoMAFHi, QString("(19) Throttle pot lo / MAF hi"));
+    m_faultNames.insert(FaultCode_PurgeValveLeak, QString("(88) Purge valve leak"));
+    m_faultNames.insert(FaultCode_MixtureTooLean, QString("(26) Mixture too lean"));
+    m_faultNames.insert(FaultCode_IntakeAirLeak, QString("(28) Intake air leak"));
+    m_faultNames.insert(FaultCode_LowFuelPressure, QString("(23) Low fuel pressure"));
+    m_faultNames.insert(FaultCode_IdleStepper, QString("(48) Idle Air Control stepper motor"));
+    m_faultNames.insert(FaultCode_RoadSpeedSensor, QString("(68) Road speed sensor"));
+    m_faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral switch"));
+    m_faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
+    m_faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
+    m_faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
+    m_faultNames.insert(FaultCode_RAMChecksumFailure, QString("(03) Bad checksum on battery-backed RAM"));
 }
 
 /**
@@ -78,11 +78,11 @@ void FaultCodeDialog::populateFaultList()
  */
 void FaultCodeDialog::setupWidgets()
 {
-    grid = new QGridLayout(this);
+    m_grid = new QGridLayout(this);
 
     QLedIndicator *currentLed;
     QLabel *currentLabel;
-    QList<FaultCode> faultTypes = faultNames.uniqueKeys();
+    QList<FaultCode> faultTypes = m_faultNames.uniqueKeys();
     int position = 0;
     foreach (FaultCode fault, faultTypes)
     {
@@ -93,25 +93,25 @@ void FaultCodeDialog::setupWidgets()
         currentLed->setOffColor1(QColor(20, 0, 0));
         currentLed->setOffColor2(QColor(90, 0, 2));
         currentLed->setDisabled(true);
-        faultLights.insert(fault, currentLed);
+        m_faultLights.insert(fault, currentLed);
 
         // create a label for this fault code
-        currentLabel = new QLabel(faultNames[fault], this);
-        faultLabels.insert(fault, currentLabel);
+        currentLabel = new QLabel(m_faultNames[fault], this);
+        m_faultLabels.insert(fault, currentLabel);
 
-        grid->addWidget(currentLed, position%rows, position/rows*2, Qt::AlignRight);
-        grid->addWidget(currentLabel, position%rows, (position/rows*2)+1, Qt::AlignLeft);
+        m_grid->addWidget(currentLed, position%m_rows, position/m_rows*2, Qt::AlignRight);
+        m_grid->addWidget(currentLabel, position%m_rows, (position/m_rows*2)+1, Qt::AlignLeft);
 
         position++;
     }
 
-    clearButton = new QPushButton("Clear codes", this);
-    grid->addWidget(clearButton, rows, position/rows*2 - 1, Qt::AlignCenter);
-    connect(clearButton, SIGNAL(clicked()), this, SIGNAL(clearFaultCodes()));
+    m_clearButton = new QPushButton("Clear codes", this);
+    m_grid->addWidget(m_clearButton, m_rows, position/m_rows*2 - 1, Qt::AlignCenter);
+    connect(m_clearButton, SIGNAL(clicked()), this, SIGNAL(clearFaultCodes()));
 
-    closeButton = new QPushButton("Close", this);
-    grid->addWidget(closeButton, rows+1, position/rows*2 - 1, Qt::AlignCenter);
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+    m_closeButton = new QPushButton("Close", this);
+    m_grid->addWidget(m_closeButton, m_rows+1, position/m_rows*2 - 1, Qt::AlignCenter);
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 /**
@@ -120,30 +120,30 @@ void FaultCodeDialog::setupWidgets()
  */
 void FaultCodeDialog::lightLEDs(Comm14CUXFaultCodes faults)
 {
-    faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
-    faultLights[FaultCode_LambdaSensorLeft]->setChecked(faults.Lambda_Sensor_Left);
-    faultLights[FaultCode_LambdaSensorRight]->setChecked(faults.Lambda_Sensor_Right);
-    faultLights[FaultCode_MisfireLeft]->setChecked(faults.Misfire_Left_Bank);
-    faultLights[FaultCode_MisfireRight]->setChecked(faults.Misfire_Right_Bank);
-    faultLights[FaultCode_AirflowMeter]->setChecked(faults.Airflow_Meter);
-    faultLights[FaultCode_TuneResistor]->setChecked(faults.Tune_Resistor_Out_of_Range);
-    faultLights[FaultCode_InjectorLeft]->setChecked(faults.Injector_Left_Bank);
-    faultLights[FaultCode_InjectorRight]->setChecked(faults.Injector_Right_Bank);
-    faultLights[FaultCode_CoolantTempSensor]->setChecked(faults.Coolant_Temp_Sensor);
-    faultLights[FaultCode_ThrottlePot]->setChecked(faults.Throttle_Pot);
-    faultLights[FaultCode_ThrottlePotHiMAFLo]->setChecked(faults.Throttle_Pot_Hi_MAF_Lo);
-    faultLights[FaultCode_ThrottlePotLoMAFHi]->setChecked(faults.Throttle_Pot_Lo_MAF_Hi);
-    faultLights[FaultCode_PurgeValveLeak]->setChecked(faults.Purge_Valve_Leak);
-    faultLights[FaultCode_MixtureTooLean]->setChecked(faults.Mixture_Too_Lean);
-    faultLights[FaultCode_IntakeAirLeak]->setChecked(faults.Intake_Air_Leak);
-    faultLights[FaultCode_LowFuelPressure]->setChecked(faults.Low_Fuel_Pressure);
-    faultLights[FaultCode_IdleStepper]->setChecked(faults.Idle_Valve_Stepper_Motor);
-    faultLights[FaultCode_RoadSpeedSensor]->setChecked(faults.Road_Speed_Sensor);
-    faultLights[FaultCode_NeutralSwitch]->setChecked(faults.Neutral_Switch);
-    faultLights[FaultCode_FuelPressureOrLeak]->setChecked(faults.Low_Fuel_Pressure_or_Air_Leak);
-    faultLights[FaultCode_FuelTempSensor]->setChecked(faults.Fuel_Temp_Sensor);
-    faultLights[FaultCode_BatteryDisconnected]->setChecked(faults.Battery_Disconnected);
-    faultLights[FaultCode_RAMChecksumFailure]->setChecked(faults.RAM_Checksum_Failure);
+    m_faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
+    m_faultLights[FaultCode_LambdaSensorLeft]->setChecked(faults.Lambda_Sensor_Left);
+    m_faultLights[FaultCode_LambdaSensorRight]->setChecked(faults.Lambda_Sensor_Right);
+    m_faultLights[FaultCode_MisfireLeft]->setChecked(faults.Misfire_Left_Bank);
+    m_faultLights[FaultCode_MisfireRight]->setChecked(faults.Misfire_Right_Bank);
+    m_faultLights[FaultCode_AirflowMeter]->setChecked(faults.Airflow_Meter);
+    m_faultLights[FaultCode_TuneResistor]->setChecked(faults.Tune_Resistor_Out_of_Range);
+    m_faultLights[FaultCode_InjectorLeft]->setChecked(faults.Injector_Left_Bank);
+    m_faultLights[FaultCode_InjectorRight]->setChecked(faults.Injector_Right_Bank);
+    m_faultLights[FaultCode_CoolantTempSensor]->setChecked(faults.Coolant_Temp_Sensor);
+    m_faultLights[FaultCode_ThrottlePot]->setChecked(faults.Throttle_Pot);
+    m_faultLights[FaultCode_ThrottlePotHiMAFLo]->setChecked(faults.Throttle_Pot_Hi_MAF_Lo);
+    m_faultLights[FaultCode_ThrottlePotLoMAFHi]->setChecked(faults.Throttle_Pot_Lo_MAF_Hi);
+    m_faultLights[FaultCode_PurgeValveLeak]->setChecked(faults.Purge_Valve_Leak);
+    m_faultLights[FaultCode_MixtureTooLean]->setChecked(faults.Mixture_Too_Lean);
+    m_faultLights[FaultCode_IntakeAirLeak]->setChecked(faults.Intake_Air_Leak);
+    m_faultLights[FaultCode_LowFuelPressure]->setChecked(faults.Low_Fuel_Pressure);
+    m_faultLights[FaultCode_IdleStepper]->setChecked(faults.Idle_Valve_Stepper_Motor);
+    m_faultLights[FaultCode_RoadSpeedSensor]->setChecked(faults.Road_Speed_Sensor);
+    m_faultLights[FaultCode_NeutralSwitch]->setChecked(faults.Neutral_Switch);
+    m_faultLights[FaultCode_FuelPressureOrLeak]->setChecked(faults.Low_Fuel_Pressure_or_Air_Leak);
+    m_faultLights[FaultCode_FuelTempSensor]->setChecked(faults.Fuel_Temp_Sensor);
+    m_faultLights[FaultCode_BatteryDisconnected]->setChecked(faults.Battery_Disconnected);
+    m_faultLights[FaultCode_RAMChecksumFailure]->setChecked(faults.RAM_Checksum_Failure);
 }
 
 /**

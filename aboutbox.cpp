@@ -4,15 +4,15 @@
  * Constructor. Receives a pointer to the QStyle of the parent form.
  */
 AboutBox::AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion cuxVersion) :
-    urlString(QString("http://code.google.com/p/rovergauge/")),
-    urlLibString(QString("http://code.google.com/p/libcomm14cux/")),
-    aboutString(QString("A graphical interface to the 14CUX engine management system."))
+    m_urlString(QString("http://code.google.com/p/rovergauge/")),
+    m_urlLibString(QString("http://code.google.com/p/libcomm14cux/")),
+    m_aboutString(QString("A graphical interface to the 14CUX engine management system."))
 {
     this->setWindowTitle(title);
-    ver.major = cuxVersion.major;
-    ver.minor = cuxVersion.minor;
-    ver.patch = cuxVersion.patch;
-    style = parentStyle;
+    m_ver.major = cuxVersion.major;
+    m_ver.minor = cuxVersion.minor;
+    m_ver.patch = cuxVersion.patch;
+    m_style = parentStyle;
     setupWidgets();
 }
 
@@ -33,37 +33,37 @@ QString AboutBox::makeVersionString(int maj, int min, int patch)
  */
 void AboutBox::setupWidgets()
 {
-    grid = new QGridLayout();
-    this->setLayout(grid);
+    m_grid = new QGridLayout();
+    this->setLayout(m_grid);
 
-    iconLabel = new QLabel(this);
-    iconLabel->setPixmap(style->standardIcon(QStyle::SP_MessageBoxInformation).pixmap(32, 32));
+    m_iconLabel = new QLabel(this);
+    m_iconLabel->setPixmap(m_style->standardIcon(QStyle::SP_MessageBoxInformation).pixmap(32, 32));
 
-    name = new QLabel("RoverGauge " +
+    m_name = new QLabel("RoverGauge " +
                       makeVersionString(ROVERGAUGE_VER_MAJOR, ROVERGAUGE_VER_MINOR, ROVERGAUGE_VER_PATCH),
                       this);
-    QFont defaultFont = name->font();
+    QFont defaultFont = m_name->font();
     defaultFont.setPointSize(14);
-    name->setFont(defaultFont);
+    m_name->setFont(defaultFont);
 
-    info = new QLabel(aboutString, this);
-    infoLib = new QLabel(QString("Using libcomm14cux %1.").arg(makeVersionString(ver.major, ver.minor, ver.patch)), this);
+    m_info = new QLabel(m_aboutString, this);
+    m_infoLib = new QLabel(QString("Using libcomm14cux %1.").arg(makeVersionString(m_ver.major, m_ver.minor, m_ver.patch)), this);
 
-    url = new QLabel("<a href=\"" + urlString + "\">" + urlString + "</a>", this);
-    url->setOpenExternalLinks(true);
+    m_url = new QLabel("<a href=\"" + m_urlString + "\">" + m_urlString + "</a>", this);
+    m_url->setOpenExternalLinks(true);
 
-    urlLib = new QLabel("<a href=\"" + urlLibString + "\">" + urlLibString + "</a>", this);
-    urlLib->setOpenExternalLinks(true);
+    m_urlLib = new QLabel("<a href=\"" + m_urlLibString + "\">" + m_urlLibString + "</a>", this);
+    m_urlLib->setOpenExternalLinks(true);
 
-    ok = new QPushButton("Close", this);
-    connect(ok, SIGNAL(clicked()), SLOT(accept()));
+    m_ok = new QPushButton("Close", this);
+    connect(m_ok, SIGNAL(clicked()), SLOT(accept()));
 
-    grid->addWidget(iconLabel, 0, 0, 1, 1, Qt::AlignCenter);
-    grid->addWidget(name, 0, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(info, 1, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(url, 2, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(infoLib, 3, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(urlLib, 4, 1, 1, 1, Qt::AlignLeft);
-    grid->addWidget(ok, 5, 1, 1, 1, Qt::AlignRight);
+    m_grid->addWidget(m_iconLabel, 0, 0, 1, 1, Qt::AlignCenter);
+    m_grid->addWidget(m_name, 0, 1, 1, 1, Qt::AlignLeft);
+    m_grid->addWidget(m_info, 1, 1, 1, 1, Qt::AlignLeft);
+    m_grid->addWidget(m_url, 2, 1, 1, 1, Qt::AlignLeft);
+    m_grid->addWidget(m_infoLib, 3, 1, 1, 1, Qt::AlignLeft);
+    m_grid->addWidget(m_urlLib, 4, 1, 1, 1, Qt::AlignLeft);
+    m_grid->addWidget(m_ok, 5, 1, 1, 1, Qt::AlignRight);
 }
 

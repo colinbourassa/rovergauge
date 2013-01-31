@@ -72,160 +72,160 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *m_ui;
 
-    QMenu *fileMenu;
-    QAction *savePROMImageAction;
-    QAction *exitAction;
-    QMenu *optionsMenu;
-    QAction *editOptionsAction;
-    QAction *showFaultsAction;
-    QAction *showIdleAirControlDialog;
-    QMenu *helpMenu;
-    QAction *helpAction;
-    QAction *aboutAction;
+    QMenu *m_fileMenu;
+    QAction *m_savePROMImageAction;
+    QAction *m_exitAction;
+    QMenu *m_optionsMenu;
+    QAction *m_editOptionsAction;
+    QAction *m_showFaultsAction;
+    QAction *m_showIdleAirControlDialog;
+    QMenu *m_helpMenu;
+    QAction *m_helpAction;
+    QAction *m_aboutAction;
     #ifdef ENABLE_SIM_MODE
-        QAction *simDialogAction;
-        SimulationModeDialog *simDialog;
+        QAction *m_simDialogAction;
+        SimulationModeDialog *m_simDialog;
     #endif
 
-    QVBoxLayout *layout;
+    QVBoxLayout *m_layout;
 
-    QHBoxLayout *connectionButtonLayout;
-    QHBoxLayout *commsLedLayout;
+    QHBoxLayout *m_connectionButtonLayout;
+    QHBoxLayout *m_commsLedLayout;
 
-    QHBoxLayout *gaugesLayout;
-    QHBoxLayout *aboveGaugesRow;
-    QHBoxLayout *belowGaugesRow;
+    QHBoxLayout *m_gaugesLayout;
+    QHBoxLayout *m_aboveGaugesRow;
+    QHBoxLayout *m_belowGaugesRow;
 
-    QVBoxLayout *speedoLayout;
-    QVBoxLayout *revCounterLayout;
-    QVBoxLayout *waterTempLayout;
-    QVBoxLayout *fuelTempLayout;
-    QGridLayout *belowGaugesLeft;
-    QGridLayout *belowGaugesRight;
+    QVBoxLayout *m_speedoLayout;
+    QVBoxLayout *m_revCounterLayout;
+    QVBoxLayout *m_waterTempLayout;
+    QVBoxLayout *m_fuelTempLayout;
+    QGridLayout *m_belowGaugesLeft;
+    QGridLayout *m_belowGaugesRight;
 
-    QPushButton *connectButton;
-    QPushButton *disconnectButton;
+    QPushButton *m_connectButton;
+    QPushButton *m_disconnectButton;
 
-    QLabel *tuneRevNumberLabel;
+    QLabel *m_tuneRevNumberLabel;
 
-    QLabel *milLabel;
-    QLedIndicator *milLed;
+    QLabel *m_milLabel;
+    QLedIndicator *m_milLed;
 
-    QLabel *commsLedLabel;
-    QLedIndicator *commsGoodLed;
-    QLedIndicator *commsBadLed;
+    QLabel *m_commsLedLabel;
+    QLedIndicator *m_commsGoodLed;
+    QLedIndicator *m_commsBadLed;
 
-    ManoMeter *speedo;
-    ManoMeter *revCounter;
-    ManoMeter *waterTempGauge;
-    ManoMeter *fuelTempGauge;
+    ManoMeter *m_speedo;
+    ManoMeter *m_revCounter;
+    ManoMeter *m_waterTempGauge;
+    ManoMeter *m_fuelTempGauge;
 
-    QLabel *waterTempLabel;
-    QLabel *fuelTempLabel;
+    QLabel *m_waterTempLabel;
+    QLabel *m_fuelTempLabel;
 
-    QProgressBar *throttleBar;
-    QLabel *throttleLabel;
+    QProgressBar *m_throttleBar;
+    QLabel *m_throttleLabel;
 
-    QProgressBar *mafReadingBar;
-    QLabel *mafReadingLabel;
+    QProgressBar *m_mafReadingBar;
+    QLabel *m_mafReadingLabel;
 
-    QProgressBar *idleBypassPosBar;
-    QLabel *idleBypassLabel;
+    QProgressBar *m_idleBypassPosBar;
+    QLabel *m_idleBypassLabel;
 
-    QLabel *mafReadingTypeLabel;
-    QButtonGroup *mafReadingButtonGroup;
-    QRadioButton *mafReadingDirectButton;
-    QRadioButton *mafReadingLinearButton;
+    QLabel *m_mafReadingTypeLabel;
+    QButtonGroup *m_mafReadingButtonGroup;
+    QRadioButton *m_mafReadingDirectButton;
+    QRadioButton *m_mafReadingLinearButton;
 
-    QLabel *lambdaTrimTypeLabel;
-    QButtonGroup *lambdaTrimButtonGroup;
-    QLabel *lambdaTrimLowLimitLabel;
-    QLabel *lambdaTrimHighLimitLabel;
-    QRadioButton *lambdaTrimShortButton;
-    QRadioButton *lambdaTrimLongButton;
+    QLabel *m_lambdaTrimTypeLabel;
+    QButtonGroup *m_lambdaTrimButtonGroup;
+    QLabel *m_lambdaTrimLowLimitLabel;
+    QLabel *m_lambdaTrimHighLimitLabel;
+    QRadioButton *m_lambdaTrimShortButton;
+    QRadioButton *m_lambdaTrimLongButton;
 
-    QLabel *throttleTypeLabel;
-    QButtonGroup *throttleTypeButtonGroup;
-    QRadioButton *throttleTypeAbsoluteButton;
-    QRadioButton *throttleTypeCorrectedButton;
+    QLabel *m_throttleTypeLabel;
+    QButtonGroup *m_throttleTypeButtonGroup;
+    QRadioButton *m_throttleTypeAbsoluteButton;
+    QRadioButton *m_throttleTypeCorrectedButton;
 
-    FuelTrimBar *leftFuelTrimBar;
-    QLabel *leftFuelTrimBarLabel;
-    QLabel *leftFuelTrimLabel;
+    FuelTrimBar *m_leftFuelTrimBar;
+    QLabel *m_leftFuelTrimBarLabel;
+    QLabel *m_leftFuelTrimLabel;
 
-    FuelTrimBar *rightFuelTrimBar;
-    QLabel *rightFuelTrimBarLabel;
-    QLabel *rightFuelTrimLabel;
+    FuelTrimBar *m_rightFuelTrimBar;
+    QLabel *m_rightFuelTrimBarLabel;
+    QLabel *m_rightFuelTrimLabel;
 
-    QHBoxLayout *idleSpeedLayout;
-    QLabel *targetIdleLabel;
-    QLabel *targetIdle;
-    QLedIndicator *idleModeLed;
+    QHBoxLayout *m_idleSpeedLayout;
+    QLabel *m_targetIdleLabel;
+    QLabel *m_targetIdle;
+    QLedIndicator *m_idleModeLed;
 
-    QLabel *gearLabel;
-    QLabel *gear;
-    QLabel *voltageLabel;
-    QLabel *voltage;
+    QLabel *m_gearLabel;
+    QLabel *m_gear;
+    QLabel *m_voltageLabel;
+    QLabel *m_voltage;
 
-    QLabel *fuelMapIndexLabel;
-    QLabel *fuelMapFactorLabel;
-    QTableWidget *fuelMapDisplay;
-    QLabel *fuelPumpRelayStateLabel;
-    QLedIndicator *fuelPumpRelayStateLed;
-    QPushButton *fuelPumpOneshotButton;
-    QPushButton *fuelPumpContinuousButton;
-    QTimer *fuelPumpRefreshTimer;
+    QLabel *m_fuelMapIndexLabel;
+    QLabel *m_fuelMapFactorLabel;
+    QTableWidget *m_fuelMapDisplay;
+    QLabel *m_fuelPumpRelayStateLabel;
+    QLedIndicator *m_fuelPumpRelayStateLed;
+    QPushButton *m_fuelPumpOneshotButton;
+    QPushButton *m_fuelPumpContinuousButton;
+    QTimer *m_fuelPumpRefreshTimer;
 
-    QLabel *logFileNameLabel;
-    QLineEdit *logFileNameBox;
-    QPushButton *startLoggingButton;
-    QPushButton *stopLoggingButton;
+    QLabel *m_logFileNameLabel;
+    QLineEdit *m_logFileNameBox;
+    QPushButton *m_startLoggingButton;
+    QPushButton *m_stopLoggingButton;
 
-    QThread *cuxThread;
-    CUXInterface *cux;
-    OptionsDialog *options;
-    IdleAirControlDialog *iacDialog;
-    AboutBox *aboutBox;
-    QMessageBox *pleaseWaitBox;
+    QThread *m_cuxThread;
+    CUXInterface *m_cux;
+    OptionsDialog *m_options;
+    IdleAirControlDialog *m_iacDialog;
+    AboutBox *m_aboutBox;
+    QMessageBox *m_pleaseWaitBox;
 
-    Logger *logger;
+    Logger *m_logger;
 
-    QFrame *horizontalLineA;
-    QFrame *horizontalLineB;
-    QFrame *horizontalLineC;
-    QFrame *verticalLineA;
-    QFrame *verticalLineB;
-    QFrame *verticalLineC;
+    QFrame *m_horizontalLineA;
+    QFrame *m_horizontalLineB;
+    QFrame *m_horizontalLineC;
+    QFrame *m_verticalLineA;
+    QFrame *m_verticalLineB;
+    QFrame *m_verticalLineC;
 
-    QGraphicsOpacityEffect *waterTempGaugeOpacity;
-    QGraphicsOpacityEffect *fuelTempGaugeOpacity;
-    QGraphicsOpacityEffect *speedometerOpacity;
-    QGraphicsOpacityEffect *revCounterOpacity;
-    QGraphicsOpacityEffect *fuelMapOpacity;
+    QGraphicsOpacityEffect *m_waterTempGaugeOpacity;
+    QGraphicsOpacityEffect *m_fuelTempGaugeOpacity;
+    QGraphicsOpacityEffect *m_speedometerOpacity;
+    QGraphicsOpacityEffect *m_revCounterOpacity;
+    QGraphicsOpacityEffect *m_fuelMapOpacity;
 
-    QGraphicsOpacityEffect *idleModeLedOpacity;
-    QGraphicsOpacityEffect *fuelPumpLedOpacity;
+    QGraphicsOpacityEffect *m_idleModeLedOpacity;
+    QGraphicsOpacityEffect *m_fuelPumpLedOpacity;
 
-    QHash<SampleType,bool> enabledSamples;
+    QHash<SampleType,bool> m_enabledSamples;
 
-    int currentFuelMapIndex;
-    int currentFuelMapRow;
-    int currentFuelMapCol;
+    int m_currentFuelMapIndex;
+    int m_currentFuelMapRow;
+    int m_currentFuelMapCol;
 
-    int widthPixels;
-    int heightPixels;
+    int m_widthPixels;
+    int m_heightPixels;
+
+    QHash<SpeedUnits,QString> *m_speedUnitSuffix;
+    QHash<TemperatureUnits,QString> *m_tempUnitSuffix;
+    QHash<TemperatureUnits,QPair<int,int> > *m_tempRange;
+    QHash<TemperatureUnits,QPair<int,int> > *m_tempLimits;
 
     void setupLayout();
     void createWidgets();
     void placeWidgets();
     void setupWidgets();
-
-    QHash<SpeedUnits,QString> *speedUnitSuffix;
-    QHash<TemperatureUnits,QString> *tempUnitSuffix;
-    QHash<TemperatureUnits,QPair<int,int> > *tempRange;
-    QHash<TemperatureUnits,QPair<int,int> > *tempLimits;
 
     void populateFuelMapDisplay(QByteArray* data);
     QColor getColorForFuelMapCell(unsigned char value);

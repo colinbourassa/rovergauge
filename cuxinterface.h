@@ -87,7 +87,7 @@ signals:
     void readSuccess();
     void faultCodesReady();
     void faultCodesReadFailed();
-    void faultCodesClearSuccess(Comm14CUXFaultCodes faultCodes);
+    void faultCodesClearSuccess(Comm14CUXFaultCodes m_faultCodes);
     void faultCodesClearFailure();
     void fuelMapReady(int fuelMapId);
     void fuelMapReadFailed(int fuelMapId);
@@ -103,51 +103,50 @@ private slots:
     void onTimer();
 
 private:
-    int intervalMsecs;
-    QString deviceName;
-    Comm14CUX *cux;
-    QTimer *timer;
-    bool stopPolling;
-    bool shutdownThread;
-    Comm14CUXFaultCodes faultCodes;
-    bool readCanceled;
-    unsigned long readCount;
-    QHash<SampleType,bool> enabledSamples;
+    QString m_deviceName;
+    Comm14CUX *m_cux;
+    QTimer *m_timer;
+    bool m_stopPolling;
+    bool m_shutdownThread;
+    Comm14CUXFaultCodes m_faultCodes;
+    bool m_readCanceled;
+    unsigned long m_readCount;
+    QHash<SampleType,bool> m_enabledSamples;
 
-    int lambdaTrimType;
-    Comm14CUXAirflowType airflowType;
-    Comm14CUXThrottlePosType throttlePosType;
+    int m_lambdaTrimType;
+    Comm14CUXAirflowType m_airflowType;
+    Comm14CUXThrottlePosType m_throttlePosType;
 
-    uint16_t roadSpeedMPH;
-    uint16_t engineSpeedRPM;
-    uint16_t targetIdleSpeed;
-    int16_t coolantTempF;
-    int16_t fuelTempF;
-    float throttlePos;
-    Comm14CUXGear gear;
-    float mainVoltage;
-    uint8_t currentFuelMapIndex;
-    uint8_t currentFuelMapRowIndex;
-    uint8_t currentFuelMapColumnIndex;
-    float mafReading;
-    float idleBypassPos;
-    bool fuelPumpRelayOn;
-    int16_t leftLambdaTrim;
-    int16_t rightLambdaTrim;
-    bool milOn;
-    uint16_t tuneRevision;
-    uint16_t rpmLimit;
-    bool idleMode;
+    uint16_t m_roadSpeedMPH;
+    uint16_t m_engineSpeedRPM;
+    uint16_t m_targetIdleSpeed;
+    int16_t m_coolantTempF;
+    int16_t m_fuelTempF;
+    float m_throttlePos;
+    Comm14CUXGear m_gear;
+    float m_mainVoltage;
+    uint8_t m_currentFuelMapIndex;
+    uint8_t m_currentFuelMapRowIndex;
+    uint8_t m_currentFuelMapColumnIndex;
+    float m_mafReading;
+    float m_idleBypassPos;
+    bool m_fuelPumpRelayOn;
+    int16_t m_leftLambdaTrim;
+    int16_t m_rightLambdaTrim;
+    bool m_milOn;
+    uint16_t m_tuneRevision;
+    uint16_t m_rpmLimit;
+    bool m_idleMode;
 
-    QByteArray *promImage;
-    QHash<int, QByteArray*> fuelMaps;
-    uint16_t fuelMapAdjFactor;
+    QByteArray *m_promImage;
+    QHash<int, QByteArray*> m_fuelMaps;
+    uint16_t m_fuelMapAdjFactor;
 
-    SpeedUnits speedUnits;
-    TemperatureUnits tempUnits;
+    SpeedUnits m_speedUnits;
+    TemperatureUnits m_tempUnits;
 
-    qint64 lastMidFreqReadTime;
-    qint64 lastLowFreqReadTime;
+    qint64 m_lastMidFreqReadTime;
+    qint64 m_lastLowFreqReadTime;
 
     void pollEcu();
     ReadResult readData();
