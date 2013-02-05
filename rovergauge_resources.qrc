@@ -2,4 +2,7 @@
     <qresource prefix="/icons">
         <file>key.png</file>
     </qresource>
+    <qresource prefix="/help">
+        <file>help.html</file>
+    </qresource>
 </RCC>

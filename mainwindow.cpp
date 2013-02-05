@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_options(0),
       m_aboutBox(0),
       m_pleaseWaitBox(0),
+      m_helpViewerDialog(0),
       m_currentFuelMapIndex(-1),
       m_currentFuelMapRow(-1),
       m_currentFuelMapCol(-1),
@@ -1197,7 +1198,11 @@ void MainWindow::onHelpAboutClicked()
  */
 void MainWindow::onHelpContentsClicked()
 {
-    QMessageBox::information(this, "Help", "Help contents go here.", QMessageBox::Ok);
+    if (m_helpViewerDialog == 0)
+    {
+        m_helpViewerDialog = new HelpViewer(this->windowTitle(), this);
+    }
+    m_helpViewerDialog->show();
 }
 
 /**

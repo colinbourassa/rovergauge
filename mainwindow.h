@@ -27,6 +27,7 @@
 #include "logger.h"
 #include "fueltrimbar.h"
 #include "commonunits.h"
+#include "helpviewer.h"
 #ifdef ENABLE_SIM_MODE
     #include "simulationmodedialog.h"
 #endif
@@ -189,6 +190,7 @@ private:
     IdleAirControlDialog *m_iacDialog;
     AboutBox *m_aboutBox;
     QMessageBox *m_pleaseWaitBox;
+    HelpViewer *m_helpViewerDialog;
 
     Logger *m_logger;
 
