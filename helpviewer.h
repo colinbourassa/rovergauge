@@ -13,15 +13,10 @@ class HelpViewer : public QDialog
 public:
     explicit HelpViewer(const QString title, QWidget *parent = 0);
 
-signals:
-
-public slots:
-
 private slots:
     void onCloseClicked();
 
 private:
-    QTextDocument *m_helpDoc;
     QVBoxLayout *m_vbox;
     QTextBrowser *m_viewer;
     QPushButton *m_closeButton;
