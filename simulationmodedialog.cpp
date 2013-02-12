@@ -5,6 +5,7 @@
 SimulationModeDialog::SimulationModeDialog(const QString title, QWidget *parent) :
     QDialog(parent)
 {
+    qRegisterMetaType<SimulationInputValues>("SimulationInputValues");
     this->setWindowTitle(title);
     setupWidgets();
 }

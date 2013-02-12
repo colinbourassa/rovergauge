@@ -268,7 +268,7 @@ bool OptionsDialog::getSerialDeviceChanged()
 QString OptionsDialog::getSerialDeviceName()
 {
 #ifdef WIN32
-    return QString("\\\\.\\%1").arg(serialDeviceName);
+    return QString("\\\\.\\%1").arg(m_serialDeviceName);
 #else
     return m_serialDeviceName;
 #endif
