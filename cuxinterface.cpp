@@ -42,7 +42,6 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_milOn(false),
     m_idleMode(false),
     m_promImage(0),
-    m_fuelMapAdjFactor(0),
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
     m_lastMidFreqReadTime(0),
@@ -162,9 +161,11 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
         }
 
         uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId]->data());
+        uint16_t adjFactor = 0;
 
-        if (m_cux->getFuelMap((int8_t)fuelMapId, m_fuelMapAdjFactor, buffer))
+        if (m_cux->getFuelMap((int8_t)fuelMapId, adjFactor, buffer))
         {
+            m_fuelMapAdjFactors[fuelMapId] = adjFactor;
             emit fuelMapReady(fuelMapId);
         }
 
@@ -731,9 +732,15 @@ QByteArray* CUXInterface::getPROMImage()
  * Returns the last-read fuel map adjustment factor.
  * @return Last-read fuel map adjustment factor
  */
-int CUXInterface::getFuelMapAdjustmentFactor()
+int CUXInterface::getFuelMapAdjustmentFactor(int fuelMapId)
 {
-    return m_fuelMapAdjFactor;
+    int adjFactor = -1;
+    if (m_fuelMapAdjFactors.contains(fuelMapId))
+    {
+        adjFactor = m_fuelMapAdjFactors[fuelMapId];
+    }
+
+    return adjFactor;
 }
 
 /**

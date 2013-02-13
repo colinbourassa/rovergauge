@@ -229,7 +229,7 @@ private:
     void placeWidgets();
     void setupWidgets();
 
-    void populateFuelMapDisplay(QByteArray* data);
+    void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCell();
     void sendPROMImageRequest(QString prompt);

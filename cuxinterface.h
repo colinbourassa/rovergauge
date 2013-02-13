@@ -48,7 +48,7 @@ public:
     float getMainVoltage();
     Comm14CUXVersion getVersion();
     QByteArray* getFuelMap(int fuelMapId);
-    int getFuelMapAdjustmentFactor();
+    int getFuelMapAdjustmentFactor(int fuelMapId);
     int getCurrentFuelMapIndex();
     int getFuelMapRowIndex();
     int getFuelMapColumnIndex();
@@ -142,7 +142,7 @@ private:
 
     QByteArray *m_promImage;
     QHash<int, QByteArray*> m_fuelMaps;
-    uint16_t m_fuelMapAdjFactor;
+    QHash<int, int> m_fuelMapAdjFactors;
 
     SpeedUnits m_speedUnits;
     TemperatureUnits m_tempUnits;

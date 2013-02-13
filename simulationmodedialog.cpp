@@ -239,7 +239,7 @@ void SimulationModeDialog::setupWidgets()
     m_fuelTempSlider->setValue(50);
     m_throttleSlider->setValue(4);
     m_mafSlider->setValue(16);
-    m_tuneResistorRawVal->setText("0xFF");
+    m_tuneResistorRawVal->setText("0xD7");
     m_mainRelaySlider->setValue(140);
     m_o2SensorReferenceRawVal->setText("0x16");
     m_o2LeftDutySlider->setValue(5);
@@ -329,7 +329,7 @@ void SimulationModeDialog::onMainRelayVoltageChanged(int val)
 {
     float voltage = val / 10.0;
     m_mainRelayVal->setText(QString("%1 VDC").arg(voltage));
-    unsigned int storedVal = convertVoltageToQuadraticCounts(voltage);
+    unsigned int storedVal = (voltage + 0.09) / 0.07;
     m_mainRelayRawVal->setText(QString("%1").sprintf("0x%02X", storedVal));
 }
 
@@ -440,13 +440,3 @@ double SimulationModeDialog::Peak_LorentzianModifiedPeakG_model(double x_in)
     temp = a / (1.0 + pow((x_in-b)/c, d));
     return temp;
 }
-
-unsigned int SimulationModeDialog::convertVoltageToQuadraticCounts(float voltage)
-{
-    uint8_t  adc = (voltage + 0.09) / 0.07;
-    uint8_t  a   = (adc * adc >> 8);
-    uint16_t b   = ((0x64 * a) - (adc * 0xBD) + 0x6408) >> 2;
-
-    return b;
-}
-

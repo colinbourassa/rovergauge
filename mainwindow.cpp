@@ -659,7 +659,7 @@ void MainWindow::onFaultCodesReadFailed()
  * values.
  * @param data Pointer to the ByteArray that contains the map data
  */
-void MainWindow::populateFuelMapDisplay(QByteArray *data)
+void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentFactor)
 {
     if (data != 0)
     {
@@ -691,6 +691,10 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data)
         m_fuelMapDisplay->resizeColumnsToContents();
         m_fuelMapDisplay->resizeRowsToContents();
 
+        QString adjFactorLabel =
+            QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
+        m_fuelMapFactorLabel->setText(QString("Adjustment factor: 0x") + adjFactorLabel);
+
         highlightActiveFuelMapCell();
     }
 }
@@ -704,10 +708,7 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
     QByteArray *data = m_cux->getFuelMap(fuelMapId);
     if (data != 0)
     {
-        populateFuelMapDisplay(data);
-        QString hexPart =
-            QString("%1").arg(m_cux->getFuelMapAdjustmentFactor(), 0, 16).toUpper();
-        m_fuelMapFactorLabel->setText(QString("Adjustment factor: 0x") + hexPart);
+        populateFuelMapDisplay(data, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
     }
 }
 
@@ -736,7 +737,7 @@ void MainWindow::onDataReady()
 
             if (fuelMapData != 0)
             {
-                populateFuelMapDisplay(fuelMapData);
+                populateFuelMapDisplay(fuelMapData, m_currentFuelMapIndex);
             }
             else
             {
