@@ -54,4 +54,25 @@ typedef struct
 
 } SimulationInputValues;
 
+typedef struct
+{
+    bool roadSpeed;
+    bool airConLoad;
+    bool maf;
+    bool mafTrim;
+    bool throttle;
+    bool coolantTemp;
+    bool fuelTemp;
+    bool o2SensorReference;
+    bool mainRelay;
+    bool inertiaSwitch;
+    bool neutralSwitch;
+    bool heatedScreen;
+    bool diagnosticPlug;
+    bool tuneResistor;
+    bool o2LeftDutyCycle;
+    bool o2RightDutyCycle;
+
+} SimulationInputChanges;
+
 #endif // COMMONUNITS_H

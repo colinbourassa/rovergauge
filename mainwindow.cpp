@@ -1465,8 +1465,9 @@ void MainWindow::onSimDialogClicked()
         m_simDialog = new SimulationModeDialog(QString(this->windowTitle() + " - Simulation Mode"), this);
         connect(m_cux, SIGNAL(simModeWriteSuccess()), m_simDialog, SLOT(onWriteSuccess()));
         connect(m_cux, SIGNAL(simModeWriteFailure()), m_simDialog, SLOT(onWriteFailure()));
-        connect(m_simDialog, SIGNAL(writeSimulationInputValues(bool,SimulationInputValues)),
-                m_cux, SLOT(onSimModeWriteRequest(bool,SimulationInputValues)));
+        connect(m_simDialog, SIGNAL(writeSimulationInputValues(bool,SimulationInputValues,SimulationInputChanges)),
+                m_cux, SLOT(onSimModeWriteRequest(bool,SimulationInputValues,SimulationInputChanges)));
+
     }
     m_simDialog->show();
 }

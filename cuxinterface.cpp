@@ -890,35 +890,46 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     }
 }
 
-void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals)
+#ifdef ENABLE_SIM_MODE
+void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes)
 {
     if ((m_cux != 0) &&
          m_cux->connect(m_deviceName.toStdString().c_str()))
     {
         bool success = true;
 
-        success &= m_cux->writeMem(0x2060, simVals.inertiaSwitch);
-        success &= m_cux->writeMem(0x2061, simVals.heatedScreen);
-        success &= m_cux->writeMem(0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
-        success &= m_cux->writeMem(0x2063, (uint8_t)(simVals.maf & (0x00FF)));
-        success &= m_cux->writeMem(0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
-        success &= m_cux->writeMem(0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
-        success &= m_cux->writeMem(0x2066, simVals.coolantTemp);
-        success &= m_cux->writeMem(0x2067, simVals.neutralSwitch);
-        success &= m_cux->writeMem(0x2068, simVals.airConLoad);
-        success &= m_cux->writeMem(0x2069, simVals.roadSpeed);
-        success &= m_cux->writeMem(0x206A, simVals.mainRelay);
-        success &= m_cux->writeMem(0x206B, simVals.mafTrim);
-        success &= m_cux->writeMem(0x206C, simVals.tuneResistor);
-        success &= m_cux->writeMem(0x206D, simVals.fuelTemp);
-        success &= m_cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
-        success &= m_cux->writeMem(0x206F, simVals.o2SensorReference);
-        success &= m_cux->writeMem(0x2070, simVals.diagnosticPlug);
-        success &= m_cux->writeMem(0x2071, simVals.o2RightDutyCycle);
+        if (changes.inertiaSwitch)     success &= m_cux->writeMem(0x2060, simVals.inertiaSwitch);
+        if (changes.heatedScreen)      success &= m_cux->writeMem(0x2061, simVals.heatedScreen);
+        if (changes.maf)
+        {
+            success &= m_cux->writeMem(0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
+            success &= m_cux->writeMem(0x2063, (uint8_t)(simVals.maf & (0x00FF)));
+        }
+        if (changes.throttle)
+        {
+            success &= m_cux->writeMem(0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
+            success &= m_cux->writeMem(0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
+        }
+        if (changes.coolantTemp)       success &= m_cux->writeMem(0x2066, simVals.coolantTemp);
+        if (changes.neutralSwitch)     success &= m_cux->writeMem(0x2067, simVals.neutralSwitch);
+        if (changes.airConLoad)        success &= m_cux->writeMem(0x2068, simVals.airConLoad);
+        if (changes.roadSpeed)         success &= m_cux->writeMem(0x2069, simVals.roadSpeed);
+        if (changes.mainRelay)         success &= m_cux->writeMem(0x206A, simVals.mainRelay);
+        if (changes.mafTrim)           success &= m_cux->writeMem(0x206B, simVals.mafTrim);
+        if (changes.tuneResistor)      success &= m_cux->writeMem(0x206C, simVals.tuneResistor);
+        if (changes.fuelTemp)          success &= m_cux->writeMem(0x206D, simVals.fuelTemp);
+        if (changes.o2LeftDutyCycle)   success &= m_cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
+        if (changes.o2SensorReference) success &= m_cux->writeMem(0x206F, simVals.o2SensorReference);
+        if (changes.diagnosticPlug)    success &= m_cux->writeMem(0x2070, simVals.diagnosticPlug);
+        if (changes.o2RightDutyCycle)  success &= m_cux->writeMem(0x2071, simVals.o2RightDutyCycle);
 
         if (enableSimMode && success)
         {
+            // write the magic pattern to turn on simulation mode
             success &= m_cux->writeMem(0x2072, 0x55);
+
+            // clear any fault codes that were set as a result of running the ECU
+            // with sensors missing from the harness
             success &= m_cux->clearFaultCodes();
         }
 
@@ -936,4 +947,4 @@ void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValu
         emit notConnected();
     }
 }
-
+#endif

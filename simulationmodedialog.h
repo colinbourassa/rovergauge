@@ -11,6 +11,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QStatusBar>
 #include "commonunits.h"
 
 class SimulationModeDialog : public QDialog
@@ -20,11 +21,13 @@ public:
     explicit SimulationModeDialog(const QString title, QWidget *parent = 0);
 
 signals:
-    void writeSimulationInputValues(bool enableSimMode, SimulationInputValues values);
-
+    void writeSimulationInputValues(bool enableSimMode,
+                                    SimulationInputValues values,
+                                    SimulationInputChanges changes);
 private:
     QGridLayout *m_grid;
     QHBoxLayout *m_buttonLayout;
+    QStatusBar *m_statusBar;
 
     QLabel *m_inertiaSwitchLabel;
     QLabel *m_heatedScreenLabel;
@@ -95,6 +98,8 @@ private:
     QPushButton *m_enableSimModeButton;
     QPushButton *m_writeButton;
     QPushButton *m_closeButton;
+
+    SimulationInputChanges m_changes;
 
     void setupWidgets();
     double Peak_LorentzianModifiedPeakG_model(double x_in);

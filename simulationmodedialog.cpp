@@ -5,7 +5,9 @@
 SimulationModeDialog::SimulationModeDialog(const QString title, QWidget *parent) :
     QDialog(parent)
 {
+    memset(&m_changes, 0x01, sizeof(SimulationInputChanges));
     qRegisterMetaType<SimulationInputValues>("SimulationInputValues");
+    qRegisterMetaType<SimulationInputChanges>("SimulationInputChanges");
     this->setWindowTitle(title);
     setupWidgets();
 }
@@ -14,6 +16,7 @@ void SimulationModeDialog::setupWidgets()
 {
     m_grid = new QGridLayout(this);
     m_buttonLayout = new QHBoxLayout();
+    m_statusBar = new QStatusBar(this);
 
     m_inertiaSwitchLabel = new QLabel("Inertia switch:", this);
     m_heatedScreenLabel = new QLabel("Heated screen:", this);
@@ -228,10 +231,14 @@ void SimulationModeDialog::setupWidgets()
     m_grid->addWidget(m_diagnosticPlugVal,      row,   2, Qt::AlignLeft);
     m_grid->addWidget(m_diagnosticPlugRawVal,   row++, 3, Qt::AlignLeft);
 
-    m_grid->addLayout(m_buttonLayout, row, 0, 1, 4);
+    m_grid->addLayout(m_buttonLayout, row++, 0, 1, 4);
     m_buttonLayout->addWidget(m_enableSimModeButton);
     m_buttonLayout->addWidget(m_writeButton);
     m_buttonLayout->addWidget(m_closeButton);
+
+    m_grid->addWidget(m_statusBar, row, 0, 1, 4);
+    m_statusBar->showNormal();
+    m_statusBar->showMessage("Ready");
 
     m_inertiaSwitchBox->setChecked(true);
     m_neutralSwitchBox->setCurrentIndex(1);
@@ -259,6 +266,7 @@ void SimulationModeDialog::onEnabledSimModeClicked()
 
 void SimulationModeDialog::onCloseClicked()
 {
+    m_statusBar->showMessage("");
     this->hide();
 }
 
@@ -269,18 +277,23 @@ void SimulationModeDialog::onWriteClicked()
 
 void SimulationModeDialog::onWriteSuccess()
 {
-    QMessageBox::information(this, "Success", "Simulation mode write success", QMessageBox::Ok);
+    m_statusBar->showMessage("Write success");
 }
 
 void SimulationModeDialog::onWriteFailure()
 {
-    QMessageBox::warning(this, "Failure", "Simulation mode write failed.", QMessageBox::Ok);
+    m_statusBar->showMessage("Write failure");
 }
 
 void SimulationModeDialog::doWrite(bool enableSimMode)
 {
     SimulationInputValues vals;
+    SimulationInputChanges changes;
     bool ok = true;
+
+    memcpy(&changes, &m_changes, sizeof(SimulationInputChanges));
+    memset(&m_changes, 0x00, sizeof(SimulationInputChanges));
+
     vals.airConLoad = m_airConLoadRawVal->text().toInt(&ok, 16);
     vals.maf = m_mafRawVal->text().toInt(&ok, 16);
     vals.mafTrim = m_mafTrimRawVal->text().toInt(&ok, 16);
@@ -298,31 +311,35 @@ void SimulationModeDialog::doWrite(bool enableSimMode)
     vals.o2LeftDutyCycle = m_o2LeftDutyRawVal->text().toInt(&ok, 16);
     vals.o2RightDutyCycle = m_o2RightDutyRawVal->text().toInt(&ok, 16);
 
-    emit writeSimulationInputValues(enableSimMode, vals);
+    emit writeSimulationInputValues(enableSimMode, vals, changes);
 }
 
 void SimulationModeDialog::onCoolantTempChanged(int val)
 {
     m_coolantTempRawVal->setText(QString("%1").sprintf("0x%02X", (int)Peak_LorentzianModifiedPeakG_model((double)val)));
     m_coolantTempVal->setText(QString("%1 F").arg(val));
+    m_changes.coolantTemp = true;
 }
 
 void SimulationModeDialog::onFuelTempChanged(int val)
 {
     m_fuelTempRawVal->setText(QString("%1").sprintf("0x%02X", (int)Peak_LorentzianModifiedPeakG_model((double)val)));
     m_fuelTempVal->setText(QString("%1 F").arg(val));
+    m_changes.fuelTemp = true;
 }
 
 void SimulationModeDialog::onThrottleChanged(int val)
 {
     m_throttlePositionVal->setText(QString("%1%").arg(val));
     m_throttlePositionRawVal->setText(QString("%1").sprintf("0x%04X", (val*1024)/100));
+    m_changes.throttle = true;
 }
 
 void SimulationModeDialog::onRoadSpeedChanged(int val)
 {
     m_roadSpeedRawVal->setText(QString("%1").sprintf("0x%02X", (int)(val*1.6093)));
     m_roadSpeedVal->setText(QString("%1 MPH").arg(val));
+    m_changes.roadSpeed = true;
 }
 
 void SimulationModeDialog::onMainRelayVoltageChanged(int val)
@@ -331,6 +348,7 @@ void SimulationModeDialog::onMainRelayVoltageChanged(int val)
     m_mainRelayVal->setText(QString("%1 VDC").arg(voltage));
     unsigned int storedVal = (voltage + 0.09) / 0.07;
     m_mainRelayRawVal->setText(QString("%1").sprintf("0x%02X", storedVal));
+    m_changes.mainRelay = true;
 }
 
 void SimulationModeDialog::onNeutralSwitchChanged(int val)
@@ -348,6 +366,7 @@ void SimulationModeDialog::onNeutralSwitchChanged(int val)
     }
 
     m_neutralSwitchRawVal->setText(rawVal);
+    m_changes.neutralSwitch = true;
 }
 
 void SimulationModeDialog::onHeatedScreenChanged(bool checked)
@@ -362,6 +381,7 @@ void SimulationModeDialog::onHeatedScreenChanged(bool checked)
         m_heatedScreenVal->setText("Off");
         m_heatedScreenRawVal->setText("0x00");
     }
+    m_changes.heatedScreen = true;
 }
 
 void SimulationModeDialog::onInertiaSwitchChanged(bool checked)
@@ -376,6 +396,7 @@ void SimulationModeDialog::onInertiaSwitchChanged(bool checked)
         m_inertiaSwitchVal->setText("Open");
         m_inertiaSwitchRawVal->setText("0x00");
     }
+    m_changes.inertiaSwitch = true;
 }
 
 void SimulationModeDialog::onAirConLoadChanged(bool checked)
@@ -390,6 +411,7 @@ void SimulationModeDialog::onAirConLoadChanged(bool checked)
         m_airConLoadVal->setText("Off");
         m_airConLoadRawVal->setText("0x00");
     }
+    m_changes.airConLoad = true;
 }
 
 void SimulationModeDialog::onDiagnosticPlugChanged(bool checked)
@@ -404,28 +426,33 @@ void SimulationModeDialog::onDiagnosticPlugChanged(bool checked)
         m_diagnosticPlugVal->setText("Disconnected");
         m_diagnosticPlugRawVal->setText("0x00");
     }
+    m_changes.diagnosticPlug = true;
 }
 
 void SimulationModeDialog::onMafChanged(int val)
 {
     m_mafVal->setText(QString("%1 VDC").arg(val / 10.0));
     m_mafRawVal->setText(QString("%1").sprintf("0x%04X", (val*1024)/50));
+    m_changes.maf = true;
 }
 
 void SimulationModeDialog::onMafTrimChanged(int val)
 {
+    m_changes.mafTrim = true;
 }
 
 void SimulationModeDialog::onO2LeftDutyChanged(int val)
 {
     m_o2LeftDutyVal->setText(QString("%1% duty").arg(val * 10));
     m_o2LeftDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+    m_changes.o2LeftDutyCycle = true;
 }
 
 void SimulationModeDialog::onO2RightDutyChanged(int val)
 {
     m_o2RightDutyVal->setText(QString("%1% duty").arg(val * 10));
     m_o2RightDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+    m_changes.o2RightDutyCycle = true;
 }
 
 double SimulationModeDialog::Peak_LorentzianModifiedPeakG_model(double x_in)
