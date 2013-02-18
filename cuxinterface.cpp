@@ -351,7 +351,16 @@ void CUXInterface::onStartPollingRequest()
     }
     else
     {
+#ifdef WIN32
+        QString simpleDeviceName = m_deviceName;
+        if (simpleDeviceName.indexOf("\\\\.\\") == 0)
+        {
+            simpleDeviceName.remove(0, 4);
+        }
+        emit failedToConnect(simpleDeviceName);
+#else
         emit failedToConnect(m_deviceName);
+#endif
     }
 }
 

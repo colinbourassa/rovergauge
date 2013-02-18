@@ -920,7 +920,7 @@ void MainWindow::onEditOptionsClicked()
     // if the user doesn't cancel the options dialog...
     if (m_options->exec() == QDialog::Accepted)
     {
-        // update the speedo and tach appropriately
+        // update the speedo appropriately
         SpeedUnits speedUnits = m_options->getSpeedUnits();
         m_speedo->setMaximum((double)m_options->getSpeedMax());
         m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnits));
