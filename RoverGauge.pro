@@ -8,8 +8,8 @@ sim-mode {
 }
 LIBS += -lcomm14cux
 win32 {
-  LIBS += -LC:/comm14cux
-  INCLUDEPATH += "C:/comm14cux/include"
+  LIBS += "-L$$(SystemDrive)/comm14cux"
+  INCLUDEPATH += "$$(SystemDrive)/comm14cux/include"
 }
 SOURCES += main.cpp \
     mainwindow.cpp \
