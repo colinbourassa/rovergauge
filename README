@@ -43,8 +43,7 @@ If you're running Linux, you can get a Debian package (.DEB) for your system's
 architecture.
 
 It's also possible to build RoverGauge from the code yourself. This can be done
-with Linux or Windows. In either case, you'll need the Qt SDK. To build the help
-files, you'll need Sphinx, the Python-based documentation generator.
+with Linux or Windows. In either case, you'll need the Qt SDK.
 
 ------------------
 Usage and features
