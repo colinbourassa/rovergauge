@@ -80,6 +80,26 @@ QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
         }
     }
 
+#elif defined(__APPLE__)
+
+    QDir dev("/dev", "cu.usbserial*", QDir::NoSort,
+            QDir::Files | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
+    QFileInfoList files = dev.entryInfoList();
+    foreach (const QFileInfo file, files)
+    {
+        if (file.exists())
+        {
+            if (file.isSymLink())
+            {
+                serialDevices.append(file.symLinkTarget());
+            }
+            else
+            {
+                serialDevices.append(file.absoluteFilePath());
+            }
+        }
+    }
+
 #elif defined(WIN32)
 
     // compiling with MinGW, so use a WinAPI mechanism to enumerate ports
