@@ -1,0 +1,7 @@
+moc_*.cpp
+*.o
+Makefile
+RoverGauge.pro.user
+rovergauge
+qrc_rovergauge_resources.cpp
+ui_mainwindow.h

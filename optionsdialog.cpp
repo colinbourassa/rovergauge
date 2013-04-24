@@ -9,7 +9,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_serialDeviceChanged(false),
     m_settingsGroupName("Settings"),
     m_settingSerialDev("SerialDevice"),
-    m_settingSpeedMax("SpeedometerMax"),
     m_settingRedline("Redline"),
     m_settingSpeedUnits("SpeedUnits"),
     m_settingTemperatureUnits("TemperatureUnits")
@@ -62,9 +61,6 @@ void OptionsDialog::setupWidgets()
     m_serialDeviceLabel = new QLabel("Serial device name:", this);
     m_serialDeviceBox = new QComboBox(this);
 
-    m_speedMaxLabel = new QLabel("Maximum speed on speedometer:", this);
-    m_speedMaxBox = new QSpinBox(this);
-
     m_speedUnitsLabel = new QLabel("Speed units:", this);
     m_speedUnitsBox = new QComboBox(this);
 
@@ -98,10 +94,6 @@ void OptionsDialog::setupWidgets()
     m_serialDeviceBox->setEditable(true);
     m_serialDeviceBox->setMinimumWidth(150);
 
-    m_speedMaxBox->setMaximum(250);
-    m_speedMaxBox->setMinimum(10);
-    m_speedMaxBox->setValue(m_speedMax);
-
     m_speedUnitsBox->setEditable(false);
     m_speedUnitsBox->addItem("MPH");
     m_speedUnitsBox->addItem("ft/s");
@@ -115,9 +107,6 @@ void OptionsDialog::setupWidgets()
 
     m_grid->addWidget(m_serialDeviceLabel, row, 0);
     m_grid->addWidget(m_serialDeviceBox, row++, 1);
-
-    m_grid->addWidget(m_speedMaxLabel, row, 0);
-    m_grid->addWidget(m_speedMaxBox, row++, 1);
 
     m_grid->addWidget(m_speedUnitsLabel, row, 0);
     m_grid->addWidget(m_speedUnitsBox, row++, 1);
@@ -194,7 +183,6 @@ void OptionsDialog::accept()
         m_serialDeviceChanged = false;
     }
 
-    m_speedMax = m_speedMaxBox->value();
     m_tempUnits = (TemperatureUnits)(m_temperatureUnitsBox->currentIndex());
     m_speedUnits = (SpeedUnits)(m_speedUnitsBox->currentIndex());
 
@@ -216,7 +204,6 @@ void OptionsDialog::readSettings()
 
     settings.beginGroup(m_settingsGroupName);
     m_serialDeviceName = settings.value(m_settingSerialDev, "").toString();
-    m_speedMax = settings.value(m_settingSpeedMax, 160).toInt();
     m_speedUnits = (SpeedUnits)(settings.value(m_settingSpeedUnits, MPH).toInt());
     m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
 
@@ -237,7 +224,6 @@ void OptionsDialog::writeSettings()
 
     settings.beginGroup(m_settingsGroupName);
     settings.setValue(m_settingSerialDev, m_serialDeviceName);
-    settings.setValue(m_settingSpeedMax, m_speedMax);
     settings.setValue(m_settingSpeedUnits, m_speedUnits);
     settings.setValue(m_settingTemperatureUnits, m_tempUnits);
 
@@ -272,14 +258,6 @@ QString OptionsDialog::getSerialDeviceName()
 #else
     return m_serialDeviceName;
 #endif
-}
-
-/**
- * Returns the maximum value to be shown on the speedometer.
- */
-int OptionsDialog::getSpeedMax()
-{
-    return m_speedMax;
 }
 
 /**

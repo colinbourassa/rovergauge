@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
       m_widthPixels(970),
       m_heightPixels(620)
 {
+    buildSpeedAndTempUnitTables();
+
     QDesktopWidget desktop;
     const QRect screenGeo = desktop.screenGeometry();
     if ((screenGeo.height() * 0.95) < m_heightPixels)
@@ -48,23 +50,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->setupUi(this);
     this->setWindowTitle("RoverGauge");
     this->setMinimumSize(m_widthPixels, m_heightPixels);
-
-    m_speedUnitSuffix = new QHash<SpeedUnits,QString>();
-    m_speedUnitSuffix->insert(MPH, " MPH");
-    m_speedUnitSuffix->insert(FPS, " ft/s");
-    m_speedUnitSuffix->insert(KPH, " km/h");
-
-    m_tempUnitSuffix = new QHash<TemperatureUnits,QString>;
-    m_tempUnitSuffix->insert(Fahrenheit, " F");
-    m_tempUnitSuffix->insert(Celcius, " C");
-
-    m_tempRange = new QHash<TemperatureUnits,QPair<int, int> >;
-    m_tempRange->insert(Fahrenheit, qMakePair(-40, 280));
-    m_tempRange->insert(Celcius, qMakePair(-40, 140));
-
-    m_tempLimits = new QHash<TemperatureUnits,QPair<int, int> >;
-    m_tempLimits->insert(Fahrenheit, qMakePair(180, 210));
-    m_tempLimits->insert(Celcius, qMakePair(80, 98));
 
     m_options = new OptionsDialog(this->windowTitle(), this);
     m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getSpeedUnits(),
@@ -124,6 +109,29 @@ MainWindow::~MainWindow()
     delete m_options;
     delete m_cux;
     delete m_cuxThread;
+}
+
+/**
+ * Populates hash tables with unit-of-measure suffixes and temperature thresholds
+ */
+void MainWindow::buildSpeedAndTempUnitTables()
+{
+    m_speedUnitSuffix = new QHash<SpeedUnits,QString>();
+    m_speedUnitSuffix->insert(MPH, " MPH");
+    m_speedUnitSuffix->insert(FPS, " ft/s");
+    m_speedUnitSuffix->insert(KPH, " km/h");
+
+    m_tempUnitSuffix = new QHash<TemperatureUnits,QString>;
+    m_tempUnitSuffix->insert(Fahrenheit, " F");
+    m_tempUnitSuffix->insert(Celcius, " C");
+
+    m_tempRange = new QHash<TemperatureUnits,QPair<int, int> >;
+    m_tempRange->insert(Fahrenheit, qMakePair(-40, 280));
+    m_tempRange->insert(Celcius, qMakePair(-40, 140));
+
+    m_tempLimits = new QHash<TemperatureUnits,QPair<int, int> >;
+    m_tempLimits->insert(Fahrenheit, qMakePair(180, 210));
+    m_tempLimits->insert(Celcius, qMakePair(80, 98));
 }
 
 /**
@@ -398,10 +406,19 @@ void MainWindow::createWidgets()
     connect(m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
 
     m_speedo = new ManoMeter(this);
+
+    SpeedUnits speedUnit = m_options->getSpeedUnits();
+
     m_speedo->setMinimum(0.0);
-    m_speedo->setMaximum(160.0);
-    m_speedo->setMaximum((double)m_options->getSpeedMax());
-    m_speedo->setSuffix(m_speedUnitSuffix->value(m_options->getSpeedUnits()));
+    if (speedUnit == MPH)
+    {
+        m_speedo->setMaximum(speedometerMaxMPH);
+    }
+    else
+    {
+        m_speedo->setMaximum(speedometerMaxKPH);
+    }
+    m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
     m_speedo->setNominal(1000.0);
     m_speedo->setCritical(1000.0);
 
@@ -921,9 +938,16 @@ void MainWindow::onEditOptionsClicked()
     if (m_options->exec() == QDialog::Accepted)
     {
         // update the speedo appropriately
-        SpeedUnits speedUnits = m_options->getSpeedUnits();
-        m_speedo->setMaximum((double)m_options->getSpeedMax());
-        m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnits));
+        SpeedUnits speedUnit = m_options->getSpeedUnits();
+        if (speedUnit == MPH)
+        {
+            m_speedo->setMaximum(speedometerMaxMPH);
+        }
+        else
+        {
+            m_speedo->setMaximum(speedometerMaxKPH);
+        }
+        m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
         m_speedo->repaint();
 
         TemperatureUnits tempUnits = m_options->getTemperatureUnits();
@@ -948,7 +972,7 @@ void MainWindow::onEditOptionsClicked()
         m_waterTempGauge->setCritical(tempCritical);
         m_waterTempGauge->repaint();
 
-        m_cux->setSpeedUnits(speedUnits);
+        m_cux->setSpeedUnits(speedUnit);
         m_cux->setTemperatureUnits(tempUnits);
 
         // the fields are updated one at a time, because a replacement of the entire

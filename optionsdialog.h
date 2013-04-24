@@ -25,7 +25,6 @@ public:
     OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
     bool getSerialDeviceChanged();
-    int getSpeedMax();
     int getRedline();
     SpeedUnits getSpeedUnits();
     TemperatureUnits getTemperatureUnits();
@@ -42,8 +41,6 @@ private:
     QGridLayout *m_grid;
     QLabel *m_serialDeviceLabel;
     QComboBox *m_serialDeviceBox;
-    QLabel *m_speedMaxLabel;
-    QSpinBox *m_speedMaxBox;
 
     QLabel *m_temperatureUnitsLabel;
     QComboBox *m_temperatureUnitsBox;
@@ -62,7 +59,6 @@ private:
     QPushButton *m_cancelButton;
 
     QString m_serialDeviceName;
-    int m_speedMax;
     TemperatureUnits m_tempUnits;
     SpeedUnits m_speedUnits;
 
@@ -75,7 +71,6 @@ private:
     const QString m_settingsGroupName;
 
     const QString m_settingSerialDev;
-    const QString m_settingSpeedMax;
     const QString m_settingRedline;
     const QString m_settingSpeedUnits;
     const QString m_settingTemperatureUnits;

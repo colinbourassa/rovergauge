@@ -212,6 +212,9 @@ private:
 
     QHash<SampleType,bool> m_enabledSamples;
 
+    static const float speedometerMaxMPH = 160.0;
+    static const float speedometerMaxKPH = 240.0;
+
     int m_currentFuelMapIndex;
     int m_currentFuelMapRow;
     int m_currentFuelMapCol;
@@ -224,6 +227,7 @@ private:
     QHash<TemperatureUnits,QPair<int,int> > *m_tempRange;
     QHash<TemperatureUnits,QPair<int,int> > *m_tempLimits;
 
+    void buildSpeedAndTempUnitTables();
     void setupLayout();
     void createWidgets();
     void placeWidgets();
