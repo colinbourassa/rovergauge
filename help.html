@@ -16,6 +16,9 @@
 </style>
 </head>
 <body>
+    <h3>Overview</h3>
+    <p>RoverGauge is a software utility intended for diagnostics and testing of the Lucas 14CUX engine management system, which was fitted to Land Rover vehicles produced from 1990 to 1995, as well as some sports cars produced by TVR, Morgan, Ginetta, and Marcos.</p>
+    <p>For RoverGauge to work, the computer must have a specially modified USB-to-serial converter. Instructions for building this cable can be found on the <a href="http://code.google.com/p/libcomm14cux/wiki/HardwareInterface">libcomm14cux wiki page</a>.</p>
     <h3>Main display</h3>
     <ul>
     <li><b>MIL:</b> Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least one fault code is set.</li>
@@ -40,7 +43,7 @@
     <li><b>Target idle RPM:</b> The engine idle speed that the ECU would attempt to achieve under the current conditions.</li>
     <li><b>Selected gear:</b> The state of the neutral switch (for automatic gearboxes), or an indicator that a manual gearbox is fitted.</li>
     <li><b>Main voltage:</b> The voltage at the main relay.</li>
-    <li><b>Lambda trim:</b> Fuel trim that is being applied as a result of feedback from the exhaust lambda sensors. There are two types of trim applied by the ECU, referred to as "short term" and "long term". The full effect of these fuel trim values is still under investigation.
+    <li><b>Lambda trim:</b> Fuel trim that is being applied as a result of feedback from the exhaust lambda sensors. There are two types of trim applied by the ECU, referred to as "short term" and "long term". These lambda trim values are only relevant when the system is running in closed-loop mode, so they are not updated when fuel map 1, 2, or 3 is in use (as those maps are for open-loop mode only.)
         <ul>
         <li><i>Short term:</i> These will remain at their initialized values during warm-up, and then typically change rapidly while the engine is running.</li>
         <li><i>Long term:</i></li>
@@ -55,7 +58,6 @@
     <h3>Options dialog</h3>
     <ul>
     <li><b>Serial device name:</b> The name of the serial device connected to the 14CUX. If running Windows, this will be something like "COM2". If running Linux, it will be something like "/dev/ttyUSB0".</li>
-    <li><b>Maximum speed on speedometer:</b> This merely changes the upper limit of the speedometer gauge display. It has no effect on the ECU. Because of limitations in the gauge display itself, only coarse changes will affect this setting.</li>
     <li><b>Speed units:</b> Sets the preferred units of velocity for the road speed display.</li>
     <li><b>Temperature units:</b> Sets the preferred units of temperature for the coolant- and fuel-temperature displays.</li>
     <li><b>Enabled readings:</b> These checkboxes allow the user to enable reading only certain parameters. This allows the limited bandwidth of the diagnostic port to be used for only those parameters that interest the user. If fewer readings are enabled, they will update more quickly and smoothly than if all the readings are enabled.</li>

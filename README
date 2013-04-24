@@ -81,9 +81,6 @@ In addition to this, the display will show the throttle position, the reading
 from the mass airflow sensor, the neutral switch reading (indicating whether
 an automatic transmission is in gear), the main voltage, and fuel map data.
 
-Note that the measurement of the main voltage may vary slightly between
-different ECUs.
-
 The fuel map displayed by the software is the map currently in use by the
 vehicle. Each row represents a range of engine speed, and each column
 represents a range of engine load. Each cell in the grid shows the raw fueling
@@ -128,11 +125,4 @@ fuel maps)?
 
 A: Unfortunately, no. When the ECU is running, it reads fueling values from the
 PROM. Modifying the PROM requires removing and reprogramming the chip.
-
-
-Q: What does the MAF reading represent?
-
-A: It simply shows the MAF sensor voltage as a percentage of the highest
-possible measurement. A reading of 100% indicates that the MAF is measuring as
-much airflow as it can.
 

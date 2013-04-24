@@ -6,6 +6,7 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 #include <QTextDocument>
+#include <QUrl>
 
 class HelpViewer : public QDialog
 {
@@ -15,6 +16,7 @@ public:
 
 private slots:
     void onCloseClicked();
+    void onAnchorClicked(QUrl url);
 
 private:
     QVBoxLayout *m_vbox;

@@ -1,6 +1,7 @@
 #include "helpviewer.h"
 #include <QFile>
 #include <QTextDocument>
+#include <QDesktopServices>
 
 HelpViewer::HelpViewer(const QString title, QWidget *parent) :
     QDialog(parent),
@@ -16,6 +17,8 @@ HelpViewer::HelpViewer(const QString title, QWidget *parent) :
     m_closeButton = new QPushButton("Close", this);
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
     m_viewer = new QTextBrowser(this);
+    m_viewer->setOpenLinks(false);
+    connect(m_viewer, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 
     QFile helpFile(":/help/help.html");
     helpFile.open(QFile::ReadOnly);
@@ -33,3 +36,7 @@ void HelpViewer::onCloseClicked()
     this->hide();
 }
 
+void HelpViewer::onAnchorClicked(QUrl url)
+{
+    QDesktopServices::openUrl(url);
+}
