@@ -10,6 +10,7 @@ set (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${R
 set (CPACK_SOURCE_IGNORE_FILES
       ".*~$"
       ".git"
+      ".gitignore"
       ".*swp$"
       ".*zip$"
       ".*gz$"
