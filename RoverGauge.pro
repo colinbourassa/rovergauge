@@ -1,3 +1,4 @@
+QT += widgets
 TARGET = rovergauge
 TEMPLATE = app
 DEFINES += "ROVERGAUGE_VER_MAJOR=0"
@@ -21,7 +22,13 @@ SOURCES += main.cpp \
     logger.cpp \
     idleaircontroldialog.cpp \
     fueltrimbar.cpp \
-    helpviewer.cpp
+    helpviewer.cpp \
+    analogwidgets/manometer.cpp \
+    analogwidgets/led.cpp \
+    analogwidgets/abstractmeter.cpp \
+    analogwidgets/widgetwithbackground.cpp \
+    analogwidgets/functions.cpp \
+    qledindicator/qledindicator.cpp
 sim-mode {
     SOURCES += simulationmodedialog.cpp
 }
@@ -35,13 +42,17 @@ HEADERS += mainwindow.h \
     commonunits.h \
     idleaircontroldialog.h \
     fueltrimbar.h \
-    helpviewer.h
+    helpviewer.h \
+    analogwidgets/manometer.h \
+    analogwidgets/led.h \
+    analogwidgets/abstractmeter.h \
+    analogwidgets/widgetwithbackground.h \
+    analogwidgets/functions.h \
+    qledindicator/qledindicator.h
 sim-mode {
     HEADERS += simulationmodedialog.h
 }
 FORMS += mainwindow.ui
-include(qledindicator/qledindicator.pri)
-include(analogwidgets/analogwidgets.pri)
 
 RESOURCES += \
     rovergauge_resources.qrc
