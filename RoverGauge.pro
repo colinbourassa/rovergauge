@@ -1,4 +1,3 @@
-QT += widgets
 TARGET = rovergauge
 TEMPLATE = app
 DEFINES += "ROVERGAUGE_VER_MAJOR=0"

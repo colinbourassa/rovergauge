@@ -36,22 +36,9 @@ set (CPACK_SOURCE_IGNORE_FILES
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
-  set (CMAKE_INSTALL_PREFIX "C:/comm14cux")
+  message (STATUS "Defaulting installation path to: $ENV{SystemDrive}/comm14cux")
+  set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/comm14cux")
   set (EXE_FILE "release/rovergauge.exe")
-
-  find_library (MINGW_LIBGCC libgcc_s_dw2-1)
-  if (MINGW_LIBGCC)
-    message (STATUS "Found MinGW's libgcc at ${MINGW_LIBGCC}")
-  else ()
-    message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll!")
-  endif ()
-
-  find_library (MINGW_M10 mingwm10)
-  if (MINGW_M10)
-    message (STATUS "Found MinGW's mingwm10 at ${MINGW_M10}")
-  else ()
-    message (SEND_ERROR "Could not find MinGW's mingwm10.dll!")
-  endif ()
 
   find_library (QTCORE4_DLL QtCore4)
   if (QTCORE4_DLL)
@@ -85,8 +72,6 @@ if (MINGW)
   install (FILES "README.txt" "LICENSE.txt" DESTINATION "rovergauge_doc")
 
   install (FILES ${EXE_FILE}
-	         ${MINGW_LIBGCC}
-		 ${MINGW_M10}
 		 ${QTCORE4_DLL}
 		 ${QTGUI4_DLL}
 		 ${COMM14CUX_DLL}
