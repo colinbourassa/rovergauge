@@ -26,7 +26,7 @@ public:
     ~CUXInterface();
 
     void setSerialDevice(QString device);
-    void setLambdaTrimType(int type);
+    void setLambdaTrimType(Comm14CUXLambdaTrimType type);
     void setMAFReadingType(Comm14CUXAirflowType type);
     void setThrottleReadingType(Comm14CUXThrottlePosType type);
     void setEnabledSamples(QHash<SampleType,bool> samples);
@@ -117,7 +117,7 @@ private:
     unsigned long m_readCount;
     QHash<SampleType,bool> m_enabledSamples;
 
-    int m_lambdaTrimType;
+    Comm14CUXLambdaTrimType m_lambdaTrimType;
     Comm14CUXAirflowType m_airflowType;
     Comm14CUXThrottlePosType m_throttlePosType;
 

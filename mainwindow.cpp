@@ -1423,11 +1423,14 @@ void MainWindow::onIdleAirControlClicked()
  */
 void MainWindow::onLambdaTrimButtonClicked(int id)
 {
-    m_cux->setLambdaTrimType(id);
-    m_leftFuelTrimBar->setValue(0);
-    m_leftFuelTrimBarLabel->setText("+0%");
-    m_rightFuelTrimBar->setValue(0);
-    m_rightFuelTrimBarLabel->setText("+0%");
+    if (id == 1)
+    {
+        m_cux->setLambdaTrimType(Comm14CUXLambdaTrimType_ShortTerm);
+    }
+    else
+    {
+        m_cux->setLambdaTrimType(Comm14CUXLambdaTrimType_LongTerm);
+    }
 }
 
 /**
@@ -1444,7 +1447,6 @@ void MainWindow::onMAFReadingButtonClicked(int id)
     {
         m_cux->setMAFReadingType(Comm14CUXAirflowType_Direct);
     }
-    m_mafReadingBar->setValue(0);
 }
 
 /**

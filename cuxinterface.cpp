@@ -20,9 +20,9 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_shutdownThread(false),
     m_readCanceled(false),
     m_readCount(0),
-    m_lambdaTrimType(1),
+    m_lambdaTrimType(Comm14CUXLambdaTrimType_ShortTerm),
     m_airflowType(Comm14CUXAirflowType_Linearized),
-    m_throttlePosType(Comm14CUXThrottlePosType_Corrected),
+    m_throttlePosType(Comm14CUXThrottlePosType_Absolute),
     m_roadSpeedMPH(0),
     m_engineSpeedRPM(0),
     m_targetIdleSpeed(0),
@@ -429,6 +429,11 @@ CUXInterface::ReadResult CUXInterface::readData()
     return totalResult;
 }
 
+/**
+ * Reads data that changes at a high rate, such as MAF reading and throttle position.
+ * @return True if a read was scheduled and completed successfully,
+ *  false otherwise.
+ */
 CUXInterface::ReadResult CUXInterface::readHighFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
@@ -441,7 +446,7 @@ CUXInterface::ReadResult CUXInterface::readHighFreqData()
 
     // if the frontend if expecting short-term lambda trim
     // (as opposed to long-term trim)
-    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == 1))
+    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == Comm14CUXLambdaTrimType_ShortTerm))
     {
         result = mergeResult(result, m_cux->getLambdaTrimShort(Comm14CUXBank_Left, m_leftLambdaTrim));
         result = mergeResult(result, m_cux->getLambdaTrimShort(Comm14CUXBank_Right, m_rightLambdaTrim));
@@ -462,13 +467,18 @@ CUXInterface::ReadResult CUXInterface::readHighFreqData()
     return result;
 }
 
+/**
+ * Reads data that changes at a medium rate, such as lambda trim and target idle.
+ * @return True if a read was scheduled and completed successfully,
+ *  false otherwise.
+ */
 CUXInterface::ReadResult CUXInterface::readMidFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
 
     // if the frontend is expecting long-term lambda trim
     // (as opposed to short-term trim)
-    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == 2))
+    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == Comm14CUXLambdaTrimType_LongTerm))
     {
         result = mergeResult(result, m_cux->getLambdaTrimLong(Comm14CUXBank_Left, m_leftLambdaTrim));
         result = mergeResult(result, m_cux->getLambdaTrimLong(Comm14CUXBank_Right, m_rightLambdaTrim));
@@ -669,6 +679,10 @@ Comm14CUXFaultCodes CUXInterface::getFaultCodes()
     return m_faultCodes;
 }
 
+/**
+ * Returns the last-read MIL status.
+ * @return Last-read MIL status.
+ */
 bool CUXInterface::isMILOn()
 {
     return m_milOn;
@@ -790,10 +804,9 @@ void CUXInterface::setTemperatureUnits(TemperatureUnits units)
 
 /**
  * Sets the type of lambda trim to read (short- or long-term)
- * @param isShortTerm Set to true if short-term lambda trim should be read;
- *   set to false for long-term
+ * @param type Selects either Short- or Long-Term lambda trim.
  */
-void CUXInterface::setLambdaTrimType(int type)
+void CUXInterface::setLambdaTrimType(Comm14CUXLambdaTrimType type)
 {
     m_lambdaTrimType = type;
 }
@@ -834,6 +847,10 @@ int CUXInterface::getRightLambdaTrim()
     return m_rightLambdaTrim;
 }
 
+/**
+ * Returns the last-read state of the idle-mode flag
+ * @return Last-read idle-mode flag
+ */
 bool CUXInterface::getIdleMode()
 {
     return m_idleMode;
