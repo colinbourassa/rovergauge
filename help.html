@@ -21,13 +21,13 @@
     <p>For RoverGauge to work, the computer must have a specially modified USB-to-serial converter. Instructions for building this cable can be found on the <a href="http://code.google.com/p/libcomm14cux/wiki/HardwareInterface">libcomm14cux wiki page</a>.</p>
     <h3>Main display</h3>
     <ul>
-    <li><b>MIL:</b> Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least one fault code is set.</li>
+    <li><b>MIL:</b> Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least one fault code is set, although there are some fault codes that do not necessarily cause the MIL to light.</li>
     <li><b>Communications:</b> The green lamp is lit when the software is successfully reading data from the ECU, and the red lamp is lit when there was a problem communicating with the ECU (caused by a bad connection, disconnected cable, misconfigured USB adapter, or other problem.) Both lamps will be off if there has not been any attempt to read from the ECU.</li>
     <li><b>Engine temperature:</b> Displays the temperature read by the engine/coolant temperature sensor. The green and red colored areas (representing "nominal" and "warning" temperature levels) are approximate.</li>
     <li><b>Road speed:</b> Displays road speed. Note that some vehicles (including TVR) use a different road speed transducer setup, and the measurement on those vehicles may not be updated above a certain speed.</li>
     <li><b>RPM (tachometer):</b> Displays engine speed in revolutions per minute. The redline represents the RPM limit stored in the ECU.</li>
     <li><b>Fuel temperature:</b> Displays the fuel temperature, which is also sometimes considered as the under-bonnet temperature.</li>
-    <li><b>MAF reading:</b> Displays the reading from the mass airflow sensor as percentage of its maximum range. This display has two modes:
+    <li><b>MAF reading:</b> Displays the reading from the mass airflow sensor as a percentage of its maximum range. This display has two modes:
         <ul>
         <li><i>Linear:</i> Shows a percentage of the maximum airflow. It will vary linearly as the sensor measures more mass.</li>
         <li><i>Direct:</i> Shows a percentage of the maximum sensor voltage (5VDC). It will vary logarithmically as the sensor measures more mass.</li>
@@ -44,14 +44,10 @@
     <li><b>Selected gear:</b> The state of the neutral switch (for automatic gearboxes), or an indicator that a manual gearbox is fitted.</li>
     <li><b>Main voltage:</b> The voltage at the main relay.</li>
     <li><b>Lambda trim:</b> Fuel trim that is being applied as a result of feedback from the exhaust lambda sensors. There are two types of trim applied by the ECU, referred to as "short term" and "long term". These lambda trim values are only relevant when the system is running in closed-loop mode, so they are not updated when fuel map 1, 2, or 3 is in use (as those maps are for open-loop mode only.)
-        <ul>
-        <li><i>Short term:</i> These will remain at their initialized values during warm-up, and then typically change rapidly while the engine is running.</li>
-        <li><i>Long term:</i></li>
-        </ul>
     </li>
-    <li><b>Current fuel map:</b> ID of the currently-selected fuel map, from 1 to 5. For most North American specification (NAS) Land Rovers, this will always be Map 5. In other markets, the map may be selected with the use of a "tune resistor" in the 14CUX wiring harness. A special sixth map, Map 0, is used for fail-safe/limp-home conditions.</li>
+    <li><b>Current fuel map:</b> ID of the currently selected fuel map, from 1 to 5. For most North American specification (NAS) Land Rovers, this will always be Map 5. In other markets, the map may be selected with the use of a "tune resistor" in the 14CUX wiring harness. A special sixth map, Map 0, is used for fail-safe/limp-home conditions.</li>
     <li><b>Adjustment factor:</b> This is a value associated with the current fuel map, and it seems to be used to adjust the fueling values for the engine displacement. It will change significantly between fuel maps intended for different engine displacements.</li>
-    <li><b>Fuel map:</b> Displays the currently-selected fuel map as a 16x8 matrix. Each cell is colored as a quick visual indicator of the fueling values; higher color saturation corresponds to more fuel. Columns in the matrix correspond to different engine speeds, and rows correspond to different engine loads. The cell with the value closest to the fueling value currently in use will be highlighted by the software.</li>
+    <li><b>Fuel map:</b> Displays the currently selected fuel map as a 16x8 matrix. Each cell is colored as a quick visual indicator of the fueling values; higher color saturation corresponds to more fuel. Columns in the matrix correspond to different engine speeds, and rows correspond to different engine loads. The cell with the value closest to the fueling value currently in use will be highlighted by the software.</li>
     <li><b>Fuel pump relay:</b> The green lamp will be lit when the ECU is attempting to run the fuel pump.</li>
     </ul>
 
@@ -65,7 +61,7 @@
 
     <h3>Idle air control dialog</h3>
     <p>This dialog allows the user to drive the idle air control (IAC) valve in the intake plenum. <b>Because the ECU is adjusting the valve when the engine is idling, it is recommended to only test movement of the valve when the engine is off.</b> Otherwise, unpredictable behavior may result.</p> 
-    <p>The motor controlling the valve has a total of 180 steps of movement, so commanding it to open or close by 180 (or more) steps will ensure that it reaches its fully-open or fully-closed position (assuming the valve is functioning mechanically.)</p>
+    <p>The motor controlling the valve has a total of 180 steps of movement, so commanding it to open or close by 180 (or more) steps will ensure that it reaches its fully-open or fully-closed position (assuming the valve is functioning mechanically.) Note: after the IAC valve has been moved from its fully-open position, the ECU will only allow it to return to a maximum of 99% open until the next startup. This is normal behavior.</p>
 
 </body>
 </html>
