@@ -43,7 +43,12 @@ If you're running Linux, you can get a Debian package (.DEB) for your system's
 architecture.
 
 It's also possible to build RoverGauge from the code yourself. This can be done
-with Linux or Windows. In either case, you'll need the Qt SDK.
+with Linux or Windows. In either case, you'll need the Qt SDK (version 4.8).
+
+NOTE: If you are building from source and have multiple versions of the Qt SDK
+installed, you may need to point CMake to the right one, like so:
+
+  cmake . -DQT_QMAKE_EXECUTABLE=/usr/bin/qmake-qt4
 
 ------------------
 Usage and features

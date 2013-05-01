@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.6)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
@@ -32,6 +32,47 @@ set (CPACK_SOURCE_IGNORE_FILES
       "debug"
       "release"
       "object_script.*")
+
+find_package (Qt4 REQUIRED QtCore QtGui)
+include (UseQt4)
+
+include_directories ("${CMAKE_SOURCE_DIR}"
+                     "${CMAKE_SOURCE_DIR}/qledindicator"
+                     "${CMAKE_SOURCE_DIR}/analogwidgets"
+                     "${CMAKE_CURRENT_BINARY_DIR}")
+
+QT4_WRAP_UI (UI_SOURCE mainwindow.ui)
+message (STATUS "Generated: ${UI_SOURCE}")
+QT4_ADD_RESOURCES (RG_RESOURCE rovergauge_resources.qrc)
+message (STATUS "Generated: ${RG_RESOURCE}")
+
+add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
+                 "-DROVERGAUGE_VER_MINOR=${ROVERGAUGE_VER_MINOR}"
+                 "-DROVERGAUGE_VER_PATCH=${ROVERGAUGE_VER_PATCH}")
+
+add_executable (rovergauge main.cpp
+                           cuxinterface.cpp
+                           simulationmodedialog.cpp
+                           helpviewer.cpp
+                           idleaircontroldialog.cpp
+                           logger.cpp
+                           serialdevenumerator.cpp
+                           fueltrimbar.cpp
+                           mainwindow.cpp
+                           faultcodedialog.cpp
+                           aboutbox.cpp
+                           optionsdialog.cpp
+                           qledindicator/qledindicator.cpp
+                           analogwidgets/led.cpp
+                           analogwidgets/functions.cpp
+                           analogwidgets/widgetwithbackground.cpp
+                           analogwidgets/manometer.cpp
+                           analogwidgets/abstractmeter.cpp
+                           ${UI_SOURCE}
+                           ${RG_RESOURCE})
+
+set_target_properties (rovergauge PROPERTIES AUTOMOC TRUE)
+target_link_libraries (rovergauge comm14cux ${QT_LIBRARIES})
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
@@ -77,8 +118,8 @@ if (MINGW)
   endif ()
 
   # convert Unix-style newline characters into Windows-style
-  file (READ "README" README_CONTENTS)
-  file (READ "LICENSE" LICENSE_CONTENTS)
+  file (READ "${CMAKE_SOURCE_DIR}/README" README_CONTENTS)
+  file (READ "${CMAKE_SOURCE_DIR}/LICENSE" LICENSE_CONTENTS)
   file (WRITE "README.TXT" ${README_CONTENTS})
   file (WRITE "LICENSE.TXT" ${LICENSE_CONTENTS})
 
@@ -104,7 +145,7 @@ else()
 
   set (CMAKE_SKIP_RPATH TRUE)
   set (CMAKE_INSTALL_PREFIX "/usr")
-  set (EXE_FILE "rovergauge")
+  set (EXE_FILE "${CMAKE_CURRENT_BINARY_DIR}/rovergauge")
 
   # set the installation destinations for the header files,
   # shared library binaries, and reference utility
@@ -119,8 +160,8 @@ else()
             GROUP_READ GROUP_EXECUTE
             WORLD_READ WORLD_EXECUTE)
 
-  install (FILES "README"
-                 "LICENSE"
+  install (FILES "${CMAKE_SOURCE_DIR}/README"
+                 "${CMAKE_SOURCE_DIR}/LICENSE"
            DESTINATION "share/doc/rovergauge"
            PERMISSIONS
             OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
@@ -142,8 +183,8 @@ else()
   set (CPACK_DEBIAN_PACKAGE_SECTION "Science")
   set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.15), libstdc++6 (>= 4.6.3), libcomm14cux (>= 0.5.5), libqtcore4 (>= 4.8.1), libqtgui4 (>= 4.8.1)")
   set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-${CMAKE_SYSTEM_NAME}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-  set (CPACK_RESOURCE_FILE_LICENSE "LICENSE")
-  set (CPACK_RESOURCE_FILE_README "README")
+  set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+  set (CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README")
 
   include(CPack)
 
