@@ -103,17 +103,17 @@ QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
 #elif defined(WIN32)
 
     // compiling with MinGW, so use a WinAPI mechanism to enumerate ports
-    WCHAR portName[8];
+    char portName[8];
     COMMCONFIG cc;
     DWORD dwSize = sizeof(COMMCONFIG);
 
     // apparently, COM ports can be numbered from 1 to 255
     for (int portNum = 1; portNum < 256; portNum++)
     {
-        _snwprintf(portName, 8, L"COM%d", portNum);
+        snprintf(portName, 8, "COM%d", portNum);
         if (GetDefaultCommConfig(portName, &cc, &dwSize))
         {
-            serialDevices.append(QString::fromWCharArray(portName));
+            serialDevices.append(portName);
         }
     }
 
