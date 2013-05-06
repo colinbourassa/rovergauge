@@ -33,7 +33,7 @@ set (CPACK_SOURCE_IGNORE_FILES
       "release"
       "object_script.*")
 
-find_package (Qt4 REQUIRED QtCore QtGui)
+find_package (Qt4 REQUIRED)
 include (UseQt4)
 
 include_directories ("${CMAKE_SOURCE_DIR}"
@@ -72,14 +72,20 @@ add_executable (rovergauge main.cpp
                            ${RG_RESOURCE})
 
 set_target_properties (rovergauge PROPERTIES AUTOMOC TRUE)
-target_link_libraries (rovergauge comm14cux ${QT_LIBRARIES})
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
-  message (STATUS "Defaulting installation path to: $ENV{SystemDrive}/comm14cux")
-  set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/comm14cux")
-  set (EXE_FILE "release/rovergauge.exe")
+  # Statically link against the MinGW C++ standard library to avoid
+  # an additional DLL dependency
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows -static-libstdc++")
+
+  set (COMM14CUX_PATH "$ENV{SystemDrive}/comm14cux")
+  include_directories ("${COMM14CUX_PATH}/include")
+
+  message (STATUS "Defaulting installation path to: ${COMM14CUX_PATH}")
+  set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/rovergauge")
+  set (EXE_FILE "${CMAKE_CURRENT_BINARY_DIR}/rovergauge.exe")
 
   find_library (MINGW_LIBGCC libgcc_s_dw2-1)
   if (MINGW_LIBGCC)
@@ -109,13 +115,14 @@ if (MINGW)
     message (SEND_ERROR "Could not find QtGui4.dll!")
   endif ()
 
-  find_library(COMM14CUX_DLL libcomm14cux)
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${CMAKE_INSTALL_PREFIX})
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
   else ()
-    message (STATUS "Warning: libcomm14cux not found; will not be included in package")
+    message (SEND_ERROR "Could not find libcomm14cux.dll!")
   endif ()
+
+  target_link_libraries (rovergauge ${QT_LIBRARIES} ${COMM14CUX_DLL})
 
   # convert Unix-style newline characters into Windows-style
   file (READ "${CMAKE_SOURCE_DIR}/README" README_CONTENTS)
@@ -142,6 +149,8 @@ if (MINGW)
 
 else()
   message (STATUS "Platform is not Windows/MinGW; trying Linux...")
+
+  target_link_libraries (rovergauge comm14cux ${QT_LIBRARIES})
 
   set (CMAKE_SKIP_RPATH TRUE)
   set (CMAKE_INSTALL_PREFIX "/usr")
