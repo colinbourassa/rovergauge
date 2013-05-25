@@ -12,3 +12,6 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages/
 cmake_install.cmake
+qrc_rovergauge_resources.cxx
+rovergauge_automoc.cpp
+rovergauge_resources.qrc.depends
