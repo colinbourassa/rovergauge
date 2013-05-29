@@ -14,7 +14,6 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
                            QObject *parent) :
     QObject(parent),
     m_deviceName(device),
-    m_cux(0),
     m_timer(0),
     m_stopPolling(false),
     m_shutdownThread(false),
@@ -47,6 +46,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_lastMidFreqReadTime(0),
     m_lastLowFreqReadTime(0)
 {
+    _14cux_init(&m_cuxinfo);
 }
 
 /**
@@ -62,7 +62,7 @@ CUXInterface::~CUXInterface()
  */
 Comm14CUXVersion CUXInterface::getVersion()
 {
-    return Comm14CUX::getVersion();
+    return _14cux_getLibraryVersion();
 }
 
 /**
@@ -70,12 +70,11 @@ Comm14CUXVersion CUXInterface::getVersion()
  */
 void CUXInterface::onFaultCodesRequested()
 {
-    if (m_cux != 0)
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
         memset(&m_faultCodes, 0, sizeof(m_faultCodes));
 
-        if (m_cux->connect(m_deviceName.toStdString().c_str()) &&
-            m_cux->getFaultCodes(m_faultCodes))
+        if (_14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
         {
             emit faultCodesReady();
         }
@@ -95,10 +94,9 @@ void CUXInterface::onFaultCodesRequested()
  */
 void CUXInterface::onFaultCodesClearRequested()
 {
-    if (m_cux != 0 &&
-        m_cux->connect(m_deviceName.toStdString().c_str()) &&
-        m_cux->clearFaultCodes() &&
-        m_cux->getFaultCodes(m_faultCodes))
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()) &&
+        _14cux_clearFaultCodes(&m_cuxinfo) &&
+        _14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
     {
         emit faultCodesClearSuccess(m_faultCodes);
     }
@@ -113,15 +111,14 @@ void CUXInterface::onFaultCodesClearRequested()
  */
 void CUXInterface::onReadPROMImageRequested()
 {
-    if (m_cux != 0)
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
         if (m_promImage == 0)
         {
             m_promImage = new QByteArray(16384, 0x00);
         }
 
-        if (m_cux->connect(m_deviceName.toStdString().c_str()) &&
-            m_cux->dumpROM((uint8_t*)m_promImage->data()))
+        if (_14cux_dumpROM(&m_cuxinfo, (uint8_t*)m_promImage->data()))
         {
             if (!m_readCanceled)
             {
@@ -151,7 +148,7 @@ void CUXInterface::onReadPROMImageRequested()
  */
 void CUXInterface::onFuelMapRequested(int fuelMapId)
 {
-    if ((m_cux != 0) && m_cux->connect(m_deviceName.toStdString().c_str()))
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
         // create a storage area for the fuel map data if it
         // doesn't already exist
@@ -163,13 +160,13 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
         uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId]->data());
         uint16_t adjFactor = 0;
 
-        if (m_cux->getFuelMap((int8_t)fuelMapId, adjFactor, buffer))
+        if (_14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer))
         {
             m_fuelMapAdjFactors[fuelMapId] = adjFactor;
             emit fuelMapReady(fuelMapId);
         }
 
-        if (m_cux->getRPMLimit(m_rpmLimit))
+        if (_14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
         {
             emit rpmLimitReady(m_rpmLimit);
         }
@@ -181,9 +178,9 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
  */
 void CUXInterface::onFuelPumpRunRequest()
 {
-    if ((m_cux != 0) && m_cux->connect(m_deviceName.toStdString().c_str()))
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
-        m_cux->runFuelPump();
+        _14cux_runFuelPump(&m_cuxinfo);
     }
 }
 
@@ -195,9 +192,9 @@ void CUXInterface::onFuelPumpRunRequest()
  */
 void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
 {
-    if ((m_cux != 0) && m_cux->connect(m_deviceName.toStdString().c_str()))
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
-        m_cux->driveIdleAirControlMotor((uint8_t)direction, (uint8_t)steps);
+        _14cux_driveIdleAirControlMotor(&m_cuxinfo, (uint8_t)direction, (uint8_t)steps);
     }
     else
     {
@@ -211,21 +208,15 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
  */
 bool CUXInterface::connectToECU()
 {
-    bool status = false;
+    bool status = _14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str());    
 
-    // the library object should have previously been instantiated
-    if (m_cux != 0)
+    if (status)
     {
-        status = m_cux->connect(m_deviceName.toStdString().c_str());
+        emit connected();
 
-        if (status)
+        if (_14cux_getTuneRevision(&m_cuxinfo, &m_tuneRevision))
         {
-            emit connected();
-
-            if (m_cux->getTuneRevision(m_tuneRevision))
-            {
-                emit revisionNumberReady(m_tuneRevision);
-            }
+            emit revisionNumberReady(m_tuneRevision);
         }
     }
 
@@ -253,9 +244,9 @@ void CUXInterface::disconnectFromECU()
  */
 void CUXInterface::onShutdownThreadRequest()
 {
-    if ((m_cux != 0) && m_cux->isConnected())
+    if (_14cux_isConnected(&m_cuxinfo))
     {
-        m_cux->disconnect();
+        _14cux_disconnect(&m_cuxinfo);
     }
     emit disconnected();
     QThread::currentThread()->quit();
@@ -267,14 +258,7 @@ void CUXInterface::onShutdownThreadRequest()
  */
 bool CUXInterface::isConnected()
 {
-    bool devIsConnected = false;
-
-    if (m_cux != 0)
-    {
-        devIsConnected = m_cux->isConnected();
-    }
-
-    return devIsConnected;
+    return _14cux_isConnected(&m_cuxinfo);
 }
 
 /**
@@ -303,12 +287,6 @@ QString CUXInterface::getSerialDevice()
  */
 void CUXInterface::onParentThreadFinished()
 {
-    if (m_cux != 0)
-    {
-        delete m_cux;
-        m_cux = 0;
-    }
-
     if (m_timer != 0)
     {
         delete m_timer;
@@ -323,11 +301,6 @@ void CUXInterface::onParentThreadFinished()
  */
 void CUXInterface::onParentThreadStarted()
 {
-    if (m_cux == 0)
-    {
-        m_cux = new Comm14CUX();
-    }
-
     if (m_timer == 0)
     {
         m_timer = new QTimer(this);
@@ -371,14 +344,15 @@ void CUXInterface::pollEcu()
 {
     ReadResult res = ReadResult_NoStatement;
 
+    bool connected = _14cux_isConnected(&m_cuxinfo);
+
     // if we're being asked to stop the thread, or if the 14CUX interface is
     // no longer connected...
-    if (m_stopPolling || m_shutdownThread ||
-        (m_cux == 0) || (!m_cux->isConnected()) )
+    if (m_stopPolling || m_shutdownThread || !connected)
     {
-        if ((m_cux != 0) && m_cux->isConnected())
+        if (connected)
         {
-            m_cux->disconnect();
+            _14cux_disconnect(&m_cuxinfo);
         }
         emit disconnected();
 
@@ -439,30 +413,30 @@ CUXInterface::ReadResult CUXInterface::readHighFreqData()
     ReadResult result = ReadResult_NoStatement;
 
     if (m_enabledSamples[SampleType_MAF])
-        result = mergeResult(result, m_cux->getMAFReading(m_airflowType, m_mafReading));
+        result = mergeResult(result, _14cux_getMAFReading(&m_cuxinfo, m_airflowType, &m_mafReading));
 
     if (m_enabledSamples[SampleType_Throttle])
-        result = mergeResult(result, m_cux->getThrottlePosition(m_throttlePosType, m_throttlePos));
+        result = mergeResult(result, _14cux_getThrottlePosition(&m_cuxinfo, m_throttlePosType, &m_throttlePos));
 
     // if the frontend if expecting short-term lambda trim
     // (as opposed to long-term trim)
     if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == Comm14CUXLambdaTrimType_ShortTerm))
     {
-        result = mergeResult(result, m_cux->getLambdaTrimShort(Comm14CUXBank_Left, m_leftLambdaTrim));
-        result = mergeResult(result, m_cux->getLambdaTrimShort(Comm14CUXBank_Right, m_rightLambdaTrim));
+        result = mergeResult(result, _14cux_getLambdaTrimShort(&m_cuxinfo, Comm14CUXBank_Left, &m_leftLambdaTrim));
+        result = mergeResult(result, _14cux_getLambdaTrimShort(&m_cuxinfo, Comm14CUXBank_Right, &m_rightLambdaTrim));
     }
 
     if (m_enabledSamples[SampleType_EngineRPM])
-        result = mergeResult(result, m_cux->getEngineRPM(m_engineSpeedRPM));
+        result = mergeResult(result, _14cux_getEngineRPM(&m_cuxinfo, &m_engineSpeedRPM));
 
     if (m_enabledSamples[SampleType_FuelMap])
     {
-        result = mergeResult(result, m_cux->getFuelMapRowIndex(m_currentFuelMapRowIndex));
-        result = mergeResult(result, m_cux->getFuelMapColumnIndex(m_currentFuelMapColumnIndex));
+        result = mergeResult(result, _14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex));
+        result = mergeResult(result, _14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex));
     }
 
     if (m_enabledSamples[SampleType_IdleBypassPosition])
-        result = mergeResult(result, m_cux->getIdleBypassMotorPosition(m_idleBypassPos));
+        result = mergeResult(result, _14cux_getIdleBypassMotorPosition(&m_cuxinfo, &m_idleBypassPos));
 
     return result;
 }
@@ -480,27 +454,27 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
     // (as opposed to short-term trim)
     if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == Comm14CUXLambdaTrimType_LongTerm))
     {
-        result = mergeResult(result, m_cux->getLambdaTrimLong(Comm14CUXBank_Left, m_leftLambdaTrim));
-        result = mergeResult(result, m_cux->getLambdaTrimLong(Comm14CUXBank_Right, m_rightLambdaTrim));
+        result = mergeResult(result, _14cux_getLambdaTrimLong(&m_cuxinfo, Comm14CUXBank_Left, &m_leftLambdaTrim));
+        result = mergeResult(result, _14cux_getLambdaTrimLong(&m_cuxinfo, Comm14CUXBank_Right, &m_rightLambdaTrim));
     }
 
     if (m_enabledSamples[SampleType_MainVoltage])
-        result = mergeResult(result, m_cux->getMainVoltage(m_mainVoltage));
+        result = mergeResult(result, _14cux_getMainVoltage(&m_cuxinfo, &m_mainVoltage));
 
     if (m_enabledSamples[SampleType_TargetIdleRPM])
     {
-        result = mergeResult(result, m_cux->getTargetIdle(m_targetIdleSpeed));
-        result = mergeResult(result, m_cux->getIdleMode(m_idleMode));
+        result = mergeResult(result, _14cux_getTargetIdle(&m_cuxinfo, &m_targetIdleSpeed));
+        result = mergeResult(result, _14cux_getIdleMode(&m_cuxinfo, &m_idleMode));
     }
 
     if (m_enabledSamples[SampleType_FuelPumpRelay])
-        result = mergeResult(result, m_cux->getFuelPumpRelayState(m_fuelPumpRelayOn));
+        result = mergeResult(result, _14cux_getFuelPumpRelayState(&m_cuxinfo, &m_fuelPumpRelayOn));
 
     if (m_enabledSamples[SampleType_GearSelection])
-        result = mergeResult(result, m_cux->getGearSelection(m_gear));
+        result = mergeResult(result, _14cux_getGearSelection(&m_cuxinfo, &m_gear));
 
     if (m_enabledSamples[SampleType_RoadSpeed])
-        result = mergeResult(result, m_cux->getRoadSpeed(m_roadSpeedMPH));
+        result = mergeResult(result, _14cux_getRoadSpeed(&m_cuxinfo, &m_roadSpeedMPH));
 
     if (result == ReadResult_Success)
     {
@@ -521,22 +495,22 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
 
     // attempt to read the MIL status; if it can't be read,
     // default it to off on the display
-    if (!m_cux->isMILOn(m_milOn))
+    if (!_14cux_isMILOn(&m_cuxinfo, &m_milOn))
     {
         m_milOn = false;
     }
 
     // alternate between reading coolant temperature and fuel temperature
     if (m_enabledSamples[SampleType_EngineTemperature] && (m_readCount % 2 == 0))
-        result = mergeResult(result, m_cux->getCoolantTemp(m_coolantTempF));
+        result = mergeResult(result, _14cux_getCoolantTemp(&m_cuxinfo, &m_coolantTempF));
     else if (m_enabledSamples[SampleType_FuelTemperature])
-        result = mergeResult(result, m_cux->getFuelTemp(m_fuelTempF));
+        result = mergeResult(result, _14cux_getFuelTemp(&m_cuxinfo, &m_fuelTempF));
 
     // less frequently, check the ID of the current fuel map
     // (this would only change as a result of a different
     //  tune resistor being switched in)
     if (m_enabledSamples[SampleType_FuelMap] && (m_readCount % 7 == 0))
-        result = mergeResult(result, m_cux->getCurrentFuelMap(m_currentFuelMapIndex));
+        result = mergeResult(result, _14cux_getCurrentFuelMap(&m_cuxinfo, &m_currentFuelMapIndex));
 
     if (result == ReadResult_Success)
     {
@@ -595,7 +569,7 @@ CUXInterface::ReadResult CUXInterface::mergeResult(ReadResult total, bool single
 void CUXInterface::cancelRead()
 {
     m_readCanceled = true;
-    m_cux->cancelRead();
+    _14cux_cancelRead(&m_cuxinfo);
 }
 
 /**
@@ -919,44 +893,43 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
 #ifdef ENABLE_SIM_MODE
 void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes)
 {
-    if ((m_cux != 0) &&
-         m_cux->connect(m_deviceName.toStdString().c_str()))
+    if (_14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
     {
         bool success = true;
 
-        if (changes.inertiaSwitch)     success &= m_cux->writeMem(0x2060, simVals.inertiaSwitch);
-        if (changes.heatedScreen)      success &= m_cux->writeMem(0x2061, simVals.heatedScreen);
+        if (changes.inertiaSwitch)     success &= _14cux_writeMem(&m_cuxinfo, 0x2060, simVals.inertiaSwitch);
+        if (changes.heatedScreen)      success &= _14cux_writeMem(&m_cuxinfo, 0x2061, simVals.heatedScreen);
         if (changes.maf)
         {
-            success &= m_cux->writeMem(0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
-            success &= m_cux->writeMem(0x2063, (uint8_t)(simVals.maf & (0x00FF)));
+            success &= _14cux_writeMem(&m_cuxinfo, 0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
+            success &= _14cux_writeMem(&m_cuxinfo, 0x2063, (uint8_t)(simVals.maf & (0x00FF)));
         }
         if (changes.throttle)
         {
-            success &= m_cux->writeMem(0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
-            success &= m_cux->writeMem(0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
+            success &= _14cux_writeMem(&m_cuxinfo, 0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
+            success &= _14cux_writeMem(&m_cuxinfo, 0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
         }
-        if (changes.coolantTemp)       success &= m_cux->writeMem(0x2066, simVals.coolantTemp);
-        if (changes.neutralSwitch)     success &= m_cux->writeMem(0x2067, simVals.neutralSwitch);
-        if (changes.airConLoad)        success &= m_cux->writeMem(0x2068, simVals.airConLoad);
-        if (changes.roadSpeed)         success &= m_cux->writeMem(0x2069, simVals.roadSpeed);
-        if (changes.mainRelay)         success &= m_cux->writeMem(0x206A, simVals.mainRelay);
-        if (changes.mafTrim)           success &= m_cux->writeMem(0x206B, simVals.mafTrim);
-        if (changes.tuneResistor)      success &= m_cux->writeMem(0x206C, simVals.tuneResistor);
-        if (changes.fuelTemp)          success &= m_cux->writeMem(0x206D, simVals.fuelTemp);
-        if (changes.o2LeftDutyCycle)   success &= m_cux->writeMem(0x206E, simVals.o2LeftDutyCycle);
-        if (changes.o2SensorReference) success &= m_cux->writeMem(0x206F, simVals.o2SensorReference);
-        if (changes.diagnosticPlug)    success &= m_cux->writeMem(0x2070, simVals.diagnosticPlug);
-        if (changes.o2RightDutyCycle)  success &= m_cux->writeMem(0x2071, simVals.o2RightDutyCycle);
+        if (changes.coolantTemp)       success &= _14cux_writeMem(&m_cuxinfo, 0x2066, simVals.coolantTemp);
+        if (changes.neutralSwitch)     success &= _14cux_writeMem(&m_cuxinfo, 0x2067, simVals.neutralSwitch);
+        if (changes.airConLoad)        success &= _14cux_writeMem(&m_cuxinfo, 0x2068, simVals.airConLoad);
+        if (changes.roadSpeed)         success &= _14cux_writeMem(&m_cuxinfo, 0x2069, simVals.roadSpeed);
+        if (changes.mainRelay)         success &= _14cux_writeMem(&m_cuxinfo, 0x206A, simVals.mainRelay);
+        if (changes.mafTrim)           success &= _14cux_writeMem(&m_cuxinfo, 0x206B, simVals.mafTrim);
+        if (changes.tuneResistor)      success &= _14cux_writeMem(&m_cuxinfo, 0x206C, simVals.tuneResistor);
+        if (changes.fuelTemp)          success &= _14cux_writeMem(&m_cuxinfo, 0x206D, simVals.fuelTemp);
+        if (changes.o2LeftDutyCycle)   success &= _14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2LeftDutyCycle);
+        if (changes.o2SensorReference) success &= _14cux_writeMem(&m_cuxinfo, 0x206F, simVals.o2SensorReference);
+        if (changes.diagnosticPlug)    success &= _14cux_writeMem(&m_cuxinfo, 0x2070, simVals.diagnosticPlug);
+        if (changes.o2RightDutyCycle)  success &= _14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2RightDutyCycle);
 
         if (enableSimMode && success)
         {
             // write the magic pattern to turn on simulation mode
-            success &= m_cux->writeMem(0x2072, 0x55);
+            success &= _14cux_writeMem(&m_cuxinfo, 0x2072, 0x55);
 
             // clear any fault codes that were set as a result of running the ECU
             // with sensors missing from the harness
-            success &= m_cux->clearFaultCodes();
+            success &= _14cux_clearFaultCodes(&m_cuxinfo);
         }
 
         if (success)

@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_options = new OptionsDialog(this->windowTitle(), this);
     m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getSpeedUnits(),
-                           m_options->getTemperatureUnits());
+                             m_options->getTemperatureUnits());
 
     m_enabledSamples = m_options->getEnabledSamples();
     m_cux->setEnabledSamples(m_enabledSamples);
@@ -1213,7 +1213,7 @@ void MainWindow::onHelpAboutClicked()
 {
     if (m_aboutBox == 0)
     {
-        m_aboutBox = new AboutBox(style(), this->windowTitle(), Comm14CUX::getVersion());
+        m_aboutBox = new AboutBox(style(), this->windowTitle(), m_cux->getVersion());
     }
     m_aboutBox->exec();
 }

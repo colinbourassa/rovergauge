@@ -108,7 +108,7 @@ private slots:
 
 private:
     QString m_deviceName;
-    Comm14CUX *m_cux;
+    cuxinfo m_cuxinfo;
     QTimer *m_timer;
     bool m_stopPolling;
     bool m_shutdownThread;
