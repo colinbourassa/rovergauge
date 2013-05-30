@@ -239,7 +239,7 @@ private:
     void sendPROMImageRequest(QString prompt);
     void dimUnusedControls();
 
-    void setGearLabel(Comm14CUXGear gearReading);
+    void setGearLabel(c14cux_gear gearReading);
     void setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim);
 
 private slots:

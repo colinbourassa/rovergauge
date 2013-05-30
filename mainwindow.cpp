@@ -651,11 +651,11 @@ void MainWindow::onExitSelected()
  */
 void MainWindow::onFaultCodesReady()
 {
-    Comm14CUXFaultCodes faultCodes = m_cux->getFaultCodes();
+    c14cux_faultcodes faultCodes = m_cux->getFaultCodes();
     FaultCodeDialog faultDialog(this->windowTitle(), faultCodes);
     connect(&faultDialog, SIGNAL(clearFaultCodes()), m_cux, SLOT(onFaultCodesClearRequested()));
-    connect(m_cux, SIGNAL(faultCodesClearSuccess(Comm14CUXFaultCodes)),
-            &faultDialog, SLOT(onFaultClearSuccess(Comm14CUXFaultCodes)));
+    connect(m_cux, SIGNAL(faultCodesClearSuccess(c14cux_faultcodes)),
+            &faultDialog, SLOT(onFaultClearSuccess(c14cux_faultcodes)));
     connect(m_cux, SIGNAL(faultCodesClearFailure()), &faultDialog, SLOT(onFaultClearFailure()));
     faultDialog.exec();
 }
@@ -883,20 +883,20 @@ void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim
 /**
  * Sets the label indicating the current gear selection
  */
-void MainWindow::setGearLabel(Comm14CUXGear gearReading)
+void MainWindow::setGearLabel(c14cux_gear gearReading)
 {
     switch (gearReading)
     {
-        case Comm14CUXGear_ParkOrNeutral:
+        case C14CUX_Gear_ParkOrNeutral:
             m_gear->setText("Park/Neutral");
             break;
-        case Comm14CUXGear_DriveOrReverse:
+        case C14CUX_Gear_DriveOrReverse:
             m_gear->setText("Drive/Reverse");
             break;
-        case Comm14CUXGear_ManualGearbox:
+        case C14CUX_Gear_ManualGearbox:
             m_gear->setText("(Manual gearbox)");
             break;
-        case Comm14CUXGear_NoReading:
+        case C14CUX_Gear_NoReading:
         default:
             m_gear->setText("(no reading)");
             break;
@@ -1425,11 +1425,11 @@ void MainWindow::onLambdaTrimButtonClicked(int id)
 {
     if (id == 1)
     {
-        m_cux->setLambdaTrimType(Comm14CUXLambdaTrimType_ShortTerm);
+        m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_ShortTerm);
     }
     else
     {
-        m_cux->setLambdaTrimType(Comm14CUXLambdaTrimType_LongTerm);
+        m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
     }
 }
 
@@ -1441,11 +1441,11 @@ void MainWindow::onMAFReadingButtonClicked(int id)
 {
     if (id == 1)
     {
-        m_cux->setMAFReadingType(Comm14CUXAirflowType_Linearized);
+        m_cux->setMAFReadingType(C14CUX_AirflowType_Linearized);
     }
     else
     {
-        m_cux->setMAFReadingType(Comm14CUXAirflowType_Direct);
+        m_cux->setMAFReadingType(C14CUX_AirflowType_Direct);
     }
 }
 
@@ -1457,11 +1457,11 @@ void MainWindow::onThrottleTypeButtonClicked(int id)
 {
     if (id == 1)
     {
-        m_cux->setThrottleReadingType(Comm14CUXThrottlePosType_Absolute);
+        m_cux->setThrottleReadingType(C14CUX_ThrottlePosType_Absolute);
     }
     else
     {
-        m_cux->setThrottleReadingType(Comm14CUXThrottlePosType_Corrected);
+        m_cux->setThrottleReadingType(C14CUX_ThrottlePosType_Corrected);
     }
 }
 

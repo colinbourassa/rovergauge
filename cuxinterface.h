@@ -26,9 +26,9 @@ public:
     ~CUXInterface();
 
     void setSerialDevice(QString device);
-    void setLambdaTrimType(Comm14CUXLambdaTrimType type);
-    void setMAFReadingType(Comm14CUXAirflowType type);
-    void setThrottleReadingType(Comm14CUXThrottlePosType type);
+    void setLambdaTrimType(c14cux_lambda_trim_type type);
+    void setMAFReadingType(c14cux_airflow_type type);
+    void setThrottleReadingType(c14cux_throttle_pos_type type);
     void setEnabledSamples(QHash<SampleType,bool> samples);
 
     QString getSerialDevice();
@@ -43,10 +43,10 @@ public:
     int getCoolantTemp();
     int getFuelTemp();
     float getThrottlePos();
-    Comm14CUXGear getGear();
-    Comm14CUXFaultCodes getFaultCodes();
+    c14cux_gear getGear();
+    c14cux_faultcodes getFaultCodes();
     float getMainVoltage();
-    Comm14CUXVersion getVersion();
+    c14cux_version getVersion();
     QByteArray* getFuelMap(int fuelMapId);
     int getFuelMapAdjustmentFactor(int fuelMapId);
     int getCurrentFuelMapIndex();
@@ -89,7 +89,7 @@ signals:
     void readSuccess();
     void faultCodesReady();
     void faultCodesReadFailed();
-    void faultCodesClearSuccess(Comm14CUXFaultCodes m_faultCodes);
+    void faultCodesClearSuccess(c14cux_faultcodes m_faultCodes);
     void faultCodesClearFailure();
     void fuelMapReady(int fuelMapId);
     void fuelMapReadFailed(int fuelMapId);
@@ -108,18 +108,18 @@ private slots:
 
 private:
     QString m_deviceName;
-    cuxinfo m_cuxinfo;
+    c14cux_info m_cuxinfo;
     QTimer *m_timer;
     bool m_stopPolling;
     bool m_shutdownThread;
-    Comm14CUXFaultCodes m_faultCodes;
+    c14cux_faultcodes m_faultCodes;
     bool m_readCanceled;
     unsigned long m_readCount;
     QHash<SampleType,bool> m_enabledSamples;
 
-    Comm14CUXLambdaTrimType m_lambdaTrimType;
-    Comm14CUXAirflowType m_airflowType;
-    Comm14CUXThrottlePosType m_throttlePosType;
+    c14cux_lambda_trim_type m_lambdaTrimType;
+    c14cux_airflow_type m_airflowType;
+    c14cux_throttle_pos_type m_throttlePosType;
 
     uint16_t m_roadSpeedMPH;
     uint16_t m_engineSpeedRPM;
@@ -127,7 +127,7 @@ private:
     int16_t m_coolantTempF;
     int16_t m_fuelTempF;
     float m_throttlePos;
-    Comm14CUXGear m_gear;
+    c14cux_gear m_gear;
     float m_mainVoltage;
     uint8_t m_currentFuelMapIndex;
     uint8_t m_currentFuelMapRowIndex;

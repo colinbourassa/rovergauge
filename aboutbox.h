@@ -17,7 +17,7 @@ class AboutBox : public QDialog
     Q_OBJECT
 
 public:
-    AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion version);
+    AboutBox(QStyle *parentStyle, QString title, c14cux_version version);
 
 private:
     void setupWidgets();
@@ -26,7 +26,7 @@ private:
     QStyle *m_style;
     QGridLayout *m_grid;
 
-    Comm14CUXVersion m_ver;
+    c14cux_version m_ver;
 
     const QString m_urlString;
     const QString m_urlLibString;

@@ -51,14 +51,14 @@ class FaultCodeDialog : public QDialog
     Q_OBJECT
 
 public:
-    FaultCodeDialog(QString title, Comm14CUXFaultCodes faults);
+    FaultCodeDialog(QString title, c14cux_faultcodes faults);
     ~FaultCodeDialog();
 
 signals:
     void clearFaultCodes();
 
 public slots:
-    void onFaultClearSuccess(Comm14CUXFaultCodes faultCodes);
+    void onFaultClearSuccess(c14cux_faultcodes faultCodes);
     void onFaultClearFailure();
 
 protected:
@@ -77,7 +77,7 @@ private:
 
     void populateFaultList();
     void setupWidgets();
-    void lightLEDs(Comm14CUXFaultCodes faults);
+    void lightLEDs(c14cux_faultcodes faults);
 };
 
 #endif // FAULTCODEDIALOG_H

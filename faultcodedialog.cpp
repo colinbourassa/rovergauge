@@ -5,10 +5,10 @@
  * Constructor. Creates the fault code list, creates widgets, and sets them
  *  appropriately.
  */
-FaultCodeDialog::FaultCodeDialog(QString title, Comm14CUXFaultCodes faults):
+FaultCodeDialog::FaultCodeDialog(QString title, c14cux_faultcodes faults):
     m_rows(8)
 {
-    qRegisterMetaType<Comm14CUXFaultCodes>("Comm14CUXFaultCodes");
+    qRegisterMetaType<c14cux_faultcodes>("c14cux_faultcodes");
     this->setWindowTitle(title);
     populateFaultList();
     setupWidgets();
@@ -35,7 +35,7 @@ void FaultCodeDialog::onFaultClearFailure()
  * Displays a message box indicating that fault codes were successfully cleared, and
  * sets the fault LEDs to match the new set of codes.
  */
-void FaultCodeDialog::onFaultClearSuccess(Comm14CUXFaultCodes faultCodes)
+void FaultCodeDialog::onFaultClearSuccess(c14cux_faultcodes faultCodes)
 {
     QMessageBox::information(this, "Success", "Successfully cleared fault codes.", QMessageBox::Ok);
     lightLEDs(faultCodes);
@@ -118,7 +118,7 @@ void FaultCodeDialog::setupWidgets()
  * Lights the appropriate fault lamps based on the provided faultcode structure.
  * @param faults Fault codes read from the 14CUX
  */
-void FaultCodeDialog::lightLEDs(Comm14CUXFaultCodes faults)
+void FaultCodeDialog::lightLEDs(c14cux_faultcodes faults)
 {
     m_faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
     m_faultLights[FaultCode_LambdaSensorLeft]->setChecked(faults.Lambda_Sensor_Left);

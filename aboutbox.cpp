@@ -3,7 +3,7 @@
 /**
  * Constructor. Receives a pointer to the QStyle of the parent form.
  */
-AboutBox::AboutBox(QStyle *parentStyle, QString title, Comm14CUXVersion cuxVersion) :
+AboutBox::AboutBox(QStyle *parentStyle, QString title, c14cux_version cuxVersion) :
     m_urlString(QString("http://code.google.com/p/rovergauge/")),
     m_urlLibString(QString("http://code.google.com/p/libcomm14cux/")),
     m_aboutString(QString("A graphical interface to the 14CUX engine management system."))
