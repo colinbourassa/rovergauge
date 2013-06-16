@@ -152,6 +152,8 @@ private:
     qint64 m_lastMidFreqReadTime;
     qint64 m_lastLowFreqReadTime;
 
+    bool m_initComplete;
+
     void pollEcu();
     ReadResult readData();
     ReadResult readHighFreqData();

@@ -44,9 +44,9 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
     m_lastMidFreqReadTime(0),
-    m_lastLowFreqReadTime(0)
+    m_lastLowFreqReadTime(0),
+    m_initComplete(false)
 {
-    c14cux_init(&m_cuxinfo);
 }
 
 /**
@@ -70,7 +70,7 @@ c14cux_version CUXInterface::getVersion()
  */
 void CUXInterface::onFaultCodesRequested()
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         memset(&m_faultCodes, 0, sizeof(m_faultCodes));
 
@@ -94,15 +94,21 @@ void CUXInterface::onFaultCodesRequested()
  */
 void CUXInterface::onFaultCodesClearRequested()
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()) &&
-        c14cux_clearFaultCodes(&m_cuxinfo) &&
-        c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
-        emit faultCodesClearSuccess(m_faultCodes);
+        if (c14cux_clearFaultCodes(&m_cuxinfo) &&
+            c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+        {
+            emit faultCodesClearSuccess(m_faultCodes);
+        }
+        else
+        {
+            emit faultCodesClearFailure();
+        }
     }
     else
     {
-        emit faultCodesClearFailure();
+        emit notConnected();
     }
 }
 
@@ -111,7 +117,7 @@ void CUXInterface::onFaultCodesClearRequested()
  */
 void CUXInterface::onReadPROMImageRequested()
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         if (m_promImage == 0)
         {
@@ -148,7 +154,7 @@ void CUXInterface::onReadPROMImageRequested()
  */
 void CUXInterface::onFuelMapRequested(int fuelMapId)
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         // create a storage area for the fuel map data if it
         // doesn't already exist
@@ -178,7 +184,7 @@ void CUXInterface::onFuelMapRequested(int fuelMapId)
  */
 void CUXInterface::onFuelPumpRunRequest()
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         c14cux_runFuelPump(&m_cuxinfo);
     }
@@ -192,7 +198,7 @@ void CUXInterface::onFuelPumpRunRequest()
  */
 void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
 {
-    if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         c14cux_driveIdleAirControlMotor(&m_cuxinfo, (uint8_t)direction, (uint8_t)steps);
     }
@@ -224,7 +230,7 @@ bool CUXInterface::connectToECU()
 }
 
 /**
- * Stops polling and disconnects from the serial device.
+ * Sets a flag that will cause us to stop polling and disconnect from the serial device.
  */
 void CUXInterface::disconnectFromECU()
 {
@@ -244,7 +250,7 @@ void CUXInterface::disconnectFromECU()
  */
 void CUXInterface::onShutdownThreadRequest()
 {
-    if (c14cux_isConnected(&m_cuxinfo))
+    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
         c14cux_disconnect(&m_cuxinfo);
     }
@@ -258,7 +264,7 @@ void CUXInterface::onShutdownThreadRequest()
  */
 bool CUXInterface::isConnected()
 {
-    return c14cux_isConnected(&m_cuxinfo);
+    return (m_initComplete && c14cux_isConnected(&m_cuxinfo));
 }
 
 /**
@@ -301,6 +307,14 @@ void CUXInterface::onParentThreadFinished()
  */
 void CUXInterface::onParentThreadStarted()
 {
+    // Initialize the interface state info struct here, so that
+    // it's in the context of the thread that will use it.
+    if (!m_initComplete)
+    {
+        c14cux_init(&m_cuxinfo);
+        m_initComplete = true;
+    }
+
     if (m_timer == 0)
     {
         m_timer = new QTimer(this);
