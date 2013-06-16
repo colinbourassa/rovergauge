@@ -17,3 +17,6 @@ rovergauge_automoc.cpp
 rovergauge_resources.qrc.depends
 CMakeLists.txt.user
 rovergauge.cbp
+LICENSE.TXT
+README.TXT
+rovergauge.exe
