@@ -139,6 +139,7 @@ void MainWindow::buildSpeedAndTempUnitTables()
  */
 void MainWindow::setupLayout()
 {
+    /*
     m_layout = new QVBoxLayout(m_ui->centralWidget);
 
     m_aboveGaugesRow = new QHBoxLayout();
@@ -203,6 +204,7 @@ void MainWindow::setupLayout()
 
     m_belowGaugesRight = new QGridLayout();
     m_belowGaugesRow->addLayout(m_belowGaugesRight);
+    */
 }
 
 /**
@@ -210,6 +212,7 @@ void MainWindow::setupLayout()
  */
 void MainWindow::createWidgets()
 {
+    /*
     m_fileMenu = menuBar()->addMenu("&File");
     m_savePROMImageAction = m_fileMenu->addAction("&Save PROM image...");
     m_savePROMImageAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
@@ -487,6 +490,7 @@ void MainWindow::createWidgets()
     m_idleModeLedOpacity->setOpacity(0.5);
     m_idleModeLedOpacity->setEnabled(false);
     m_idleModeLed->setGraphicsEffect(m_idleModeLedOpacity);
+    */
 }
 
 /**
@@ -494,6 +498,7 @@ void MainWindow::createWidgets()
  */
 void MainWindow::placeWidgets()
 {
+    /*
     m_connectionButtonLayout->addWidget(m_connectButton);
     m_connectionButtonLayout->addWidget(m_disconnectButton);
 
@@ -579,16 +584,19 @@ void MainWindow::placeWidgets()
 
     m_belowGaugesRight->addWidget(m_startLoggingButton, row,   2, 1, 1);
     m_belowGaugesRight->addWidget(m_stopLoggingButton,  row++, 3, 1, 1);
+    */
 }
 
 /**
  * Instantiates widgets, connects to their signals, and places them on the form.
  */
 void MainWindow::setupWidgets()
-{    
+{
+    /*
     setupLayout();
     createWidgets();
     placeWidgets();
+    */
 }
 
 /**
