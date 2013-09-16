@@ -55,7 +55,7 @@ public:
     float getMAFReading();
     float getIdleBypassPos();
     bool getFuelPumpRelayState();
-    QByteArray* getPROMImage();
+    QByteArray* getROMImage();
     int getLeftLambdaTrim();
     int getRightLambdaTrim();
     bool isMILOn();
@@ -72,7 +72,7 @@ public slots:
     void onFaultCodesRequested();
     void onFaultCodesClearRequested();
     void onFuelMapRequested(int fuelMapId);
-    void onReadPROMImageRequested();
+    void onReadROMImageRequested();
     void onStartPollingRequest();
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
@@ -95,8 +95,8 @@ signals:
     void fuelMapReadFailed(int fuelMapId);
     void rpmLimitReady(int rpmLimiter);
     void revisionNumberReady(int tuneRevisionNum);
-    void promImageReady();
-    void promImageReadFailed();
+    void romImageReady();
+    void romImageReadFailed();
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();
     void notConnected();
@@ -142,7 +142,7 @@ private:
     uint16_t m_rpmLimit;
     bool m_idleMode;
 
-    QByteArray *m_promImage;
+    QByteArray *m_romImage;
     QHash<int, QByteArray*> m_fuelMaps;
     QHash<int, int> m_fuelMapAdjFactors;
 

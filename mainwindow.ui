@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
+    <width>1013</width>
     <height>620</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>470</x>
@@ -31,14 +31,28 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="Line" name="line_2">
+      <widget class="Line" name="m_vline0">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="m_tuneRevNumberLabel">
+       <property name="text">
+        <string>Tune:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Line" name="m_vline1">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="m_milLabel">
        <property name="text">
         <string>MIL:</string>
        </property>
@@ -48,17 +62,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QLedIndicator" name="widget_7" native="true"/>
+      <widget class="QLedIndicator" name="m_milLed" native="true"/>
      </item>
      <item>
-      <widget class="Line" name="line">
+      <widget class="Line" name="m_vline2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="m_commsLedLabel">
        <property name="text">
         <string>Communications:</string>
        </property>
@@ -68,14 +82,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLedIndicator" name="widget_8" native="true"/>
+      <widget class="QLedIndicator" name="m_commsGoodLed" native="true"/>
      </item>
      <item>
-      <widget class="QLedIndicator" name="widget_6" native="true"/>
+      <widget class="QLedIndicator" name="m_commsBadLed" native="true"/>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>12</x>
@@ -86,14 +100,17 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="m_connectButton">
        <property name="text">
         <string>Connect</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="m_disconnectButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Disconnect</string>
        </property>
@@ -101,101 +118,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>240</y>
-      <width>481</width>
-      <height>341</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="label_19">
-       <property name="text">
-        <string>Current fuel map:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="4">
-      <widget class="QTableView" name="tableView"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_21">
-       <property name="text">
-        <string>Fuel pump relay</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pushButton_8">
-       <property name="text">
-        <string>Run pump (one shot)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QPushButton" name="pushButton_9">
-       <property name="text">
-        <string>Run pump (continuous)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="4">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QLabel" name="label_22">
-       <property name="text">
-        <string>Log file name:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2" colspan="2">
-      <widget class="QLineEdit" name="lineEdit"/>
-     </item>
-     <item row="5" column="2">
-      <widget class="QPushButton" name="pushButton_11">
-       <property name="text">
-        <string>Start logging</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QPushButton" name="pushButton_12">
-       <property name="text">
-        <string>Stop logging</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLedIndicator" name="widget_9" native="true"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_20">
-       <property name="text">
-        <string>Multiplier:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pushButton_3">
-       <property name="text">
-        <string>Refresh map</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -204,9 +127,9 @@
       <height>341</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="m_miscDataLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="m_mafReadingTypeLabel">
        <property name="text">
         <string>MAF reading type:</string>
        </property>
@@ -216,21 +139,30 @@
       </widget>
      </item>
      <item row="0" column="1" colspan="2">
-      <widget class="QRadioButton" name="radioButton">
+      <widget class="QRadioButton" name="m_mafReadingLinearButton">
        <property name="text">
         <string>Linear</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_mafReadingButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QRadioButton" name="radioButton_2">
+      <widget class="QRadioButton" name="m_mafReadingDirectButton">
        <property name="text">
         <string>Direct</string>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_mafReadingButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="m_mafReadingLabel">
        <property name="text">
         <string>MAF reading:</string>
        </property>
@@ -240,7 +172,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="m_throttleTypeLabel">
        <property name="text">
         <string>Throttle reading type:</string>
        </property>
@@ -250,21 +182,30 @@
       </widget>
      </item>
      <item row="2" column="1" colspan="2">
-      <widget class="QRadioButton" name="radioButton_3">
+      <widget class="QRadioButton" name="m_throttleTypeAbsoluteButton">
        <property name="text">
         <string>Absolute</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_throttleTypeButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="2" column="3">
-      <widget class="QRadioButton" name="radioButton_4">
+      <widget class="QRadioButton" name="m_throttleTypeCorrectedButton">
        <property name="text">
         <string>Corrected</string>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_throttleTypeButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="m_throttleLabel">
        <property name="text">
         <string>Throttle position:</string>
        </property>
@@ -274,7 +215,7 @@
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="m_idleBypassLabel">
        <property name="text">
         <string>Idle bypass position</string>
        </property>
@@ -284,7 +225,7 @@
       </widget>
      </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="m_targetIdleLabel">
        <property name="text">
         <string>Idle mode / target RPM:</string>
        </property>
@@ -294,14 +235,14 @@
       </widget>
      </item>
      <item row="5" column="2" colspan="2">
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="m_targetIdle">
        <property name="text">
         <string>0</string>
        </property>
       </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="label_9">
+      <widget class="QLabel" name="m_gearLabel">
        <property name="text">
         <string>Selected gear:</string>
        </property>
@@ -311,14 +252,14 @@
       </widget>
      </item>
      <item row="6" column="1" colspan="2">
-      <widget class="QLabel" name="label_15">
+      <widget class="QLabel" name="m_gear">
        <property name="text">
         <string>(no reading)</string>
        </property>
       </widget>
      </item>
      <item row="7" column="0">
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="m_voltageLabel">
        <property name="text">
         <string>Main voltage:</string>
        </property>
@@ -328,14 +269,14 @@
       </widget>
      </item>
      <item row="7" column="1">
-      <widget class="QLabel" name="label_16">
+      <widget class="QLabel" name="m_voltage">
        <property name="text">
         <string>0.0V</string>
        </property>
       </widget>
      </item>
      <item row="8" column="0">
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="m_lambdaTrimTypeLabel">
        <property name="text">
         <string>Lambda trim type:</string>
        </property>
@@ -345,21 +286,30 @@
       </widget>
      </item>
      <item row="8" column="1" colspan="2">
-      <widget class="QRadioButton" name="radioButton_5">
+      <widget class="QRadioButton" name="m_lambdaTrimShortButton">
        <property name="text">
         <string>Short term</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_lambdaTrimButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="8" column="3">
-      <widget class="QRadioButton" name="radioButton_6">
+      <widget class="QRadioButton" name="m_lambdaTrimLongButton">
        <property name="text">
         <string>Long term</string>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true">m_lambdaTrimButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item row="9" column="0">
-      <widget class="QLabel" name="label_12">
+      <widget class="QLabel" name="m_leftFuelTrimLabel">
        <property name="text">
         <string>Lambda fuel trim (left):</string>
        </property>
@@ -369,7 +319,7 @@
       </widget>
      </item>
      <item row="9" column="1">
-      <widget class="QLabel" name="label_17">
+      <widget class="QLabel" name="m_leftFuelTrimBarLabel">
        <property name="text">
         <string>+0%</string>
        </property>
@@ -379,7 +329,7 @@
       </widget>
      </item>
      <item row="10" column="0">
-      <widget class="QLabel" name="label_13">
+      <widget class="QLabel" name="m_rightFuelTrimLabel">
        <property name="text">
         <string>Lambda fuel trim (right):</string>
        </property>
@@ -389,7 +339,7 @@
       </widget>
      </item>
      <item row="10" column="1">
-      <widget class="QLabel" name="label_18">
+      <widget class="QLabel" name="m_rightFuelTrimBarLabel">
        <property name="text">
         <string>+0%</string>
        </property>
@@ -399,59 +349,59 @@
       </widget>
      </item>
      <item row="11" column="0">
-      <widget class="QPushButton" name="pushButton_10">
+      <widget class="QPushButton" name="m_resetLongTermTrimButton">
        <property name="text">
         <string>Reset long term trim</string>
        </property>
       </widget>
      </item>
      <item row="11" column="4">
-      <widget class="QLabel" name="label_24">
+      <widget class="QLabel" name="m_lambdaTrimHighLimitLabel">
        <property name="text">
         <string>(more fuel)</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1" colspan="4">
-      <widget class="QProgressBar" name="progressBar">
+      <widget class="QProgressBar" name="m_mafReadingBar">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item row="3" column="1" colspan="4">
-      <widget class="QProgressBar" name="progressBar_2">
+      <widget class="QProgressBar" name="m_throttleBar">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item row="4" column="1" colspan="4">
-      <widget class="QProgressBar" name="progressBar_3">
+      <widget class="QProgressBar" name="m_idleBypassPosBar">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item row="9" column="2" colspan="3">
-      <widget class="FuelTrimBar" name="progressBar_4">
+      <widget class="FuelTrimBar" name="m_leftFuelTrimBar">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item row="10" column="2" colspan="3">
-      <widget class="FuelTrimBar" name="progressBar_5">
+      <widget class="FuelTrimBar" name="m_rightFuelTrimBar">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLedIndicator" name="widget_5" native="true"/>
+      <widget class="QLedIndicator" name="m_idleModeLed" native="true"/>
      </item>
      <item row="11" column="2">
-      <widget class="QLabel" name="label_23">
+      <widget class="QLabel" name="m_lambdaTrimLowLimitLabel">
        <property name="text">
         <string>(less fuel)</string>
        </property>
@@ -459,7 +409,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -468,21 +418,21 @@
       <height>171</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_3">
+    <layout class="QGridLayout" name="m_analogGaugeLayout">
      <item row="0" column="0">
-      <widget class="ManoMeter" name="widget" native="true"/>
+      <widget class="ManoMeter" name="m_waterTempGauge" native="true"/>
      </item>
      <item row="0" column="1" rowspan="2">
-      <widget class="ManoMeter" name="widget_2" native="true"/>
+      <widget class="ManoMeter" name="m_speedo" native="true"/>
      </item>
      <item row="0" column="2" rowspan="2">
-      <widget class="ManoMeter" name="widget_3" native="true"/>
+      <widget class="ManoMeter" name="m_revCounter" native="true"/>
      </item>
      <item row="0" column="3">
-      <widget class="ManoMeter" name="widget_4" native="true"/>
+      <widget class="ManoMeter" name="m_fuelTempGauge" native="true"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_25">
+      <widget class="QLabel" name="m_waterTempLabel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
@@ -498,7 +448,7 @@
       </widget>
      </item>
      <item row="1" column="3">
-      <widget class="QLabel" name="label_26">
+      <widget class="QLabel" name="m_fuelTempLabel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
@@ -515,94 +465,214 @@
      </item>
     </layout>
    </widget>
-   <zorder>layoutWidget</zorder>
-   <zorder>verticalLayoutWidget</zorder>
-   <zorder>label_19</zorder>
-   <zorder>label_20</zorder>
-   <zorder>tableView</zorder>
-   <zorder>pushButton_7</zorder>
-   <zorder>label_21</zorder>
-   <zorder>pushButton_8</zorder>
-   <zorder>pushButton_9</zorder>
-   <zorder>line_3</zorder>
-   <zorder>label_22</zorder>
-   <zorder>lineEdit</zorder>
-   <zorder>pushButton_11</zorder>
-   <zorder>pushButton_12</zorder>
-   <zorder>widget</zorder>
-   <zorder>widget_2</zorder>
-   <zorder>widget_3</zorder>
-   <zorder>widget_4</zorder>
-   <zorder>label_25</zorder>
-   <zorder>label_26</zorder>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>241</y>
+      <width>481</width>
+      <height>330</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="m_fuelAndLoggingLayout">
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="m_fuelMapIndexLabel">
+       <property name="text">
+        <string>Current fuel map:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="m_fuelMapFactorLabel">
+       <property name="text">
+        <string>Multiplier:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="m">
+       <property name="text">
+        <string>Refresh map</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4">
+      <widget class="QTableWidget" name="m_fuelMapDisplay">
+       <property name="rowCount">
+        <number>8</number>
+       </property>
+       <property name="columnCount">
+        <number>16</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+       <column/>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLedIndicator" name="m_fuelPumpRelayStateLed" native="true"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="m_fuelPumpRelayStateLabel">
+       <property name="text">
+        <string>Fuel pump relay</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="m_fuelPumpOneshotButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Run pump (one shot)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QPushButton" name="m_fuelPumpContinuousButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Run pump (continuous)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="4">
+      <widget class="Line" name="m_hline0">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QLabel" name="m_logFileNameLabel">
+       <property name="text">
+        <string>Log file name:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2" colspan="2">
+      <widget class="QLineEdit" name="m_logFileNameBox"/>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="m_startLoggingButton">
+       <property name="text">
+        <string>Start logging</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="m_stopLoggingButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Stop logging</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>970</width>
+     <width>1013</width>
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="m_fileMenu">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
-    <addaction name="action_Save_ROM_image"/>
+    <addaction name="m_saveROMImageAction"/>
     <addaction name="separator"/>
-    <addaction name="action_Exit"/>
+    <addaction name="m_exitAction"/>
    </widget>
-   <widget class="QMenu" name="menuOptions">
+   <widget class="QMenu" name="m_optionsMenu">
     <property name="title">
      <string>&amp;Options</string>
     </property>
-    <addaction name="actionShow_fault_codes"/>
-    <addaction name="action_Idle_air_control"/>
-    <addaction name="action_Edit_settings"/>
+    <addaction name="m_showFaultCodesAction"/>
+    <addaction name="m_idleAirControlAction"/>
+    <addaction name="m_editSettingsAction"/>
    </widget>
-   <widget class="QMenu" name="menu_Help">
+   <widget class="QMenu" name="m_helpMenu">
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_Contents"/>
-    <addaction name="action_About"/>
+    <addaction name="m_helpContentsAction"/>
+    <addaction name="m_helpAboutAction"/>
    </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuOptions"/>
-   <addaction name="menu_Help"/>
+   <addaction name="m_fileMenu"/>
+   <addaction name="m_optionsMenu"/>
+   <addaction name="m_helpMenu"/>
   </widget>
-  <action name="action_Contents">
+  <action name="m_helpContentsAction">
    <property name="text">
     <string>&amp;Contents...</string>
    </property>
   </action>
-  <action name="action_About">
+  <action name="m_helpAboutAction">
    <property name="text">
     <string>&amp;About</string>
    </property>
   </action>
-  <action name="actionShow_fault_codes">
+  <action name="m_showFaultCodesAction">
    <property name="text">
     <string>Show fault &amp;codes...</string>
    </property>
   </action>
-  <action name="action_Idle_air_control">
+  <action name="m_idleAirControlAction">
    <property name="text">
     <string>&amp;Idle air control...</string>
    </property>
   </action>
-  <action name="action_Edit_settings">
+  <action name="m_editSettingsAction">
    <property name="text">
     <string>&amp;Edit settings...</string>
    </property>
   </action>
-  <action name="action_Save_ROM_image">
+  <action name="m_saveROMImageAction">
    <property name="text">
     <string>&amp;Save ROM image...</string>
    </property>
   </action>
-  <action name="action_Exit">
+  <action name="m_exitAction">
    <property name="text">
     <string>&amp;Exit</string>
    </property>
@@ -630,4 +700,9 @@
  </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
+  <buttongroup name="m_mafReadingButtonGroup"/>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
+ </buttongroups>
 </ui>
