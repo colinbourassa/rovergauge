@@ -987,7 +987,6 @@ void MainWindow::onSaveROMImageSelected()
 /**
  * Prompts the user to continue, and sends a request to read the PROM image.
  * @param prompt String used to prompt the user to continue.
- * @param displayTune True to determine the tune number after the image has been read; false to skip this.
  */
 void MainWindow::sendROMImageRequest(QString prompt)
 {
@@ -1028,7 +1027,6 @@ void MainWindow::onROMReadCancelled()
 
 /**
  * Prompts the user for a file in which to save the PROM image.
- * @param displayTuneNumber True to determine the tune number after the image has been read; false to skip this.
  */
 void MainWindow::onROMImageReady()
 {
@@ -1178,7 +1176,7 @@ void MainWindow::onThrottleTypeButtonClicked(int id)
  */
 void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 {
-    m_ui->m_tuneRevNumberLabel->setText(QString("Tune revision: R%04").arg(tuneRevisionNum));
+    m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
 }
 
 /**
