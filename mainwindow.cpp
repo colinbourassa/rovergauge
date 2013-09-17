@@ -849,7 +849,7 @@ void MainWindow::onDisconnect()
     m_ui->m_mafReadingBar->setValue(0);
     m_ui->m_idleBypassPosBar->setValue(0);
     m_ui->m_idleModeLed->setChecked(false);
-    m_ui->m_targetIdleLabel->setText("");
+    m_ui->m_targetIdle->setText("");
     m_ui->m_voltage->setText("");
     m_ui->m_gear->setText("");
     m_ui->m_fuelPumpRelayStateLed->setChecked(false);
