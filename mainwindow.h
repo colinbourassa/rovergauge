@@ -67,7 +67,7 @@ signals:
     void requestFuelMapData(int fuelMapId);
     void requestROMImage();
     void requestThreadShutdown();
-    void requestFuelPumpRun();
+    void requestLongTermLambdaReset();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -137,9 +137,7 @@ private slots:
     void onDisconnectClicked();
     void onStartLogging();
     void onStopLogging();
-    void onFuelPumpOneshot();
     void onFuelPumpContinuous();
-    void onFuelPumpRefreshTimer();
     void onIdleAirControlClicked();
     void onLambdaTrimButtonClicked(QAbstractButton *button);
     void onMAFReadingButtonClicked(QAbstractButton *button);

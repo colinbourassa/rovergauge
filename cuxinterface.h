@@ -77,6 +77,7 @@ public slots:
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
     void onIdleAirControlMovementRequest(int direction, int steps);
+    void onResetLongTermLambdaRequest();
 #ifdef ENABLE_SIM_MODE
     void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes);
 #endif

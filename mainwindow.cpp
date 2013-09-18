@@ -67,12 +67,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
     connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
     connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
+    connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(int)), m_cux, SLOT(onFuelMapRequested(int)));
     connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
-    connect(this, SIGNAL(requestFuelPumpRun()), m_cux, SLOT(onFuelPumpRunRequest()));
-    connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRefreshTimer()));
 
     setWindowIcon(QIcon(":/icons/key.png"));
 
@@ -176,10 +175,11 @@ void MainWindow::setupWidgets()
     connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
     connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
     connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
-    connect(m_ui->m_fuelPumpOneshotButton, SIGNAL(clicked()), this, SLOT(onFuelPumpOneshot()));
+    connect(m_ui->m_fuelPumpOneshotButton, SIGNAL(clicked()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
     connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
     connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
+    connect(m_ui->m_resetLongTermTrimButton, SIGNAL(clicked()), m_cux, SLOT(onResetLongTermLambdaRequest()));
 
     // set the LED colors
     m_ui->m_milLed->setOnColor1(QColor(255, 0, 0));
@@ -831,6 +831,7 @@ void MainWindow::onConnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     m_ui->m_fuelPumpContinuousButton->setEnabled(true);
+    m_ui->m_resetLongTermTrimButton->setEnabled(true);
 }
 
 /**
@@ -846,6 +847,7 @@ void MainWindow::onDisconnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     m_ui->m_fuelPumpContinuousButton->setEnabled(false);
+    m_ui->m_resetLongTermTrimButton->setEnabled(false);
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -1086,14 +1088,6 @@ void MainWindow::onROMImageReadFailed()
 }
 
 /**
- * Signals the worker thread to run the fuel pump.
- */
-void MainWindow::onFuelPumpOneshot()
-{
-    emit requestFuelPumpRun();
-}
-
-/**
  * Starts a timer that periodically re-sends the signal to run the fuel
  * pump, thus keeping the pump running continuously.
  */
@@ -1101,7 +1095,7 @@ void MainWindow::onFuelPumpContinuous()
 {
     if (m_ui->m_fuelPumpContinuousButton->isChecked())
     {
-        emit requestFuelPumpRun();
+        m_cux->onFuelPumpRunRequest();
         m_fuelPumpRefreshTimer->start();
         m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     }
@@ -1110,14 +1104,6 @@ void MainWindow::onFuelPumpContinuous()
         m_fuelPumpRefreshTimer->stop();
         m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     }
-}
-
-/**
- * Signals the worker thread to run the fuel pump.
- */
-void MainWindow::onFuelPumpRefreshTimer()
-{
-    emit requestFuelPumpRun();
 }
 
 /**

@@ -904,6 +904,19 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     }
 }
 
+/**
+ * Resets the long term lambda trim to the midpoint value
+ */
+void CUXInterface::onResetLongTermLambdaRequest()
+{
+    bool success = true;
+
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset,   0x80);
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset+1, 0x00);
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset,  0x80);
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset+1,0x00);
+}
+
 #ifdef ENABLE_SIM_MODE
 void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes)
 {

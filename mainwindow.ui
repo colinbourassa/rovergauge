@@ -394,6 +394,9 @@
           </item>
           <item row="11" column="0">
            <widget class="QPushButton" name="m_resetLongTermTrimButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Reset long term trim</string>
             </property>
@@ -492,6 +495,9 @@
           </item>
           <item row="0" column="3">
            <widget class="QPushButton" name="m_refreshMapButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Refresh map</string>
             </property>
