@@ -4,7 +4,7 @@
 #include "cuxinterface.h"
 
 /**
- * Constructor. Sets the serial device and poll interval in milliseconds.
+ * Constructor. Sets the serial device and measurement units.
  * @param device Name of (or path to) the serial device used to comminucate
  *  with the 14CUX.
  * @param sUnits Units to be used when expressing road speed
