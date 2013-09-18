@@ -30,26 +30,11 @@ MainWindow::MainWindow(QWidget *parent)
       m_helpViewerDialog(0),
       m_currentFuelMapIndex(-1),
       m_currentFuelMapRow(-1),
-      m_currentFuelMapCol(-1),
-      m_widthPixels(970),
-      m_heightPixels(620)
+      m_currentFuelMapCol(-1)
 {
     buildSpeedAndTempUnitTables();
-
-    QDesktopWidget desktop;
-    const QRect screenGeo = desktop.screenGeometry();
-    if ((screenGeo.height() * 0.95) < m_heightPixels)
-    {
-        m_heightPixels = screenGeo.height() * 0.9;
-    }
-    if ((screenGeo.width() * 0.95) < m_widthPixels)
-    {
-        m_widthPixels = screenGeo.width() * 0.9;
-    }
-
     m_ui->setupUi(this);
     this->setWindowTitle("RoverGauge");
-    this->setMinimumSize(m_widthPixels, m_heightPixels);
 
     m_options = new OptionsDialog(this->windowTitle(), this);
     m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getSpeedUnits(),
@@ -112,6 +97,27 @@ MainWindow::~MainWindow()
 }
 
 /**
+ * Resizes the main window if the screen is small
+ */
+void MainWindow::resizeForSmallScreens()
+{
+    QDesktopWidget desktop;
+    const QRect screenGeo = desktop.screenGeometry();
+    int heightPixels = this->minimumHeight();
+    int widthPixels = this->minimumWidth();
+    if ((screenGeo.height() * 0.95) < heightPixels)
+    {
+        heightPixels = screenGeo.height() * 0.9;
+    }
+    if ((screenGeo.width() * 0.95) < widthPixels)
+    {
+        widthPixels = screenGeo.width() * 0.9;
+    }
+
+    this->setMinimumSize(widthPixels, heightPixels);
+}
+
+/**
  * Populates hash tables with unit-of-measure suffixes and temperature thresholds
  */
 void MainWindow::buildSpeedAndTempUnitTables()
@@ -167,9 +173,9 @@ void MainWindow::setupWidgets()
     // connect button signals
     connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
     connect(m_ui->m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
-    connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMAFReadingButtonClicked(int)));
-    connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onThrottleTypeButtonClicked(int)));
-    connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
+    connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
+    connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
+    connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
     connect(m_ui->m_fuelPumpOneshotButton, SIGNAL(clicked()), this, SLOT(onFuelPumpOneshot()));
     connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
     connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
@@ -1066,7 +1072,7 @@ void MainWindow::onROMImageReady()
 }
 
 /**
- * Displays a message box indicating that reading the PROM image has failed.
+ * Displays a message box indicating that reading the ROM image has failed.
  */
 void MainWindow::onROMImageReadFailed()
 {
@@ -1126,9 +1132,9 @@ void MainWindow::onIdleAirControlClicked()
  * Sets the type of lambda trim to read from the ECU.
  * @param Set to 1 for short-term, 2 for long-term
  */
-void MainWindow::onLambdaTrimButtonClicked(int id)
+void MainWindow::onLambdaTrimButtonClicked(QAbstractButton *button)
 {
-    if (id == 1)
+    if (button == m_ui->m_lambdaTrimShortButton)
     {
         m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_ShortTerm);
     }
@@ -1142,9 +1148,9 @@ void MainWindow::onLambdaTrimButtonClicked(int id)
  * Sets the type of MAF reading to read from the ECU.
  * @param Set to 1 for Linearized, 2 for Direct
  */
-void MainWindow::onMAFReadingButtonClicked(int id)
+void MainWindow::onMAFReadingButtonClicked(QAbstractButton *button)
 {
-    if (id == 1)
+    if (button == m_ui->m_mafReadingLinearButton)
     {
         m_cux->setMAFReadingType(C14CUX_AirflowType_Linearized);
     }
@@ -1158,9 +1164,9 @@ void MainWindow::onMAFReadingButtonClicked(int id)
  * Sets the type of throttle position to display.
  * @param Set to 1 for Absolute, 2 for Corrected
  */
-void MainWindow::onThrottleTypeButtonClicked(int id)
+void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 {
-    if (id == 1)
+    if (button == m_ui->m_throttleTypeAbsoluteButton)
     {
         m_cux->setThrottleReadingType(C14CUX_ThrottlePosType_Absolute);
     }

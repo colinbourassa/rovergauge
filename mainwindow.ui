@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
+    <width>1000</width>
     <height>610</height>
    </rect>
   </property>
@@ -15,6 +15,12 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>610</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -565,6 +571,9 @@
             <property name="text">
              <string>Run pump (continuous)</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="3" column="0" colspan="4">
@@ -617,7 +626,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>970</width>
+     <width>1000</width>
      <height>25</height>
     </rect>
    </property>
@@ -707,8 +716,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
+  <buttongroup name="m_mafReadingButtonGroup"/>
  </buttongroups>
 </ui>

@@ -108,9 +108,6 @@ private:
     int m_currentFuelMapRow;
     int m_currentFuelMapCol;
 
-    int m_widthPixels;
-    int m_heightPixels;
-
     QHash<SpeedUnits,QString> *m_speedUnitSuffix;
     QHash<TemperatureUnits,QString> *m_tempUnitSuffix;
     QHash<TemperatureUnits,QPair<int,int> > *m_tempRange;
@@ -118,6 +115,7 @@ private:
 
     void buildSpeedAndTempUnitTables();
     void setupWidgets();
+    void resizeForSmallScreens();
 
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
@@ -143,9 +141,9 @@ private slots:
     void onFuelPumpContinuous();
     void onFuelPumpRefreshTimer();
     void onIdleAirControlClicked();
-    void onLambdaTrimButtonClicked(int id);
-    void onMAFReadingButtonClicked(int id);
-    void onThrottleTypeButtonClicked(int id);
+    void onLambdaTrimButtonClicked(QAbstractButton *button);
+    void onMAFReadingButtonClicked(QAbstractButton *button);
+    void onThrottleTypeButtonClicked(QAbstractButton *button);
 #ifdef ENABLE_SIM_MODE
     void onSimDialogClicked();
 #endif
