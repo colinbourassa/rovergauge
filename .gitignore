@@ -1,3 +1,4 @@
+*~
 moc_*.cpp
 *.o
 *.swp
@@ -20,3 +21,5 @@ rovergauge.cbp
 LICENSE.TXT
 README.TXT
 rovergauge.exe
+install_manifest.txt
+rovergauge-*.zip
