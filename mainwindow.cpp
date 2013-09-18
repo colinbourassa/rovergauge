@@ -79,19 +79,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(revisionNumberReady(int)), this, SLOT(onTuneRevisionReady(int)));
     connect(m_cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
     connect(m_cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
-    connect(m_cux, SIGNAL(promImageReady()), this, SLOT(onPROMImageReady()));
-    connect(m_cux, SIGNAL(promImageReadFailed()), this, SLOT(onPROMImageReadFailed()));
+    connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
+    connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
     connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(int)), m_cux, SLOT(onFuelMapRequested(int)));
-    connect(this, SIGNAL(requestPROMImage()), m_cux, SLOT(onReadPROMImageRequested()));
+    connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
     connect(this, SIGNAL(requestFuelPumpRun()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRefreshTimer()));
 
     setWindowIcon(QIcon(":/icons/key.png"));
-    setupWidgets();
 
+    setupWidgets();
     dimUnusedControls();
 }
 
@@ -135,238 +135,81 @@ void MainWindow::buildSpeedAndTempUnitTables()
 }
 
 /**
- * Sets up the layout of the main window.
- */
-void MainWindow::setupLayout()
-{
-    m_layout = new QVBoxLayout(m_ui->centralWidget);
-
-    m_aboveGaugesRow = new QHBoxLayout();
-    m_layout->addLayout(m_aboveGaugesRow);
-
-    m_connectionButtonLayout = new QHBoxLayout();
-    m_aboveGaugesRow->addLayout(m_connectionButtonLayout);
-
-    m_commsLedLayout = new QHBoxLayout();
-    m_commsLedLayout->setAlignment(Qt::AlignRight);
-    m_aboveGaugesRow->addLayout(m_commsLedLayout);
-
-    m_verticalLineC = new QFrame(this);
-    m_verticalLineC->setFrameShape(QFrame::VLine);
-    m_verticalLineC->setFrameShadow(QFrame::Sunken);
-
-    m_verticalLineB = new QFrame(this);
-    m_verticalLineB->setFrameShape(QFrame::VLine);
-    m_verticalLineB->setFrameShadow(QFrame::Sunken);
-
-    m_horizontalLineA = new QFrame(this);
-    m_horizontalLineA->setFrameShape(QFrame::HLine);
-    m_horizontalLineA->setFrameShadow(QFrame::Sunken);
-    m_layout->addWidget(m_horizontalLineA);
-
-    m_gaugesLayout = new QHBoxLayout();
-    m_layout->addLayout(m_gaugesLayout);
-
-    m_horizontalLineB = new QFrame(this);
-    m_horizontalLineB->setFrameShape(QFrame::HLine);
-    m_horizontalLineB->setFrameShadow(QFrame::Sunken);
-    m_layout->addWidget(m_horizontalLineB);
-
-    m_horizontalLineC = new QFrame(this);
-    m_horizontalLineC->setFrameShape(QFrame::HLine);
-    m_horizontalLineC->setFrameShadow(QFrame::Sunken);
-
-    m_belowGaugesRow = new QHBoxLayout();
-    m_layout->addLayout(m_belowGaugesRow);
-
-    m_waterTempLayout = new QVBoxLayout();
-    m_gaugesLayout->addLayout(m_waterTempLayout);
-
-    m_speedoLayout = new QVBoxLayout();
-    m_gaugesLayout->addLayout(m_speedoLayout);
-
-    m_revCounterLayout = new QVBoxLayout();
-    m_gaugesLayout->addLayout(m_revCounterLayout);
-
-    m_fuelTempLayout = new QVBoxLayout();
-    m_gaugesLayout->addLayout(m_fuelTempLayout);
-
-    m_belowGaugesLeft = new QGridLayout();
-    m_belowGaugesRow->addLayout(m_belowGaugesLeft);
-
-    m_idleSpeedLayout = new QHBoxLayout();
-
-    m_verticalLineA = new QFrame(this);
-    m_verticalLineA->setFrameShape(QFrame::VLine);
-    m_verticalLineA->setFrameShadow(QFrame::Sunken);
-    m_belowGaugesRow->addWidget(m_verticalLineA);
-
-    m_belowGaugesRight = new QGridLayout();
-    m_belowGaugesRow->addLayout(m_belowGaugesRight);
-}
-
-/**
  * Instantiates widgets used in the main window.
  */
-void MainWindow::createWidgets()
+void MainWindow::setupWidgets()
 {
-    m_fileMenu = menuBar()->addMenu("&File");
-    m_savePROMImageAction = m_fileMenu->addAction("&Save PROM image...");
-    m_savePROMImageAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-    connect(m_savePROMImageAction, SIGNAL(triggered()), this, SLOT(onSavePROMImageSelected()));
-    m_fileMenu->addSeparator();
-    m_exitAction = m_fileMenu->addAction("E&xit");
-    m_exitAction->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-    connect(m_exitAction, SIGNAL(triggered()), this, SLOT(onExitSelected()));
+    // set menu and button icons
+    m_ui->m_saveROMImageAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    m_ui->m_exitAction->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    m_ui->m_showFaultCodesAction->setIcon(style()->standardIcon(QStyle::SP_DialogNoButton));
+    m_ui->m_editSettingsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
+    m_ui->m_helpContentsAction->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
+    m_ui->m_helpAboutAction->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
+    m_ui->m_startLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    m_ui->m_stopLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
 
-    m_optionsMenu = menuBar()->addMenu("&Options");
-    m_showFaultsAction = m_optionsMenu->addAction("Show fault &codes...");
-    m_showFaultsAction->setIcon(style()->standardIcon(QStyle::SP_DialogNoButton));
-    connect(m_showFaultsAction, SIGNAL(triggered()), m_cux, SLOT(onFaultCodesRequested()));
-    m_showIdleAirControlDialog = m_optionsMenu->addAction("&Idle air control...");
-    connect(m_showIdleAirControlDialog, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
-    m_editOptionsAction = m_optionsMenu->addAction("&Edit settings...");
-    m_editOptionsAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));    
-    connect(m_editOptionsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
+    // connect menu item signals
+    connect(m_ui->m_saveROMImageAction, SIGNAL(triggered()), this, SLOT(onSaveROMImageSelected()));
+    connect(m_ui->m_exitAction, SIGNAL(triggered()), this, SLOT(onExitSelected()));
+    connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()), m_cux, SLOT(onFaultCodesRequested()));
+    connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
+    connect(m_ui->m_editSettingsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
+    connect(m_ui->m_helpContentsAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
+    connect(m_ui->m_helpAboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
+
 #ifdef ENABLE_SIM_MODE
     m_optionsMenu->addSeparator();
     m_simDialogAction = m_optionsMenu->addAction("&Simulation mode control...");
     connect(m_simDialogAction, SIGNAL(triggered()), this, SLOT(onSimDialogClicked()));
 #endif
 
-    m_helpMenu = menuBar()->addMenu("&Help");
+    // connect button signals
+    connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
+    connect(m_ui->m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
+    connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMAFReadingButtonClicked(int)));
+    connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onThrottleTypeButtonClicked(int)));
+    connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
+    connect(m_ui->m_fuelPumpOneshotButton, SIGNAL(clicked()), this, SLOT(onFuelPumpOneshot()));
+    connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
+    connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
+    connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
 
-    m_helpAction = m_helpMenu->addAction("&Contents...");
-    m_helpAction->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
-    connect(m_helpAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
+    // set the LED colors
+    m_ui->m_milLed->setOnColor1(QColor(255, 0, 0));
+    m_ui->m_milLed->setOnColor2(QColor(176, 0, 2));
+    m_ui->m_milLed->setOffColor1(QColor(20, 0, 0));
+    m_ui->m_milLed->setOffColor2(QColor(90, 0, 2));
+    m_ui->m_milLed->setDisabled(true);
+    m_ui->m_commsGoodLed->setOnColor1(QColor(102, 255, 102));
+    m_ui->m_commsGoodLed->setOnColor2(QColor(82, 204, 82));
+    m_ui->m_commsGoodLed->setOffColor1(QColor(0, 102, 0));
+    m_ui->m_commsGoodLed->setOffColor2(QColor(0, 51, 0));
+    m_ui->m_commsGoodLed->setDisabled(true);
+    m_ui->m_commsBadLed->setOnColor1(QColor(255, 0, 0));
+    m_ui->m_commsBadLed->setOnColor2(QColor(176, 0, 2));
+    m_ui->m_commsBadLed->setOffColor1(QColor(20, 0, 0));
+    m_ui->m_commsBadLed->setOffColor2(QColor(90, 0, 2));
+    m_ui->m_commsBadLed->setDisabled(true);
+    m_ui->m_idleModeLed->setOnColor1(QColor(102, 255, 102));
+    m_ui->m_idleModeLed->setOnColor2(QColor(82, 204, 82));
+    m_ui->m_idleModeLed->setOffColor1(QColor(0, 102, 0));
+    m_ui->m_idleModeLed->setOffColor2(QColor(0, 51, 0));
+    m_ui->m_idleModeLed->setDisabled(true);
+    m_ui->m_fuelPumpRelayStateLed->setOnColor1(QColor(102, 255, 102));
+    m_ui->m_fuelPumpRelayStateLed->setOnColor2(QColor(82, 204, 82));
+    m_ui->m_fuelPumpRelayStateLed->setOffColor1(QColor(0, 102, 0));
+    m_ui->m_fuelPumpRelayStateLed->setOffColor2(QColor(0, 51, 0));
+    m_ui->m_fuelPumpRelayStateLed->setDisabled(true);
 
-    m_aboutAction = m_helpMenu->addAction("&About");
-    m_aboutAction->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
-    connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
-
-    m_connectButton = new QPushButton("Connect", this);
-    connect(m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
-
-    m_disconnectButton = new QPushButton("Disconnect", this);
-    m_disconnectButton->setEnabled(false);
-    connect(m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
-
-    m_tuneRevNumberLabel = new QLabel("", this);
-
-    m_milLed = new QLedIndicator(this);
-    m_milLed->setOnColor1(QColor(255, 0, 0));
-    m_milLed->setOnColor2(QColor(176, 0, 2));
-    m_milLed->setOffColor1(QColor(20, 0, 0));
-    m_milLed->setOffColor2(QColor(90, 0, 2));
-    m_milLed->setDisabled(true);
-
-    m_milLabel = new QLabel("MIL:", this);
-
-    m_commsGoodLed = new QLedIndicator(this);
-    m_commsGoodLed->setOnColor1(QColor(102, 255, 102));
-    m_commsGoodLed->setOnColor2(QColor(82, 204, 82));
-    m_commsGoodLed->setOffColor1(QColor(0, 102, 0));
-    m_commsGoodLed->setOffColor2(QColor(0, 51, 0));
-    m_commsGoodLed->setDisabled(true);
-
-    m_commsBadLed = new QLedIndicator(this);
-    m_commsBadLed->setOnColor1(QColor(255, 0, 0));
-    m_commsBadLed->setOnColor2(QColor(176, 0, 2));
-    m_commsBadLed->setOffColor1(QColor(20, 0, 0));
-    m_commsBadLed->setOffColor2(QColor(90, 0, 2));
-    m_commsBadLed->setDisabled(true);
-
-    m_commsLedLabel = new QLabel("Communications:", this);
-
-    m_mafReadingTypeLabel = new QLabel("MAF reading type:", this);
-    m_mafReadingLinearButton = new QRadioButton("Linear", this);
-    m_mafReadingLinearButton->setChecked(true);
-    m_mafReadingDirectButton = new QRadioButton("Direct", this);
-
-    m_mafReadingButtonGroup = new QButtonGroup(this);
-    m_mafReadingButtonGroup->addButton(m_mafReadingLinearButton, 1);
-    m_mafReadingButtonGroup->addButton(m_mafReadingDirectButton, 2);
-    connect(m_mafReadingButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMAFReadingButtonClicked(int)));
-
-    m_mafReadingLabel = new QLabel("MAF reading:", this);
-    m_mafReadingBar = new QProgressBar(this);
-    m_mafReadingBar->setRange(0, 100);
-    m_mafReadingBar->setValue(0);
-    m_mafReadingBar->setMinimumWidth(300);
-
-    m_throttleTypeLabel = new QLabel("Throttle reading type:", this);
-    m_throttleTypeAbsoluteButton = new QRadioButton("Absolute", this);
-    m_throttleTypeAbsoluteButton->setChecked(true);
-    m_throttleTypeCorrectedButton = new QRadioButton("Corrected", this);
-
-    m_throttleTypeButtonGroup = new QButtonGroup(this);
-    m_throttleTypeButtonGroup->addButton(m_throttleTypeAbsoluteButton, 1);
-    m_throttleTypeButtonGroup->addButton(m_throttleTypeCorrectedButton, 2);
-    connect(m_throttleTypeButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onThrottleTypeButtonClicked(int)));
-
-    m_throttleLabel = new QLabel("Throttle position:", this);
-    m_throttleBar = new QProgressBar(this);
-    m_throttleBar->setRange(0, 100);
-    m_throttleBar->setValue(0);
-    m_throttleBar->setMinimumWidth(300);
-
-    m_idleBypassLabel = new QLabel("Idle bypass position:", this);
-    m_idleBypassPosBar = new QProgressBar(this);
-    m_idleBypassPosBar->setRange(0, 100);
-    m_idleBypassPosBar->setValue(0);
-    m_idleBypassPosBar->setMinimumWidth(300);
-
-    m_lambdaTrimTypeLabel = new QLabel("Lambda trim type:", this);
-    m_lambdaTrimShortButton = new QRadioButton("Short term", this);
-    m_lambdaTrimShortButton->setChecked(true);
-    m_lambdaTrimLongButton = new QRadioButton("Long term", this);
-
-    m_lambdaTrimButtonGroup = new QButtonGroup(this);
-    m_lambdaTrimButtonGroup->addButton(m_lambdaTrimShortButton, 1);
-    m_lambdaTrimButtonGroup->addButton(m_lambdaTrimLongButton, 2);
-    connect(m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onLambdaTrimButtonClicked(int)));
-
-    m_lambdaTrimLowLimitLabel = new QLabel("(Reducing)", this);
-    m_lambdaTrimHighLimitLabel = new QLabel("(Increasing)", this);
-
-    m_leftFuelTrimLabel = new QLabel("Lambda fuel trim (left):", this);
-    m_leftFuelTrimBar = new FuelTrimBar(this);
-    m_leftFuelTrimBar->setValue(0);
-    m_leftFuelTrimBarLabel = new QLabel("+0%", this);
-
-    m_rightFuelTrimLabel = new QLabel("Lambda fuel trim (right):", this);
-    m_rightFuelTrimBar = new FuelTrimBar(this);
-    m_rightFuelTrimBar->setValue(0);
-    m_rightFuelTrimBarLabel = new QLabel("+0%", this);
-
-    m_targetIdleLabel = new QLabel("Idle mode / target RPM:", this);
-    m_targetIdle = new QLabel("", this);
-
-    m_idleModeLed = new QLedIndicator(this);
-    m_idleModeLed->setOnColor1(QColor(102, 255, 102));
-    m_idleModeLed->setOnColor2(QColor(82, 204, 82));
-    m_idleModeLed->setOffColor1(QColor(0, 102, 0));
-    m_idleModeLed->setOffColor2(QColor(0, 51, 0));
-    m_idleModeLed->setDisabled(true);
-
-    m_gearLabel = new QLabel("Selected gear:", this);
-    m_gear = new QLabel("", this);
-
-    m_voltageLabel = new QLabel("Main voltage:", this);
-    m_voltage = new QLabel("", this);
-
-    m_fuelMapIndexLabel = new QLabel("Current fuel map:", this);
-    m_fuelMapFactorLabel = new QLabel("Adjustment factor:", this);
-
+    // set up the fuel map display
     setStyleSheet("QTableWidget {background-color: transparent;}");
-    m_fuelMapDisplay = new QTableWidget(8, 16, this);
-    m_fuelMapDisplay->verticalHeader()->hide();
-    m_fuelMapDisplay->horizontalHeader()->hide();
-    m_fuelMapDisplay->resizeColumnsToContents();
-    m_fuelMapDisplay->resizeRowsToContents();
 
-    int rowCount = m_fuelMapDisplay->rowCount();
-    int colCount = m_fuelMapDisplay->columnCount();
+    m_ui->m_fuelMapDisplay->resizeColumnsToContents();
+    m_ui->m_fuelMapDisplay->resizeRowsToContents();
+
+    unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
+    unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
     QTableWidgetItem *item = 0;
     for (int row = 0; row < rowCount; row++)
     {
@@ -374,221 +217,85 @@ void MainWindow::createWidgets()
         {
             item = new QTableWidgetItem("");
             item->setFlags(0);
-            m_fuelMapDisplay->setItem(row, col, item);
+            m_ui->m_fuelMapDisplay->setItem(row, col, item);
         }
     }
 
-    m_fuelPumpRelayStateLabel = new QLabel("Fuel pump relay", this);
-    m_fuelPumpRelayStateLed = new QLedIndicator(this);
-    m_fuelPumpRelayStateLed->setOnColor1(QColor(102, 255, 102));
-    m_fuelPumpRelayStateLed->setOnColor2(QColor(82, 204, 82));
-    m_fuelPumpRelayStateLed->setOffColor1(QColor(0, 102, 0));
-    m_fuelPumpRelayStateLed->setOffColor2(QColor(0, 51, 0));
-    m_fuelPumpRelayStateLed->setDisabled(true);
-
-    m_fuelPumpOneshotButton = new QPushButton("Run pump (one shot)");
-    m_fuelPumpOneshotButton->setEnabled(false);
-    connect(m_fuelPumpOneshotButton, SIGNAL(clicked()), this, SLOT(onFuelPumpOneshot()));
-
-    m_fuelPumpContinuousButton = new QPushButton("Run pump (continuous)");
-    m_fuelPumpContinuousButton->setEnabled(false);
-    m_fuelPumpContinuousButton->setCheckable(true);
-    connect(m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
-
-    m_logFileNameLabel = new QLabel("Log file name:", this);
-    m_logFileNameBox = new QLineEdit(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"), this);
-    m_startLoggingButton = new QPushButton("Start logging");
-    m_startLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-    m_stopLoggingButton = new QPushButton("Stop logging");
-    m_stopLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-    m_stopLoggingButton->setEnabled(false);
-    connect(m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
-    connect(m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
-
-    m_speedo = new ManoMeter(this);
+    m_ui->m_logFileNameBox->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"));
 
     SpeedUnits speedUnit = m_options->getSpeedUnits();
 
-    m_speedo->setMinimum(0.0);
+    m_ui->m_speedo->setMinimum(0.0);
     if (speedUnit == MPH)
     {
-        m_speedo->setMaximum(speedometerMaxMPH);
+        m_ui->m_speedo->setMaximum(speedometerMaxMPH);
     }
     else
     {
-        m_speedo->setMaximum(speedometerMaxKPH);
+        m_ui->m_speedo->setMaximum(speedometerMaxKPH);
     }
-    m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
-    m_speedo->setNominal(1000.0);
-    m_speedo->setCritical(1000.0);
+    m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
+    m_ui->m_speedo->setNominal(1000.0);
+    m_ui->m_speedo->setCritical(1000.0);
 
-    m_revCounter = new ManoMeter(this);
-    m_revCounter->setMinimum(0.0);
-    m_revCounter->setMaximum(8000);
-    m_revCounter->setSuffix(" RPM");
-    m_revCounter->setNominal(100000.0);
-    m_revCounter->setCritical(8000);
+    m_ui->m_revCounter->setMinimum(0.0);
+    m_ui->m_revCounter->setMaximum(8000);
+    m_ui->m_revCounter->setSuffix(" RPM");
+    m_ui->m_revCounter->setNominal(100000.0);
+    m_ui->m_revCounter->setCritical(8000);
 
     TemperatureUnits tempUnits = m_options->getTemperatureUnits();
     int tempMin = m_tempRange->value(tempUnits).first;
     int tempMax = m_tempRange->value(tempUnits).second;
 
-    m_waterTempGauge = new ManoMeter(this);
-    m_waterTempGauge->setValue(tempMin);
-    m_waterTempGauge->setMaximum(tempMax);
-    m_waterTempGauge->setMinimum(tempMin);
-    m_waterTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
-    m_waterTempGauge->setNominal(m_tempLimits->value(tempUnits).first);
-    m_waterTempGauge->setCritical(m_tempLimits->value(tempUnits).second);
+    m_ui->m_waterTempGauge->setValue(tempMin);
+    m_ui->m_waterTempGauge->setMaximum(tempMax);
+    m_ui->m_waterTempGauge->setMinimum(tempMin);
+    m_ui->m_waterTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
+    m_ui->m_waterTempGauge->setNominal(m_tempLimits->value(tempUnits).first);
+    m_ui->m_waterTempGauge->setCritical(m_tempLimits->value(tempUnits).second);
 
-    m_waterTempLabel = new QLabel("Engine Temperature", this);
-
-    m_fuelTempGauge = new ManoMeter(this);
-    m_fuelTempGauge->setValue(tempMin);
-    m_fuelTempGauge->setMaximum(tempMax);
-    m_fuelTempGauge->setMinimum(tempMin);
-    m_fuelTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
-    m_fuelTempGauge->setNominal(10000.0);
-    m_fuelTempGauge->setCritical(10000.0);
-
-    m_fuelTempLabel = new QLabel("Fuel Temperature", this);
+    m_ui->m_fuelTempGauge->setValue(tempMin);
+    m_ui->m_fuelTempGauge->setMaximum(tempMax);
+    m_ui->m_fuelTempGauge->setMinimum(tempMin);
+    m_ui->m_fuelTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
+    m_ui->m_fuelTempGauge->setNominal(10000.0);
+    m_ui->m_fuelTempGauge->setCritical(10000.0);
 
     m_waterTempGaugeOpacity = new QGraphicsOpacityEffect(this);
     m_waterTempGaugeOpacity->setOpacity(0.5);
     m_waterTempGaugeOpacity->setEnabled(false);
-    m_waterTempGauge->setGraphicsEffect(m_waterTempGaugeOpacity);
+    m_ui->m_waterTempGauge->setGraphicsEffect(m_waterTempGaugeOpacity);
 
     m_fuelTempGaugeOpacity = new QGraphicsOpacityEffect(this);
     m_fuelTempGaugeOpacity->setOpacity(0.5);
     m_fuelTempGaugeOpacity->setEnabled(false);
-    m_fuelTempGauge->setGraphicsEffect(m_fuelTempGaugeOpacity);
+    m_ui->m_fuelTempGauge->setGraphicsEffect(m_fuelTempGaugeOpacity);
 
     m_speedometerOpacity = new QGraphicsOpacityEffect(this);
     m_speedometerOpacity->setOpacity(0.5);
     m_speedometerOpacity->setEnabled(false);
-    m_speedo->setGraphicsEffect(m_speedometerOpacity);
+    m_ui->m_speedo->setGraphicsEffect(m_speedometerOpacity);
 
     m_revCounterOpacity = new QGraphicsOpacityEffect(this);
     m_revCounterOpacity->setOpacity(0.5);
     m_revCounterOpacity->setEnabled(false);
-    m_revCounter->setGraphicsEffect(m_revCounterOpacity);
+    m_ui->m_revCounter->setGraphicsEffect(m_revCounterOpacity);
 
     m_fuelMapOpacity = new QGraphicsOpacityEffect(this);
     m_fuelMapOpacity->setOpacity(0.5);
     m_fuelMapOpacity->setEnabled(false);
-    m_fuelMapDisplay->setGraphicsEffect(m_fuelMapOpacity);
+    m_ui->m_fuelMapDisplay->setGraphicsEffect(m_fuelMapOpacity);
 
     m_fuelPumpLedOpacity = new QGraphicsOpacityEffect(this);
     m_fuelPumpLedOpacity->setOpacity(0.5);
     m_fuelPumpLedOpacity->setEnabled(false);
-    m_fuelPumpRelayStateLed->setGraphicsEffect(m_fuelPumpLedOpacity);
+    m_ui->m_fuelPumpRelayStateLed->setGraphicsEffect(m_fuelPumpLedOpacity);
 
     m_idleModeLedOpacity = new QGraphicsOpacityEffect(this);
     m_idleModeLedOpacity->setOpacity(0.5);
     m_idleModeLedOpacity->setEnabled(false);
-    m_idleModeLed->setGraphicsEffect(m_idleModeLedOpacity);
-}
-
-/**
- * Adds the created widgets to the form's layout
- */
-void MainWindow::placeWidgets()
-{
-    m_connectionButtonLayout->addWidget(m_connectButton);
-    m_connectionButtonLayout->addWidget(m_disconnectButton);
-
-    m_commsLedLayout->addWidget(m_tuneRevNumberLabel);
-    m_commsLedLayout->addWidget(m_verticalLineC);
-    m_commsLedLayout->addWidget(m_milLabel);
-    m_commsLedLayout->addWidget(m_milLed);
-    m_commsLedLayout->addWidget(m_verticalLineB);
-    m_commsLedLayout->addWidget(m_commsLedLabel);
-    m_commsLedLayout->addWidget(m_commsGoodLed);
-    m_commsLedLayout->addWidget(m_commsBadLed);
-
-    m_speedoLayout->addWidget(m_speedo);
-    m_revCounterLayout->addWidget(m_revCounter);
-
-    m_waterTempLayout->addWidget(m_waterTempGauge);
-    m_waterTempLayout->addWidget(m_waterTempLabel, 0, Qt::AlignCenter);
-
-    m_fuelTempLayout->addWidget(m_fuelTempGauge);
-    m_fuelTempLayout->addWidget(m_fuelTempLabel, 0, Qt::AlignCenter);
-
-    unsigned char row = 0;
-
-    m_belowGaugesLeft->setColumnStretch(0, 0);
-    m_belowGaugesLeft->addWidget(m_mafReadingTypeLabel,    row,   0, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_mafReadingLinearButton, row,   1, 1, 1);
-    m_belowGaugesLeft->addWidget(m_mafReadingDirectButton, row++, 2, 1, 1);
-
-    m_belowGaugesLeft->addWidget(m_mafReadingLabel,    row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_mafReadingBar,      row++, 1, 1, 3);
-
-    m_belowGaugesLeft->addWidget(m_throttleTypeLabel,           row,   0, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_throttleTypeAbsoluteButton,  row,   1, 1, 1);
-    m_belowGaugesLeft->addWidget(m_throttleTypeCorrectedButton, row++, 2, 1, 1);
-
-    m_belowGaugesLeft->addWidget(m_throttleLabel,      row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_throttleBar,        row++, 1, 1, 3);
-
-    m_belowGaugesLeft->addWidget(m_idleBypassLabel,    row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_idleBypassPosBar,   row++, 1, 1, 3);
-
-    m_belowGaugesLeft->addWidget(m_targetIdleLabel,    row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addLayout(m_idleSpeedLayout,    row++, 1, 1, 3);
-    m_idleSpeedLayout->addWidget(m_idleModeLed);
-    m_idleSpeedLayout->addWidget(m_targetIdle);
-    m_idleSpeedLayout->addStretch(0);
-
-    m_belowGaugesLeft->addWidget(m_gearLabel,          row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_gear,               row++, 1, 1, 3);
-
-    m_belowGaugesLeft->addWidget(m_voltageLabel,       row,   0,        Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_voltage,            row++, 1, 1, 3);
-
-    m_belowGaugesLeft->addWidget(m_lambdaTrimTypeLabel,   row,   0, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_lambdaTrimShortButton, row,   1, 1, 1);
-    m_belowGaugesLeft->addWidget(m_lambdaTrimLongButton,  row++, 2, 1, 1);
-
-    m_belowGaugesLeft->addWidget(m_leftFuelTrimLabel,     row,   0, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_leftFuelTrimBarLabel,  row,   1, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_leftFuelTrimBar,       row++, 2, 1, 2);
-
-    m_belowGaugesLeft->addWidget(m_rightFuelTrimLabel,    row,   0, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_rightFuelTrimBarLabel, row,   1, 1, 1,  Qt::AlignRight);
-    m_belowGaugesLeft->addWidget(m_rightFuelTrimBar,      row++, 2, 1, 2);
-
-    m_belowGaugesLeft->addWidget(m_lambdaTrimLowLimitLabel,  row,   2, 1, 1, Qt::AlignLeft);
-    m_belowGaugesLeft->addWidget(m_lambdaTrimHighLimitLabel, row++, 3, 1, 1, Qt::AlignRight);
-
-    row = 0;
-    m_belowGaugesRight->setColumnMinimumWidth(0, 20);
-    m_belowGaugesRight->setColumnStretch(0, 0);
-    m_belowGaugesRight->addWidget(m_fuelMapIndexLabel,        row,   0, 1, 2);
-    m_belowGaugesRight->addWidget(m_fuelMapFactorLabel,       row++, 2, 1, 2);
-    m_belowGaugesRight->addWidget(m_fuelMapDisplay,           row++, 0, 1, 4);
-    m_belowGaugesRight->addWidget(m_fuelPumpRelayStateLed,    row,   0, 1, 1);
-    m_belowGaugesRight->addWidget(m_fuelPumpRelayStateLabel,  row,   1, 1, 1);
-    m_belowGaugesRight->addWidget(m_fuelPumpOneshotButton,    row,   2, 1, 1);
-    m_belowGaugesRight->addWidget(m_fuelPumpContinuousButton, row++, 3, 1, 1);
-
-    m_belowGaugesRight->addWidget(m_horizontalLineC,    row++, 0, 1, 4);
-    m_belowGaugesRight->addWidget(m_logFileNameLabel,   row,   0, 1, 2);
-    m_belowGaugesRight->addWidget(m_logFileNameBox,     row++, 2, 1, 2);
-
-    m_belowGaugesRight->addWidget(m_startLoggingButton, row,   2, 1, 1);
-    m_belowGaugesRight->addWidget(m_stopLoggingButton,  row++, 3, 1, 1);
-}
-
-/**
- * Instantiates widgets, connects to their signals, and places them on the form.
- */
-void MainWindow::setupWidgets()
-{    
-    setupLayout();
-    createWidgets();
-    placeWidgets();
+    m_ui->m_idleModeLed->setGraphicsEffect(m_idleModeLedOpacity);
 }
 
 /**
@@ -634,7 +341,7 @@ void MainWindow::onInterfaceReady()
  */
 void MainWindow::onDisconnectClicked()
 {
-    m_disconnectButton->setEnabled(false);
+    m_ui->m_disconnectButton->setEnabled(false);
     m_cux->disconnectFromECU();
 }
 
@@ -680,8 +387,8 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
 {
     if (data != 0)
     {
-        int rowCount = m_fuelMapDisplay->rowCount();
-        int colCount = m_fuelMapDisplay->columnCount();
+        int rowCount = m_ui->m_fuelMapDisplay->rowCount();
+        int colCount = m_ui->m_fuelMapDisplay->columnCount();
         QTableWidgetItem *item = 0;
         unsigned char byte = 0;
 
@@ -690,7 +397,7 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
         {
             for (int col = 0; col < colCount; col++)
             {
-                item = m_fuelMapDisplay->item(row, col);
+                item = m_ui->m_fuelMapDisplay->item(row, col);
                 if (item != 0)
                 {
                     // retrieve the fuel map value at the current row/col
@@ -705,12 +412,12 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
 
         // ensure that the cells show the contents, but that
         // they're not larger than necessary
-        m_fuelMapDisplay->resizeColumnsToContents();
-        m_fuelMapDisplay->resizeRowsToContents();
+        m_ui->m_fuelMapDisplay->resizeColumnsToContents();
+        m_ui->m_fuelMapDisplay->resizeRowsToContents();
 
         QString adjFactorLabel =
             QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
-        m_fuelMapFactorLabel->setText(QString("Adjustment factor: 0x") + adjFactorLabel);
+        m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + adjFactorLabel);
 
         highlightActiveFuelMapCell();
     }
@@ -735,7 +442,7 @@ void MainWindow::onFuelMapDataReady(int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
-    m_milLed->setChecked(m_cux->isMILOn());
+    m_ui->m_milLed->setChecked(m_cux->isMILOn());
 
     // if fuel map display updates are enabled...
     if (m_enabledSamples[SampleType_FuelMap])
@@ -749,7 +456,7 @@ void MainWindow::onDataReady()
         if (m_currentFuelMapIndex != newFuelMapIndex)
         {
             m_currentFuelMapIndex = newFuelMapIndex;
-            m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(m_currentFuelMapIndex));
+            m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(m_currentFuelMapIndex));
             fuelMapData = m_cux->getFuelMap(m_currentFuelMapIndex);
 
             if (fuelMapData != 0)
@@ -772,11 +479,11 @@ void MainWindow::onDataReady()
             // that the fuel map itself hasn't changed and the currently-displayed
             // map needs an update
             if ((fuelMapData == 0) &&
-                (m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_fuelMapDisplay->rowCount()) &&
-                (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_fuelMapDisplay->columnCount()))
+                (m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
+                (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
             {
                 // set the currently-highlighted cell back to its original colors
-                QTableWidgetItem *item = m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
+                QTableWidgetItem *item = m_ui->m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
                 bool ok = false;
                 unsigned char value = (unsigned char)(item->text().toInt(&ok, 16));
                 if (ok)
@@ -794,42 +501,42 @@ void MainWindow::onDataReady()
     }
 
     if (m_enabledSamples[SampleType_Throttle])
-        m_throttleBar->setValue(m_cux->getThrottlePos() * 100);
+        m_ui->m_throttleBar->setValue(m_cux->getThrottlePos() * 100);
 
     if (m_enabledSamples[SampleType_MAF])
-        m_mafReadingBar->setValue(m_cux->getMAFReading() * 100);
+        m_ui->m_mafReadingBar->setValue(m_cux->getMAFReading() * 100);
 
     if (m_enabledSamples[SampleType_IdleBypassPosition])
-        m_idleBypassPosBar->setValue(m_cux->getIdleBypassPos() * 100);
+        m_ui->m_idleBypassPosBar->setValue(m_cux->getIdleBypassPos() * 100);
 
     if (m_enabledSamples[SampleType_RoadSpeed])
-        m_speedo->setValue(m_cux->getRoadSpeed());
+        m_ui->m_speedo->setValue(m_cux->getRoadSpeed());
 
     if (m_enabledSamples[SampleType_EngineRPM])
-        m_revCounter->setValue(m_cux->getEngineSpeedRPM());
+        m_ui->m_revCounter->setValue(m_cux->getEngineSpeedRPM());
 
     if (m_enabledSamples[SampleType_EngineTemperature])
-        m_waterTempGauge->setValue(m_cux->getCoolantTemp());
+        m_ui->m_waterTempGauge->setValue(m_cux->getCoolantTemp());
 
     if (m_enabledSamples[SampleType_FuelTemperature])
-        m_fuelTempGauge->setValue(m_cux->getFuelTemp());
+        m_ui->m_fuelTempGauge->setValue(m_cux->getFuelTemp());
 
     if (m_enabledSamples[SampleType_MainVoltage])
-        m_voltage->setText(QString::number(m_cux->getMainVoltage(), 'f', 1) + "VDC");
+        m_ui->m_voltage->setText(QString::number(m_cux->getMainVoltage(), 'f', 1) + "VDC");
 
     if (m_enabledSamples[SampleType_FuelPumpRelay])
-        m_fuelPumpRelayStateLed->setChecked(m_cux->getFuelPumpRelayState());
+        m_ui->m_fuelPumpRelayStateLed->setChecked(m_cux->getFuelPumpRelayState());
 
     if (m_enabledSamples[SampleType_TargetIdleRPM])
     {
         int targetIdleSpeedRPM = m_cux->getTargetIdleSpeed();
 
         if (targetIdleSpeedRPM > 0)
-            m_targetIdle->setText(QString::number(targetIdleSpeedRPM));
+            m_ui->m_targetIdle->setText(QString::number(targetIdleSpeedRPM));
         else
-            m_targetIdle->setText("");
+            m_ui->m_targetIdle->setText("");
 
-        m_idleModeLed->setChecked(m_cux->getIdleMode());
+        m_ui->m_idleModeLed->setChecked(m_cux->getIdleMode());
     }
 
     if (m_enabledSamples[SampleType_LambdaTrim])
@@ -854,29 +561,29 @@ void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim
         (m_currentFuelMapIndex == 5))
     {        
         QString leftLabel = (leftLambdaTrim >= 0) ?
-            QString("+%1%").arg(leftLambdaTrim * 100 / m_leftFuelTrimBar->maximum()) :
-            QString("-%1%").arg(leftLambdaTrim * 100 / m_leftFuelTrimBar->minimum());
+            QString("+%1%").arg(leftLambdaTrim * 100 / m_ui->m_leftFuelTrimBar->maximum()) :
+            QString("-%1%").arg(leftLambdaTrim * 100 / m_ui->m_leftFuelTrimBar->minimum());
         QString rightLabel = (rightLambdaTrim >= 0) ?
-            QString("+%1%").arg(rightLambdaTrim * 100 / m_rightFuelTrimBar->maximum()) :
-            QString("-%1%").arg(rightLambdaTrim * 100 / m_rightFuelTrimBar->minimum());
+            QString("+%1%").arg(rightLambdaTrim * 100 / m_ui->m_rightFuelTrimBar->maximum()) :
+            QString("-%1%").arg(rightLambdaTrim * 100 / m_ui->m_rightFuelTrimBar->minimum());
 
-        m_leftFuelTrimBar->setEnabled(true);
-        m_leftFuelTrimBar->setValue(leftLambdaTrim);
-        m_rightFuelTrimBar->setEnabled(true);
-        m_rightFuelTrimBar->setValue(rightLambdaTrim);
+        m_ui->m_leftFuelTrimBar->setEnabled(true);
+        m_ui->m_leftFuelTrimBar->setValue(leftLambdaTrim);
+        m_ui->m_rightFuelTrimBar->setEnabled(true);
+        m_ui->m_rightFuelTrimBar->setValue(rightLambdaTrim);
 
-        m_leftFuelTrimBarLabel->setText(leftLabel);
-        m_rightFuelTrimBarLabel->setText(rightLabel);
+        m_ui->m_leftFuelTrimBarLabel->setText(leftLabel);
+        m_ui->m_rightFuelTrimBarLabel->setText(rightLabel);
     }
     else
     {
-        m_leftFuelTrimBar->setValue(0);
-        m_leftFuelTrimBar->setEnabled(false);
-        m_rightFuelTrimBar->setValue(0);
-        m_rightFuelTrimBar->setEnabled(false);
+        m_ui->m_leftFuelTrimBar->setValue(0);
+        m_ui->m_leftFuelTrimBar->setEnabled(false);
+        m_ui->m_rightFuelTrimBar->setValue(0);
+        m_ui->m_rightFuelTrimBar->setEnabled(false);
 
-        m_leftFuelTrimBarLabel->setText("+0%");
-        m_rightFuelTrimBarLabel->setText("+0%");
+        m_ui->m_leftFuelTrimBarLabel->setText("+0%");
+        m_ui->m_rightFuelTrimBarLabel->setText("+0%");
     }
 }
 
@@ -888,17 +595,17 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
     switch (gearReading)
     {
         case C14CUX_Gear_ParkOrNeutral:
-            m_gear->setText("Park/Neutral");
+            m_ui->m_gear->setText("Park/Neutral");
             break;
         case C14CUX_Gear_DriveOrReverse:
-            m_gear->setText("Drive/Reverse");
+            m_ui->m_gear->setText("Drive/Reverse");
             break;
         case C14CUX_Gear_ManualGearbox:
-            m_gear->setText("(Manual gearbox)");
+            m_ui->m_gear->setText("(Manual gearbox)");
             break;
         case C14CUX_Gear_NoReading:
         default:
-            m_gear->setText("(no reading)");
+            m_ui->m_gear->setText("(no reading)");
             break;
     }
 }
@@ -909,10 +616,10 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
  */
 void MainWindow::highlightActiveFuelMapCell()
 {
-    if ((m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_fuelMapDisplay->rowCount()) &&
-        (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_fuelMapDisplay->columnCount()))
+    if ((m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
+        (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
     {
-        QTableWidgetItem *item = m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
+        QTableWidgetItem *item = m_ui->m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
         item->setBackgroundColor(Qt::black);
         item->setTextColor(Qt::white);
     }
@@ -941,14 +648,14 @@ void MainWindow::onEditOptionsClicked()
         SpeedUnits speedUnit = m_options->getSpeedUnits();
         if (speedUnit == MPH)
         {
-            m_speedo->setMaximum(speedometerMaxMPH);
+            m_ui->m_speedo->setMaximum(speedometerMaxMPH);
         }
         else
         {
-            m_speedo->setMaximum(speedometerMaxKPH);
+            m_ui->m_speedo->setMaximum(speedometerMaxKPH);
         }
-        m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
-        m_speedo->repaint();
+        m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
+        m_ui->m_speedo->repaint();
 
         TemperatureUnits tempUnits = m_options->getTemperatureUnits();
         QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
@@ -958,19 +665,19 @@ void MainWindow::onEditOptionsClicked()
         int tempNominal = m_tempLimits->value(tempUnits).first;
         int tempCritical = m_tempLimits->value(tempUnits).second;
 
-        m_fuelTempGauge->setSuffix(tempUnitStr);
-        m_fuelTempGauge->setValue(tempMin);
-        m_fuelTempGauge->setMaximum(tempMax);
-        m_fuelTempGauge->setMinimum(tempMin);
-        m_fuelTempGauge->repaint();
+        m_ui->m_fuelTempGauge->setSuffix(tempUnitStr);
+        m_ui->m_fuelTempGauge->setValue(tempMin);
+        m_ui->m_fuelTempGauge->setMaximum(tempMax);
+        m_ui->m_fuelTempGauge->setMinimum(tempMin);
+        m_ui->m_fuelTempGauge->repaint();
 
-        m_waterTempGauge->setSuffix(tempUnitStr);
-        m_waterTempGauge->setValue(tempMin);
-        m_waterTempGauge->setMaximum(tempMax);
-        m_waterTempGauge->setMinimum(tempMin);
-        m_waterTempGauge->setNominal(tempNominal);
-        m_waterTempGauge->setCritical(tempCritical);
-        m_waterTempGauge->repaint();
+        m_ui->m_waterTempGauge->setSuffix(tempUnitStr);
+        m_ui->m_waterTempGauge->setValue(tempMin);
+        m_ui->m_waterTempGauge->setMaximum(tempMax);
+        m_ui->m_waterTempGauge->setMinimum(tempMin);
+        m_ui->m_waterTempGauge->setNominal(tempNominal);
+        m_ui->m_waterTempGauge->setCritical(tempCritical);
+        m_ui->m_waterTempGauge->repaint();
 
         m_cux->setSpeedUnits(speedUnit);
         m_cux->setTemperatureUnits(tempUnits);
@@ -1008,70 +715,70 @@ void MainWindow::onEditOptionsClicked()
 void MainWindow::dimUnusedControls()
 {
     bool enabled = m_enabledSamples[SampleType_MAF];
-    m_mafReadingLabel->setEnabled(enabled);
-    m_mafReadingBar->setEnabled(enabled);
-    m_mafReadingTypeLabel->setEnabled(enabled);
-    m_mafReadingDirectButton->setEnabled(enabled);
-    m_mafReadingLinearButton->setEnabled(enabled);
+    m_ui->m_mafReadingLabel->setEnabled(enabled);
+    m_ui->m_mafReadingBar->setEnabled(enabled);
+    m_ui->m_mafReadingTypeLabel->setEnabled(enabled);
+    m_ui->m_mafReadingDirectButton->setEnabled(enabled);
+    m_ui->m_mafReadingLinearButton->setEnabled(enabled);
     if (!enabled)
-        m_mafReadingBar->setValue(0);
+        m_ui->m_mafReadingBar->setValue(0);
 
     enabled = m_enabledSamples[SampleType_Throttle];
-    m_throttleLabel->setEnabled(enabled);
-    m_throttleBar->setEnabled(enabled);
-    m_throttleTypeLabel->setEnabled(enabled);
-    m_throttleTypeAbsoluteButton->setEnabled(enabled);
-    m_throttleTypeCorrectedButton->setEnabled(enabled);
+    m_ui->m_throttleLabel->setEnabled(enabled);
+    m_ui->m_throttleBar->setEnabled(enabled);
+    m_ui->m_throttleTypeLabel->setEnabled(enabled);
+    m_ui->m_throttleTypeAbsoluteButton->setEnabled(enabled);
+    m_ui->m_throttleTypeCorrectedButton->setEnabled(enabled);
     if (!enabled)
-        m_throttleBar->setValue(0);
+        m_ui->m_throttleBar->setValue(0);
 
     enabled = m_enabledSamples[SampleType_IdleBypassPosition];
-    m_idleBypassLabel->setEnabled(enabled);
-    m_idleBypassPosBar->setEnabled(enabled);
+    m_ui->m_idleBypassLabel->setEnabled(enabled);
+    m_ui->m_idleBypassPosBar->setEnabled(enabled);
     if (!enabled)
-        m_idleBypassPosBar->setValue(0);
+        m_ui->m_idleBypassPosBar->setValue(0);
 
     enabled = m_enabledSamples[SampleType_GearSelection];
-    m_gearLabel->setEnabled(enabled);
-    m_gear->setEnabled(enabled);
+    m_ui->m_gearLabel->setEnabled(enabled);
+    m_ui->m_gear->setEnabled(enabled);
 
     enabled = m_enabledSamples[SampleType_MainVoltage];
-    m_voltageLabel->setEnabled(enabled);
-    m_voltage->setEnabled(enabled);
+    m_ui->m_voltageLabel->setEnabled(enabled);
+    m_ui->m_voltage->setEnabled(enabled);
 
     enabled = m_enabledSamples[SampleType_TargetIdleRPM];
-    m_targetIdleLabel->setEnabled(enabled);
-    m_targetIdle->setEnabled(enabled);
+    m_ui->m_targetIdleLabel->setEnabled(enabled);
+    m_ui->m_targetIdle->setEnabled(enabled);
     m_idleModeLedOpacity->setEnabled(!enabled);
 
     enabled = m_enabledSamples[SampleType_LambdaTrim];
-    m_lambdaTrimTypeLabel->setEnabled(enabled);
-    m_lambdaTrimLowLimitLabel->setEnabled(enabled);
-    m_lambdaTrimHighLimitLabel->setEnabled(enabled);
-    m_lambdaTrimShortButton->setEnabled(enabled);
-    m_lambdaTrimLongButton->setEnabled(enabled);
-    m_leftFuelTrimBar->setEnabled(enabled);
-    m_leftFuelTrimLabel->setEnabled(enabled);
-    m_leftFuelTrimBarLabel->setEnabled(enabled);
-    m_rightFuelTrimBar->setEnabled(enabled);
-    m_rightFuelTrimBarLabel->setEnabled(enabled);
-    m_rightFuelTrimLabel->setEnabled(enabled);
+    m_ui->m_lambdaTrimTypeLabel->setEnabled(enabled);
+    m_ui->m_lambdaTrimLowLimitLabel->setEnabled(enabled);
+    m_ui->m_lambdaTrimHighLimitLabel->setEnabled(enabled);
+    m_ui->m_lambdaTrimShortButton->setEnabled(enabled);
+    m_ui->m_lambdaTrimLongButton->setEnabled(enabled);
+    m_ui->m_leftFuelTrimBar->setEnabled(enabled);
+    m_ui->m_leftFuelTrimLabel->setEnabled(enabled);
+    m_ui->m_leftFuelTrimBarLabel->setEnabled(enabled);
+    m_ui->m_rightFuelTrimBar->setEnabled(enabled);
+    m_ui->m_rightFuelTrimBarLabel->setEnabled(enabled);
+    m_ui->m_rightFuelTrimLabel->setEnabled(enabled);
     if (!enabled)
     {
-        m_leftFuelTrimBar->setValue(0);
-        m_leftFuelTrimBarLabel->setText("");
-        m_rightFuelTrimBar->setValue(0);
-        m_rightFuelTrimBarLabel->setText("");
+        m_ui->m_leftFuelTrimBar->setValue(0);
+        m_ui->m_leftFuelTrimBarLabel->setText("");
+        m_ui->m_rightFuelTrimBar->setValue(0);
+        m_ui->m_rightFuelTrimBarLabel->setText("");
     }
 
     enabled = m_enabledSamples[SampleType_FuelPumpRelay];
-    m_fuelPumpRelayStateLabel->setEnabled(enabled);
-    m_fuelPumpRelayStateLed->setEnabled(enabled);
+    m_ui->m_fuelPumpRelayStateLabel->setEnabled(enabled);
+    m_ui->m_fuelPumpRelayStateLed->setEnabled(enabled);
     m_fuelPumpLedOpacity->setEnabled(!enabled);
 
     enabled = m_enabledSamples[SampleType_FuelMap];
-    m_fuelMapIndexLabel->setEnabled(enabled);
-    m_fuelMapFactorLabel->setEnabled(enabled);
+    m_ui->m_fuelMapIndexLabel->setEnabled(enabled);
+    m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
@@ -1079,10 +786,10 @@ void MainWindow::dimUnusedControls()
     // controlling the state of the graphical effect (rather than the widget).
     enabled = m_enabledSamples[SampleType_EngineTemperature];
     m_waterTempGaugeOpacity->setEnabled(!enabled);
-    m_waterTempLabel->setEnabled(enabled);
+    m_ui->m_waterTempLabel->setEnabled(enabled);
     enabled = m_enabledSamples[SampleType_FuelTemperature];
     m_fuelTempGaugeOpacity->setEnabled(!enabled);
-    m_fuelTempLabel->setEnabled(enabled);
+    m_ui->m_fuelTempLabel->setEnabled(enabled);
 
     m_revCounterOpacity->setEnabled(!m_enabledSamples[SampleType_EngineRPM]);
     m_speedometerOpacity->setEnabled(!m_enabledSamples[SampleType_RoadSpeed]);
@@ -1112,12 +819,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
  */
 void MainWindow::onConnect()
 {
-    m_connectButton->setEnabled(false);
-    m_disconnectButton->setEnabled(true);
-    m_commsGoodLed->setChecked(false);
-    m_commsBadLed->setChecked(false);
-    m_fuelPumpOneshotButton->setEnabled(true);
-    m_fuelPumpContinuousButton->setEnabled(true);
+    m_ui->m_connectButton->setEnabled(false);
+    m_ui->m_disconnectButton->setEnabled(true);
+    m_ui->m_commsGoodLed->setChecked(false);
+    m_ui->m_commsBadLed->setChecked(false);
+    m_ui->m_fuelPumpOneshotButton->setEnabled(true);
+    m_ui->m_fuelPumpContinuousButton->setEnabled(true);
 }
 
 /**
@@ -1126,33 +833,33 @@ void MainWindow::onConnect()
  */
 void MainWindow::onDisconnect()
 {
-    m_connectButton->setEnabled(true);
-    m_disconnectButton->setEnabled(false);
-    m_milLed->setChecked(false);
-    m_commsGoodLed->setChecked(false);
-    m_commsBadLed->setChecked(false);
-    m_fuelPumpOneshotButton->setEnabled(false);
-    m_fuelPumpContinuousButton->setEnabled(false);
+    m_ui->m_connectButton->setEnabled(true);
+    m_ui->m_disconnectButton->setEnabled(false);
+    m_ui->m_milLed->setChecked(false);
+    m_ui->m_commsGoodLed->setChecked(false);
+    m_ui->m_commsBadLed->setChecked(false);
+    m_ui->m_fuelPumpOneshotButton->setEnabled(false);
+    m_ui->m_fuelPumpContinuousButton->setEnabled(false);
 
-    m_speedo->setValue(0.0);
-    m_revCounter->setValue(0.0);
-    m_waterTempGauge->setValue(m_waterTempGauge->minimum());
-    m_fuelTempGauge->setValue(m_fuelTempGauge->minimum());
-    m_throttleBar->setValue(0);
-    m_mafReadingBar->setValue(0);
-    m_idleBypassPosBar->setValue(0);
-    m_idleModeLed->setChecked(false);
-    m_targetIdleLabel->setText("");
-    m_voltage->setText("");
-    m_gear->setText("");
-    m_fuelPumpRelayStateLed->setChecked(false);
-    m_leftFuelTrimBar->setValue(0);
-    m_leftFuelTrimBarLabel->setText("+0%");
-    m_rightFuelTrimBar->setValue(0);
-    m_rightFuelTrimBarLabel->setText("+0%");
+    m_ui->m_speedo->setValue(0.0);
+    m_ui->m_revCounter->setValue(0.0);
+    m_ui->m_waterTempGauge->setValue(m_ui->m_waterTempGauge->minimum());
+    m_ui->m_fuelTempGauge->setValue(m_ui->m_fuelTempGauge->minimum());
+    m_ui->m_throttleBar->setValue(0);
+    m_ui->m_mafReadingBar->setValue(0);
+    m_ui->m_idleBypassPosBar->setValue(0);
+    m_ui->m_idleModeLed->setChecked(false);
+    m_ui->m_targetIdle->setText("");
+    m_ui->m_voltage->setText("");
+    m_ui->m_gear->setText("");
+    m_ui->m_fuelPumpRelayStateLed->setChecked(false);
+    m_ui->m_leftFuelTrimBar->setValue(0);
+    m_ui->m_leftFuelTrimBarLabel->setText("+0%");
+    m_ui->m_rightFuelTrimBar->setValue(0);
+    m_ui->m_rightFuelTrimBarLabel->setText("+0%");
 
-    m_leftFuelTrimBar->repaint();
-    m_rightFuelTrimBar->repaint();
+    m_ui->m_leftFuelTrimBar->repaint();
+    m_ui->m_rightFuelTrimBar->repaint();
 
     m_currentFuelMapIndex = -1;
     m_currentFuelMapRow = -1;
@@ -1165,8 +872,8 @@ void MainWindow::onDisconnect()
  */
 void MainWindow::onReadError()
 {
-    m_commsGoodLed->setChecked(false);
-    m_commsBadLed->setChecked(true);
+    m_ui->m_commsGoodLed->setChecked(false);
+    m_ui->m_commsBadLed->setChecked(true);
 }
 
 /**
@@ -1175,8 +882,8 @@ void MainWindow::onReadError()
  */
 void MainWindow::onReadSuccess()
 {
-    m_commsGoodLed->setChecked(true);
-    m_commsBadLed->setChecked(false);
+    m_ui->m_commsGoodLed->setChecked(true);
+    m_ui->m_commsBadLed->setChecked(false);
 }
 
 /**
@@ -1184,10 +891,10 @@ void MainWindow::onReadSuccess()
  */
 void MainWindow::onStartLogging()
 {
-    if (m_logger->openLog(m_logFileNameBox->text()))
+    if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
     {
-        m_startLoggingButton->setEnabled(false);
-        m_stopLoggingButton->setEnabled(true);
+        m_ui->m_startLoggingButton->setEnabled(false);
+        m_ui->m_stopLoggingButton->setEnabled(true);
     }
     else
     {
@@ -1202,8 +909,8 @@ void MainWindow::onStartLogging()
 void MainWindow::onStopLogging()
 {
     m_logger->closeLog();
-    m_stopLoggingButton->setEnabled(false);
-    m_startLoggingButton->setEnabled(true);
+    m_ui->m_stopLoggingButton->setEnabled(false);
+    m_ui->m_startLoggingButton->setEnabled(true);
 }
 
 /**
@@ -1271,18 +978,17 @@ void MainWindow::onNotConnected()
 /**
  * Requests the PROM image so that it can be saved to disk.
  */
-void MainWindow::onSavePROMImageSelected()
+void MainWindow::onSaveROMImageSelected()
 {
-    sendPROMImageRequest(
-        QString("Read the PROM image from the ECU? This will take approximately 25 seconds."));
+    sendROMImageRequest(
+        QString("Read the ROM image from the ECU? This will take approximately 25 seconds."));
 }
 
 /**
  * Prompts the user to continue, and sends a request to read the PROM image.
  * @param prompt String used to prompt the user to continue.
- * @param displayTune True to determine the tune number after the image has been read; false to skip this.
  */
-void MainWindow::sendPROMImageRequest(QString prompt)
+void MainWindow::sendROMImageRequest(QString prompt)
 {
     if (m_cux->isConnected())
     {
@@ -1293,14 +999,14 @@ void MainWindow::sendPROMImageRequest(QString prompt)
             {
                 m_pleaseWaitBox = new QMessageBox(
                     QMessageBox::Information, "In Progress",
-                    QString("Please wait while the PROM image is read.\n\n"),
+                    QString("Please wait while the ROM image is read.\n\n"),
                     0, this, Qt::Dialog);
                 m_pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
                 connect(m_pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onPROMReadCancelled()));
             }
             m_pleaseWaitBox->show();
 
-            emit requestPROMImage();
+            emit requestROMImage();
         }
     }
     else
@@ -1314,23 +1020,22 @@ void MainWindow::sendPROMImageRequest(QString prompt)
 /**
  * Sets a flag that indicates we should ignore any PROM image that is returned.
  */
-void MainWindow::onPROMReadCancelled()
+void MainWindow::onROMReadCancelled()
 {
     m_cux->cancelRead();
 }
 
 /**
  * Prompts the user for a file in which to save the PROM image.
- * @param displayTuneNumber True to determine the tune number after the image has been read; false to skip this.
  */
-void MainWindow::onPROMImageReady()
+void MainWindow::onROMImageReady()
 {
     if (m_pleaseWaitBox != 0)
     {
         m_pleaseWaitBox->hide();
     }
 
-    QByteArray *promData = m_cux->getPROMImage();
+    QByteArray *promData = m_cux->getROMImage();
 
     if (promData != 0)
     {
@@ -1363,7 +1068,7 @@ void MainWindow::onPROMImageReady()
 /**
  * Displays a message box indicating that reading the PROM image has failed.
  */
-void MainWindow::onPROMImageReadFailed()
+void MainWindow::onROMImageReadFailed()
 {
     if (m_pleaseWaitBox != 0)
     {
@@ -1371,7 +1076,7 @@ void MainWindow::onPROMImageReadFailed()
     }
 
     QMessageBox::warning(this, "Error",
-        "Communications error. PROM image could not be read.", QMessageBox::Ok);
+        "Communications error. ROM image could not be read.", QMessageBox::Ok);
 }
 
 /**
@@ -1388,16 +1093,16 @@ void MainWindow::onFuelPumpOneshot()
  */
 void MainWindow::onFuelPumpContinuous()
 {
-    if (m_fuelPumpContinuousButton->isChecked())
+    if (m_ui->m_fuelPumpContinuousButton->isChecked())
     {
         emit requestFuelPumpRun();
         m_fuelPumpRefreshTimer->start();
-        m_fuelPumpOneshotButton->setEnabled(false);
+        m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     }
     else
     {
         m_fuelPumpRefreshTimer->stop();
-        m_fuelPumpOneshotButton->setEnabled(true);
+        m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     }
 }
 
@@ -1471,7 +1176,7 @@ void MainWindow::onThrottleTypeButtonClicked(int id)
  */
 void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 {
-    m_tuneRevNumberLabel->setText(QString("Tune revision: R%04").arg(tuneRevisionNum));
+    m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
 }
 
 /**
@@ -1480,7 +1185,7 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
  */
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
-    m_revCounter->setCritical((double)rpmLimit);
+    m_ui->m_revCounter->setCritical((double)rpmLimit);
 }
 
 #ifdef ENABLE_SIM_MODE

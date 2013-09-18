@@ -40,7 +40,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_rightLambdaTrim(0),
     m_milOn(false),
     m_idleMode(false),
-    m_promImage(0),
+    m_romImage(0),
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
     m_lastMidFreqReadTime(0),
@@ -113,29 +113,29 @@ void CUXInterface::onFaultCodesClearRequested()
 }
 
 /**
- * Reads the entire 16KB PROM.
+ * Reads the entire 16KB ROM.
  */
-void CUXInterface::onReadPROMImageRequested()
+void CUXInterface::onReadROMImageRequested()
 {
     if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
-        if (m_promImage == 0)
+        if (m_romImage == 0)
         {
-            m_promImage = new QByteArray(16384, 0x00);
+            m_romImage = new QByteArray(16384, 0x00);
         }
 
-        if (c14cux_dumpROM(&m_cuxinfo, (uint8_t*)m_promImage->data()))
+        if (c14cux_dumpROM(&m_cuxinfo, (uint8_t*)m_romImage->data()))
         {
             if (!m_readCanceled)
             {
-                emit promImageReady();
+                emit romImageReady();
             }
         }
         else
         {
             if (!m_readCanceled)
             {
-                emit promImageReadFailed();
+                emit romImageReadFailed();
             }
         }
 
@@ -236,10 +236,10 @@ void CUXInterface::disconnectFromECU()
 {
     m_stopPolling = true;
 
-    if (m_promImage != 0)
+    if (m_romImage != 0)
     {
-        delete m_promImage;
-        m_promImage = 0;
+        delete m_romImage;
+        m_romImage = 0;
     }
 
     m_fuelMaps.clear();
@@ -734,9 +734,9 @@ float CUXInterface::getMAFReading()
  * Returns the last-read PROM image.
  * @return Last-read PROM image (16KB array)
  */
-QByteArray* CUXInterface::getPROMImage()
+QByteArray* CUXInterface::getROMImage()
 {
-    return m_promImage;
+    return m_romImage;
 }
 
 /**
