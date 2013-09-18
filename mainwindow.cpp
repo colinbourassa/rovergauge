@@ -928,7 +928,7 @@ void MainWindow::onHelpAboutClicked()
 {
     if (m_aboutBox == 0)
     {
-        m_aboutBox = new AboutBox(style(), this->windowTitle(), m_cux->getVersion());
+        m_aboutBox = new AboutBox(style(), this->windowTitle(), m_cux->getVersion(), this);
     }
     m_aboutBox->exec();
 }

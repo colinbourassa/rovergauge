@@ -17,7 +17,7 @@ class AboutBox : public QDialog
     Q_OBJECT
 
 public:
-    AboutBox(QStyle *parentStyle, QString title, c14cux_version version);
+    AboutBox(QStyle *parentStyle, QString title, c14cux_version version, QWidget *parent);
 
 private:
     void setupWidgets();
