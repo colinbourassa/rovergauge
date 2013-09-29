@@ -21,7 +21,7 @@
     <p>For RoverGauge to work, the computer must have a specially modified USB-to-serial converter. Instructions for building this cable can be found on the <a href="http://code.google.com/p/libcomm14cux/wiki/HardwareInterface">libcomm14cux wiki page</a>.</p>
     <h3>Main display</h3>
     <ul>
-    <li><b>MIL:</b> Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. This indicates that at least one fault code is set, although there are some fault codes that do not necessarily cause the MIL to light.</li>
+    <li><b>MIL:</b> Lit red when the malfunction indicator lamp (MIL) is being lit by the ECU. When the engine is running, this typically means that one or more fault codes are set. The MIL is also lit under other circumstances (such as when the ECU is powered on but the engine has not been started.) Note that there are some fault codes that do not cause the MIL to light.</li>
     <li><b>Communications:</b> The green lamp is lit when the software is successfully reading data from the ECU, and the red lamp is lit when there was a problem communicating with the ECU (caused by a bad connection, disconnected cable, misconfigured USB adapter, or other problem.) Both lamps will be off if there has not been any attempt to read from the ECU.</li>
     <li><b>Engine temperature:</b> Displays the temperature read by the engine/coolant temperature sensor. The green and red colored areas (representing "nominal" and "warning" temperature levels) are approximate.</li>
     <li><b>Road speed:</b> Displays road speed. Note that some vehicles (including TVR) use a different road speed transducer setup, and the measurement on those vehicles may not be updated above a certain speed.</li>
