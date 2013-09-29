@@ -47,6 +47,11 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_lastLowFreqReadTime(0),
     m_initComplete(false)
 {
+    for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
+    {
+        m_fuelMaps[idx].fill(0x00, 128);
+        m_fuelMapDataIsCurrent[idx] = false;
+    }
 }
 
 /**
@@ -152,23 +157,17 @@ void CUXInterface::onReadROMImageRequested()
  * map from the ECU, and emitting a signal when done.
  * @param fuelMapId ID of the fuel map that should be retrieved (1 through 5)
  */
-void CUXInterface::onFuelMapRequested(int fuelMapId)
+void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
 {
     if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
-        // create a storage area for the fuel map data if it
-        // doesn't already exist
-        if (!m_fuelMaps.contains(fuelMapId))
-        {
-            m_fuelMaps.insert(fuelMapId, new QByteArray(128, 0x00));
-        }
-
-        uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId]->data());
+        uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId].data());
         uint16_t adjFactor = 0;
 
         if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer))
         {
             m_fuelMapAdjFactors[fuelMapId] = adjFactor;
+            m_fuelMapDataIsCurrent[fuelMapId] = true;
             emit fuelMapReady(fuelMapId);
         }
 
@@ -242,7 +241,11 @@ void CUXInterface::disconnectFromECU()
         m_romImage = 0;
     }
 
-    m_fuelMaps.clear();
+    // invalidate the stored fuel map data so that it is retrieved again upon reconnecting
+    for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
+    {
+        m_fuelMapDataIsCurrent[idx] = false;
+    }
 }
 
 /**
@@ -682,16 +685,27 @@ bool CUXInterface::isMILOn()
  * @return Pointer to the container holding the fuel map data, or 0 if the
  *   fuel map in question has not yet been retrieved
  */
-QByteArray* CUXInterface::getFuelMap(int fuelMapId)
+QByteArray* CUXInterface::getFuelMap(unsigned int fuelMapId)
 {
     QByteArray* map = 0;
 
-    if (m_fuelMaps.contains(fuelMapId))
+    if (m_fuelMapDataIsCurrent[fuelMapId])
     {
-        map = m_fuelMaps[fuelMapId];
+        map = &(m_fuelMaps[fuelMapId]);
     }
 
     return map;
+}
+
+/**
+ * Invalidates the stored fuel map data for the specified map ID,
+ * forcing the data to be retrieved from the ECU again on the next
+ * request.
+ * @param ID of fuel map to invalidate
+ */
+void CUXInterface::invalidateFuelMapData(unsigned int fuelMapId)
+{
+    m_fuelMapDataIsCurrent[fuelMapId] = false;
 }
 
 /**
@@ -743,10 +757,10 @@ QByteArray* CUXInterface::getROMImage()
  * Returns the last-read fuel map adjustment factor.
  * @return Last-read fuel map adjustment factor
  */
-int CUXInterface::getFuelMapAdjustmentFactor(int fuelMapId)
+int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId)
 {
     int adjFactor = -1;
-    if (m_fuelMapAdjFactors.contains(fuelMapId))
+    if (m_fuelMapDataIsCurrent[fuelMapId])
     {
         adjFactor = m_fuelMapAdjFactors[fuelMapId];
     }
@@ -911,9 +925,9 @@ void CUXInterface::onResetLongTermLambdaRequest()
 {
     bool success = true;
 
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset,   0x80);
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset,   0x30);
     success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset+1, 0x00);
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset,  0x80);
+    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset,  0x20);
     success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset+1,0x00);
 }
 

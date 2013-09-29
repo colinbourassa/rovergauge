@@ -10,6 +10,8 @@
 #include "comm14cux.h"
 #include "commonunits.h"
 
+static const unsigned int fuelMapCount = 6;
+
 class CUXInterface : public QObject
 {
     enum ReadResult
@@ -47,8 +49,9 @@ public:
     c14cux_faultcodes getFaultCodes();
     float getMainVoltage();
     c14cux_version getVersion();
-    QByteArray* getFuelMap(int fuelMapId);
-    int getFuelMapAdjustmentFactor(int fuelMapId);
+    QByteArray* getFuelMap(unsigned int fuelMapId);
+    void invalidateFuelMapData(unsigned int fuelMapId);
+    int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
     int getCurrentFuelMapIndex();
     int getFuelMapRowIndex();
     int getFuelMapColumnIndex();
@@ -71,7 +74,7 @@ public slots:
     void onParentThreadFinished();
     void onFaultCodesRequested();
     void onFaultCodesClearRequested();
-    void onFuelMapRequested(int fuelMapId);
+    void onFuelMapRequested(unsigned int fuelMapId);
     void onReadROMImageRequested();
     void onStartPollingRequest();
     void onShutdownThreadRequest();
@@ -92,8 +95,8 @@ signals:
     void faultCodesReadFailed();
     void faultCodesClearSuccess(c14cux_faultcodes m_faultCodes);
     void faultCodesClearFailure();
-    void fuelMapReady(int fuelMapId);
-    void fuelMapReadFailed(int fuelMapId);
+    void fuelMapReady(unsigned int fuelMapId);
+    void fuelMapReadFailed(unsigned int fuelMapId);
     void rpmLimitReady(int rpmLimiter);
     void revisionNumberReady(int tuneRevisionNum);
     void romImageReady();
@@ -144,8 +147,10 @@ private:
     bool m_idleMode;
 
     QByteArray *m_romImage;
-    QHash<int, QByteArray*> m_fuelMaps;
-    QHash<int, int> m_fuelMapAdjFactors;
+
+    QByteArray m_fuelMaps[fuelMapCount];
+    bool m_fuelMapDataIsCurrent[fuelMapCount];
+    uint16_t m_fuelMapAdjFactors[fuelMapCount];
 
     SpeedUnits m_speedUnits;
     TemperatureUnits m_tempUnits;

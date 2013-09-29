@@ -54,17 +54,18 @@ public slots:
     void onFailedToConnect(QString dev);
     void onFaultCodesReady();
     void onFaultCodesReadFailed();
-    void onFuelMapDataReady(int fuelMapId);
+    void onFuelMapDataReady(unsigned int fuelMapId);
     void onTuneRevisionReady(int tuneRevisionNum);
     void onRPMLimitReady(int rpmLimit);
     void onROMImageReady();
     void onROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
+    void onRefreshFuelMapClicked();
 
 signals:
     void requestToStartPolling();
-    void requestFuelMapData(int fuelMapId);
+    void requestFuelMapData(unsigned int fuelMapId);
     void requestROMImage();
     void requestThreadShutdown();
     void requestLongTermLambdaReset();
@@ -104,9 +105,12 @@ private:
     static const float speedometerMaxMPH = 160.0;
     static const float speedometerMaxKPH = 240.0;
 
-    int m_currentFuelMapIndex;
-    int m_currentFuelMapRow;
-    int m_currentFuelMapCol;
+    unsigned int m_currentFuelMapIndex;
+    unsigned int m_currentFuelMapRow;
+    unsigned int m_currentFuelMapCol;
+    bool m_fuelMapIndexIsCurrent;
+    bool m_fuelMapRowColumnIsCurrent;
+    bool m_waitingForFuelMapData;
 
     QHash<SpeedUnits,QString> *m_speedUnitSuffix;
     QHash<TemperatureUnits,QString> *m_tempUnitSuffix;

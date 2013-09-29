@@ -28,9 +28,12 @@ MainWindow::MainWindow(QWidget *parent)
       m_aboutBox(0),
       m_pleaseWaitBox(0),
       m_helpViewerDialog(0),
-      m_currentFuelMapIndex(-1),
-      m_currentFuelMapRow(-1),
-      m_currentFuelMapCol(-1)
+      m_currentFuelMapIndex(0),
+      m_currentFuelMapRow(0),
+      m_currentFuelMapCol(0),
+      m_fuelMapIndexIsCurrent(false),
+      m_fuelMapRowColumnIsCurrent(false),
+      m_waitingForFuelMapData(false)
 {
     buildSpeedAndTempUnitTables();
     m_ui->setupUi(this);
@@ -60,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(failedToConnect(QString)), this, SLOT(onFailedToConnect(QString)));
     connect(m_cux, SIGNAL(faultCodesReady()), this, SLOT(onFaultCodesReady()));
     connect(m_cux, SIGNAL(faultCodesReadFailed()), this, SLOT(onFaultCodesReadFailed()));
-    connect(m_cux, SIGNAL(fuelMapReady(int)), this, SLOT(onFuelMapDataReady(int)));
+    connect(m_cux, SIGNAL(fuelMapReady(unsigned int)), this, SLOT(onFuelMapDataReady(unsigned int)));
     connect(m_cux, SIGNAL(revisionNumberReady(int)), this, SLOT(onTuneRevisionReady(int)));
     connect(m_cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
     connect(m_cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
@@ -70,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
-    connect(this, SIGNAL(requestFuelMapData(int)), m_cux, SLOT(onFuelMapRequested(int)));
+    connect(this, SIGNAL(requestFuelMapData(unsigned int)), m_cux, SLOT(onFuelMapRequested(unsigned int)));
     connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
 
     setWindowIcon(QIcon(":/icons/key.png"));
@@ -180,6 +183,7 @@ void MainWindow::setupWidgets()
     connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
     connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
     connect(m_ui->m_resetLongTermTrimButton, SIGNAL(clicked()), m_cux, SLOT(onResetLongTermLambdaRequest()));
+    connect(m_ui->m_refreshMapButton, SIGNAL(clicked()), this, SLOT(onRefreshFuelMapClicked()));
 
     // set the LED colors
     m_ui->m_milLed->setOnColor1(QColor(255, 0, 0));
@@ -420,7 +424,6 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
         // they're not larger than necessary
         m_ui->m_fuelMapDisplay->resizeColumnsToContents();
         m_ui->m_fuelMapDisplay->resizeRowsToContents();
-
         QString adjFactorLabel =
             QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
         m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + adjFactorLabel);
@@ -433,11 +436,12 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
  * Uses fuel map data to populate the fuel map display grid.
  * @param ID of the fuel map just retrieved (from 1-5)
  */
-void MainWindow::onFuelMapDataReady(int fuelMapId)
+void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
 {
     QByteArray *data = m_cux->getFuelMap(fuelMapId);
     if (data != 0)
     {
+        m_waitingForFuelMapData = false;
         populateFuelMapDisplay(data, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
     }
 }
@@ -459,9 +463,11 @@ void MainWindow::onDataReady()
         QByteArray *fuelMapData = 0;
 
         // if the active fuel map has changed, prepare to update the display
-        if (m_currentFuelMapIndex != newFuelMapIndex)
+        if (((m_currentFuelMapIndex != newFuelMapIndex) || !m_fuelMapIndexIsCurrent) &&
+            !m_waitingForFuelMapData)
         {
             m_currentFuelMapIndex = newFuelMapIndex;
+            m_fuelMapIndexIsCurrent = true;
             m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(m_currentFuelMapIndex));
             fuelMapData = m_cux->getFuelMap(m_currentFuelMapIndex);
 
@@ -474,19 +480,20 @@ void MainWindow::onDataReady()
                 // The data for the current fuel map hasn't been read out of the
                 // ECU yet, so put in a request. We'll update the display when
                 // we receive the signal that the new data is ready.
+                m_waitingForFuelMapData = true;
                 emit requestFuelMapData(m_currentFuelMapIndex);
             }
         }
 
         // if the row/column index into the fuel map has changed
-        if ((m_currentFuelMapRow != newFuelMapRow) || (m_currentFuelMapCol != newFuelMapCol))
+        if ((m_currentFuelMapRow != newFuelMapRow) || (m_currentFuelMapCol != newFuelMapCol) || !m_fuelMapRowColumnIsCurrent)
         {
             // if the fuel map data hasn't been retrieved on this pass, that means
             // that the fuel map itself hasn't changed and the currently-displayed
             // map needs an update
             if ((fuelMapData == 0) &&
-                (m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
-                (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
+                (m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
+                (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
             {
                 // set the currently-highlighted cell back to its original colors
                 QTableWidgetItem *item = m_ui->m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
@@ -622,8 +629,8 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
  */
 void MainWindow::highlightActiveFuelMapCell()
 {
-    if ((m_currentFuelMapRow >= 0) && (m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
-        (m_currentFuelMapCol >= 0) && (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
+    if ((m_currentFuelMapRow < m_ui->m_fuelMapDisplay->rowCount()) &&
+        (m_currentFuelMapCol < m_ui->m_fuelMapDisplay->columnCount()))
     {
         QTableWidgetItem *item = m_ui->m_fuelMapDisplay->item(m_currentFuelMapRow, m_currentFuelMapCol);
         item->setBackgroundColor(Qt::black);
@@ -769,6 +776,7 @@ void MainWindow::dimUnusedControls()
     m_ui->m_rightFuelTrimBar->setEnabled(enabled);
     m_ui->m_rightFuelTrimBarLabel->setEnabled(enabled);
     m_ui->m_rightFuelTrimLabel->setEnabled(enabled);
+    m_ui->m_resetLongTermTrimButton->setEnabled(enabled);
     if (!enabled)
     {
         m_ui->m_leftFuelTrimBar->setValue(0);
@@ -785,6 +793,7 @@ void MainWindow::dimUnusedControls()
     enabled = m_enabledSamples[SampleType_FuelMap];
     m_ui->m_fuelMapIndexLabel->setEnabled(enabled);
     m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
+    m_ui->m_refreshMapButton->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
@@ -832,6 +841,7 @@ void MainWindow::onConnect()
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     m_ui->m_fuelPumpContinuousButton->setEnabled(true);
     m_ui->m_resetLongTermTrimButton->setEnabled(true);
+    m_ui->m_refreshMapButton->setEnabled(true);
 }
 
 /**
@@ -848,6 +858,7 @@ void MainWindow::onDisconnect()
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     m_ui->m_fuelPumpContinuousButton->setEnabled(false);
     m_ui->m_resetLongTermTrimButton->setEnabled(false);
+    m_ui->m_refreshMapButton->setEnabled(false);
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -869,9 +880,11 @@ void MainWindow::onDisconnect()
     m_ui->m_leftFuelTrimBar->repaint();
     m_ui->m_rightFuelTrimBar->repaint();
 
-    m_currentFuelMapIndex = -1;
-    m_currentFuelMapRow = -1;
-    m_currentFuelMapCol = -1;
+    m_currentFuelMapIndex = 0;
+    m_currentFuelMapRow = 0;
+    m_currentFuelMapCol = 0;
+    m_fuelMapIndexIsCurrent = false;
+    m_fuelMapRowColumnIsCurrent = false;
 }
 
 /**
@@ -1178,6 +1191,16 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
     m_ui->m_revCounter->setCritical((double)rpmLimit);
+}
+
+/**
+ * Forces a refresh of the fuel map data.
+ */
+void MainWindow::onRefreshFuelMapClicked()
+{
+    m_fuelMapIndexIsCurrent = false;
+    m_fuelMapRowColumnIsCurrent = false;
+    m_cux->invalidateFuelMapData(m_currentFuelMapIndex);
 }
 
 #ifdef ENABLE_SIM_MODE
