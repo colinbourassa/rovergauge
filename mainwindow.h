@@ -61,14 +61,12 @@ public slots:
     void onROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
-    void onRefreshFuelMapClicked();
 
 signals:
     void requestToStartPolling();
     void requestFuelMapData(unsigned int fuelMapId);
     void requestROMImage();
     void requestThreadShutdown();
-    void requestLongTermLambdaReset();
 
 protected:
     void closeEvent(QCloseEvent *event);

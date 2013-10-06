@@ -392,16 +392,6 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
-           <widget class="QPushButton" name="m_resetLongTermTrimButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Reset long term trim</string>
-            </property>
-           </widget>
-          </item>
           <item row="11" column="4">
            <widget class="QLabel" name="m_lambdaTrimHighLimitLabel">
             <property name="text">
@@ -490,16 +480,6 @@
            <widget class="QLabel" name="m_fuelMapFactorLabel">
             <property name="text">
              <string>Multiplier:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="m_refreshMapButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Refresh map</string>
             </property>
            </widget>
           </item>
@@ -722,8 +702,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
  </buttongroups>
 </ui>

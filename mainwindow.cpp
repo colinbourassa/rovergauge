@@ -182,8 +182,6 @@ void MainWindow::setupWidgets()
     connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
     connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
     connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
-    connect(m_ui->m_resetLongTermTrimButton, SIGNAL(clicked()), m_cux, SLOT(onResetLongTermLambdaRequest()));
-    connect(m_ui->m_refreshMapButton, SIGNAL(clicked()), this, SLOT(onRefreshFuelMapClicked()));
 
     // set the LED colors
     m_ui->m_milLed->setOnColor1(QColor(255, 0, 0));
@@ -776,7 +774,6 @@ void MainWindow::dimUnusedControls()
     m_ui->m_rightFuelTrimBar->setEnabled(enabled);
     m_ui->m_rightFuelTrimBarLabel->setEnabled(enabled);
     m_ui->m_rightFuelTrimLabel->setEnabled(enabled);
-    m_ui->m_resetLongTermTrimButton->setEnabled(enabled);
     if (!enabled)
     {
         m_ui->m_leftFuelTrimBar->setValue(0);
@@ -793,7 +790,6 @@ void MainWindow::dimUnusedControls()
     enabled = m_enabledSamples[SampleType_FuelMap];
     m_ui->m_fuelMapIndexLabel->setEnabled(enabled);
     m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
-    m_ui->m_refreshMapButton->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
@@ -840,8 +836,6 @@ void MainWindow::onConnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     m_ui->m_fuelPumpContinuousButton->setEnabled(true);
-    m_ui->m_resetLongTermTrimButton->setEnabled(true);
-    m_ui->m_refreshMapButton->setEnabled(true);
 }
 
 /**
@@ -857,8 +851,6 @@ void MainWindow::onDisconnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     m_ui->m_fuelPumpContinuousButton->setEnabled(false);
-    m_ui->m_resetLongTermTrimButton->setEnabled(false);
-    m_ui->m_refreshMapButton->setEnabled(false);
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -885,6 +877,7 @@ void MainWindow::onDisconnect()
     m_currentFuelMapCol = 0;
     m_fuelMapIndexIsCurrent = false;
     m_fuelMapRowColumnIsCurrent = false;
+    m_cux->invalidateFuelMapData(m_currentFuelMapIndex);
 }
 
 /**
@@ -1191,16 +1184,6 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
     m_ui->m_revCounter->setCritical((double)rpmLimit);
-}
-
-/**
- * Forces a refresh of the fuel map data.
- */
-void MainWindow::onRefreshFuelMapClicked()
-{
-    m_fuelMapIndexIsCurrent = false;
-    m_fuelMapRowColumnIsCurrent = false;
-    m_cux->invalidateFuelMapData(m_currentFuelMapIndex);
 }
 
 #ifdef ENABLE_SIM_MODE
