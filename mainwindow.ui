@@ -458,6 +458,16 @@
             </property>
            </widget>
           </item>
+          <item row="11" column="0">
+           <widget class="QCheckBox" name="m_forceOpenLoopCheckbox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Force open loop</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -702,8 +712,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
-  <buttongroup name="m_throttleTypeButtonGroup"/>
  </buttongroups>
 </ui>

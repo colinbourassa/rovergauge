@@ -214,6 +214,7 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
 bool CUXInterface::connectToECU()
 {
     bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str());    
+    uint8_t openLoopByte = 0;
 
     if (status)
     {
@@ -222,6 +223,10 @@ bool CUXInterface::connectToECU()
         if (c14cux_getTuneRevision(&m_cuxinfo, &m_tuneRevision))
         {
             emit revisionNumberReady(m_tuneRevision);
+        }
+        if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &openLoopByte))
+        {
+            emit forceOpenLoopState(openLoopByte & 0x10);
         }
     }
 
@@ -921,14 +926,25 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
 /**
  * Resets the long term lambda trim to the midpoint value
  */
-void CUXInterface::onResetLongTermLambdaRequest()
+void CUXInterface::onForceOpenLoopRequest(bool forceOpen)
 {
-    bool success = true;
+    if (c14cux_isConnected(&m_cuxinfo))
+    {
+        uint8_t byte87 = 0x00;
 
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset,   0x30);
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimLeftOffset+1, 0x00);
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset,  0x20);
-    success &= c14cux_writeMem(&m_cuxinfo, C14CUX_LongTermLambdaFuelingTrimRightOffset+1,0x00);
+        if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &byte87))
+        {
+            if (forceOpen)
+            {
+                byte87 |= 0x10;
+            }
+            else
+            {
+                byte87 &= 0xEF;
+            }
+            c14cux_writeMem(&m_cuxinfo, 0x0087, byte87);
+        }
+    }
 }
 
 #ifdef ENABLE_SIM_MODE

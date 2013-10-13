@@ -80,7 +80,7 @@ public slots:
     void onShutdownThreadRequest();
     void onFuelPumpRunRequest();
     void onIdleAirControlMovementRequest(int direction, int steps);
-    void onResetLongTermLambdaRequest();
+    void onForceOpenLoopRequest(bool forceOpen);
 #ifdef ENABLE_SIM_MODE
     void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes);
 #endif
@@ -104,6 +104,7 @@ signals:
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();
     void notConnected();
+    void forceOpenLoopState(bool forceOpen);
     void simModeWriteSuccess();
     void simModeWriteFailure();
 

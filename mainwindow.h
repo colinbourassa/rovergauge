@@ -61,6 +61,7 @@ public slots:
     void onROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
+    void onForceOpenLoopStateReceived(bool forceOpen);
 
 signals:
     void requestToStartPolling();

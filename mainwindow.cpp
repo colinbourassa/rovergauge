@@ -70,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
     connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
     connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
+    connect(m_cux, SIGNAL(forceOpenLoopState(bool)), this, SLOT(onForceOpenLoopStateReceived(bool)));
     connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
@@ -165,6 +166,7 @@ void MainWindow::setupWidgets()
     connect(m_ui->m_editSettingsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
     connect(m_ui->m_helpContentsAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
     connect(m_ui->m_helpAboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
+    connect(m_ui->m_forceOpenLoopCheckbox, SIGNAL(clicked(bool)), m_cux, SLOT(onForceOpenLoopRequest(bool)));
 
 #ifdef ENABLE_SIM_MODE
     m_optionsMenu->addSeparator();
@@ -836,6 +838,7 @@ void MainWindow::onConnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     m_ui->m_fuelPumpContinuousButton->setEnabled(true);
+    m_ui->m_forceOpenLoopCheckbox->setEnabled(true);
 }
 
 /**
@@ -851,6 +854,7 @@ void MainWindow::onDisconnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     m_ui->m_fuelPumpContinuousButton->setEnabled(false);
+    m_ui->m_forceOpenLoopCheckbox->setEnabled(false);
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -1184,6 +1188,15 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
     m_ui->m_revCounter->setCritical((double)rpmLimit);
+}
+
+/**
+ * Changes the state of the "force open loop" checkbox depending on the state of a bit in the ECU
+ * @param forceOpen True when the bit is set, false otherwise
+ */
+void MainWindow::onForceOpenLoopStateReceived(bool forceOpen)
+{
+    m_ui->m_forceOpenLoopCheckbox->setChecked(forceOpen);
 }
 
 #ifdef ENABLE_SIM_MODE
