@@ -52,6 +52,7 @@ public:
     QByteArray* getFuelMap(unsigned int fuelMapId);
     void invalidateFuelMapData(unsigned int fuelMapId);
     int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
+    c14cux_rpmtable getRPMTable() { return m_rpmTable; }
     int getCurrentFuelMapIndex();
     int getFuelMapRowIndex();
     int getFuelMapColumnIndex();
@@ -98,6 +99,7 @@ signals:
     void fuelMapReady(unsigned int fuelMapId);
     void fuelMapReadFailed(unsigned int fuelMapId);
     void rpmLimitReady(int rpmLimiter);
+    void rpmTableReady();
     void revisionNumberReady(int tuneRevisionNum);
     void romImageReady();
     void romImageReadFailed();
@@ -152,6 +154,7 @@ private:
     QByteArray m_fuelMaps[fuelMapCount];
     bool m_fuelMapDataIsCurrent[fuelMapCount];
     uint16_t m_fuelMapAdjFactors[fuelMapCount];
+    c14cux_rpmtable m_rpmTable;
 
     SpeedUnits m_speedUnits;
     TemperatureUnits m_tempUnits;

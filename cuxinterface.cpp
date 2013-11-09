@@ -52,6 +52,8 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
         m_fuelMaps[idx].fill(0x00, 128);
         m_fuelMapDataIsCurrent[idx] = false;
     }
+
+    memset(&m_rpmTable, 0, sizeof(m_rpmTable));
 }
 
 /**
@@ -174,6 +176,11 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
         if (c14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
         {
             emit rpmLimitReady(m_rpmLimit);
+        }
+
+        if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
+        {
+            emit rpmTableReady();
         }
     }
 }

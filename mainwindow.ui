@@ -28,7 +28,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="m_layoutMaster" stretch="0,1,0,1">
+     <layout class="QVBoxLayout" name="m_layoutMaster" stretch="0,1,0,2">
       <item>
        <layout class="QHBoxLayout" name="m_layoutTop" stretch="1,1">
         <item>
@@ -508,7 +508,7 @@
              <number>16</number>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
+             <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
@@ -623,7 +623,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_fileMenu">
@@ -712,8 +712,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
  </buttongroups>
 </ui>

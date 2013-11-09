@@ -57,6 +57,7 @@ public slots:
     void onFuelMapDataReady(unsigned int fuelMapId);
     void onTuneRevisionReady(int tuneRevisionNum);
     void onRPMLimitReady(int rpmLimit);
+    void onRPMTableReady();
     void onROMImageReady();
     void onROMImageReadFailed();
     void onInterfaceReady();

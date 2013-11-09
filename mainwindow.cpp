@@ -70,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
     connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
     connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
+    connect(m_cux, SIGNAL(rpmTableReady()), this, SLOT(onRPMTableReady()));
     connect(m_cux, SIGNAL(forceOpenLoopState(bool)), this, SLOT(onForceOpenLoopStateReceived(bool)));
     connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
@@ -221,11 +222,13 @@ void MainWindow::setupWidgets()
     unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
     unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
     QTableWidgetItem *item = 0;
-    for (int row = 0; row < rowCount; row++)
+    for (int col = 0; col < colCount; col++)
     {
-        for (int col = 0; col < colCount; col++)
+        m_ui->m_fuelMapDisplay->setHorizontalHeaderItem(col, new QTableWidgetItem(""));
+        for (int row = 0; row < rowCount; row++)
         {
             item = new QTableWidgetItem("");
+            item->setTextAlignment(Qt::AlignCenter);
             item->setFlags(0);
             m_ui->m_fuelMapDisplay->setItem(row, col, item);
         }
@@ -1188,6 +1191,20 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
     m_ui->m_revCounter->setCritical((double)rpmLimit);
+}
+
+/**
+ * Sets the fuel map column header text to reflect the engine speed thresholds
+ * used in the ECU
+ */
+void MainWindow::onRPMTableReady()
+{
+    c14cux_rpmtable table = m_cux->getRPMTable();
+    for (int col = 0; col < FUEL_MAP_COLUMNS; col++)
+    {
+        m_ui->m_fuelMapDisplay->horizontalHeaderItem(col)->setText(QString::number(table.rpm[col]));
+    }
+    m_ui->m_fuelMapDisplay->resizeColumnsToContents();
 }
 
 /**
