@@ -449,6 +449,9 @@
             <property name="text">
              <string>(less fuel)</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
            </widget>
           </item>
           <item row="11" column="3">
@@ -457,7 +460,7 @@
              <string>(more fuel)</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
             </property>
            </widget>
           </item>
@@ -705,8 +708,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
  </buttongroups>
 </ui>
