@@ -221,8 +221,6 @@ void MainWindow::setupWidgets()
     // set up the fuel map display
     setStyleSheet("QTableWidget {background-color: transparent;}");
 
-    m_ui->m_fuelMapDisplay->resizeColumnsToContents();
-    m_ui->m_fuelMapDisplay->resizeRowsToContents();
     m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 9pt; }");
     m_ui->m_fuelMapDisplay->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_ui->m_fuelMapDisplay->verticalHeader()->setResizeMode(QHeaderView::Stretch);
@@ -430,10 +428,6 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
             }
         }
 
-        // ensure that the cells show the contents, but that
-        // they're not larger than necessary
-        m_ui->m_fuelMapDisplay->resizeColumnsToContents();
-        m_ui->m_fuelMapDisplay->resizeRowsToContents();
         QString adjFactorLabel =
             QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
         m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + adjFactorLabel);
@@ -1215,7 +1209,6 @@ void MainWindow::onRPMTableReady()
     {
         m_ui->m_fuelMapDisplay->horizontalHeaderItem(col)->setText(QString::number(table.rpm[col]));
     }
-    m_ui->m_fuelMapDisplay->resizeColumnsToContents();
 }
 
 #ifdef ENABLE_FORCE_OPEN_LOOP

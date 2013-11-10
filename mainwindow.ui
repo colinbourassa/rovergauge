@@ -173,7 +173,7 @@
       <item>
        <layout class="QHBoxLayout" name="m_layoutBottom" stretch="1,0,3">
         <item>
-         <layout class="QGridLayout" name="m_miscDataLayout">
+         <layout class="QGridLayout" name="m_miscDataLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,1">
           <item row="0" column="0">
            <widget class="QLabel" name="m_mafReadingTypeLabel">
             <property name="text">
