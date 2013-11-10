@@ -930,6 +930,7 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     }
 }
 
+#ifdef ENABLE_FORCE_OPEN_LOOP
 /**
  * Resets the long term lambda trim to the midpoint value
  */
@@ -953,6 +954,7 @@ void CUXInterface::onForceOpenLoopRequest(bool forceOpen)
         }
     }
 }
+#endif
 
 #ifdef ENABLE_SIM_MODE
 void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes)

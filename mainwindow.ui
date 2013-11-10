@@ -444,16 +444,6 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
-           <widget class="QCheckBox" name="m_forceOpenLoopCheckbox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Force open loop</string>
-            </property>
-           </widget>
-          </item>
           <item row="11" column="2">
            <widget class="QLabel" name="m_lambdaTrimLowLimitLabel">
             <property name="text">
@@ -498,6 +488,12 @@
           </item>
           <item row="1" column="0" colspan="4">
            <widget class="QTableWidget" name="m_fuelMapDisplay">
+            <property name="font">
+             <font>
+              <family>Andale Mono</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="verticalScrollBarPolicy">
              <enum>Qt::ScrollBarAlwaysOff</enum>
             </property>
@@ -626,7 +622,7 @@
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_fileMenu">
@@ -715,8 +711,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
-  <buttongroup name="m_lambdaTrimButtonGroup"/>
  </buttongroups>
 </ui>

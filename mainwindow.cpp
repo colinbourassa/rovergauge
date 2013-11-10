@@ -71,7 +71,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
     connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
     connect(m_cux, SIGNAL(rpmTableReady()), this, SLOT(onRPMTableReady()));
+#ifdef ENABLE_FORCE_OPEN_LOOP
     connect(m_cux, SIGNAL(forceOpenLoopState(bool)), this, SLOT(onForceOpenLoopStateReceived(bool)));
+#endif
     connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
     connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
@@ -167,7 +169,10 @@ void MainWindow::setupWidgets()
     connect(m_ui->m_editSettingsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
     connect(m_ui->m_helpContentsAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
     connect(m_ui->m_helpAboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
+
+#ifdef ENABLE_FORCE_OPEN_LOOP
     connect(m_ui->m_forceOpenLoopCheckbox, SIGNAL(clicked(bool)), m_cux, SLOT(onForceOpenLoopRequest(bool)));
+#endif
 
 #ifdef ENABLE_SIM_MODE
     m_optionsMenu->addSeparator();
@@ -841,7 +846,9 @@ void MainWindow::onConnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
     m_ui->m_fuelPumpContinuousButton->setEnabled(true);
+#ifdef ENABLE_FORCE_OPEN_LOOP
     m_ui->m_forceOpenLoopCheckbox->setEnabled(true);
+#endif
 }
 
 /**
@@ -857,7 +864,9 @@ void MainWindow::onDisconnect()
     m_ui->m_commsBadLed->setChecked(false);
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     m_ui->m_fuelPumpContinuousButton->setEnabled(false);
+#ifdef ENABLE_FORCE_OPEN_LOOP
     m_ui->m_forceOpenLoopCheckbox->setEnabled(false);
+#endif
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -1207,6 +1216,7 @@ void MainWindow::onRPMTableReady()
     m_ui->m_fuelMapDisplay->resizeColumnsToContents();
 }
 
+#ifdef ENABLE_FORCE_OPEN_LOOP
 /**
  * Changes the state of the "force open loop" checkbox depending on the state of a bit in the ECU
  * @param forceOpen True when the bit is set, false otherwise
@@ -1215,6 +1225,7 @@ void MainWindow::onForceOpenLoopStateReceived(bool forceOpen)
 {
     m_ui->m_forceOpenLoopCheckbox->setChecked(forceOpen);
 }
+#endif
 
 #ifdef ENABLE_SIM_MODE
 void MainWindow::onSimDialogClicked()
