@@ -27,46 +27,46 @@ public:
                           TemperatureUnits tUnits, QObject *parent = 0);
     ~CUXInterface();
 
-    void setSerialDevice(QString device);
-    void setLambdaTrimType(c14cux_lambda_trim_type type);
-    void setMAFReadingType(c14cux_airflow_type type);
-    void setThrottleReadingType(c14cux_throttle_pos_type type);
+    void setSerialDevice(QString device) { m_deviceName = device; }
+    void setLambdaTrimType(c14cux_lambda_trim_type type) { m_lambdaTrimType = type; }
+    void setMAFReadingType(c14cux_airflow_type type) { m_airflowType = type; }
+    void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
     void setEnabledSamples(QHash<SampleType,bool> samples);
 
-    QString getSerialDevice();
+    QString getSerialDevice() { return m_deviceName; }
     int getIntervalMsecs();
 
     bool isConnected();
     void disconnectFromECU();
 
-    int getRoadSpeed();
-    int getEngineSpeedRPM();
-    int getTargetIdleSpeed();
-    int getCoolantTemp();
-    int getFuelTemp();
-    float getThrottlePos();
-    c14cux_gear getGear();
-    c14cux_faultcodes getFaultCodes();
-    float getMainVoltage();
-    c14cux_version getVersion();
+    int getRoadSpeed()                { return convertSpeed(m_roadSpeedMPH); }
+    int getEngineSpeedRPM()           { return m_engineSpeedRPM; }
+    int getTargetIdleSpeed()          { return m_targetIdleSpeed; }
+    int getCoolantTemp()              { return convertTemperature(m_coolantTempF); }
+    int getFuelTemp()                 { return convertTemperature(m_fuelTempF); }
+    float getThrottlePos()            { return m_throttlePos; }
+    c14cux_gear getGear()             { return m_gear; }
+    c14cux_faultcodes getFaultCodes() { return m_faultCodes; }
+    float getMainVoltage()            { return m_mainVoltage; }
+    c14cux_version getVersion()       { return c14cux_getLibraryVersion(); }
     QByteArray* getFuelMap(unsigned int fuelMapId);
     void invalidateFuelMapData(unsigned int fuelMapId);
     int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
-    c14cux_rpmtable getRPMTable() { return m_rpmTable; }
-    int getCurrentFuelMapIndex();
-    int getFuelMapRowIndex();
-    int getFuelMapColumnIndex();
-    float getMAFReading();
-    float getIdleBypassPos();
-    bool getFuelPumpRelayState();
-    QByteArray* getROMImage();
-    int getLeftLambdaTrim();
-    int getRightLambdaTrim();
-    bool isMILOn();
-    bool getIdleMode();
+    c14cux_rpmtable getRPMTable()     { return m_rpmTable; }
+    int getCurrentFuelMapIndex()      { return m_currentFuelMapIndex; }
+    int getFuelMapRowIndex()          { return m_currentFuelMapRowIndex; }
+    int getFuelMapColumnIndex()       { return m_currentFuelMapColumnIndex; }
+    float getMAFReading()             { return m_mafReading; }
+    float getIdleBypassPos()          { return m_idleBypassPos; }
+    bool getFuelPumpRelayState()      { return m_fuelPumpRelayOn; }
+    QByteArray* getROMImage()         { return m_romImage; }
+    int getLeftLambdaTrim()           { return m_leftLambdaTrim; }
+    int getRightLambdaTrim()          { return m_rightLambdaTrim; }
+    bool isMILOn()                    { return m_milOn; }
+    bool getIdleMode()                { return m_idleMode; }
 
-    void setSpeedUnits(SpeedUnits units);
-    void setTemperatureUnits(TemperatureUnits units);
+    void setSpeedUnits(SpeedUnits units) { m_speedUnits = units; }
+    void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
 
     void cancelRead();
 

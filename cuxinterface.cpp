@@ -64,15 +64,6 @@ CUXInterface::~CUXInterface()
 }
 
 /**
- * Returns the version of the comm14cux library being used.
- * @return Structure containing the version of the comm14cux library.
- */
-c14cux_version CUXInterface::getVersion()
-{
-    return c14cux_getLibraryVersion();
-}
-
-/**
  * Reads fault codes from the 14CUX and stores in a member structure.
  */
 void CUXInterface::onFaultCodesRequested()
@@ -280,27 +271,6 @@ void CUXInterface::onShutdownThreadRequest()
 bool CUXInterface::isConnected()
 {
     return (m_initComplete && c14cux_isConnected(&m_cuxinfo));
-}
-
-/**
- * Sets the name/path of the serial device that this instance will use when
- * it connects.
- * @param device The name (e.g. "COM1") or path (e.g. "/dev/ttyUSB0") to the
- *  serial device.
- */
-void CUXInterface::setSerialDevice(QString device)
-{
-    m_deviceName = device;
-}
-
-/**
- * Returns the name of the serial device that is being used to communicate
- * with the 14CUX ECU.
- * @return Serial device, such as "/dev/ttyUSB0" or "COM2"
- */
-QString CUXInterface::getSerialDevice()
-{
-    return m_deviceName;
 }
 
 /**
@@ -602,96 +572,6 @@ void CUXInterface::cancelRead()
 }
 
 /**
- * Returns the last-read road speed value.
- * @return Last-read road speed in the desired units.
- */
-int CUXInterface::getRoadSpeed()
-{
-    return convertSpeed(m_roadSpeedMPH);
-}
-
-/**
- * Returns the last-read engine speed value.
- * @return Last-read engine speed in RPM
- */
-int CUXInterface::getEngineSpeedRPM()
-{
-    return m_engineSpeedRPM;
-}
-
-/**
- * Returns the last-read target idle speed value.
- * @return Last-read target idle speed in RPM
- */
-int CUXInterface::getTargetIdleSpeed()
-{
-    return m_targetIdleSpeed;
-}
-
-/**
- * Returns the last-read coolant temperature value.
- * @return Last-read coolant temperature in the desired units
- */
-int CUXInterface::getCoolantTemp()
-{
-    return convertTemperature(m_coolantTempF);
-}
-
-/**
- * Returns the last-read fuel temperature value.
- * @return Last-read fuel temperatures in the desired units
- */
-int CUXInterface::getFuelTemp()
-{
-    return convertTemperature(m_fuelTempF);
-}
-
-/**
- * Returns the last-read throttle position value.
- * @return Last-read throttle position
- */
-float CUXInterface::getThrottlePos()
-{
-    return m_throttlePos;
-}
-
-/**
- * Returns the last-read neutral switch value.
- * @return Last-read neutral switch state
- */
-c14cux_gear CUXInterface::getGear()
-{
-    return m_gear;
-}
-
-/**
- * Returns the last-read main voltage value.
- * @return Last-read main voltage
- */
-float CUXInterface::getMainVoltage()
-{
-    return m_mainVoltage;
-}
-
-/**
- * Returns the last-read fault code structure.
- * @return Last-read fault codes.
- */
-c14cux_faultcodes CUXInterface::getFaultCodes()
-{
-    return m_faultCodes;
-}
-
-/**
- * Returns the last-read MIL status.
- * @return Last-read MIL status.
- */
-bool CUXInterface::isMILOn()
-{
-    return m_milOn;
-}
-
-/**
  * Returns the data for a particular fuel map.
  * @param fuelMapId ID of the fuel map to retrieve
  * @return Pointer to the container holding the fuel map data, or 0 if the
@@ -721,51 +601,6 @@ void CUXInterface::invalidateFuelMapData(unsigned int fuelMapId)
 }
 
 /**
- * Returns the current row index being used to retrieve fueling values.
- * @return Fuel map row index
- */
-int CUXInterface::getFuelMapRowIndex()
-{
-    return m_currentFuelMapRowIndex;
-}
-
-/**
- * Returns the current column index being used to retrieve fueling values.
- * @return Fuel map column index
- */
-int CUXInterface::getFuelMapColumnIndex()
-{
-    return m_currentFuelMapColumnIndex;
-}
-
-/**
- * Returns the index of the currently-selected fuel map.
- * @return ID of selected fuel map (1 through 5)
- */
-int CUXInterface::getCurrentFuelMapIndex()
-{
-    return m_currentFuelMapIndex;
-}
-
-/**
- * Returns the last-read MAF reading.
- * @return Last-read MAF reading
- */
-float CUXInterface::getMAFReading()
-{
-    return m_mafReading;
-}
-
-/**
- * Returns the last-read PROM image.
- * @return Last-read PROM image (16KB array)
- */
-QByteArray* CUXInterface::getROMImage()
-{
-    return m_romImage;
-}
-
-/**
  * Returns the last-read fuel map adjustment factor.
  * @return Last-read fuel map adjustment factor
  */
@@ -778,96 +613,6 @@ int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId)
     }
 
     return adjFactor;
-}
-
-/**
- * Returns the last-read idle bypass motor position.
- * @return Last-read idle bypass motor position
- */
-float CUXInterface::getIdleBypassPos()
-{
-    return m_idleBypassPos;
-}
-
-/**
- * Returns the last-read fuel pump relay state.
- * @return Last-read fuel pump relay state
- */
-bool CUXInterface::getFuelPumpRelayState()
-{
-    return m_fuelPumpRelayOn;
-}
-
-/**
- * Sets the desired output units for temperature measurements
- * @param units Desired units
- */
-void CUXInterface::setSpeedUnits(SpeedUnits units)
-{
-    m_speedUnits = units;
-}
-
-/**
- * Sets the desired output units for temperature measurements
- * @param units Desired units
- */
-void CUXInterface::setTemperatureUnits(TemperatureUnits units)
-{
-    m_tempUnits = units;
-}
-
-/**
- * Sets the type of lambda trim to read (short- or long-term)
- * @param type Selects either Short- or Long-Term lambda trim.
- */
-void CUXInterface::setLambdaTrimType(c14cux_lambda_trim_type type)
-{
-    m_lambdaTrimType = type;
-}
-
-/**
- * Sets the type of MAF reading to take (direct or linearized).
- * @param type Selects either Direct or Linearized MAF readings.
- */
-void CUXInterface::setMAFReadingType(c14cux_airflow_type type)
-{
-    m_airflowType = type;
-}
-
-/**
- * Sets the type of throttle position reading to take (corrected or absolute).
- * @param type Selects either Absolute or Corrected throttle position type
- */
-void CUXInterface::setThrottleReadingType(c14cux_throttle_pos_type type)
-{
-    m_throttlePosType = type;
-}
-
-/**
- * Returns the last-read lambda-based fuel trim for the left bank
- * @return Last-read lambda-based fuel trim
- */
-int CUXInterface::getLeftLambdaTrim()
-{
-    return m_leftLambdaTrim;
-}
-
-/**
- * Returns the last-read lambda-based fuel trim for the right bank
- * @return Last-read lambda-based fuel trim
- */
-int CUXInterface::getRightLambdaTrim()
-{
-    return m_rightLambdaTrim;
-}
-
-/**
- * Returns the last-read state of the idle-mode flag
- * @return Last-read idle-mode flag
- */
-bool CUXInterface::getIdleMode()
-{
-    return m_idleMode;
 }
 
 /**
