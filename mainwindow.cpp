@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_options = new OptionsDialog(this->windowTitle(), this);
     m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getSpeedUnits(),
-                             m_options->getTemperatureUnits());
+                             m_options->getTemperatureUnits(), m_options->getRefreshFuelMap());
 
     m_enabledSamples = m_options->getEnabledSamples();
     m_cux->setEnabledSamples(m_enabledSamples);
@@ -698,6 +698,7 @@ void MainWindow::onEditOptionsClicked()
 
         m_cux->setSpeedUnits(speedUnit);
         m_cux->setTemperatureUnits(tempUnits);
+        m_cux->setPeriodicFuelMapRefresh(m_options->getRefreshFuelMap());
 
         // the fields are updated one at a time, because a replacement of the entire
         // hash table (using the assignment operator) can disrupt other threads that

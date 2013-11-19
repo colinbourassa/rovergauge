@@ -24,7 +24,7 @@ class CUXInterface : public QObject
     Q_OBJECT
 public:
     explicit CUXInterface(QString device, SpeedUnits sUnits,
-                          TemperatureUnits tUnits, QObject *parent = 0);
+                          TemperatureUnits tUnits, bool fuelMapRefresh, QObject *parent = 0);
     ~CUXInterface();
 
     void setSerialDevice(QString device) { m_deviceName = device; }
@@ -65,8 +65,9 @@ public:
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
 
-    void setSpeedUnits(SpeedUnits units) { m_speedUnits = units; }
+    void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
     void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
+    void setPeriodicFuelMapRefresh(bool on)          { m_fuelMapRefresh = on; }
 
     void cancelRead();
 
@@ -123,7 +124,7 @@ private:
     bool m_shutdownThread;
     c14cux_faultcodes m_faultCodes;
     bool m_readCanceled;
-    unsigned long m_readCount;
+    unsigned long m_lowFreqReadCount;
     QHash<SampleType,bool> m_enabledSamples;
 
     c14cux_lambda_trim_type m_lambdaTrimType;
@@ -160,6 +161,7 @@ private:
 
     SpeedUnits m_speedUnits;
     TemperatureUnits m_tempUnits;
+    bool m_fuelMapRefresh;
 
     qint64 m_lastMidFreqReadTime;
     qint64 m_lastLowFreqReadTime;
@@ -171,6 +173,7 @@ private:
     ReadResult readHighFreqData();
     ReadResult readMidFreqData();
     ReadResult readLowFreqData();
+    bool readFuelMap(unsigned int fuelMapId);
     bool connectToECU();
     int convertSpeed(int speedMph);
     int convertTemperature(int tempF);

@@ -9,7 +9,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_serialDeviceChanged(false),
     m_settingsGroupName("Settings"),
     m_settingSerialDev("SerialDevice"),
-    m_settingRedline("Redline"),
+    m_settingRefreshFuelMap("RefreshFuelMap"),
     m_settingSpeedUnits("SpeedUnits"),
     m_settingTemperatureUnits("TemperatureUnits")
 {
@@ -67,6 +67,9 @@ void OptionsDialog::setupWidgets()
     m_temperatureUnitsLabel = new QLabel("Temperature units:", this);
     m_temperatureUnitsBox = new QComboBox(this);
 
+    m_refreshFuelMapCheckbox = new QCheckBox("Periodically refresh fuel map data", this);
+    m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
+
     m_horizontalLineA = new QFrame(this);
     m_horizontalLineA->setFrameShape(QFrame::HLine);
     m_horizontalLineA->setFrameShadow(QFrame::Sunken);
@@ -74,6 +77,10 @@ void OptionsDialog::setupWidgets()
     m_horizontalLineB = new QFrame(this);
     m_horizontalLineB->setFrameShape(QFrame::HLine);
     m_horizontalLineB->setFrameShadow(QFrame::Sunken);
+
+    m_horizontalLineC = new QFrame(this);
+    m_horizontalLineC->setFrameShape(QFrame::HLine);
+    m_horizontalLineC->setFrameShadow(QFrame::Sunken);
 
     m_enabledSamplesLabel = new QLabel("Enabled readings:", this);
     foreach (SampleType sType, m_sampleTypeNames.keys())
@@ -135,7 +142,9 @@ void OptionsDialog::setupWidgets()
         row++;
     }
 
-    m_grid->addWidget(m_horizontalLineB, row++, 0, 1, 2);
+    m_grid->addWidget(m_horizontalLineB, row++, 0, 1, 2);   
+    m_grid->addWidget(m_refreshFuelMapCheckbox, row++, 0, 1, 2);
+    m_grid->addWidget(m_horizontalLineC, row++, 0, 1, 2);
 
     m_grid->addWidget(m_okButton, row, 0);
     m_grid->addWidget(m_cancelButton, row++, 1);
@@ -185,6 +194,7 @@ void OptionsDialog::accept()
 
     m_tempUnits = (TemperatureUnits)(m_temperatureUnitsBox->currentIndex());
     m_speedUnits = (SpeedUnits)(m_speedUnitsBox->currentIndex());
+    m_refreshFuelMap = m_refreshFuelMapCheckbox->isChecked();
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -206,6 +216,7 @@ void OptionsDialog::readSettings()
     m_serialDeviceName = settings.value(m_settingSerialDev, "").toString();
     m_speedUnits = (SpeedUnits)(settings.value(m_settingSpeedUnits, MPH).toInt());
     m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
+    m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -226,6 +237,7 @@ void OptionsDialog::writeSettings()
     settings.setValue(m_settingSerialDev, m_serialDeviceName);
     settings.setValue(m_settingSpeedUnits, m_speedUnits);
     settings.setValue(m_settingTemperatureUnits, m_tempUnits);
+    settings.setValue(m_settingRefreshFuelMap, m_refreshFuelMap);
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -233,19 +245,6 @@ void OptionsDialog::writeSettings()
     }
 
     settings.endGroup();
-}
-
-QHash<SampleType,bool> OptionsDialog::getEnabledSamples()
-{
-    return m_enabledSamples;
-}
-
-/**
- * Returns a flag indicating whether the serial-device name has been changed.
- */
-bool OptionsDialog::getSerialDeviceChanged()
-{
-    return m_serialDeviceChanged;
 }
 
 /**
@@ -258,20 +257,4 @@ QString OptionsDialog::getSerialDeviceName()
 #else
     return m_serialDeviceName;
 #endif
-}
-
-/**
- * Returns the units used for the speedometer
- */
-SpeedUnits OptionsDialog::getSpeedUnits()
-{
-    return m_speedUnits;
-}
-
-/**
- * Returns the units used for the temperature gauges
- */
-TemperatureUnits OptionsDialog::getTemperatureUnits()
-{
-    return m_tempUnits;
 }

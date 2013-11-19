@@ -24,11 +24,11 @@ class OptionsDialog : public QDialog
 public:
     OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
-    bool getSerialDeviceChanged();
-    int getRedline();
-    SpeedUnits getSpeedUnits();
-    TemperatureUnits getTemperatureUnits();
-    QHash<SampleType,bool> getEnabledSamples();
+    bool getSerialDeviceChanged() { return m_serialDeviceChanged; }
+    bool getRefreshFuelMap() { return m_refreshFuelMap; }
+    SpeedUnits getSpeedUnits() { return m_speedUnits; }
+    TemperatureUnits getTemperatureUnits() { return m_tempUnits; }
+    QHash<SampleType,bool> getEnabledSamples() { return m_enabledSamples; }
 
 protected:
     void accept();
@@ -50,10 +50,13 @@ private:
 
     QFrame *m_horizontalLineA;
     QFrame *m_horizontalLineB;
+    QFrame *m_horizontalLineC;
     QLabel *m_enabledSamplesLabel;
     QPushButton *m_checkAllButton;
     QPushButton *m_uncheckAllButton;
     QHash<SampleType,QCheckBox*> m_enabledSamplesBoxes;
+
+    QCheckBox *m_refreshFuelMapCheckbox;
 
     QPushButton *m_okButton;
     QPushButton *m_cancelButton;
@@ -66,12 +69,13 @@ private:
     QHash<SampleType,QString> m_sampleTypeNames;
     QHash<SampleType,QString> m_sampleTypeLabels;
     bool m_serialDeviceChanged;
+    bool m_refreshFuelMap;
 
     const QString m_settingsFileName;
     const QString m_settingsGroupName;
 
     const QString m_settingSerialDev;
-    const QString m_settingRedline;
+    const QString m_settingRefreshFuelMap;
     const QString m_settingSpeedUnits;
     const QString m_settingTemperatureUnits;
 

@@ -10,7 +10,7 @@
  * @param sUnits Units to be used when expressing road speed
  * @param tUnits Units to be used when expressing coolant/fuel temperature
  */
-CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits tUnits,
+CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits tUnits, bool fuelMapRefresh,
                            QObject *parent) :
     QObject(parent),
     m_deviceName(device),
@@ -18,7 +18,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_stopPolling(false),
     m_shutdownThread(false),
     m_readCanceled(false),
-    m_readCount(0),
+    m_lowFreqReadCount(0),
     m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
     m_airflowType(C14CUX_AirflowType_Linearized),
     m_throttlePosType(C14CUX_ThrottlePosType_Absolute),
@@ -43,6 +43,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_romImage(0),
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
+    m_fuelMapRefresh(fuelMapRefresh),
     m_lastMidFreqReadTime(0),
     m_lastLowFreqReadTime(0),
     m_initComplete(false)
@@ -154,15 +155,7 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
 {
     if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
-        uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId].data());
-        uint16_t adjFactor = 0;
-
-        if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer))
-        {
-            m_fuelMapAdjFactors[fuelMapId] = adjFactor;
-            m_fuelMapDataIsCurrent[fuelMapId] = true;
-            emit fuelMapReady(fuelMapId);
-        }
+        readFuelMap(fuelMapId);
 
         if (c14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
         {
@@ -174,6 +167,23 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
             emit rpmTableReady();
         }
     }
+}
+
+bool CUXInterface::readFuelMap(unsigned int fuelMapId)
+{
+    uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId].data());
+    uint16_t adjFactor = 0;
+    bool status = false;
+
+    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer))
+    {
+        m_fuelMapAdjFactors[fuelMapId] = adjFactor;
+        m_fuelMapDataIsCurrent[fuelMapId] = true;
+        emit fuelMapReady(fuelMapId);
+        status = true;
+    }
+
+    return status;
 }
 
 /**
@@ -373,7 +383,6 @@ void CUXInterface::pollEcu()
             emit readError();
         }
 
-        m_readCount++;
         m_timer->start(0);
     }
 }
@@ -491,6 +500,7 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
 CUXInterface::ReadResult CUXInterface::readLowFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
+    m_lowFreqReadCount += 1;
 
     // attempt to read the MIL status; if it can't be read,
     // default it to off on the display
@@ -500,7 +510,7 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     }
 
     // alternate between reading coolant temperature and fuel temperature
-    if (m_enabledSamples[SampleType_EngineTemperature] && (m_readCount % 2 == 0))
+    if (m_enabledSamples[SampleType_EngineTemperature] && (m_lowFreqReadCount % 2 == 0))
         result = mergeResult(result, c14cux_getCoolantTemp(&m_cuxinfo, &m_coolantTempF));
     else if (m_enabledSamples[SampleType_FuelTemperature])
         result = mergeResult(result, c14cux_getFuelTemp(&m_cuxinfo, &m_fuelTempF));
@@ -508,8 +518,15 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     // less frequently, check the ID of the current fuel map
     // (this would only change as a result of a different
     //  tune resistor being switched in)
-    if (m_enabledSamples[SampleType_FuelMap] && (m_readCount % 7 == 0))
+    if (m_enabledSamples[SampleType_FuelMap] && (m_lowFreqReadCount % 3 == 0))
+    {
         result = mergeResult(result, c14cux_getCurrentFuelMap(&m_cuxinfo, &m_currentFuelMapIndex));
+    }
+
+    if (m_fuelMapRefresh && (m_lowFreqReadCount % 3 == 0))
+    {
+        readFuelMap(m_currentFuelMapIndex);
+    }
 
     if (result == ReadResult_Success)
     {
