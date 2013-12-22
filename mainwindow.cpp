@@ -557,7 +557,7 @@ void MainWindow::onDataReady()
     }
 
     if (m_enabledSamples[SampleType_LambdaTrim])
-        setLambdaTrimIndicators(m_cux->getLeftLambdaTrim(), m_cux->getRightLambdaTrim());
+        setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
 
     if (m_enabledSamples[SampleType_GearSelection])
         setGearLabel(m_cux->getGear());
@@ -568,7 +568,7 @@ void MainWindow::onDataReady()
 /**
  * Sets the lambda fuel trim indicators to the provided values
  */
-void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim)
+void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
 {
     // only fuel maps 0, 4, and 5 operate in a closed-loop manner,
     // so the lambda feedback will only be relevant if one of those
@@ -577,30 +577,30 @@ void MainWindow::setLambdaTrimIndicators(int leftLambdaTrim, int rightLambdaTrim
         (m_currentFuelMapIndex == 4) ||
         (m_currentFuelMapIndex == 5))
     {        
-        QString leftLabel = (leftLambdaTrim >= 0) ?
-            QString("+%1%").arg(leftLambdaTrim * 100 / m_ui->m_leftFuelTrimBar->maximum()) :
-            QString("-%1%").arg(leftLambdaTrim * 100 / m_ui->m_leftFuelTrimBar->minimum());
-        QString rightLabel = (rightLambdaTrim >= 0) ?
-            QString("+%1%").arg(rightLambdaTrim * 100 / m_ui->m_rightFuelTrimBar->maximum()) :
-            QString("-%1%").arg(rightLambdaTrim * 100 / m_ui->m_rightFuelTrimBar->minimum());
+        QString oddLabel = (lambdaTrimOdd >= 0) ?
+            QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
+            QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
+        QString evenLabel = (lambdaTrimEven >= 0) ?
+            QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
+            QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
 
-        m_ui->m_leftFuelTrimBar->setEnabled(true);
-        m_ui->m_leftFuelTrimBar->setValue(leftLambdaTrim);
-        m_ui->m_rightFuelTrimBar->setEnabled(true);
-        m_ui->m_rightFuelTrimBar->setValue(rightLambdaTrim);
+        m_ui->m_oddFuelTrimBar->setEnabled(true);
+        m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
+        m_ui->m_evenFuelTrimBar->setEnabled(true);
+        m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
 
-        m_ui->m_leftFuelTrimBarLabel->setText(leftLabel);
-        m_ui->m_rightFuelTrimBarLabel->setText(rightLabel);
+        m_ui->m_oddFuelTrimBarLabel->setText(oddLabel);
+        m_ui->m_evenFuelTrimBarLabel->setText(evenLabel);
     }
     else
     {
-        m_ui->m_leftFuelTrimBar->setValue(0);
-        m_ui->m_leftFuelTrimBar->setEnabled(false);
-        m_ui->m_rightFuelTrimBar->setValue(0);
-        m_ui->m_rightFuelTrimBar->setEnabled(false);
+        m_ui->m_oddFuelTrimBar->setValue(0);
+        m_ui->m_oddFuelTrimBar->setEnabled(false);
+        m_ui->m_evenFuelTrimBar->setValue(0);
+        m_ui->m_evenFuelTrimBar->setEnabled(false);
 
-        m_ui->m_leftFuelTrimBarLabel->setText("+0%");
-        m_ui->m_rightFuelTrimBarLabel->setText("+0%");
+        m_ui->m_oddFuelTrimBarLabel->setText("+0%");
+        m_ui->m_evenFuelTrimBarLabel->setText("+0%");
     }
 }
 
@@ -775,18 +775,18 @@ void MainWindow::dimUnusedControls()
     m_ui->m_lambdaTrimHighLimitLabel->setEnabled(enabled);
     m_ui->m_lambdaTrimShortButton->setEnabled(enabled);
     m_ui->m_lambdaTrimLongButton->setEnabled(enabled);
-    m_ui->m_leftFuelTrimBar->setEnabled(enabled);
-    m_ui->m_leftFuelTrimLabel->setEnabled(enabled);
-    m_ui->m_leftFuelTrimBarLabel->setEnabled(enabled);
-    m_ui->m_rightFuelTrimBar->setEnabled(enabled);
-    m_ui->m_rightFuelTrimBarLabel->setEnabled(enabled);
-    m_ui->m_rightFuelTrimLabel->setEnabled(enabled);
+    m_ui->m_oddFuelTrimBar->setEnabled(enabled);
+    m_ui->m_oddFuelTrimLabel->setEnabled(enabled);
+    m_ui->m_oddFuelTrimBarLabel->setEnabled(enabled);
+    m_ui->m_evenFuelTrimBar->setEnabled(enabled);
+    m_ui->m_evenFuelTrimBarLabel->setEnabled(enabled);
+    m_ui->m_evenFuelTrimLabel->setEnabled(enabled);
     if (!enabled)
     {
-        m_ui->m_leftFuelTrimBar->setValue(0);
-        m_ui->m_leftFuelTrimBarLabel->setText("");
-        m_ui->m_rightFuelTrimBar->setValue(0);
-        m_ui->m_rightFuelTrimBarLabel->setText("");
+        m_ui->m_oddFuelTrimBar->setValue(0);
+        m_ui->m_oddFuelTrimBarLabel->setText("");
+        m_ui->m_evenFuelTrimBar->setValue(0);
+        m_ui->m_evenFuelTrimBarLabel->setText("");
     }
 
     enabled = m_enabledSamples[SampleType_FuelPumpRelay];
@@ -877,13 +877,13 @@ void MainWindow::onDisconnect()
     m_ui->m_voltage->setText("");
     m_ui->m_gear->setText("");
     m_ui->m_fuelPumpRelayStateLed->setChecked(false);
-    m_ui->m_leftFuelTrimBar->setValue(0);
-    m_ui->m_leftFuelTrimBarLabel->setText("+0%");
-    m_ui->m_rightFuelTrimBar->setValue(0);
-    m_ui->m_rightFuelTrimBarLabel->setText("+0%");
+    m_ui->m_oddFuelTrimBar->setValue(0);
+    m_ui->m_oddFuelTrimBarLabel->setText("+0%");
+    m_ui->m_evenFuelTrimBar->setValue(0);
+    m_ui->m_evenFuelTrimBarLabel->setText("+0%");
 
-    m_ui->m_leftFuelTrimBar->repaint();
-    m_ui->m_rightFuelTrimBar->repaint();
+    m_ui->m_oddFuelTrimBar->repaint();
+    m_ui->m_evenFuelTrimBar->repaint();
 
     m_currentFuelMapIndex = 0;
     m_currentFuelMapRow = 0;

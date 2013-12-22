@@ -47,14 +47,14 @@ void FaultCodeDialog::onFaultClearSuccess(c14cux_faultcodes faultCodes)
 void FaultCodeDialog::populateFaultList()
 {
     m_faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
-    m_faultNames.insert(FaultCode_LambdaSensorLeft, QString("(44) Lambda sensor (left)"));
-    m_faultNames.insert(FaultCode_LambdaSensorRight, QString("(45) Lambda sensor (right)"));
-    m_faultNames.insert(FaultCode_MisfireLeft, QString("(40) Misfire (left)"));
-    m_faultNames.insert(FaultCode_MisfireRight, QString("(50) Misfire (right)"));
+    m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(44) Lambda sensor (odd)"));
+    m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(45) Lambda sensor (even)"));
+    m_faultNames.insert(FaultCode_MisfireOdd, QString("(40) Misfire (odd)"));
+    m_faultNames.insert(FaultCode_MisfireEven, QString("(50) Misfire (even)"));
     m_faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
     m_faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune Resistor out of range"));
-    m_faultNames.insert(FaultCode_InjectorLeft, QString("(34) Injector bank (left)"));
-    m_faultNames.insert(FaultCode_InjectorRight, QString("(36) Injector bank (right)"));
+    m_faultNames.insert(FaultCode_InjectorOdd, QString("(34) Injector bank (odd)"));
+    m_faultNames.insert(FaultCode_InjectorEven, QString("(36) Injector bank (even)"));
     m_faultNames.insert(FaultCode_CoolantTempSensor, QString("(14) Coolant temp sensor"));
     m_faultNames.insert(FaultCode_ThrottlePot, QString("(17) Throttle pot"));
     m_faultNames.insert(FaultCode_ThrottlePotHiMAFLo, QString("(18) Throttle pot hi / MAF lo"));
@@ -121,14 +121,14 @@ void FaultCodeDialog::setupWidgets()
 void FaultCodeDialog::lightLEDs(c14cux_faultcodes faults)
 {
     m_faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
-    m_faultLights[FaultCode_LambdaSensorLeft]->setChecked(faults.Lambda_Sensor_Left);
-    m_faultLights[FaultCode_LambdaSensorRight]->setChecked(faults.Lambda_Sensor_Right);
-    m_faultLights[FaultCode_MisfireLeft]->setChecked(faults.Misfire_Left_Bank);
-    m_faultLights[FaultCode_MisfireRight]->setChecked(faults.Misfire_Right_Bank);
+    m_faultLights[FaultCode_LambdaSensorOdd]->setChecked(faults.Lambda_Sensor_Odd);
+    m_faultLights[FaultCode_LambdaSensorEven]->setChecked(faults.Lambda_Sensor_Even);
+    m_faultLights[FaultCode_MisfireOdd]->setChecked(faults.Misfire_Odd_Bank);
+    m_faultLights[FaultCode_MisfireEven]->setChecked(faults.Misfire_Even_Bank);
     m_faultLights[FaultCode_AirflowMeter]->setChecked(faults.Airflow_Meter);
     m_faultLights[FaultCode_TuneResistor]->setChecked(faults.Tune_Resistor_Out_of_Range);
-    m_faultLights[FaultCode_InjectorLeft]->setChecked(faults.Injector_Left_Bank);
-    m_faultLights[FaultCode_InjectorRight]->setChecked(faults.Injector_Right_Bank);
+    m_faultLights[FaultCode_InjectorOdd]->setChecked(faults.Injector_Odd_Bank);
+    m_faultLights[FaultCode_InjectorEven]->setChecked(faults.Injector_Even_Bank);
     m_faultLights[FaultCode_CoolantTempSensor]->setChecked(faults.Coolant_Temp_Sensor);
     m_faultLights[FaultCode_ThrottlePot]->setChecked(faults.Throttle_Pot);
     m_faultLights[FaultCode_ThrottlePotHiMAFLo]->setChecked(faults.Throttle_Pot_Hi_MAF_Lo);

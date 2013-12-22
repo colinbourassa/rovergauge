@@ -32,8 +32,8 @@ void SimulationModeDialog::setupWidgets()
     m_tuneResistorLabel = new QLabel("Tune resistor:", this);
     m_o2SensorReferenceLabel = new QLabel("O2 sensor reference:", this);
     m_diagnosticPlugLabel = new QLabel("Diagnostic display:", this);
-    m_o2LeftDutyLabel = new QLabel("O2 left duty cycle:", this);
-    m_o2RightDutyLabel = new QLabel("O2 right duty cycle:", this);
+    m_o2OddDutyLabel = new QLabel("O2 (odd) duty cycle:", this);
+    m_o2EvenDutyLabel = new QLabel("O2 (even) duty cycle:", this);
 
     m_inertiaSwitchVal = new QLabel(this);
     m_heatedScreenVal = new QLabel(this);
@@ -49,8 +49,8 @@ void SimulationModeDialog::setupWidgets()
     m_tuneResistorVal = new QLabel(this);
     m_o2SensorReferenceVal = new QLabel(this);
     m_diagnosticPlugVal = new QLabel(this);
-    m_o2LeftDutyVal = new QLabel(this);
-    m_o2RightDutyVal = new QLabel(this);
+    m_o2OddDutyVal = new QLabel(this);
+    m_o2EvenDutyVal = new QLabel(this);
 
     m_inertiaSwitchRawVal = new QLineEdit(this);
     m_heatedScreenRawVal = new QLineEdit(this);
@@ -66,8 +66,8 @@ void SimulationModeDialog::setupWidgets()
     m_tuneResistorRawVal = new QLineEdit(this);
     m_o2SensorReferenceRawVal = new QLineEdit(this);
     m_diagnosticPlugRawVal = new QLineEdit(this);
-    m_o2LeftDutyRawVal = new QLineEdit(this);
-    m_o2RightDutyRawVal = new QLineEdit(this);
+    m_o2OddDutyRawVal = new QLineEdit(this);
+    m_o2EvenDutyRawVal = new QLineEdit(this);
 
     m_inertiaSwitchBox = new QCheckBox(this);
     connect(m_inertiaSwitchBox, SIGNAL(toggled(bool)), this, SLOT(onInertiaSwitchChanged(bool)));
@@ -130,17 +130,17 @@ void SimulationModeDialog::setupWidgets()
     m_mainRelaySlider->setMinimumWidth(200);
     connect(m_mainRelaySlider, SIGNAL(valueChanged(int)), this, SLOT(onMainRelayVoltageChanged(int)));
 
-    m_o2LeftDutySlider = new QSlider(Qt::Horizontal, this);
-    m_o2LeftDutySlider->setMinimum(0);
-    m_o2LeftDutySlider->setMaximum(10);
-    m_o2LeftDutySlider->setMinimumWidth(200);
-    connect(m_o2LeftDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2LeftDutyChanged(int)));
+    m_o2OddDutySlider = new QSlider(Qt::Horizontal, this);
+    m_o2OddDutySlider->setMinimum(0);
+    m_o2OddDutySlider->setMaximum(10);
+    m_o2OddDutySlider->setMinimumWidth(200);
+    connect(m_o2OddDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2LeftDutyChanged(int)));
 
-    m_o2RightDutySlider = new QSlider(Qt::Horizontal, this);
-    m_o2RightDutySlider->setMinimum(0);
-    m_o2RightDutySlider->setMaximum(10);
-    m_o2RightDutySlider->setMinimumWidth(200);
-    connect(m_o2RightDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2RightDutyChanged(int)));
+    m_o2EvenDutySlider = new QSlider(Qt::Horizontal, this);
+    m_o2EvenDutySlider->setMinimum(0);
+    m_o2EvenDutySlider->setMaximum(10);
+    m_o2EvenDutySlider->setMinimumWidth(200);
+    connect(m_o2EvenDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2RightDutyChanged(int)));
 
     m_enableSimModeButton = new QPushButton("Enable Sim Mode", this);
     connect(m_enableSimModeButton, SIGNAL(clicked()), this, SLOT(onEnabledSimModeClicked()));
@@ -216,15 +216,15 @@ void SimulationModeDialog::setupWidgets()
     m_grid->addWidget(m_o2SensorReferenceVal,   row,   2, Qt::AlignLeft);
     m_grid->addWidget(m_o2SensorReferenceRawVal,row++, 3, Qt::AlignLeft);
 
-    m_grid->addWidget(m_o2LeftDutyLabel,        row,   0, Qt::AlignRight);
-    m_grid->addWidget(m_o2LeftDutySlider,       row,   1, Qt::AlignCenter);
-    m_grid->addWidget(m_o2LeftDutyVal,          row,   2, Qt::AlignLeft);
-    m_grid->addWidget(m_o2LeftDutyRawVal,       row++, 3, Qt::AlignLeft);
+    m_grid->addWidget(m_o2OddDutyLabel,        row,   0, Qt::AlignRight);
+    m_grid->addWidget(m_o2OddDutySlider,       row,   1, Qt::AlignCenter);
+    m_grid->addWidget(m_o2OddDutyVal,          row,   2, Qt::AlignLeft);
+    m_grid->addWidget(m_o2OddDutyRawVal,       row++, 3, Qt::AlignLeft);
 
-    m_grid->addWidget(m_o2RightDutyLabel,       row,   0, Qt::AlignRight);
-    m_grid->addWidget(m_o2RightDutySlider,      row,   1, Qt::AlignCenter);
-    m_grid->addWidget(m_o2RightDutyVal,         row,   2, Qt::AlignLeft);
-    m_grid->addWidget(m_o2RightDutyRawVal,      row++, 3, Qt::AlignLeft);
+    m_grid->addWidget(m_o2EvenDutyLabel,       row,   0, Qt::AlignRight);
+    m_grid->addWidget(m_o2EvenDutySlider,      row,   1, Qt::AlignCenter);
+    m_grid->addWidget(m_o2EvenDutyVal,         row,   2, Qt::AlignLeft);
+    m_grid->addWidget(m_o2EvenDutyRawVal,      row++, 3, Qt::AlignLeft);
 
     m_grid->addWidget(m_diagnosticPlugLabel,    row,   0, Qt::AlignRight);
     m_grid->addWidget(m_diagnosticPlugBox,      row,   1, Qt::AlignCenter);
@@ -249,8 +249,8 @@ void SimulationModeDialog::setupWidgets()
     m_tuneResistorRawVal->setText("0xD7");
     m_mainRelaySlider->setValue(140);
     m_o2SensorReferenceRawVal->setText("0x16");
-    m_o2LeftDutySlider->setValue(5);
-    m_o2RightDutySlider->setValue(5);
+    m_o2OddDutySlider->setValue(5);
+    m_o2EvenDutySlider->setValue(5);
     onHeatedScreenChanged(false);
     onAirConLoadChanged(false);
     onRoadSpeedChanged(0);
@@ -308,8 +308,8 @@ void SimulationModeDialog::doWrite(bool enableSimMode)
     vals.roadSpeed = m_roadSpeedRawVal->text().toInt(&ok, 16);
     vals.throttle = m_throttlePositionRawVal->text().toInt(&ok, 16);
     vals.tuneResistor = m_tuneResistorRawVal->text().toInt(&ok, 16);
-    vals.o2LeftDutyCycle = m_o2LeftDutyRawVal->text().toInt(&ok, 16);
-    vals.o2RightDutyCycle = m_o2RightDutyRawVal->text().toInt(&ok, 16);
+    vals.o2OddDutyCycle = m_o2OddDutyRawVal->text().toInt(&ok, 16);
+    vals.o2EvenDutyCycle = m_o2EvenDutyRawVal->text().toInt(&ok, 16);
 
     emit writeSimulationInputValues(enableSimMode, vals, changes);
 }
@@ -441,18 +441,18 @@ void SimulationModeDialog::onMafTrimChanged(int val)
     m_changes.mafTrim = true;
 }
 
-void SimulationModeDialog::onO2LeftDutyChanged(int val)
+void SimulationModeDialog::onO2OddDutyChanged(int val)
 {
-    m_o2LeftDutyVal->setText(QString("%1% duty").arg(val * 10));
-    m_o2LeftDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
-    m_changes.o2LeftDutyCycle = true;
+    m_o2OddDutyVal->setText(QString("%1% duty").arg(val * 10));
+    m_o2OddDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+    m_changes.o2OddDutyCycle = true;
 }
 
-void SimulationModeDialog::onO2RightDutyChanged(int val)
+void SimulationModeDialog::onO2EvenDutyChanged(int val)
 {
-    m_o2RightDutyVal->setText(QString("%1% duty").arg(val * 10));
-    m_o2RightDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
-    m_changes.o2RightDutyCycle = true;
+    m_o2EvenDutyVal->setText(QString("%1% duty").arg(val * 10));
+    m_o2EvenDutyRawVal->setText(QString("%1").sprintf("0x%02X", val));
+    m_changes.o2EvenDutyCycle = true;
 }
 
 double SimulationModeDialog::Peak_LorentzianModifiedPeakG_model(double x_in)

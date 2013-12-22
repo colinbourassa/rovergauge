@@ -379,9 +379,9 @@
            </widget>
           </item>
           <item row="9" column="0">
-           <widget class="QLabel" name="m_leftFuelTrimLabel">
+           <widget class="QLabel" name="m_oddFuelTrimLabel">
             <property name="text">
-             <string>Lambda fuel trim (left):</string>
+             <string>Lambda fuel trim (odd):</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -389,7 +389,7 @@
            </widget>
           </item>
           <item row="9" column="1">
-           <widget class="QLabel" name="m_leftFuelTrimBarLabel">
+           <widget class="QLabel" name="m_oddFuelTrimBarLabel">
             <property name="minimumSize">
              <size>
               <width>55</width>
@@ -405,16 +405,16 @@
            </widget>
           </item>
           <item row="9" column="2" colspan="2">
-           <widget class="FuelTrimBar" name="m_leftFuelTrimBar">
+           <widget class="FuelTrimBar" name="m_oddFuelTrimBar">
             <property name="value">
              <number>0</number>
             </property>
            </widget>
           </item>
           <item row="10" column="0">
-           <widget class="QLabel" name="m_rightFuelTrimLabel">
+           <widget class="QLabel" name="m_evenFuelTrimLabel">
             <property name="text">
-             <string>Lambda fuel trim (right):</string>
+             <string>Lambda fuel trim (even):</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -422,7 +422,7 @@
            </widget>
           </item>
           <item row="10" column="1">
-           <widget class="QLabel" name="m_rightFuelTrimBarLabel">
+           <widget class="QLabel" name="m_evenFuelTrimBarLabel">
             <property name="minimumSize">
              <size>
               <width>55</width>
@@ -438,7 +438,7 @@
            </widget>
           </item>
           <item row="10" column="2" colspan="2">
-           <widget class="FuelTrimBar" name="m_rightFuelTrimBar">
+           <widget class="FuelTrimBar" name="m_evenFuelTrimBar">
             <property name="value">
              <number>0</number>
             </property>

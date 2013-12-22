@@ -49,8 +49,8 @@ typedef struct
     uint8_t heatedScreen;
     uint8_t diagnosticPlug;
     uint8_t tuneResistor;
-    uint8_t o2LeftDutyCycle;
-    uint8_t o2RightDutyCycle;
+    uint8_t o2OddDutyCycle;
+    uint8_t o2EvenDutyCycle;
 
 } SimulationInputValues;
 
@@ -70,8 +70,8 @@ typedef struct
     bool heatedScreen;
     bool diagnosticPlug;
     bool tuneResistor;
-    bool o2LeftDutyCycle;
-    bool o2RightDutyCycle;
+    bool o2OddDutyCycle;
+    bool o2EvenDutyCycle;
 
 } SimulationInputChanges;
 

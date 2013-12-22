@@ -60,8 +60,8 @@ public:
     float getIdleBypassPos()          { return m_idleBypassPos; }
     bool getFuelPumpRelayState()      { return m_fuelPumpRelayOn; }
     QByteArray* getROMImage()         { return m_romImage; }
-    int getLeftLambdaTrim()           { return m_leftLambdaTrim; }
-    int getRightLambdaTrim()          { return m_rightLambdaTrim; }
+    int getLambdaTrimOdd()            { return m_lambdaTrimOdd; }
+    int getLambdaTrimEven()           { return m_lambdaTrimEven; }
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
 
@@ -145,8 +145,8 @@ private:
     float m_mafReading;
     float m_idleBypassPos;
     bool m_fuelPumpRelayOn;
-    int16_t m_leftLambdaTrim;
-    int16_t m_rightLambdaTrim;
+    int16_t m_lambdaTrimOdd;
+    int16_t m_lambdaTrimEven;
     bool m_milOn;
     uint16_t m_tuneRevision;
     uint16_t m_rpmLimit;

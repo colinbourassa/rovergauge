@@ -36,8 +36,8 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_mafReading(0.0),
     m_idleBypassPos(0.0),
     m_fuelPumpRelayOn(false),
-    m_leftLambdaTrim(0),
-    m_rightLambdaTrim(0),
+    m_lambdaTrimOdd(0),
+    m_lambdaTrimEven(0),
     m_milOn(false),
     m_idleMode(false),
     m_romImage(0),
@@ -430,8 +430,8 @@ CUXInterface::ReadResult CUXInterface::readHighFreqData()
     // (as opposed to long-term trim)
     if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == C14CUX_LambdaTrimType_ShortTerm))
     {
-        result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Left, &m_leftLambdaTrim));
-        result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Right, &m_rightLambdaTrim));
+        result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
+        result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
     if (m_enabledSamples[SampleType_EngineRPM])
@@ -462,8 +462,8 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
     // (as opposed to short-term trim)
     if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == C14CUX_LambdaTrimType_LongTerm))
     {
-        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Left, &m_leftLambdaTrim));
-        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Right, &m_rightLambdaTrim));
+        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
+        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
     if (m_enabledSamples[SampleType_MainVoltage])
@@ -745,10 +745,10 @@ void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValu
         if (changes.mafTrim)           success &= c14cux_writeMem(&m_cuxinfo, 0x206B, simVals.mafTrim);
         if (changes.tuneResistor)      success &= c14cux_writeMem(&m_cuxinfo, 0x206C, simVals.tuneResistor);
         if (changes.fuelTemp)          success &= c14cux_writeMem(&m_cuxinfo, 0x206D, simVals.fuelTemp);
-        if (changes.o2LeftDutyCycle)   success &= c14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2LeftDutyCycle);
+        if (changes.o2DutyCycleOdd)    success &= c14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2DutyCycleOdd);
         if (changes.o2SensorReference) success &= c14cux_writeMem(&m_cuxinfo, 0x206F, simVals.o2SensorReference);
         if (changes.diagnosticPlug)    success &= c14cux_writeMem(&m_cuxinfo, 0x2070, simVals.diagnosticPlug);
-        if (changes.o2RightDutyCycle)  success &= c14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2RightDutyCycle);
+        if (changes.o2DutyCycleEven)   success &= c14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2DutyCycleEven);
 
         if (enableSimMode && success)
         {

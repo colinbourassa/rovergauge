@@ -43,8 +43,8 @@ private:
     QLabel *m_tuneResistorLabel;
     QLabel *m_o2SensorReferenceLabel;
     QLabel *m_diagnosticPlugLabel;
-    QLabel *m_o2LeftDutyLabel;
-    QLabel *m_o2RightDutyLabel;
+    QLabel *m_o2OddDutyLabel;
+    QLabel *m_o2EvenDutyLabel;
 
     QLabel *m_inertiaSwitchVal;
     QLabel *m_heatedScreenVal;
@@ -60,8 +60,8 @@ private:
     QLabel *m_tuneResistorVal;
     QLabel *m_o2SensorReferenceVal;
     QLabel *m_diagnosticPlugVal;
-    QLabel *m_o2LeftDutyVal;
-    QLabel *m_o2RightDutyVal;
+    QLabel *m_o2OddDutyVal;
+    QLabel *m_o2EvenDutyVal;
 
     QLineEdit *m_inertiaSwitchRawVal;
     QLineEdit *m_heatedScreenRawVal;
@@ -77,8 +77,8 @@ private:
     QLineEdit *m_tuneResistorRawVal;
     QLineEdit *m_o2SensorReferenceRawVal;
     QLineEdit *m_diagnosticPlugRawVal;
-    QLineEdit *m_o2LeftDutyRawVal;
-    QLineEdit *m_o2RightDutyRawVal;
+    QLineEdit *m_o2OddDutyRawVal;
+    QLineEdit *m_o2EvenDutyRawVal;
 
     QCheckBox *m_inertiaSwitchBox;
     QCheckBox *m_heatedScreenBox;
@@ -92,8 +92,8 @@ private:
     QSlider *m_roadSpeedSlider;
     QSlider *m_throttleSlider;
     QSlider *m_mainRelaySlider;
-    QSlider *m_o2LeftDutySlider;
-    QSlider *m_o2RightDutySlider;
+    QSlider *m_o2OddDutySlider;
+    QSlider *m_o2EvenDutySlider;
 
     QPushButton *m_enableSimModeButton;
     QPushButton *m_writeButton;
@@ -126,8 +126,8 @@ private slots:
     void onMainRelayVoltageChanged(int val);
     void onAirConLoadChanged(bool checked);
     void onDiagnosticPlugChanged(bool checked);
-    void onO2LeftDutyChanged(int val);
-    void onO2RightDutyChanged(int val);
+    void onO2OddDutyChanged(int val);
+    void onO2EvenDutyChanged(int val);
 };
 
 #endif // SIMULATIONMODEDIALOG_H
