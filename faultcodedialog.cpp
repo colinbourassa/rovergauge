@@ -47,12 +47,12 @@ void FaultCodeDialog::onFaultClearSuccess(c14cux_faultcodes faultCodes)
 void FaultCodeDialog::populateFaultList()
 {
     m_faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
-    m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(44) Lambda sensor (odd)"));
-    m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(45) Lambda sensor (even)"));
-    m_faultNames.insert(FaultCode_MisfireOdd, QString("(40) Misfire (odd)"));
-    m_faultNames.insert(FaultCode_MisfireEven, QString("(50) Misfire (even)"));
+    m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(45) Lambda sensor (odd)"));
+    m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(44) Lambda sensor (even)"));
+    m_faultNames.insert(FaultCode_MisfireOdd, QString("(50) Misfire (odd)"));
+    m_faultNames.insert(FaultCode_MisfireEven, QString("(40) Misfire (even)"));
     m_faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
-    m_faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune Resistor out of range"));
+    m_faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune resistor out of range"));
     m_faultNames.insert(FaultCode_InjectorOdd, QString("(34) Injector bank (odd)"));
     m_faultNames.insert(FaultCode_InjectorEven, QString("(36) Injector bank (even)"));
     m_faultNames.insert(FaultCode_CoolantTempSensor, QString("(14) Coolant temp sensor"));
@@ -65,7 +65,7 @@ void FaultCodeDialog::populateFaultList()
     m_faultNames.insert(FaultCode_LowFuelPressure, QString("(23) Low fuel pressure"));
     m_faultNames.insert(FaultCode_IdleStepper, QString("(48) Idle Air Control stepper motor"));
     m_faultNames.insert(FaultCode_RoadSpeedSensor, QString("(68) Road speed sensor"));
-    m_faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral switch"));
+    m_faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral (gear selector) switch"));
     m_faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
     m_faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
     m_faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
