@@ -456,6 +456,8 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
+    bool skipLambdaUpdate = false;
+
     m_ui->m_milLed->setChecked(m_cux->isMILOn());
 
     // if fuel map display updates are enabled...
@@ -470,6 +472,9 @@ void MainWindow::onDataReady()
         if (((m_currentFuelMapIndex != newFuelMapIndex) || !m_fuelMapIndexIsCurrent) &&
             !m_waitingForFuelMapData)
         {
+            switchUIModeBasedOnMap(newFuelMapIndex);
+            skipLambdaUpdate = true;
+
             m_currentFuelMapIndex = newFuelMapIndex;
             m_fuelMapIndexIsCurrent = true;
             m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(m_currentFuelMapIndex));
@@ -556,7 +561,7 @@ void MainWindow::onDataReady()
         m_ui->m_idleModeLed->setChecked(m_cux->getIdleMode());
     }
 
-    if (m_enabledSamples[SampleType_LambdaTrim])
+    if (m_enabledSamples[SampleType_LambdaTrim] && !skipLambdaUpdate)
         setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
 
     if (m_enabledSamples[SampleType_GearSelection])
@@ -594,13 +599,8 @@ void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
     }
     else
     {
-        m_ui->m_oddFuelTrimBar->setValue(0);
-        m_ui->m_oddFuelTrimBar->setEnabled(false);
-        m_ui->m_evenFuelTrimBar->setValue(0);
-        m_ui->m_evenFuelTrimBar->setEnabled(false);
-
-        m_ui->m_oddFuelTrimBarLabel->setText("+0%");
-        m_ui->m_evenFuelTrimBarLabel->setText("+0%");
+        float trim_voltage = 5.0 * ((float)(lambdaTrimOdd >> 7) / 1024.0);
+        m_ui->m_oddFuelTrimBarLabel->setText(QString::number(trim_voltage, 'f', 1) + "VDC");
     }
 }
 
@@ -1135,7 +1135,6 @@ void MainWindow::onIdleAirControlClicked()
 
 /**
  * Sets the type of lambda trim to read from the ECU.
- * @param Set to 1 for short-term, 2 for long-term
  */
 void MainWindow::onLambdaTrimButtonClicked(QAbstractButton *button)
 {
@@ -1151,7 +1150,6 @@ void MainWindow::onLambdaTrimButtonClicked(QAbstractButton *button)
 
 /**
  * Sets the type of MAF reading to read from the ECU.
- * @param Set to 1 for Linearized, 2 for Direct
  */
 void MainWindow::onMAFReadingButtonClicked(QAbstractButton *button)
 {
@@ -1167,7 +1165,6 @@ void MainWindow::onMAFReadingButtonClicked(QAbstractButton *button)
 
 /**
  * Sets the type of throttle position to display.
- * @param Set to 1 for Absolute, 2 for Corrected
  */
 void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 {
@@ -1209,6 +1206,50 @@ void MainWindow::onRPMTableReady()
     for (int col = 0; col < FUEL_MAP_COLUMNS; col++)
     {
         m_ui->m_fuelMapDisplay->horizontalHeaderItem(col)->setText(QString::number(table.rpm[col]));
+    }
+}
+
+/**
+ * Changes and sets visibility of the lambda feedback widgets depending on the
+ * open-loop versus closed-loop state of the ECU.
+ * @param fuelMapId ID (0 through 5) of the fuel map currently in use
+ */
+void MainWindow::switchUIModeBasedOnMap(int fuelMapId)
+{
+    if ((fuelMapId >= 1) && (fuelMapId <= 3))
+    {
+        m_ui->m_lambdaTrimHighLimitLabel->setVisible(false);
+        m_ui->m_lambdaTrimLowLimitLabel->setVisible(false);
+        m_ui->m_evenFuelTrimBar->setVisible(false);
+        m_ui->m_evenFuelTrimBarLabel->setVisible(false);
+        m_ui->m_evenFuelTrimLabel->setVisible(false);
+        m_ui->m_oddFuelTrimBar->setVisible(false);
+        m_ui->m_oddFuelTrimLabel->setText("MAF CO trim:");
+
+        // the MAF CO trim value is stored at the same location as the long-term
+        // lambda trim, so force the interface to read that value
+        m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
+    }
+    else
+    {
+        m_ui->m_lambdaTrimHighLimitLabel->setVisible(true);
+        m_ui->m_lambdaTrimLowLimitLabel->setVisible(true);
+        m_ui->m_evenFuelTrimBar->setVisible(true);
+        m_ui->m_evenFuelTrimBarLabel->setVisible(true);
+        m_ui->m_evenFuelTrimLabel->setVisible(true);
+        m_ui->m_oddFuelTrimBar->setVisible(true);
+        m_ui->m_oddFuelTrimLabel->setText("Lambda fuel trim (odd):");
+
+        // ensure that the interface is reading the correct type of lambda trim,
+        // based on the currently-selected radio button
+        if (m_ui->m_lambdaTrimShortButton->isChecked())
+        {
+            m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_ShortTerm);
+        }
+        else
+        {
+            m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
+        }
     }
 }
 

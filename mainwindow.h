@@ -128,6 +128,7 @@ private:
     void highlightActiveFuelMapCell();
     void sendROMImageRequest(QString prompt);
     void dimUnusedControls();
+    void switchUIModeBasedOnMap(int fuelMapId);
 
     void setGearLabel(c14cux_gear gearReading);
     void setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven);
