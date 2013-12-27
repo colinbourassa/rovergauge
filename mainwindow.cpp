@@ -878,7 +878,10 @@ void MainWindow::onDisconnect()
     m_ui->m_gear->setText("");
     m_ui->m_fuelPumpRelayStateLed->setChecked(false);
     m_ui->m_oddFuelTrimBar->setValue(0);
-    m_ui->m_oddFuelTrimBarLabel->setText("+0%");
+    if (m_ui->m_oddFuelTrimBar->isVisible())
+        m_ui->m_oddFuelTrimBarLabel->setText("+0%");
+    else
+        m_ui->m_oddFuelTrimBarLabel->setText("0.0VDC");
     m_ui->m_evenFuelTrimBar->setValue(0);
     m_ui->m_evenFuelTrimBarLabel->setText("+0%");
 
