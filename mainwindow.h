@@ -71,6 +71,7 @@ signals:
     void requestFuelMapData(unsigned int fuelMapId);
     void requestROMImage();
     void requestThreadShutdown();
+    void requestFuelPumpRun();
 
 protected:
     void closeEvent(QCloseEvent *event);

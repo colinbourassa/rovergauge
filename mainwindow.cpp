@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
     connect(this, SIGNAL(requestFuelMapData(unsigned int)), m_cux, SLOT(onFuelMapRequested(unsigned int)));
     connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
+    connect(this, SIGNAL(requestFuelPumpRun()), m_cux, SLOT(onFuelPumpRunRequest()));
 
     setWindowIcon(QIcon(":/icons/key.png"));
 
@@ -1117,7 +1118,7 @@ void MainWindow::onFuelPumpContinuous()
 {
     if (m_ui->m_fuelPumpContinuousButton->isChecked())
     {
-        m_cux->onFuelPumpRunRequest();
+        emit requestFuelPumpRun();
         m_fuelPumpRefreshTimer->start();
         m_ui->m_fuelPumpOneshotButton->setEnabled(false);
     }
