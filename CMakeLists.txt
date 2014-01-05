@@ -115,7 +115,7 @@ if (MINGW)
     message (SEND_ERROR "Could not find QtGui4.dll!")
   endif ()
 
-  find_library(COMM14CUX_DLL libcomm14cux PATHS ${CMAKE_INSTALL_PREFIX})
+  find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
   else ()
