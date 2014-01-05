@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.6)
+cmake_minimum_required (VERSION 2.8.9)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
@@ -33,17 +33,16 @@ set (CPACK_SOURCE_IGNORE_FILES
       "release"
       "object_script.*")
 
-find_package (Qt4 REQUIRED)
-include (UseQt4)
+find_package (Qt5Widgets)
 
 include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_SOURCE_DIR}/qledindicator"
                      "${CMAKE_SOURCE_DIR}/analogwidgets"
                      "${CMAKE_CURRENT_BINARY_DIR}")
 
-QT4_WRAP_UI (UI_SOURCE mainwindow.ui)
+qt5_wrap_ui (UI_SOURCE mainwindow.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
-QT4_ADD_RESOURCES (RG_RESOURCE rovergauge_resources.qrc)
+qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
 
 add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
@@ -71,6 +70,7 @@ add_executable (rovergauge main.cpp
                            ${UI_SOURCE}
                            ${RG_RESOURCE})
 
+qt5_use_modules (rovergauge Widgets)
 set_target_properties (rovergauge PROPERTIES AUTOMOC TRUE)
 
 if (MINGW)
@@ -101,18 +101,18 @@ if (MINGW)
     message (SEND_ERROR "Could not find MinGW's mingwm10.dll!")
   endif ()
   
-  find_library (QTCORE4_DLL QtCore4)
-  if (QTCORE4_DLL)
-    message (STATUS "Found QtCore4 at ${QTCORE4_DLL}")
+  find_library (QTCORE_DLL QtCore5)
+  if (QTCORE_DLL)
+    message (STATUS "Found QtCore at ${QTCORE_DLL}")
   else ()
-    message (SEND_ERROR "Could not find QtCore4.dll!")
+    message (SEND_ERROR "Could not find QtCore5.dll!")
   endif ()
 
-  find_library (QTGUI4_DLL QtGui4)
-  if (QTGUI4_DLL)
-    message (STATUS "Found QtGui4 at ${QTGUI4_DLL}")
+  find_library (QTGUI_DLL QtGui5)
+  if (QTGUI_DLL)
+    message (STATUS "Found QtGui at ${QTGUI_DLL}")
   else ()
-    message (SEND_ERROR "Could not find QtGui4.dll!")
+    message (SEND_ERROR "Could not find QtGui5.dll!")
   endif ()
 
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
@@ -136,8 +136,8 @@ if (MINGW)
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
                  ${MINGW_M10}
-                 ${QTCORE4_DLL}
-                 ${QTGUI4_DLL}
+                 ${QTCORE_DLL}
+                 ${QTGUI_DLL}
                  ${COMM14CUX_DLL}
            DESTINATION ".")
 
@@ -190,7 +190,7 @@ else()
   set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Colin Bourassa <colin.bourassa@gmail.com>")
   set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Graphical display for data read from 14CUX engine management system")
   set (CPACK_DEBIAN_PACKAGE_SECTION "Science")
-  set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.13), libstdc++6 (>= 4.6.3), libcomm14cux (>= 1.0.0), libqtcore4 (>= 4.8.1), libqtgui4 (>= 4.8.1)")
+  set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.13), libstdc++6 (>= 4.6.3), libcomm14cux (>= 1.0.0), libqt5core5 (>= 5.0.2), libqt5gui5 (>= 5.0.2)")
   set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-${CMAKE_SYSTEM_NAME}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
   set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
   set (CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README")
