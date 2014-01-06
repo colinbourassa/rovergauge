@@ -223,8 +223,8 @@ void MainWindow::setupWidgets()
     setStyleSheet("QTableWidget {background-color: transparent;}");
 
     m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 9pt; }");
-    m_ui->m_fuelMapDisplay->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui->m_fuelMapDisplay->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_ui->m_fuelMapDisplay->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    m_ui->m_fuelMapDisplay->verticalHeader()->setResizeMode(QHeaderView::Stretch);
     unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
     unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
     QTableWidgetItem *item = 0;
