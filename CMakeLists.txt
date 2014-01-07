@@ -1,9 +1,21 @@
-cmake_minimum_required (VERSION 2.8.9)
+cmake_minimum_required (VERSION 2.8.11)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 6)
 set (ROVERGAUGE_VER_PATCH 0)
+
+set (CMAKE_INCLUDE_CURRENT_DIR ON)
+set (CMAKE_AUTOMOC ON)
+if (MINGW)
+
+      # Use this ridiculous, non-version-safe method for finding the Qt headers/libs.
+      # Although Qt could be found automatically with WinXP/MinGW-4.6/Qt4, something
+      # about the combination Win7/MinGW-4.8/Qt5 makes the previously-used method not
+      # work at all. So now we hardcode the path to Qt.
+      set (CMAKE_PREFIX_PATH "C:/Qt/Qt5.2.0/5.2.0/mingw48_32/lib/cmake")
+      message (STATUS "CMAKE_PREFIX_PATH set to '${CMAKE_PREFIX_PATH}'")
+endif()
 
 set (CPACK_SOURCE_GENERATOR "TGZ" "ZIP")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-src")
@@ -38,7 +50,8 @@ find_package (Qt5Widgets)
 include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_SOURCE_DIR}/qledindicator"
                      "${CMAKE_SOURCE_DIR}/analogwidgets"
-                     "${CMAKE_CURRENT_BINARY_DIR}")
+                     "${CMAKE_CURRENT_BINARY_DIR}"
+                     "${Qt5Widgets_INCLUDE_DIRS}")
 
 qt5_wrap_ui (UI_SOURCE mainwindow.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
@@ -70,9 +83,6 @@ add_executable (rovergauge main.cpp
                            ${UI_SOURCE}
                            ${RG_RESOURCE})
 
-qt5_use_modules (rovergauge Widgets)
-set_target_properties (rovergauge PROPERTIES AUTOMOC TRUE)
-
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
@@ -101,18 +111,18 @@ if (MINGW)
     message (SEND_ERROR "Could not find MinGW's mingwm10.dll!")
   endif ()
   
-  find_library (QTCORE_DLL QtCore5)
+  find_library (QTCORE_DLL Qt5Core)
   if (QTCORE_DLL)
     message (STATUS "Found QtCore at ${QTCORE_DLL}")
   else ()
-    message (SEND_ERROR "Could not find QtCore5.dll!")
+    message (SEND_ERROR "Could not find Qt5Core.dll!")
   endif ()
 
-  find_library (QTGUI_DLL QtGui5)
+  find_library (QTGUI_DLL Qt5Gui)
   if (QTGUI_DLL)
     message (STATUS "Found QtGui at ${QTGUI_DLL}")
   else ()
-    message (SEND_ERROR "Could not find QtGui5.dll!")
+    message (SEND_ERROR "Could not find Qt5Gui.dll!")
   endif ()
 
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
@@ -122,7 +132,7 @@ if (MINGW)
     message (SEND_ERROR "Could not find libcomm14cux.dll!")
   endif ()
 
-  target_link_libraries (rovergauge ${QT_LIBRARIES} ${COMM14CUX_DLL})
+  target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt5::Widgets)
 
   # convert Unix-style newline characters into Windows-style
   file (READ "${CMAKE_SOURCE_DIR}/README" README_CONTENTS)
@@ -150,7 +160,7 @@ if (MINGW)
 else()
   message (STATUS "Platform is not Windows/MinGW; trying Linux...")
 
-  target_link_libraries (rovergauge comm14cux ${QT_LIBRARIES})
+  target_link_libraries (rovergauge comm14cux Qt5::Widgets)
 
   set (CMAKE_SKIP_RPATH TRUE)
   set (CMAKE_INSTALL_PREFIX "/usr")
