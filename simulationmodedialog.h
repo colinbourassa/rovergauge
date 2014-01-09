@@ -38,7 +38,6 @@ private:
     QLabel *m_fuelTempLabel;
     QLabel *m_neutralSwitchLabel;
     QLabel *m_airConLoadLabel;
-    QLabel *m_roadSpeedLabel;
     QLabel *m_mainRelayLabel;
     QLabel *m_tuneResistorLabel;
     QLabel *m_o2SensorReferenceLabel;
@@ -55,7 +54,6 @@ private:
     QLabel *m_fuelTempVal;
     QLabel *m_neutralSwitchVal;
     QLabel *m_airConLoadVal;
-    QLabel *m_roadSpeedVal;
     QLabel *m_mainRelayVal;
     QLabel *m_tuneResistorVal;
     QLabel *m_o2SensorReferenceVal;
@@ -72,7 +70,6 @@ private:
     QLineEdit *m_fuelTempRawVal;
     QLineEdit *m_neutralSwitchRawVal;
     QLineEdit *m_airConLoadRawVal;
-    QLineEdit *m_roadSpeedRawVal;
     QLineEdit *m_mainRelayRawVal;
     QLineEdit *m_tuneResistorRawVal;
     QLineEdit *m_o2SensorReferenceRawVal;
@@ -89,7 +86,6 @@ private:
     QSlider *m_mafTrimSlider;
     QSlider *m_coolantTempSlider;
     QSlider *m_fuelTempSlider;
-    QSlider *m_roadSpeedSlider;
     QSlider *m_throttleSlider;
     QSlider *m_mainRelaySlider;
     QSlider *m_o2OddDutySlider;
@@ -119,7 +115,6 @@ private slots:
     void onInertiaSwitchChanged(bool checked);
     void onHeatedScreenChanged(bool checked);
     void onNeutralSwitchChanged(int val);
-    void onRoadSpeedChanged(int val);
     void onCoolantTempChanged(int val);
     void onFuelTempChanged(int val);
     void onThrottleChanged(int val);

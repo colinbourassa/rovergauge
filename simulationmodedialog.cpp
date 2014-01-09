@@ -27,7 +27,6 @@ void SimulationModeDialog::setupWidgets()
     m_fuelTempLabel = new QLabel("Fuel temperature:", this);
     m_neutralSwitchLabel = new QLabel("Neutral switch:", this);
     m_airConLoadLabel = new QLabel("Air conditioner load:", this);
-    m_roadSpeedLabel = new QLabel("Road speed:", this);
     m_mainRelayLabel = new QLabel("Main relay voltage:", this);
     m_tuneResistorLabel = new QLabel("Tune resistor:", this);
     m_o2SensorReferenceLabel = new QLabel("O2 sensor reference:", this);
@@ -44,7 +43,6 @@ void SimulationModeDialog::setupWidgets()
     m_fuelTempVal = new QLabel(this);
     m_neutralSwitchVal = new QLabel(this);
     m_airConLoadVal = new QLabel(this);
-    m_roadSpeedVal = new QLabel(this);
     m_mainRelayVal = new QLabel(this);
     m_tuneResistorVal = new QLabel(this);
     m_o2SensorReferenceVal = new QLabel(this);
@@ -61,7 +59,6 @@ void SimulationModeDialog::setupWidgets()
     m_fuelTempRawVal = new QLineEdit(this);
     m_neutralSwitchRawVal = new QLineEdit(this);
     m_airConLoadRawVal = new QLineEdit(this);
-    m_roadSpeedRawVal = new QLineEdit(this);
     m_mainRelayRawVal = new QLineEdit(this);
     m_tuneResistorRawVal = new QLineEdit(this);
     m_o2SensorReferenceRawVal = new QLineEdit(this);
@@ -112,12 +109,6 @@ void SimulationModeDialog::setupWidgets()
     m_fuelTempSlider->setMinimumWidth(200);
     connect(m_fuelTempSlider, SIGNAL(valueChanged(int)), this, SLOT(onFuelTempChanged(int)));
 
-    m_roadSpeedSlider = new QSlider(Qt::Horizontal, this);
-    m_roadSpeedSlider->setMinimum(0);
-    m_roadSpeedSlider->setMaximum(158);
-    m_roadSpeedSlider->setMinimumWidth(200);
-    connect(m_roadSpeedSlider, SIGNAL(valueChanged(int)), this, SLOT(onRoadSpeedChanged(int)));
-
     m_throttleSlider = new QSlider(Qt::Horizontal, this);
     m_throttleSlider->setMinimum(0);
     m_throttleSlider->setMaximum(100);
@@ -134,13 +125,13 @@ void SimulationModeDialog::setupWidgets()
     m_o2OddDutySlider->setMinimum(0);
     m_o2OddDutySlider->setMaximum(10);
     m_o2OddDutySlider->setMinimumWidth(200);
-    connect(m_o2OddDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2LeftDutyChanged(int)));
+    connect(m_o2OddDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2OddDutyChanged(int)));
 
     m_o2EvenDutySlider = new QSlider(Qt::Horizontal, this);
     m_o2EvenDutySlider->setMinimum(0);
     m_o2EvenDutySlider->setMaximum(10);
     m_o2EvenDutySlider->setMinimumWidth(200);
-    connect(m_o2EvenDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2RightDutyChanged(int)));
+    connect(m_o2EvenDutySlider, SIGNAL(valueChanged(int)), this, SLOT(onO2EvenDutyChanged(int)));
 
     m_enableSimModeButton = new QPushButton("Enable Sim Mode", this);
     connect(m_enableSimModeButton, SIGNAL(clicked()), this, SLOT(onEnabledSimModeClicked()));
@@ -198,11 +189,6 @@ void SimulationModeDialog::setupWidgets()
     m_grid->addWidget(m_airConLoadVal,          row,   2, Qt::AlignLeft);
     m_grid->addWidget(m_airConLoadRawVal,       row++, 3, Qt::AlignLeft);
 
-    m_grid->addWidget(m_roadSpeedLabel,         row,   0, Qt::AlignRight);
-    m_grid->addWidget(m_roadSpeedSlider,        row,   1, Qt::AlignCenter);
-    m_grid->addWidget(m_roadSpeedVal,           row,   2, Qt::AlignLeft);
-    m_grid->addWidget(m_roadSpeedRawVal,        row++, 3, Qt::AlignLeft);
-
     m_grid->addWidget(m_mainRelayLabel,         row,   0, Qt::AlignRight);
     m_grid->addWidget(m_mainRelaySlider,        row,   1, Qt::AlignCenter);
     m_grid->addWidget(m_mainRelayVal,           row,   2, Qt::AlignLeft);
@@ -253,7 +239,6 @@ void SimulationModeDialog::setupWidgets()
     m_o2EvenDutySlider->setValue(5);
     onHeatedScreenChanged(false);
     onAirConLoadChanged(false);
-    onRoadSpeedChanged(0);
     onMafTrimChanged(0);
     onDiagnosticPlugChanged(false);
     m_mafTrimRawVal->setText("0x00");
@@ -305,7 +290,6 @@ void SimulationModeDialog::doWrite(bool enableSimMode)
     vals.mainRelay = m_mainRelayRawVal->text().toInt(&ok, 16);
     vals.neutralSwitch = m_neutralSwitchRawVal->text().toInt(&ok, 16);
     vals.o2SensorReference = m_o2SensorReferenceRawVal->text().toInt(&ok, 16);
-    vals.roadSpeed = m_roadSpeedRawVal->text().toInt(&ok, 16);
     vals.throttle = m_throttlePositionRawVal->text().toInt(&ok, 16);
     vals.tuneResistor = m_tuneResistorRawVal->text().toInt(&ok, 16);
     vals.o2OddDutyCycle = m_o2OddDutyRawVal->text().toInt(&ok, 16);
@@ -333,13 +317,6 @@ void SimulationModeDialog::onThrottleChanged(int val)
     m_throttlePositionVal->setText(QString("%1%").arg(val));
     m_throttlePositionRawVal->setText(QString("%1").sprintf("0x%04X", (val*1024)/100));
     m_changes.throttle = true;
-}
-
-void SimulationModeDialog::onRoadSpeedChanged(int val)
-{
-    m_roadSpeedRawVal->setText(QString("%1").sprintf("0x%02X", (int)(val*1.6093)));
-    m_roadSpeedVal->setText(QString("%1 MPH").arg(val));
-    m_changes.roadSpeed = true;
 }
 
 void SimulationModeDialog::onMainRelayVoltageChanged(int val)

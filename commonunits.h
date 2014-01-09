@@ -35,7 +35,6 @@ enum SampleType
 
 typedef struct
 {
-    uint8_t roadSpeed;
     uint8_t airConLoad;
     uint16_t maf;
     uint16_t mafTrim;
@@ -56,7 +55,6 @@ typedef struct
 
 typedef struct
 {
-    bool roadSpeed;
     bool airConLoad;
     bool maf;
     bool mafTrim;

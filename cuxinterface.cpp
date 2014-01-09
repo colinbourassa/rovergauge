@@ -740,15 +740,14 @@ void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValu
         if (changes.coolantTemp)       success &= c14cux_writeMem(&m_cuxinfo, 0x2066, simVals.coolantTemp);
         if (changes.neutralSwitch)     success &= c14cux_writeMem(&m_cuxinfo, 0x2067, simVals.neutralSwitch);
         if (changes.airConLoad)        success &= c14cux_writeMem(&m_cuxinfo, 0x2068, simVals.airConLoad);
-        if (changes.roadSpeed)         success &= c14cux_writeMem(&m_cuxinfo, 0x2069, simVals.roadSpeed);
         if (changes.mainRelay)         success &= c14cux_writeMem(&m_cuxinfo, 0x206A, simVals.mainRelay);
         if (changes.mafTrim)           success &= c14cux_writeMem(&m_cuxinfo, 0x206B, simVals.mafTrim);
         if (changes.tuneResistor)      success &= c14cux_writeMem(&m_cuxinfo, 0x206C, simVals.tuneResistor);
         if (changes.fuelTemp)          success &= c14cux_writeMem(&m_cuxinfo, 0x206D, simVals.fuelTemp);
-        if (changes.o2DutyCycleOdd)    success &= c14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2DutyCycleOdd);
+        if (changes.o2OddDutyCycle)    success &= c14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2OddDutyCycle);
         if (changes.o2SensorReference) success &= c14cux_writeMem(&m_cuxinfo, 0x206F, simVals.o2SensorReference);
         if (changes.diagnosticPlug)    success &= c14cux_writeMem(&m_cuxinfo, 0x2070, simVals.diagnosticPlug);
-        if (changes.o2DutyCycleEven)   success &= c14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2DutyCycleEven);
+        if (changes.o2EvenDutyCycle)   success &= c14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2EvenDutyCycle);
 
         if (enableSimMode && success)
         {

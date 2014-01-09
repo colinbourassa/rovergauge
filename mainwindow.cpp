@@ -176,8 +176,8 @@ void MainWindow::setupWidgets()
 #endif
 
 #ifdef ENABLE_SIM_MODE
-    m_optionsMenu->addSeparator();
-    m_simDialogAction = m_optionsMenu->addAction("&Simulation mode control...");
+    m_ui->m_optionsMenu->addSeparator();
+    m_simDialogAction = m_ui->m_optionsMenu->addAction("&Simulation mode control...");
     connect(m_simDialogAction, SIGNAL(triggered()), this, SLOT(onSimDialogClicked()));
 #endif
 
