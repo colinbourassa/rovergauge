@@ -7,14 +7,9 @@ set (ROVERGAUGE_VER_PATCH 0)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
-if (MINGW)
 
-      # Use this ridiculous, non-version-safe method for finding the Qt headers/libs.
-      # Although Qt could be found automatically with WinXP/MinGW-4.6/Qt4, something
-      # about the combination Win7/MinGW-4.8/Qt5 makes the previously-used method not
-      # work at all. So now we hardcode the path to Qt.
-      set (CMAKE_PREFIX_PATH "C:/Qt/Qt5.2.0/5.2.0/mingw48_32/lib/cmake")
-      message (STATUS "CMAKE_PREFIX_PATH set to '${CMAKE_PREFIX_PATH}'")
+if (MINGW)
+  message (WARNING "TODO: check to ensure that Qt bin/ directory is in the path so that qmake can be found.")
 endif()
 
 set (CPACK_SOURCE_GENERATOR "TGZ" "ZIP")
