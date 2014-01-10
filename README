@@ -85,3 +85,14 @@ fuel maps)?
 A: Unfortunately, no. When the ECU is running, it reads fueling values from the
 ROM. Modifying the ROM requires removing and reprogramming the chip.
 
+-------------------------------------------
+Notes on building from source under Windows
+-------------------------------------------
+If building from source in a Windows environment, note that the default
+installation of Qt includes a dependency on the ICU internationalization
+libraries. The Win32 build of RoverGauge that I provide was linked against
+a customized build of Qt and does not have these dependencies. If you'd like to
+build Qt in a similar way, configure the Qt source tree with this command:
+
+configure.bat -release -opensource -no-icu -no-opengl -nomake examples -nomake tests
+
