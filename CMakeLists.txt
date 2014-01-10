@@ -7,14 +7,9 @@ set (ROVERGAUGE_VER_PATCH 0)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
-if (MINGW)
 
-      # Use this ridiculous, non-version-safe method for finding the Qt headers/libs.
-      # Although Qt could be found automatically with WinXP/MinGW-4.6/Qt4, something
-      # about the combination Win7/MinGW-4.8/Qt5 makes the previously-used method not
-      # work at all. So now we hardcode the path to Qt.
-      set (CMAKE_PREFIX_PATH "C:/Qt/Qt5.2.0/5.2.0/mingw48_32/lib/cmake")
-      message (STATUS "CMAKE_PREFIX_PATH set to '${CMAKE_PREFIX_PATH}'")
+if (MINGW)
+  message (WARNING "TODO: check to ensure that Qt bin/ directory is in the path so that qmake can be found.")
 endif()
 
 set (CPACK_SOURCE_GENERATOR "TGZ" "ZIP")
@@ -105,13 +100,6 @@ if (MINGW)
   else ()
     message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll!")
   endif ()
-
-  find_library (MINGW_M10 mingwm10)
-  if (MINGW_M10)
-    message (STATUS "Found MinGW's mingwm10 at ${MINGW_M10}")
-  else ()
-    message (SEND_ERROR "Could not find MinGW's mingwm10.dll!")
-  endif ()
   
   find_library (QTCORE_DLL Qt5Core)
   if (QTCORE_DLL)
@@ -125,6 +113,13 @@ if (MINGW)
     message (STATUS "Found QtGui at ${QTGUI_DLL}")
   else ()
     message (SEND_ERROR "Could not find Qt5Gui.dll!")
+  endif ()
+
+  find_library (QTWIDGETS_DLL Qt5Widgets)
+  if (QTGUI_DLL)
+    message (STATUS "Found QtWidgets at ${QTWIDGETS_DLL}")
+  else ()
+    message (SEND_ERROR "Could not find Qt5Widgets.dll!")
   endif ()
 
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
@@ -147,9 +142,9 @@ if (MINGW)
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
-                 ${MINGW_M10}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
+                 ${QTWIDGETS_DLL}
                  ${COMM14CUX_DLL}
            DESTINATION ".")
 
