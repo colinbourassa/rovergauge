@@ -43,10 +43,9 @@
     <li><b>Target idle RPM:</b> The engine idle speed that the ECU would attempt to achieve under the current conditions.</li>
     <li><b>Selected gear:</b> The state of the neutral switch (for automatic gearboxes), or an indicator that a manual gearbox is fitted.</li>
     <li><b>Main voltage:</b> The voltage at the main relay.</li>
-    <li><b>Lambda trim:</b> Fuel trim that is being applied as a result of feedback from the exhaust lambda sensors. There are two types of trim applied by the ECU, referred to as "short term" and "long term". These lambda trim values are only relevant when the system is running in closed-loop mode, so they are not updated when fuel map 1, 2, or 3 is in use (as those maps are for open-loop mode only.)
-    </li>
+    <li><b>Lambda trim:</b> Fuel trim that is being applied as a result of feedback from the exhaust lambda sensors. There are two types of trim applied by the ECU, referred to as "short term" and "long term". These lambda trim values are only relevant when the system is running in closed-loop mode, so this display changes to a MAF CO trim display when fuel map 1, 2, or 3 is selected.  </li>
     <li><b>Current fuel map:</b> ID of the currently selected fuel map, from 1 to 5. For most North American specification (NAS) Land Rovers, this will always be Map 5. In other markets, the map may be selected with the use of a "tune resistor" in the 14CUX wiring harness. A special sixth map, Map 0, is used for fail-safe/limp-home conditions.</li>
-    <li><b>Adjustment factor:</b> This is a value associated with the current fuel map, and it seems to be used to adjust the fueling values for the engine displacement. It will change significantly between fuel maps intended for different engine displacements.</li>
+    <li><b>Multiplier:</b> This is a value associated with the current fuel map, and it seems to be used to adjust the fueling values for the engine displacement. It will change significantly between fuel maps intended for different engine displacements.</li>
     <li><b>Fuel map:</b> Displays the currently selected fuel map as a 16x8 matrix. Each cell is colored as a quick visual indicator of the fueling values; higher color saturation corresponds to more fuel. Columns in the matrix correspond to different engine speeds, and rows correspond to different engine loads. The cell with the value closest to the fueling value currently in use will be highlighted by the software. The numbers in the header row reflect the engine RPM threshold for each column.</li>
     <li><b>Fuel pump relay:</b> The green lamp will be lit when the ECU is attempting to run the fuel pump.</li>
     </ul>
@@ -57,6 +56,7 @@
     <li><b>Speed units:</b> Sets the preferred units of velocity for the road speed display.</li>
     <li><b>Temperature units:</b> Sets the preferred units of temperature for the coolant- and fuel-temperature displays.</li>
     <li><b>Enabled readings:</b> These checkboxes allow the user to enable reading only certain parameters. This allows the limited bandwidth of the diagnostic port to be used for only those parameters that interest the user. If fewer readings are enabled, they will update more quickly and smoothly than if all the readings are enabled.</li>
+    <li><b>Periodically refresh fuel map data:</b> When set, this causes the fuel map contents to be re-read from the ECU every few seconds. This can be useful when running a ROM emulator to tune a map on a running engine.</li>
     </ul>
 
     <h3>Idle air control dialog</h3>
