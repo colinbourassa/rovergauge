@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_cux, SIGNAL(faultCodesReady()), this, SLOT(onFaultCodesReady()));
     connect(m_cux, SIGNAL(faultCodesReadFailed()), this, SLOT(onFaultCodesReadFailed()));
     connect(m_cux, SIGNAL(fuelMapReady(unsigned int)), this, SLOT(onFuelMapDataReady(unsigned int)));
-    connect(m_cux, SIGNAL(revisionNumberReady(int)), this, SLOT(onTuneRevisionReady(int)));
+    connect(m_cux, SIGNAL(revisionNumberReady(int,int,int)), this, SLOT(onTuneRevisionReady(int,int,int)));
     connect(m_cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
     connect(m_cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
     connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
@@ -1185,10 +1185,13 @@ void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 /**
  * Displays the tune revision number (read from the PROM)
  * @param tuneRevisionNum Decimal representation of the revision number
+ * @param checksumFixer Value of byte used to forced a checksum of 0x01 on the ROM contents
+ * @param ident Value of "Ident" byte that was sometimes incremented separately from the tune number
  */
-void MainWindow::onTuneRevisionReady(int tuneRevisionNum)
+void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident)
 {
     m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
+    // TODO: do something with checksumFixer and ident
 }
 
 /**

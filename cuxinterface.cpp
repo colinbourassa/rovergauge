@@ -224,13 +224,17 @@ bool CUXInterface::connectToECU()
     bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str());    
     uint8_t openLoopByte = 0;
 
+    uint16_t tune = 0;
+    uint8_t checksumFixer = 0;
+    uint8_t ident = 0;
+
     if (status)
     {
         emit connected();
 
-        if (c14cux_getTuneRevision(&m_cuxinfo, &m_tuneRevision))
+        if (c14cux_getTuneRevision(&m_cuxinfo, &tune, &checksumFixer, &ident))
         {
-            emit revisionNumberReady(m_tuneRevision);
+            emit revisionNumberReady(tune, checksumFixer, ident);
         }
         if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &openLoopByte))
         {

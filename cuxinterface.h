@@ -103,7 +103,7 @@ signals:
     void fuelMapReadFailed(unsigned int fuelMapId);
     void rpmLimitReady(int rpmLimiter);
     void rpmTableReady();
-    void revisionNumberReady(int tuneRevisionNum);
+    void revisionNumberReady(int tuneRevisionNum, int checksumfixer, int ident);
     void romImageReady();
     void romImageReadFailed();
     void failedToConnect(QString dev);
@@ -148,7 +148,6 @@ private:
     int16_t m_lambdaTrimOdd;
     int16_t m_lambdaTrimEven;
     bool m_milOn;
-    uint16_t m_tuneRevision;
     uint16_t m_rpmLimit;
     bool m_idleMode;
 

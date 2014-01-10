@@ -55,7 +55,7 @@ public slots:
     void onFaultCodesReady();
     void onFaultCodesReadFailed();
     void onFuelMapDataReady(unsigned int fuelMapId);
-    void onTuneRevisionReady(int tuneRevisionNum);
+    void onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident);
     void onRPMLimitReady(int rpmLimit);
     void onRPMTableReady();
     void onROMImageReady();
