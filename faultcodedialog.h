@@ -15,7 +15,7 @@
  */
 enum FaultCode
 {
-    FaultCode_PROMChecksumFailure = 0,
+    FaultCode_ROMChecksumFailure  = 0,
     FaultCode_LambdaSensorOdd     = 1,
     FaultCode_LambdaSensorEven    = 2,
     FaultCode_MisfireOdd          = 3,

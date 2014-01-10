@@ -76,7 +76,7 @@ A: No. The 14CUX system doesn't conform to the OBD-II standard. This software
 uses a library that I wrote specifically to communicate with the 14CUX, using
 the ECU's unusual baud rate and proprietary software protocol. The details of
 all of this were discovered through reverse-engineering the code in the 14CUX
-PROM.
+ROM.
 
 
 Q: Can this software be used to modify the code or data in the ECU (such as the

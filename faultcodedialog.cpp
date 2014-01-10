@@ -46,7 +46,7 @@ void FaultCodeDialog::onFaultClearSuccess(c14cux_faultcodes faultCodes)
  */
 void FaultCodeDialog::populateFaultList()
 {
-    m_faultNames.insert(FaultCode_PROMChecksumFailure, QString("(29) ECU checksum error"));
+    m_faultNames.insert(FaultCode_ROMChecksumFailure, QString("(29) ECU checksum error"));
     m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(45) Lambda sensor (odd)"));
     m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(44) Lambda sensor (even)"));
     m_faultNames.insert(FaultCode_MisfireOdd, QString("(50) Misfire (odd)"));
@@ -120,7 +120,7 @@ void FaultCodeDialog::setupWidgets()
  */
 void FaultCodeDialog::lightLEDs(c14cux_faultcodes faults)
 {
-    m_faultLights[FaultCode_PROMChecksumFailure]->setChecked(faults.PROM_Checksum_Failure);
+    m_faultLights[FaultCode_ROMChecksumFailure]->setChecked(faults.ROM_Checksum_Failure);
     m_faultLights[FaultCode_LambdaSensorOdd]->setChecked(faults.Lambda_Sensor_Odd);
     m_faultLights[FaultCode_LambdaSensorEven]->setChecked(faults.Lambda_Sensor_Even);
     m_faultLights[FaultCode_MisfireOdd]->setChecked(faults.Misfire_Odd_Bank);

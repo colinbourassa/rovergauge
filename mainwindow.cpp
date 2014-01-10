@@ -1007,7 +1007,7 @@ void MainWindow::onNotConnected()
 }
 
 /**
- * Requests the PROM image so that it can be saved to disk.
+ * Requests the ROM image so that it can be saved to disk.
  */
 void MainWindow::onSaveROMImageSelected()
 {
@@ -1016,7 +1016,7 @@ void MainWindow::onSaveROMImageSelected()
 }
 
 /**
- * Prompts the user to continue, and sends a request to read the PROM image.
+ * Prompts the user to continue, and sends a request to read the ROM image.
  * @param prompt String used to prompt the user to continue.
  */
 void MainWindow::sendROMImageRequest(QString prompt)
@@ -1033,7 +1033,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
                     QString("Please wait while the ROM image is read.\n\n"),
                     0, this, Qt::Dialog);
                 m_pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
-                connect(m_pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onPROMReadCancelled()));
+                connect(m_pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onROMReadCancelled()));
             }
             m_pleaseWaitBox->show();
 
@@ -1049,7 +1049,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
 }
 
 /**
- * Sets a flag that indicates we should ignore any PROM image that is returned.
+ * Sets a flag that indicates we should ignore any ROM image that is returned.
  */
 void MainWindow::onROMReadCancelled()
 {
@@ -1057,7 +1057,7 @@ void MainWindow::onROMReadCancelled()
 }
 
 /**
- * Prompts the user for a file in which to save the PROM image.
+ * Prompts the user for a file in which to save the ROM image.
  */
 void MainWindow::onROMImageReady()
 {
@@ -1071,7 +1071,7 @@ void MainWindow::onROMImageReady()
     if (promData != 0)
     {
         QString saveFileName =
-                QFileDialog::getSaveFileName(this, "Select output file for PROM image:");
+                QFileDialog::getSaveFileName(this, "Select output file for ROM image:");
 
         if (!saveFileName.isNull() && !saveFileName.isEmpty())
         {
@@ -1082,7 +1082,7 @@ void MainWindow::onROMImageReady()
                 if (saveFile.write(*promData) != promData->capacity())
                 {
                     QMessageBox::warning(this, "Error",
-                        QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+                        QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
                 }
 
                 saveFile.close();
@@ -1090,7 +1090,7 @@ void MainWindow::onROMImageReady()
             else
             {
                 QMessageBox::warning(this, "Error",
-                    QString("Error writing the PROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+                    QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
             }
         }
     }
@@ -1183,7 +1183,7 @@ void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 }
 
 /**
- * Displays the tune revision number (read from the PROM)
+ * Displays the tune revision number (read from the ROM)
  * @param tuneRevisionNum Decimal representation of the revision number
  * @param checksumFixer Value of byte used to forced a checksum of 0x01 on the ROM contents
  * @param ident Value of "Ident" byte that was sometimes incremented separately from the tune number
