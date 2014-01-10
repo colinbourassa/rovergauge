@@ -105,13 +105,6 @@ if (MINGW)
   else ()
     message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll!")
   endif ()
-
-  find_library (MINGW_M10 mingwm10)
-  if (MINGW_M10)
-    message (STATUS "Found MinGW's mingwm10 at ${MINGW_M10}")
-  else ()
-    message (SEND_ERROR "Could not find MinGW's mingwm10.dll!")
-  endif ()
   
   find_library (QTCORE_DLL Qt5Core)
   if (QTCORE_DLL)
@@ -125,6 +118,13 @@ if (MINGW)
     message (STATUS "Found QtGui at ${QTGUI_DLL}")
   else ()
     message (SEND_ERROR "Could not find Qt5Gui.dll!")
+  endif ()
+
+  find_library (QTWIDGETS_DLL Qt5Widgets)
+  if (QTGUI_DLL)
+    message (STATUS "Found QtWidgets at ${QTWIDGETS_DLL}")
+  else ()
+    message (SEND_ERROR "Could not find Qt5Widgets.dll!")
   endif ()
 
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
@@ -147,9 +147,9 @@ if (MINGW)
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
-                 #${MINGW_M10}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
+                 ${QTWIDGETS_DLL}
                  ${COMM14CUX_DLL}
            DESTINATION ".")
 
