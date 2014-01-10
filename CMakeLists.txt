@@ -147,7 +147,7 @@ if (MINGW)
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
-                 ${MINGW_M10}
+                 #${MINGW_M10}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
                  ${COMM14CUX_DLL}
