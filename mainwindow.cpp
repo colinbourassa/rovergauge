@@ -865,6 +865,9 @@ void MainWindow::onDisconnect()
 #ifdef ENABLE_FORCE_OPEN_LOOP
     m_ui->m_forceOpenLoopCheckbox->setEnabled(false);
 #endif
+    m_ui->m_tuneRevNumberLabel->setText("Tune:");
+    m_ui->m_identLabel->setText("Ident:");
+    m_ui->m_checksumFixerLabel->setText("Checksum fixer:");
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -1191,7 +1194,8 @@ void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident)
 {
     m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
-    // TODO: do something with checksumFixer and ident
+    m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 2, 16).toUpper());
+    m_ui->m_checksumFixerLabel->setText(QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
 }
 
 /**

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1050</width>
     <height>610</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="m_layoutMaster" stretch="0,1,0,2">
       <item>
-       <layout class="QHBoxLayout" name="m_layoutTop" stretch="1,1">
+       <layout class="QHBoxLayout" name="m_layoutTop" stretch="2,5">
         <item>
          <layout class="QHBoxLayout" name="m_connectButtonLayout">
           <item>
@@ -53,7 +53,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="m_statusLightLayout" stretch="0,2,0,2,1,0,2,1,1">
+         <layout class="QHBoxLayout" name="m_statusLayout" stretch="0,3,0,3,0,3,0,0,0,0,1,0,0">
           <item>
            <widget class="Line" name="m_vline0">
             <property name="orientation">
@@ -76,6 +76,34 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="m_identLabel">
+            <property name="text">
+             <string>Ident:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="m_vline2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="m_checksumFixerLabel">
+            <property name="text">
+             <string>Checksum fixer:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="m_vline3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="m_milLabel">
             <property name="text">
              <string>MIL:</string>
@@ -89,7 +117,7 @@
            <widget class="QLedIndicator" name="m_milLed" native="true"/>
           </item>
           <item>
-           <widget class="Line" name="m_vline2">
+           <widget class="Line" name="m_vline4">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -467,7 +495,7 @@
          </layout>
         </item>
         <item>
-         <widget class="Line" name="m_vline3">
+         <widget class="Line" name="m_vline5">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -708,8 +736,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
-  <buttongroup name="m_mafReadingButtonGroup"/>
  </buttongroups>
 </ui>
