@@ -96,6 +96,13 @@ if (MINGW)
   else ()
     message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll! Check that the MinGW bin/ directory is in your PATH.")
   endif ()
+
+  find_library (MINGW_LIBWINPTHREAD libwinpthread-1)
+  if (MINGW_LIBWINPTHREAD)
+    message (STATUS "Found libwinpthread at ${MINGW_LIBWINPTHREAD}")
+  else ()
+    message (SEND_ERROR "Could not find libwinpthread-1.dll! Check that the MinGW bin/ directory is in your PATH.")
+  endif ()
   
   find_library (QTCORE_DLL Qt5Core)
   if (QTCORE_DLL)
@@ -138,6 +145,7 @@ if (MINGW)
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
+                 ${MINGW_LIBWINPTHREAD}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
                  ${QTWIDGETS_DLL}
