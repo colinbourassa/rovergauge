@@ -79,9 +79,7 @@ add_executable (rovergauge main.cpp
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
-  # Statically link against the MinGW C++ standard library to avoid
-  # an additional DLL dependency
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows -static-libstdc++")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
 
   set (COMM14CUX_PATH "$ENV{SystemDrive}/comm14cux")
   include_directories ("${COMM14CUX_PATH}/include")
@@ -90,6 +88,10 @@ if (MINGW)
   set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/rovergauge")
   set (EXE_FILE "${CMAKE_CURRENT_BINARY_DIR}/rovergauge.exe")
 
+  # When we call find_library() below, we're only looking for DLLs, so set the suffix list appropriately
+  set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
+  message (STATUS "Limiting find_library() suffixes to ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+
   find_library (MINGW_LIBGCC libgcc_s_dw2-1)
   if (MINGW_LIBGCC)
     message (STATUS "Found MinGW's libgcc at ${MINGW_LIBGCC}")
@@ -97,9 +99,16 @@ if (MINGW)
     message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll! Check that the MinGW bin/ directory is in your PATH.")
   endif ()
 
+  find_library (MINGW_LIBSTDCPP libstdc++-6)
+  if (MINGW_LIBSTDCPP)
+    message (STATUS "Found MinGW's libstdc++ at ${MINGW_LIBSTDCPP}")
+  else ()
+    message (SEND_ERROR "Could not find MinGW's libstdc++-6.dll! Check that the MinGW bin/ directory is in your PATH.")
+  endif ()
+
   find_library (MINGW_LIBWINPTHREAD libwinpthread-1)
   if (MINGW_LIBWINPTHREAD)
-    message (STATUS "Found libwinpthread at ${MINGW_LIBWINPTHREAD}")
+    message (STATUS "Found MinGW's libwinpthread at ${MINGW_LIBWINPTHREAD}")
   else ()
     message (SEND_ERROR "Could not find libwinpthread-1.dll! Check that the MinGW bin/ directory is in your PATH.")
   endif ()
@@ -125,6 +134,13 @@ if (MINGW)
     message (SEND_ERROR "Could not find Qt5Widgets.dll! Check that the Qt5 bin/ directory (or the qtbase/bin/ directory) is in your PATH.")
   endif ()
 
+  find_library (QWINDOWS_DLL qwindows)
+  if (QWINDOWS_DLL)
+    message (STATUS "Found Qt qwindows platform plugin at ${QWINDOWS_DLL}")
+  else ()
+    message (SEND_ERROR "Could not find Qt qwindows platform plugin!")
+  endif ()
+
   find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
@@ -145,12 +161,14 @@ if (MINGW)
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
+                 ${MINGW_LIBSTDCPP}
                  ${MINGW_LIBWINPTHREAD}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
                  ${QTWIDGETS_DLL}
                  ${COMM14CUX_DLL}
            DESTINATION ".")
+  install (FILES ${QWINDOWS_DLL} DESTINATION "platforms")
 
   set (CPACK_GENERATOR "ZIP")
   set (CPACK_PACKAGE_NAME ${PROJECT_NAME})
