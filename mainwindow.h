@@ -109,7 +109,7 @@ private:
     static const float speedometerMaxKPH = 240.0;
 
     static const int firstOpenLoopMap = 1;
-    static const int lastOpenLoopMap = 5;
+    static const int lastOpenLoopMap = 3;
 
     unsigned int m_currentFuelMapIndex;
     unsigned int m_currentFuelMapRow;
