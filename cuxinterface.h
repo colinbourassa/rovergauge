@@ -28,6 +28,7 @@ public:
     ~CUXInterface();
 
     void setSerialDevice(QString device) { m_deviceName = device; }
+    void setFeedbackMode(c14cux_feedback_mode type) { m_feedbackMode = type; }
     void setLambdaTrimType(c14cux_lambda_trim_type type) { m_lambdaTrimType = type; }
     void setMAFReadingType(c14cux_airflow_type type) { m_airflowType = type; }
     void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
@@ -38,6 +39,8 @@ public:
 
     bool isConnected();
     void disconnectFromECU();
+
+    c14cux_feedback_mode getFeedbackMode() { return m_feedbackMode; }
 
     int getRoadSpeed()                { return convertSpeed(m_roadSpeedMPH); }
     int getEngineSpeedRPM()           { return m_engineSpeedRPM; }
@@ -62,6 +65,7 @@ public:
     QByteArray* getROMImage()         { return m_romImage; }
     int getLambdaTrimOdd()            { return m_lambdaTrimOdd; }
     int getLambdaTrimEven()           { return m_lambdaTrimEven; }
+    float getCOTrimVoltage()          { return m_coTrimVoltage; }
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
 
@@ -128,6 +132,7 @@ private:
     QHash<SampleType,bool> m_enabledSamples;
 
     c14cux_lambda_trim_type m_lambdaTrimType;
+    c14cux_feedback_mode m_feedbackMode;
     c14cux_airflow_type m_airflowType;
     c14cux_throttle_pos_type m_throttlePosType;
 
@@ -147,6 +152,7 @@ private:
     bool m_fuelPumpRelayOn;
     int16_t m_lambdaTrimOdd;
     int16_t m_lambdaTrimEven;
+    float m_coTrimVoltage;
     bool m_milOn;
     uint16_t m_rpmLimit;
     bool m_idleMode;

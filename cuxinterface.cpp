@@ -20,6 +20,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_readCanceled(false),
     m_lowFreqReadCount(0),
     m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
+    m_feedbackMode(C14CUX_FeedbackMode_ClosedLoop),
     m_airflowType(C14CUX_AirflowType_Linearized),
     m_throttlePosType(C14CUX_ThrottlePosType_Absolute),
     m_roadSpeedMPH(0),
@@ -38,6 +39,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_fuelPumpRelayOn(false),
     m_lambdaTrimOdd(0),
     m_lambdaTrimEven(0),
+    m_coTrimVoltage(0.0),
     m_milOn(false),
     m_idleMode(false),
     m_romImage(0),
@@ -430,9 +432,9 @@ CUXInterface::ReadResult CUXInterface::readHighFreqData()
     if (m_enabledSamples[SampleType_Throttle])
         result = mergeResult(result, c14cux_getThrottlePosition(&m_cuxinfo, m_throttlePosType, &m_throttlePos));
 
-    // if the frontend if expecting short-term lambda trim
-    // (as opposed to long-term trim)
-    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == C14CUX_LambdaTrimType_ShortTerm))
+    if (m_enabledSamples[SampleType_LambdaTrim] &&
+        (m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) &&
+        (m_lambdaTrimType == C14CUX_LambdaTrimType_ShortTerm))
     {
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
@@ -462,12 +464,18 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
 {
     ReadResult result = ReadResult_NoStatement;
 
-    // if the frontend is expecting long-term lambda trim
-    // (as opposed to short-term trim)
-    if (m_enabledSamples[SampleType_LambdaTrim] && (m_lambdaTrimType == C14CUX_LambdaTrimType_LongTerm))
+    if (m_enabledSamples[SampleType_LambdaTrim])
     {
-        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
-        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
+        if ((m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) &&
+            (m_lambdaTrimType == C14CUX_LambdaTrimType_LongTerm))
+        {
+            result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
+            result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
+        }
+        else if (m_feedbackMode == C14CUX_FeedbackMode_OpenLoop)
+        {
+            result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
+        }
     }
 
     if (m_enabledSamples[SampleType_MainVoltage])

@@ -37,7 +37,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_TargetIdleRPM] = "Idle mode / target RPM";
     m_sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
     m_sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
-    m_sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim";
+    m_sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim / CO trim";
     m_sampleTypeLabels[SampleType_FuelMap] = "Fuel map data";
     m_sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
 

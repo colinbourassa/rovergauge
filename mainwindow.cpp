@@ -473,7 +473,7 @@ void MainWindow::onDataReady()
         if (((m_currentFuelMapIndex != newFuelMapIndex) || !m_fuelMapIndexIsCurrent) &&
             !m_waitingForFuelMapData)
         {
-            switchUIModeBasedOnMap(newFuelMapIndex);
+            switchFeedbackMode(newFuelMapIndex);
             skipLambdaUpdate = true;
 
             m_currentFuelMapIndex = newFuelMapIndex;
@@ -563,7 +563,12 @@ void MainWindow::onDataReady()
     }
 
     if (m_enabledSamples[SampleType_LambdaTrim] && !skipLambdaUpdate)
-        setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
+    {
+        if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)
+            setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
+        else
+            m_ui->m_oddFuelTrimBarLabel->setText(QString::number(m_cux->getCOTrimVoltage(), 'f', 2) + "VDC");
+    }
 
     if (m_enabledSamples[SampleType_GearSelection])
         setGearLabel(m_cux->getGear());
@@ -576,33 +581,20 @@ void MainWindow::onDataReady()
  */
 void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
 {
-    // only fuel maps 0, 4, and 5 operate in a closed-loop manner,
-    // so the lambda feedback will only be relevant if one of those
-    // maps is selected
-    if ((m_currentFuelMapIndex == 0) ||
-        (m_currentFuelMapIndex == 4) ||
-        (m_currentFuelMapIndex == 5))
-    {        
-        QString oddLabel = (lambdaTrimOdd >= 0) ?
-            QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
-            QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
-        QString evenLabel = (lambdaTrimEven >= 0) ?
-            QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
-            QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
+    QString oddLabel = (lambdaTrimOdd >= 0) ?
+        QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
+        QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
+    QString evenLabel = (lambdaTrimEven >= 0) ?
+        QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
+        QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
 
-        m_ui->m_oddFuelTrimBar->setEnabled(true);
-        m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
-        m_ui->m_evenFuelTrimBar->setEnabled(true);
-        m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
+    m_ui->m_oddFuelTrimBar->setEnabled(true);
+    m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
+    m_ui->m_evenFuelTrimBar->setEnabled(true);
+    m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
 
-        m_ui->m_oddFuelTrimBarLabel->setText(oddLabel);
-        m_ui->m_evenFuelTrimBarLabel->setText(evenLabel);
-    }
-    else
-    {
-        float trim_voltage = 5.0 * ((float)(lambdaTrimOdd >> 7) / 1024.0);
-        m_ui->m_oddFuelTrimBarLabel->setText(QString::number(trim_voltage, 'f', 1) + "VDC");
-    }
+    m_ui->m_oddFuelTrimBarLabel->setText(oddLabel);
+    m_ui->m_evenFuelTrimBarLabel->setText(evenLabel);
 }
 
 /**
@@ -1225,10 +1217,15 @@ void MainWindow::onRPMTableReady()
  * open-loop versus closed-loop state of the ECU.
  * @param fuelMapId ID (0 through 5) of the fuel map currently in use
  */
-void MainWindow::switchUIModeBasedOnMap(int fuelMapId)
+void MainWindow::switchFeedbackMode(int fuelMapId)
 {
-    if ((fuelMapId >= 1) && (fuelMapId <= 3))
+    if ((fuelMapId >= firstOpenLoopMap) && (fuelMapId <= lastOpenLoopMap))
     {
+        m_cux->setFeedbackMode(C14CUX_FeedbackMode_OpenLoop);
+
+        m_ui->m_lambdaTrimTypeLabel->setEnabled(false);
+        m_ui->m_lambdaTrimLongButton->setEnabled(false);
+        m_ui->m_lambdaTrimShortButton->setEnabled(false);
         m_ui->m_lambdaTrimHighLimitLabel->setVisible(false);
         m_ui->m_lambdaTrimLowLimitLabel->setVisible(false);
         m_ui->m_evenFuelTrimBar->setVisible(false);
@@ -1236,21 +1233,9 @@ void MainWindow::switchUIModeBasedOnMap(int fuelMapId)
         m_ui->m_evenFuelTrimLabel->setVisible(false);
         m_ui->m_oddFuelTrimBar->setVisible(false);
         m_ui->m_oddFuelTrimLabel->setText("MAF CO trim:");
-
-        // the MAF CO trim value is stored at the same location as the long-term
-        // lambda trim, so force the interface to read that value
-        m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
     }
     else
     {
-        m_ui->m_lambdaTrimHighLimitLabel->setVisible(true);
-        m_ui->m_lambdaTrimLowLimitLabel->setVisible(true);
-        m_ui->m_evenFuelTrimBar->setVisible(true);
-        m_ui->m_evenFuelTrimBarLabel->setVisible(true);
-        m_ui->m_evenFuelTrimLabel->setVisible(true);
-        m_ui->m_oddFuelTrimBar->setVisible(true);
-        m_ui->m_oddFuelTrimLabel->setText("Lambda fuel trim (odd):");
-
         // ensure that the interface is reading the correct type of lambda trim,
         // based on the currently-selected radio button
         if (m_ui->m_lambdaTrimShortButton->isChecked())
@@ -1261,6 +1246,19 @@ void MainWindow::switchUIModeBasedOnMap(int fuelMapId)
         {
             m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
         }
+
+        m_cux->setFeedbackMode(C14CUX_FeedbackMode_ClosedLoop);
+
+        m_ui->m_lambdaTrimTypeLabel->setEnabled(true);
+        m_ui->m_lambdaTrimLongButton->setEnabled(true);
+        m_ui->m_lambdaTrimShortButton->setEnabled(true);
+        m_ui->m_lambdaTrimHighLimitLabel->setVisible(true);
+        m_ui->m_lambdaTrimLowLimitLabel->setVisible(true);
+        m_ui->m_evenFuelTrimBar->setVisible(true);
+        m_ui->m_evenFuelTrimBarLabel->setVisible(true);
+        m_ui->m_evenFuelTrimLabel->setVisible(true);
+        m_ui->m_oddFuelTrimBar->setVisible(true);
+        m_ui->m_oddFuelTrimLabel->setText("Lambda fuel trim (odd):");
     }
 }
 
