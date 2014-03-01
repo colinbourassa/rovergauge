@@ -305,7 +305,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="m_idleBypassLabel">
             <property name="text">
-             <string>Idle bypass position</string>
+             <string>Idle bypass position:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
