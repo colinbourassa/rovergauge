@@ -50,24 +50,30 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
 {
     int currentVal = this->value();
     QStylePainter painter(this);
-    QStyleOptionProgressBarV2 bar;
-    bar.initFrom(this);
-    bar.minimum = m_minimumVal;
-    bar.maximum = m_maximumVal;
-    bar.progress = (currentVal >= 0) ? qAbs(m_maximumVal) : qAbs(m_minimumVal);
+    QStyleOptionProgressBarV2 opt;
 
-    style()->drawControl(QStyle::CE_ProgressBarGroove, &bar, &painter, this);
+    opt.initFrom(this);
+    opt.minimum = m_minimumVal;
+    opt.maximum = m_maximumVal;
+    opt.progress = (currentVal >= 0) ? qAbs(m_maximumVal) : qAbs(m_minimumVal);
 
-    // compute the dimensions and location of the bar
+    // Draw the groove. This should simply be the same size as the outside dimensions of the widget.
+    style()->drawControl(QStyle::CE_ProgressBarGroove, &opt, &painter, this);
+
+    // Get the dimensions for the bar itself (within the groove). Depending on the active graphical
+    // style, this may be several pixels smaller that the dimensions of the widget, so that there's
+    // a narrow gutter inside the groove not occupied by the bar.
+    opt.rect = style()->subElementRect(QStyle::SE_ProgressBarContents, &opt, this);
+
     float percentOfWidth = (float)(qAbs(currentVal)) / (float)(m_maximumVal - m_minimumVal);
-    int left = bar.rect.topLeft().x();
-    int right = bar.rect.topRight().x();
-    int top = bar.rect.topLeft().y();
-    int height = bar.rect.bottomLeft().y() - top + 1;
+    int left = opt.rect.topLeft().x();
+    int right = opt.rect.topRight().x();
+    int top = opt.rect.topLeft().y();
+    int height = opt.rect.bottomLeft().y() - top + 1;
     int barWidth = (right - left) * percentOfWidth;
     int midPoint = left + ((right - left) / 2);
     int startPoint = (currentVal >= 0) ? midPoint : midPoint - barWidth;
 
-    bar.rect = QRect(startPoint, top, barWidth + 2, height);
-    style()->drawControl(QStyle::CE_ProgressBarContents, &bar, &painter, this);
+    opt.rect = QRect(startPoint, top, barWidth + 2, height);
+    style()->drawControl(QStyle::CE_ProgressBarContents, &opt, &painter, this);
 }
