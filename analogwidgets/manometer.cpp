@@ -21,13 +21,13 @@
  ***************************************************************************/
 
 #include <QtGui>
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 
 #include "manometer.h"
 #define PI 3.141592653589793238512808959406186204433
 
-//using namespace Qt;
+using namespace Qt;
 ManoMeter::ManoMeter(QWidget *parent)
         : AbstractMeter(parent)
 {
@@ -154,7 +154,6 @@ void ManoMeter::paintBackground(QPainter & painter)
 	  {
 	    double v = m_min + i*(m_max - m_min)/8.0;
 	    if (fabs(v) < 0.000001 ) v = 0.0;
-        v = (v < 1000) ? v : v / 1000;
 	    QString val = QString("%1").arg(v);
             QSize Size = painter.fontMetrics().size(Qt::TextSingleLine, val);
             painter.save();
