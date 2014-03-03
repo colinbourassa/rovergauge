@@ -7,40 +7,10 @@
  * Construct with fixed max and min values.
  */
 FuelTrimBar::FuelTrimBar(QWidget *parent) :
-    QProgressBar(parent),
-    m_minimumVal(-256),
-    m_maximumVal(255)
-
+    QProgressBar(parent)
 {
-    this->setMaximum(m_maximumVal);
-    this->setMinimum(m_minimumVal);
-}
-
-/**
- * Clips at the minimum and maximum values.
- */
-void FuelTrimBar::setValue(int value)
-{
-    int adjVal = value;
-
-    if (adjVal > m_maximumVal)
-    {
-        adjVal = m_maximumVal;
-    }
-    else if (adjVal < m_minimumVal)
-    {
-        adjVal = m_minimumVal;
-    }
-
-    QProgressBar::setValue(adjVal);
-
-    // For some reason, paintEvent() was not being called by the framework
-    // when small values were set on this control. This ensures that the
-    // control will always be redrawn.
-    if (value < 5)
-    {
-        repaint();
-    }
+    this->setMaximum(255);
+    this->setMinimum(-256);
 }
 
 /**
@@ -49,13 +19,15 @@ void FuelTrimBar::setValue(int value)
 void FuelTrimBar::paintEvent(QPaintEvent *)
 {
     int currentVal = this->value();
+    int max = this->maximum();
+    int min = this->minimum();
     QStylePainter painter(this);
     QStyleOptionProgressBarV2 opt;
 
     opt.initFrom(this);
-    opt.minimum = m_minimumVal;
-    opt.maximum = m_maximumVal;
-    opt.progress = (currentVal >= 0) ? qAbs(m_maximumVal) : qAbs(m_minimumVal);
+    opt.minimum = min;
+    opt.maximum = max;
+    opt.progress = (currentVal >= 0) ? qAbs(max) : qAbs(min);
 
     // Draw the groove. This should simply be the same size as the outside dimensions of the widget.
     style()->drawControl(QStyle::CE_ProgressBarGroove, &opt, &painter, this);
@@ -65,7 +37,7 @@ void FuelTrimBar::paintEvent(QPaintEvent *)
     // a narrow gutter inside the groove not occupied by the bar.
     opt.rect = style()->subElementRect(QStyle::SE_ProgressBarContents, &opt, this);
 
-    float percentOfWidth = (float)(qAbs(currentVal)) / (float)(m_maximumVal - m_minimumVal);
+    float percentOfWidth = (float)(qAbs(currentVal)) / (float)(max - min);
     int left = opt.rect.topLeft().x();
     int right = opt.rect.topRight().x();
     int top = opt.rect.topLeft().y();
