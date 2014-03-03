@@ -62,6 +62,8 @@ public slots:
     void onROMImageReadFailed();
     void onInterfaceReady();
     void onNotConnected();
+    void onFeedbackModeChanged(c14cux_feedback_mode mode);
+    void onFuelMapIndexChanged(unsigned int fuelMapId);
 #ifdef ENABLE_FORCE_OPEN_LOOP
     void onForceOpenLoopStateReceived(bool forceOpen);
 #endif
@@ -108,15 +110,8 @@ private:
     static const float speedometerMaxMPH = 160.0;
     static const float speedometerMaxKPH = 240.0;
 
-    static const int firstOpenLoopMap = 1;
-    static const int lastOpenLoopMap = 3;
-
-    unsigned int m_currentFuelMapIndex;
-    unsigned int m_currentFuelMapRow;
-    unsigned int m_currentFuelMapCol;
-    bool m_fuelMapIndexIsCurrent;
-    bool m_fuelMapRowColumnIsCurrent;
-    bool m_waitingForFuelMapData;
+    QTableWidgetItem *m_lastHighlightedFuelMapCell;
+    bool m_fuelMapDataIsCurrent;
 
     QHash<SpeedUnits,QString> *m_speedUnitSuffix;
     QHash<TemperatureUnits,QString> *m_tempUnitSuffix;
@@ -130,10 +125,9 @@ private:
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCell();
+    void removeFuelMapCellHighlight();
     void sendROMImageRequest(QString prompt);
-    void dimUnusedControls();
-    void switchFeedbackMode(int fuelMapId);
-
+    void dimUnusedControls();    
     void setGearLabel(c14cux_gear gearReading);
     void setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven);
 

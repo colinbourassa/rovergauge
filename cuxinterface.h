@@ -28,7 +28,6 @@ public:
     ~CUXInterface();
 
     void setSerialDevice(QString device) { m_deviceName = device; }
-    void setFeedbackMode(c14cux_feedback_mode type) { m_feedbackMode = type; }
     void setLambdaTrimType(c14cux_lambda_trim_type type) { m_lambdaTrimType = type; }
     void setMAFReadingType(c14cux_airflow_type type) { m_airflowType = type; }
     void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
@@ -53,7 +52,7 @@ public:
     float getMainVoltage()            { return m_mainVoltage; }
     c14cux_version getVersion()       { return c14cux_getLibraryVersion(); }
     QByteArray* getFuelMap(unsigned int fuelMapId);
-    void invalidateFuelMapData(unsigned int fuelMapId);
+    void invalidateFuelMapData();
     int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
     c14cux_rpmtable getRPMTable()     { return m_rpmTable; }
     int getCurrentFuelMapIndex()      { return m_currentFuelMapIndex; }
@@ -101,7 +100,7 @@ signals:
     void readSuccess();
     void faultCodesReady();
     void faultCodesReadFailed();
-    void faultCodesClearSuccess(c14cux_faultcodes m_faultCodes);
+    void faultCodesClearSuccess(c14cux_faultcodes faultCodes);
     void faultCodesClearFailure();
     void fuelMapReady(unsigned int fuelMapId);
     void fuelMapReadFailed(unsigned int fuelMapId);
@@ -116,11 +115,16 @@ signals:
     void forceOpenLoopState(bool forceOpen);
     void simModeWriteSuccess();
     void simModeWriteFailure();
+    void fuelMapIndexHasChanged(unsigned int fuelMapId);
+    void feedbackModeHasChanged(c14cux_feedback_mode newMode);
 
 private slots:
     void onTimer();
 
 private:
+    static const int s_firstOpenLoopMap = 1;
+    static const int s_lastOpenLoopMap = 3;
+
     QString m_deviceName;
     c14cux_info m_cuxinfo;
     QTimer *m_timer;
@@ -144,6 +148,7 @@ private:
     float m_throttlePos;
     c14cux_gear m_gear;
     float m_mainVoltage;
+    bool m_fuelMapIndexRead;
     uint8_t m_currentFuelMapIndex;
     uint8_t m_currentFuelMapRowIndex;
     uint8_t m_currentFuelMapColumnIndex;
@@ -174,6 +179,7 @@ private:
     bool m_initComplete;
 
     void pollEcu();
+    void clearFlagsAndData();
     ReadResult readData();
     ReadResult readHighFreqData();
     ReadResult readMidFreqData();

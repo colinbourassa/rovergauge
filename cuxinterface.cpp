@@ -31,6 +31,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_throttlePos(0.0),
     m_gear(C14CUX_Gear_NoReading),
     m_mainVoltage(0.0),
+    m_fuelMapIndexRead(false),
     m_currentFuelMapIndex(0),
     m_currentFuelMapRowIndex(0),
     m_currentFuelMapColumnIndex(0),
@@ -171,6 +172,11 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
     }
 }
 
+/**
+ * Reads a single fuel map (along with its multiplier factor) from the ECU
+ * @param fuelMapId Index of the fuel map to read
+ * @return True when the map was read successfully, false otherwise
+ */
 bool CUXInterface::readFuelMap(unsigned int fuelMapId)
 {
     uint8_t *buffer = (uint8_t*)(m_fuelMaps[fuelMapId].data());
@@ -253,7 +259,14 @@ bool CUXInterface::connectToECU()
 void CUXInterface::disconnectFromECU()
 {
     m_stopPolling = true;
+}
 
+/**
+ * Clears flags and stored data. Called on disconnect, so that reconnecting will force
+ * retrieval of fresh data from the ECU.
+ */
+void CUXInterface::clearFlagsAndData()
+{
     if (m_romImage != 0)
     {
         delete m_romImage;
@@ -265,6 +278,9 @@ void CUXInterface::disconnectFromECU()
     {
         m_fuelMapDataIsCurrent[idx] = false;
     }
+
+    m_fuelMapIndexRead = false;
+    m_lowFreqReadCount = 0;
 }
 
 /**
@@ -370,6 +386,8 @@ void CUXInterface::pollEcu()
             c14cux_disconnect(&m_cuxinfo);
         }
         emit disconnected();
+
+        clearFlagsAndData();
 
         if (m_shutdownThread)
         {
@@ -511,8 +529,7 @@ CUXInterface::ReadResult CUXInterface::readMidFreqData()
  */
 CUXInterface::ReadResult CUXInterface::readLowFreqData()
 {
-    ReadResult result = ReadResult_NoStatement;
-    m_lowFreqReadCount += 1;
+    ReadResult result = ReadResult_NoStatement;    
 
     // attempt to read the MIL status; if it can't be read,
     // default it to off on the display
@@ -532,7 +549,39 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     //  tune resistor being switched in)
     if (m_enabledSamples[SampleType_FuelMap] && (m_lowFreqReadCount % 3 == 0))
     {
-        result = mergeResult(result, c14cux_getCurrentFuelMap(&m_cuxinfo, &m_currentFuelMapIndex));
+        uint8_t newFuelMapIndex = 0;
+        bool fuelMapIndexReadResult = c14cux_getCurrentFuelMap(&m_cuxinfo, &newFuelMapIndex);
+        result = mergeResult(result, fuelMapIndexReadResult);
+
+        // do some processing that is only relevant if we successfully read the current map ID
+        if (fuelMapIndexReadResult)
+        {
+            // if the fuel map index has changed, or if this is the first time we've read it
+            if ((newFuelMapIndex != m_currentFuelMapIndex) || !m_fuelMapIndexRead)
+            {
+                m_currentFuelMapIndex = newFuelMapIndex;
+                emit fuelMapIndexHasChanged(m_currentFuelMapIndex);
+            }
+
+            // regardless of whether the map has changed, we know now
+            // that is has been read at least once
+            m_fuelMapIndexRead = true;
+
+            // set the current fueling mode (open-loop or closed-loop)
+            c14cux_feedback_mode newFeedbackMode = C14CUX_FeedbackMode_ClosedLoop;
+            if ((m_currentFuelMapIndex >= s_firstOpenLoopMap) &&
+                (m_currentFuelMapIndex <= s_lastOpenLoopMap))
+            {
+                m_feedbackMode = C14CUX_FeedbackMode_OpenLoop;
+            }
+
+            // if the feedback mode has changed, emit a signal
+            if (newFeedbackMode != m_feedbackMode)
+            {
+                m_feedbackMode = newFeedbackMode;
+                emit feedbackModeHasChanged(m_feedbackMode);
+            }
+        }
     }
 
     if (m_fuelMapRefresh && (m_lowFreqReadCount % 3 == 0))
@@ -544,6 +593,8 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
     {
         m_lastLowFreqReadTime = QDateTime::currentMSecsSinceEpoch();
     }
+
+    m_lowFreqReadCount += 1;
 
     return result;
 }
@@ -624,9 +675,12 @@ QByteArray* CUXInterface::getFuelMap(unsigned int fuelMapId)
  * request.
  * @param ID of fuel map to invalidate
  */
-void CUXInterface::invalidateFuelMapData(unsigned int fuelMapId)
+void CUXInterface::invalidateFuelMapData()
 {
-    m_fuelMapDataIsCurrent[fuelMapId] = false;
+    for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
+    {
+        m_fuelMapDataIsCurrent[idx] = false;
+    }
 }
 
 /**
