@@ -6,7 +6,7 @@ Makefile
 RoverGauge.pro.user
 rovergauge
 qrc_rovergauge_resources.cpp
-ui_mainwindow.h
+ui_*.h
 CMakeCache.txt
 CMakeFiles/
 CPackConfig.cmake
