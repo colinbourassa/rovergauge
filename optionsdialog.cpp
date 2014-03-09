@@ -23,8 +23,9 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeNames[SampleType_TargetIdleRPM] = "SampleType_TargetIdleRPM";
     m_sampleTypeNames[SampleType_GearSelection] = "SampleType_GearSelection";
     m_sampleTypeNames[SampleType_MainVoltage] = "SampleType_MainVoltage";
-    m_sampleTypeNames[SampleType_LambdaTrim] = "SampleType_LambdaTrim";
-    m_sampleTypeNames[SampleType_FuelMap] = "SampleType_FuelMap";
+    m_sampleTypeNames[SampleType_LambdaTrimLong] = "SampleType_LambdaTrim";
+    m_sampleTypeNames[SampleType_COTrimVoltage] = "SampleType_COTrimVoltage";
+    m_sampleTypeNames[SampleType_FuelMapData] = "SampleType_FuelMap";
     m_sampleTypeNames[SampleType_FuelPumpRelay] = "SampleType_FuelPumpRelay";
 
     m_sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
@@ -37,9 +38,31 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_TargetIdleRPM] = "Idle mode / target RPM";
     m_sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
     m_sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
-    m_sampleTypeLabels[SampleType_LambdaTrim] = "Lambda trim / CO trim";
-    m_sampleTypeLabels[SampleType_FuelMap] = "Fuel map data";
+    m_sampleTypeLabels[SampleType_LambdaTrimLong] = "Lambda trim";
+    m_sampleTypeLabels[SampleType_COTrimVoltage] = "MAF CO trim";
+    m_sampleTypeLabels[SampleType_FuelMapData] = "Fuel map data";
     m_sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
+
+    // Ultimately, to make the read intervals configurable, we'll want to create controls
+    // on this form to handle the input. For now, they're just reasonable hardcoded values.
+    m_readIntervalsMs[SampleType_EngineTemperature] = 1500;
+    m_readIntervalsMs[SampleType_RoadSpeed] = 203;
+    m_readIntervalsMs[SampleType_EngineRPM] = 0;
+    m_readIntervalsMs[SampleType_FuelTemperature] = 1805;
+    m_readIntervalsMs[SampleType_MAF] = 0;
+    m_readIntervalsMs[SampleType_Throttle] = 0;
+    m_readIntervalsMs[SampleType_IdleBypassPosition] = 0;
+    m_readIntervalsMs[SampleType_TargetIdleRPM] = 485;
+    m_readIntervalsMs[SampleType_GearSelection] = 560;
+    m_readIntervalsMs[SampleType_MainVoltage] = 292;
+    m_readIntervalsMs[SampleType_LambdaTrimShort] = 0;
+    m_readIntervalsMs[SampleType_LambdaTrimLong] = 327;
+    m_readIntervalsMs[SampleType_COTrimVoltage] = 317;
+    m_readIntervalsMs[SampleType_FuelPumpRelay] = 333;
+    m_readIntervalsMs[SampleType_FuelMapRowCol] = 0;
+    m_readIntervalsMs[SampleType_FuelMapData] = 3500;
+    m_readIntervalsMs[SampleType_FuelMapIndex] = 1200;
+    m_readIntervalsMs[SampleType_MIL] = 333;
 
     this->setWindowTitle(title);
     readSettings();
@@ -216,7 +239,7 @@ void OptionsDialog::readSettings()
     m_serialDeviceName = settings.value(m_settingSerialDev, "").toString();
     m_speedUnits = (SpeedUnits)(settings.value(m_settingSpeedUnits, MPH).toInt());
     m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
-    m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
+    m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();       
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {

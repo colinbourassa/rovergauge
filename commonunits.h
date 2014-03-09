@@ -28,9 +28,15 @@ enum SampleType
     SampleType_TargetIdleRPM,
     SampleType_GearSelection,
     SampleType_MainVoltage,
-    SampleType_LambdaTrim,
-    SampleType_FuelMap,
-    SampleType_FuelPumpRelay
+    SampleType_LambdaTrimShort,
+    SampleType_LambdaTrimLong,
+    SampleType_COTrimVoltage,
+    SampleType_FuelPumpRelay,
+    SampleType_FuelMapRowCol,
+    SampleType_FuelMapData,
+    SampleType_FuelMapIndex,
+    SampleType_MIL,
+    SampleType_NumSampleTypes
 };
 
 typedef struct

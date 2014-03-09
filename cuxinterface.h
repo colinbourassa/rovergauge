@@ -27,11 +27,13 @@ public:
                           TemperatureUnits tUnits, bool fuelMapRefresh, QObject *parent = 0);
     ~CUXInterface();
 
-    void setSerialDevice(QString device) { m_deviceName = device; }
-    void setLambdaTrimType(c14cux_lambda_trim_type type) { m_lambdaTrimType = type; }
-    void setMAFReadingType(c14cux_airflow_type type) { m_airflowType = type; }
+    void setSerialDevice(QString device)                       { m_deviceName = device; }
+    void setLambdaTrimType(c14cux_lambda_trim_type type)       { m_lambdaTrimType = type; }
+    void setMAFReadingType(c14cux_airflow_type type)           { m_airflowType = type; }
     void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
+
     void setEnabledSamples(QHash<SampleType,bool> samples);
+    void setReadIntervals(QHash<SampleType,unsigned int> intervals);
 
     QString getSerialDevice() { return m_deviceName; }
     int getIntervalMsecs();
@@ -76,7 +78,6 @@ public:
 
 public slots:
     void onParentThreadStarted();
-    void onParentThreadFinished();
     void onFaultCodesRequested();
     void onFaultCodesClearRequested();
     void onFuelMapRequested(unsigned int fuelMapId);
@@ -118,22 +119,25 @@ signals:
     void fuelMapIndexHasChanged(unsigned int fuelMapId);
     void feedbackModeHasChanged(c14cux_feedback_mode newMode);
 
+    void data_maf(float data);
+    void data_throttle(float data);
+
 private slots:
     void onTimer();
 
 private:
     static const int s_firstOpenLoopMap = 1;
-    static const int s_lastOpenLoopMap = 3;
+    static const int s_lastOpenLoopMap = 3;       
 
     QString m_deviceName;
     c14cux_info m_cuxinfo;
-    QTimer *m_timer;
     bool m_stopPolling;
     bool m_shutdownThread;
     c14cux_faultcodes m_faultCodes;
     bool m_readCanceled;
-    unsigned long m_lowFreqReadCount;
     QHash<SampleType,bool> m_enabledSamples;
+    QHash<SampleType,qint64> m_lastReadTime;
+    QHash<SampleType,unsigned int> m_readIntervals;
 
     c14cux_lambda_trim_type m_lambdaTrimType;
     c14cux_feedback_mode m_feedbackMode;
@@ -160,7 +164,7 @@ private:
     float m_coTrimVoltage;
     bool m_milOn;
     uint16_t m_rpmLimit;
-    bool m_idleMode;
+    bool m_idleMode;    
 
     QByteArray *m_romImage;
 
@@ -173,23 +177,19 @@ private:
     TemperatureUnits m_tempUnits;
     bool m_fuelMapRefresh;
 
-    qint64 m_lastMidFreqReadTime;
-    qint64 m_lastLowFreqReadTime;
-
     bool m_initComplete;
 
     void pollEcu();
     void clearFlagsAndData();
     ReadResult readData();
-    ReadResult readHighFreqData();
-    ReadResult readMidFreqData();
-    ReadResult readLowFreqData();
     bool readFuelMap(unsigned int fuelMapId);
     bool connectToECU();
     int convertSpeed(int speedMph);
     int convertTemperature(int tempF);
     ReadResult mergeResult(ReadResult total, ReadResult single);
     ReadResult mergeResult(ReadResult total, bool single);
+    bool isDueForMeasurement(SampleType type);
+    bool isSampleAppropriateForMode(SampleType type);
 };
 
 #endif // CUXINTERFACE_H

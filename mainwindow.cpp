@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_enabledSamples = m_options->getEnabledSamples();
     m_cux->setEnabledSamples(m_enabledSamples);
+    m_cux->setReadIntervals(m_options->getReadIntervals());
 
     m_iacDialog = new IdleAirControlDialog(this->windowTitle(), this);
     connect(m_iacDialog, SIGNAL(requestIdleAirControlMovement(int,int)),
@@ -460,7 +461,7 @@ void MainWindow::onDataReady()
     m_ui->m_milLed->setChecked(m_cux->isMILOn());
 
     // if fuel map display updates are enabled...
-    if (m_enabledSamples[SampleType_FuelMap] && m_fuelMapDataIsCurrent)
+    if (m_enabledSamples[SampleType_FuelMapRowCol] && m_fuelMapDataIsCurrent)
     {
         removeFuelMapCellHighlight();
         highlightActiveFuelMapCell();
@@ -505,7 +506,7 @@ void MainWindow::onDataReady()
         m_ui->m_idleModeLed->setChecked(m_cux->getIdleMode());
     }
 
-    if (m_enabledSamples[SampleType_LambdaTrim])
+    if (m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong])
     {
         if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)
             setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
@@ -648,20 +649,32 @@ void MainWindow::onEditOptionsClicked()
         m_cux->setTemperatureUnits(tempUnits);
         m_cux->setPeriodicFuelMapRefresh(m_options->getRefreshFuelMap());
 
-        // the fields are updated one at a time, because a replacement of the entire
+        // The fields are updated one at a time, because a replacement of the entire
         // hash table (using the assignment operator) can disrupt other threads that
         // are reading the table at that time
         QHash<SampleType,bool> samples = m_options->getEnabledSamples();
         foreach (SampleType field, samples.keys())
         {
-            m_enabledSamples[field] = samples[field];
+            if (samples.keys().contains(field))
+            {
+                m_enabledSamples[field] = samples[field];
+            }
         }
 
+        // There are a few readings that we don't let the user adjust invidivually, so
+        // just force all the readings in a particular group to the same value.
+        // This includes both long- and short-term lambda trim, and the three fuel
+        // maps related pieces of data (row/col, index, and the map data itself.)
+        m_enabledSamples[SampleType_LambdaTrimShort] = m_enabledSamples[SampleType_LambdaTrimLong];
+        m_enabledSamples[SampleType_FuelMapIndex] = m_enabledSamples[SampleType_FuelMapData];
+        m_enabledSamples[SampleType_FuelMapRowCol] = m_enabledSamples[SampleType_FuelMapData];
+
         m_cux->setEnabledSamples(m_enabledSamples);
+        m_cux->setReadIntervals(m_options->getReadIntervals());
 
         dimUnusedControls();
 
-        // if the user changed the serial device name and/or the polling
+        // If the user changed the serial device name and/or the polling
         // interval, stop the timer, re-connect to the 14CUX (if neccessary),
         // and restart the timer
         if (m_options->getSerialDeviceChanged())
@@ -717,7 +730,7 @@ void MainWindow::dimUnusedControls()
     m_ui->m_targetIdle->setEnabled(enabled);
     m_idleModeLedOpacity->setEnabled(!enabled);
 
-    enabled = m_enabledSamples[SampleType_LambdaTrim];
+    enabled = (m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]);
     m_ui->m_lambdaTrimTypeLabel->setEnabled(enabled);
     m_ui->m_lambdaTrimLowLimitLabel->setEnabled(enabled);
     m_ui->m_lambdaTrimHighLimitLabel->setEnabled(enabled);
@@ -742,8 +755,9 @@ void MainWindow::dimUnusedControls()
     m_ui->m_fuelPumpRelayStateLed->setEnabled(enabled);
     m_fuelPumpLedOpacity->setEnabled(!enabled);
 
-    enabled = m_enabledSamples[SampleType_FuelMap];
-    m_ui->m_fuelMapIndexLabel->setEnabled(enabled);
+    m_ui->m_fuelMapIndexLabel->setEnabled(m_enabledSamples[SampleType_FuelMapIndex]);
+
+    enabled = (m_enabledSamples[SampleType_FuelMapData] && m_enabledSamples[SampleType_FuelMapRowCol]);
     m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 

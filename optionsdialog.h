@@ -24,11 +24,12 @@ class OptionsDialog : public QDialog
 public:
     OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
-    bool getSerialDeviceChanged() { return m_serialDeviceChanged; }
-    bool getRefreshFuelMap() { return m_refreshFuelMap; }
-    SpeedUnits getSpeedUnits() { return m_speedUnits; }
-    TemperatureUnits getTemperatureUnits() { return m_tempUnits; }
-    QHash<SampleType,bool> getEnabledSamples() { return m_enabledSamples; }
+    bool getSerialDeviceChanged()                     { return m_serialDeviceChanged; }
+    bool getRefreshFuelMap()                          { return m_refreshFuelMap; }
+    SpeedUnits getSpeedUnits()                        { return m_speedUnits; }
+    TemperatureUnits getTemperatureUnits()            { return m_tempUnits; }
+    QHash<SampleType,bool> getEnabledSamples()        { return m_enabledSamples; }
+    QHash<SampleType,unsigned int> getReadIntervals() { return m_readIntervalsMs; }
 
 protected:
     void accept();
@@ -68,6 +69,7 @@ private:
     QHash<SampleType,bool> m_enabledSamples;
     QHash<SampleType,QString> m_sampleTypeNames;
     QHash<SampleType,QString> m_sampleTypeLabels;
+    QHash<SampleType,unsigned int> m_readIntervalsMs;
     bool m_serialDeviceChanged;
     bool m_refreshFuelMap;
 

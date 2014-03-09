@@ -3,6 +3,8 @@
 #include <string.h>
 #include "cuxinterface.h"
 
+#include <stdio.h>
+
 /**
  * Constructor. Sets the serial device and measurement units.
  * @param device Name of (or path to) the serial device used to comminucate
@@ -14,11 +16,9 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
                            QObject *parent) :
     QObject(parent),
     m_deviceName(device),
-    m_timer(0),
     m_stopPolling(false),
     m_shutdownThread(false),
     m_readCanceled(false),
-    m_lowFreqReadCount(0),
     m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
     m_feedbackMode(C14CUX_FeedbackMode_ClosedLoop),
     m_airflowType(C14CUX_AirflowType_Linearized),
@@ -47,8 +47,6 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
     m_fuelMapRefresh(fuelMapRefresh),
-    m_lastMidFreqReadTime(0),
-    m_lastLowFreqReadTime(0),
     m_initComplete(false)
 {
     for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
@@ -58,6 +56,11 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     }
 
     memset(&m_rpmTable, 0, sizeof(m_rpmTable));
+
+    for (int type = 0; type < (int)SampleType_NumSampleTypes; type++)
+    {
+        m_lastReadTime.insert((SampleType)type, 0);
+    }
 }
 
 /**
@@ -280,7 +283,13 @@ void CUXInterface::clearFlagsAndData()
     }
 
     m_fuelMapIndexRead = false;
-    m_lowFreqReadCount = 0;
+
+    for (int type = 0; type < (int)SampleType_NumSampleTypes; type++)
+    {
+        m_lastReadTime[(SampleType)type] = 0;
+    }
+
+    m_lastReadTime[SampleType_FuelTemperature] = 750;
 }
 
 /**
@@ -306,18 +315,6 @@ bool CUXInterface::isConnected()
 }
 
 /**
- * Cleans up dynamically-allocated objects when the thread finishes.
- */
-void CUXInterface::onParentThreadFinished()
-{
-    if (m_timer != 0)
-    {
-        delete m_timer;
-        m_timer = 0;
-    }
-}
-
-/**
  * Responds to the parent thread being started by instantiating the library
  * object and a timer (if necessary), and emitting a signal indicating that
  * the interface is ready.
@@ -330,13 +327,6 @@ void CUXInterface::onParentThreadStarted()
     {
         c14cux_init(&m_cuxinfo);
         m_initComplete = true;
-    }
-
-    if (m_timer == 0)
-    {
-        m_timer = new QTimer(this);
-        m_timer->setSingleShot(true);
-        connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
     }
 
     emit interfaceReadyForPolling();
@@ -377,24 +367,7 @@ void CUXInterface::pollEcu()
 
     bool connected = c14cux_isConnected(&m_cuxinfo);
 
-    // if we're being asked to stop the thread, or if the 14CUX interface is
-    // no longer connected...
-    if (m_stopPolling || m_shutdownThread || !connected)
-    {
-        if (connected)
-        {
-            c14cux_disconnect(&m_cuxinfo);
-        }
-        emit disconnected();
-
-        clearFlagsAndData();
-
-        if (m_shutdownThread)
-        {
-            QThread::currentThread()->quit();
-        }
-    }
-    else
+    while (!m_stopPolling && !m_shutdownThread && connected)
     {
         res = readData();
         if (res == ReadResult_Success)
@@ -406,9 +379,68 @@ void CUXInterface::pollEcu()
         {
             emit readError();
         }
-
-        m_timer->start(0);
     }
+
+    if (connected)
+    {
+        c14cux_disconnect(&m_cuxinfo);
+    }
+    emit disconnected();
+
+    clearFlagsAndData();
+
+    if (m_shutdownThread)
+    {
+        QThread::currentThread()->quit();
+    }
+}
+
+/**
+ * Determines if the sample type should be read given the current operating mode
+ */
+bool CUXInterface::isSampleAppropriateForMode(SampleType type)
+{
+    bool status = true;
+
+    if (type == SampleType_LambdaTrimLong)
+    {
+        status = (m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) && (C14CUX_LambdaTrimType_LongTerm);
+    }
+    else if (type == SampleType_LambdaTrimShort)
+    {
+        status = (m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) && (C14CUX_LambdaTrimType_ShortTerm);
+    }
+    else if (type == SampleType_COTrimVoltage)
+    {
+        status = (m_feedbackMode == C14CUX_FeedbackMode_OpenLoop);
+    }
+    else if (type == SampleType_FuelMapData)
+    {
+        // only refresh the fuel map data itself if a special option is set
+        status = m_fuelMapRefresh;
+    }
+
+    return status;
+}
+
+/**
+ * Determines if a sample type is due to be read (i.e. enough time has passed since the
+ * last reading to prevent another read from being redundant)
+ */
+bool CUXInterface::isDueForMeasurement(SampleType type)
+{
+    bool status = false;
+
+    if (m_enabledSamples[type] && isSampleAppropriateForMode(type))
+    {
+        qint64 now = QDateTime::currentMSecsSinceEpoch();
+        if (now - m_lastReadTime[type] >= m_readIntervals[type])
+        {
+            status = true;
+        }
+    }
+
+    return status;
 }
 
 /**
@@ -418,136 +450,83 @@ void CUXInterface::pollEcu()
  */
 CUXInterface::ReadResult CUXInterface::readData()
 {
-    ReadResult totalResult = ReadResult_NoStatement;
-    qint64 now = QDateTime::currentMSecsSinceEpoch();
-
-    totalResult = mergeResult(totalResult, readHighFreqData());
-
-    if (now > (m_lastMidFreqReadTime + 200))
-    {
-        totalResult = mergeResult(totalResult, readMidFreqData());
-    }
-    if (now > (m_lastLowFreqReadTime + 800))
-    {
-        totalResult = mergeResult(totalResult, readLowFreqData());
-    }
-
-    return totalResult;
-}
-
-/**
- * Reads data that changes at a high rate, such as MAF reading and throttle position.
- * @return True if a read was scheduled and completed successfully,
- *  false otherwise.
- */
-CUXInterface::ReadResult CUXInterface::readHighFreqData()
-{
     ReadResult result = ReadResult_NoStatement;
 
-    if (m_enabledSamples[SampleType_MAF])
+    if (isDueForMeasurement(SampleType_MAF))
         result = mergeResult(result, c14cux_getMAFReading(&m_cuxinfo, m_airflowType, &m_mafReading));
 
-    if (m_enabledSamples[SampleType_Throttle])
+    if (isDueForMeasurement(SampleType_Throttle))
         result = mergeResult(result, c14cux_getThrottlePosition(&m_cuxinfo, m_throttlePosType, &m_throttlePos));
 
-    if (m_enabledSamples[SampleType_LambdaTrim] &&
-        (m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) &&
-        (m_lambdaTrimType == C14CUX_LambdaTrimType_ShortTerm))
+    if (isDueForMeasurement(SampleType_LambdaTrimShort))
     {
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
-    if (m_enabledSamples[SampleType_EngineRPM])
+    if (isDueForMeasurement(SampleType_EngineRPM))
         result = mergeResult(result, c14cux_getEngineRPM(&m_cuxinfo, &m_engineSpeedRPM));
 
-    if (m_enabledSamples[SampleType_FuelMap])
+    if (isDueForMeasurement(SampleType_FuelMapRowCol))
     {
         result = mergeResult(result, c14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex));
         result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex));
     }
 
-    if (m_enabledSamples[SampleType_IdleBypassPosition])
+    if (isDueForMeasurement(SampleType_IdleBypassPosition))
         result = mergeResult(result, c14cux_getIdleBypassMotorPosition(&m_cuxinfo, &m_idleBypassPos));
 
-    return result;
-}
-
-/**
- * Reads data that changes at a medium rate, such as lambda trim and target idle.
- * @return True if a read was scheduled and completed successfully,
- *  false otherwise.
- */
-CUXInterface::ReadResult CUXInterface::readMidFreqData()
-{
-    ReadResult result = ReadResult_NoStatement;
-
-    if (m_enabledSamples[SampleType_LambdaTrim])
+    if (isDueForMeasurement(SampleType_LambdaTrimLong))
     {
-        if ((m_feedbackMode == C14CUX_FeedbackMode_ClosedLoop) &&
-            (m_lambdaTrimType == C14CUX_LambdaTrimType_LongTerm))
-        {
-            result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
-            result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
-        }
-        else if (m_feedbackMode == C14CUX_FeedbackMode_OpenLoop)
-        {
-            result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
-        }
+        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
+        result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
-    if (m_enabledSamples[SampleType_MainVoltage])
+    if (isDueForMeasurement(SampleType_COTrimVoltage))
+        result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
+
+    if (isDueForMeasurement(SampleType_MainVoltage))
         result = mergeResult(result, c14cux_getMainVoltage(&m_cuxinfo, &m_mainVoltage));
 
-    if (m_enabledSamples[SampleType_TargetIdleRPM])
+    if (isDueForMeasurement(SampleType_TargetIdleRPM))
     {
         result = mergeResult(result, c14cux_getTargetIdle(&m_cuxinfo, &m_targetIdleSpeed));
         result = mergeResult(result, c14cux_getIdleMode(&m_cuxinfo, &m_idleMode));
     }
 
-    if (m_enabledSamples[SampleType_FuelPumpRelay])
+    if (isDueForMeasurement(SampleType_FuelPumpRelay))
         result = mergeResult(result, c14cux_getFuelPumpRelayState(&m_cuxinfo, &m_fuelPumpRelayOn));
 
-    if (m_enabledSamples[SampleType_GearSelection])
+    if (isDueForMeasurement(SampleType_GearSelection))
         result = mergeResult(result, c14cux_getGearSelection(&m_cuxinfo, &m_gear));
 
-    if (m_enabledSamples[SampleType_RoadSpeed])
+    if (isDueForMeasurement(SampleType_RoadSpeed))
         result = mergeResult(result, c14cux_getRoadSpeed(&m_cuxinfo, &m_roadSpeedMPH));
 
-    if (result == ReadResult_Success)
-    {
-        m_lastMidFreqReadTime = QDateTime::currentMSecsSinceEpoch();
-    }
-
-    return result;
-}
-
-/**
- * Reads data that changes at a low rate, such as temperatures.
- * @return True if a read was scheduled and completed successfully,
- *  false otherwise.
- */
-CUXInterface::ReadResult CUXInterface::readLowFreqData()
-{
-    ReadResult result = ReadResult_NoStatement;    
-
-    // attempt to read the MIL status; if it can't be read,
-    // default it to off on the display
-    if (!c14cux_isMILOn(&m_cuxinfo, &m_milOn))
-    {
-        m_milOn = false;
-    }
-
-    // alternate between reading coolant temperature and fuel temperature
-    if (m_enabledSamples[SampleType_EngineTemperature] && (m_lowFreqReadCount % 2 == 0))
+    if (isDueForMeasurement(SampleType_EngineTemperature))
         result = mergeResult(result, c14cux_getCoolantTemp(&m_cuxinfo, &m_coolantTempF));
-    else if (m_enabledSamples[SampleType_FuelTemperature])
+
+    if (isDueForMeasurement(SampleType_FuelTemperature))
         result = mergeResult(result, c14cux_getFuelTemp(&m_cuxinfo, &m_fuelTempF));
 
-    // less frequently, check the ID of the current fuel map
-    // (this would only change as a result of a different
-    //  tune resistor being switched in)
-    if (m_enabledSamples[SampleType_FuelMap] && (m_lowFreqReadCount % 3 == 0))
+    if (isDueForMeasurement(SampleType_FuelMapData))
+        readFuelMap(m_currentFuelMapIndex);
+
+    // attempt to read the MIL status; if it can't be read, default it to off on the display
+    if (isDueForMeasurement(SampleType_MIL))
+    {
+        if (c14cux_isMILOn(&m_cuxinfo, &m_milOn))
+        {
+            result = mergeResult(result, true);
+        }
+        else
+        {
+            result = mergeResult(result, false);
+            m_milOn = false;
+        }
+    }
+
+    if (isDueForMeasurement(SampleType_FuelMapIndex))
     {
         uint8_t newFuelMapIndex = 0;
         bool fuelMapIndexReadResult = c14cux_getCurrentFuelMap(&m_cuxinfo, &newFuelMapIndex);
@@ -583,18 +562,6 @@ CUXInterface::ReadResult CUXInterface::readLowFreqData()
             }
         }
     }
-
-    if (m_fuelMapRefresh && (m_lowFreqReadCount % 3 == 0))
-    {
-        readFuelMap(m_currentFuelMapIndex);
-    }
-
-    if (result == ReadResult_Success)
-    {
-        m_lastLowFreqReadTime = QDateTime::currentMSecsSinceEpoch();
-    }
-
-    m_lowFreqReadCount += 1;
 
     return result;
 }
@@ -755,6 +722,17 @@ void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
     foreach (SampleType field, samples.keys())
     {
         m_enabledSamples[field] = samples[field];
+    }
+}
+
+/**
+ * Updates the list of intervals at which the various sensor values should be read
+ */
+void CUXInterface::setReadIntervals(QHash<SampleType, unsigned int> intervals)
+{
+    foreach (SampleType field, intervals.keys())
+    {
+        m_readIntervals[field] = intervals[field];
     }
 }
 
