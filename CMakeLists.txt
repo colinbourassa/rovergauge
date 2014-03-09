@@ -3,7 +3,7 @@ project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 6)
-set (ROVERGAUGE_VER_PATCH 0)
+set (ROVERGAUGE_VER_PATCH 5)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -47,6 +47,7 @@ include_directories ("${CMAKE_SOURCE_DIR}"
                      "${Qt5Widgets_INCLUDE_DIRS}")
 
 qt5_wrap_ui (UI_SOURCE mainwindow.ui)
+qt5_wrap_ui (UI_SOURCE optionsdialog.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
 qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")

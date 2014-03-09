@@ -1,4 +1,5 @@
 #include <QSettings>
+#include "ui_optionsdialog.h"
 #include "optionsdialog.h"
 #include "serialdevenumerator.h"
 
@@ -11,8 +12,12 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_settingSerialDev("SerialDevice"),
     m_settingRefreshFuelMap("RefreshFuelMap"),
     m_settingSpeedUnits("SpeedUnits"),
-    m_settingTemperatureUnits("TemperatureUnits")
+    m_settingTemperatureUnits("TemperatureUnits"),
+    m_ui(new Ui::OptionsDialog)
 {
+    m_ui->setupUi(this);
+    this->setLayout(m_ui->m_mainLayout);
+
     m_sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
     m_sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
     m_sampleTypeNames[SampleType_EngineRPM] = "SampleType_EngineRPM";
@@ -74,38 +79,11 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
  */
 void OptionsDialog::setupWidgets()
 {
-    unsigned int row = 0;
-    unsigned char numCheckboxesPerColumn = 0;
+    unsigned char column = 0;
+    unsigned char row = 0;
     unsigned char checkboxIndex = 0;
-    unsigned int checkboxStartingRow = row;
+    unsigned char numCheckboxesPerColumn;
 
-    m_grid = new QGridLayout(this);
-
-    m_serialDeviceLabel = new QLabel("Serial device name:", this);
-    m_serialDeviceBox = new QComboBox(this);
-
-    m_speedUnitsLabel = new QLabel("Speed units:", this);
-    m_speedUnitsBox = new QComboBox(this);
-
-    m_temperatureUnitsLabel = new QLabel("Temperature units:", this);
-    m_temperatureUnitsBox = new QComboBox(this);
-
-    m_refreshFuelMapCheckbox = new QCheckBox("Periodically refresh fuel map data", this);
-    m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
-
-    m_horizontalLineA = new QFrame(this);
-    m_horizontalLineA->setFrameShape(QFrame::HLine);
-    m_horizontalLineA->setFrameShadow(QFrame::Sunken);
-
-    m_horizontalLineB = new QFrame(this);
-    m_horizontalLineB->setFrameShape(QFrame::HLine);
-    m_horizontalLineB->setFrameShadow(QFrame::Sunken);
-
-    m_horizontalLineC = new QFrame(this);
-    m_horizontalLineC->setFrameShape(QFrame::HLine);
-    m_horizontalLineC->setFrameShadow(QFrame::Sunken);
-
-    m_enabledSamplesLabel = new QLabel("Enabled readings:", this);
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
         m_enabledSamplesBoxes.insert(sType, new QCheckBox(m_sampleTypeLabels[sType], this));
@@ -113,70 +91,31 @@ void OptionsDialog::setupWidgets()
     }
     numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
 
-    m_checkAllButton = new QPushButton("Enable all", this);
-    m_uncheckAllButton = new QPushButton("Disable all", this);
-
-    m_okButton = new QPushButton("OK", this);
-    m_cancelButton = new QPushButton("Cancel", this);
-
     SerialDevEnumerator serialDevs;
-    m_serialDeviceBox->addItems(serialDevs.getSerialDevList(m_serialDeviceName));
-    m_serialDeviceBox->setEditable(true);
-    m_serialDeviceBox->setMinimumWidth(150);
+    m_ui->m_serialDeviceBox->addItems(serialDevs.getSerialDevList(m_serialDeviceName));
 
-    m_speedUnitsBox->setEditable(false);
-    m_speedUnitsBox->addItem("MPH");
-    m_speedUnitsBox->addItem("ft/s");
-    m_speedUnitsBox->addItem("km/h");
-    m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
+    m_ui->m_speedUnitsBox->addItem("MPH");
+    m_ui->m_speedUnitsBox->addItem("ft/s");
+    m_ui->m_speedUnitsBox->addItem("km/h");
+    m_ui->m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
 
-    m_temperatureUnitsBox->setEditable(false);
-    m_temperatureUnitsBox->addItem("Fahrenheit");
-    m_temperatureUnitsBox->addItem("Celcius");
-    m_temperatureUnitsBox->setCurrentIndex((int)m_tempUnits);
-
-    m_grid->addWidget(m_serialDeviceLabel, row, 0);
-    m_grid->addWidget(m_serialDeviceBox, row++, 1);
-
-    m_grid->addWidget(m_speedUnitsLabel, row, 0);
-    m_grid->addWidget(m_speedUnitsBox, row++, 1);
-
-    m_grid->addWidget(m_temperatureUnitsLabel, row, 0);
-    m_grid->addWidget(m_temperatureUnitsBox, row++, 1);
-
-    m_grid->addWidget(m_horizontalLineA, row++, 0, 1, 2);
-
-    m_grid->addWidget(m_enabledSamplesLabel, row++, 0);
-
-    m_grid->addWidget(m_checkAllButton, row, 0);
-    m_grid->addWidget(m_uncheckAllButton, row++, 1);
-
-    checkboxStartingRow = row;
+    m_ui->m_temperatureUnitsBox->addItem("Fahrenheit");
+    m_ui->m_temperatureUnitsBox->addItem("Celcius");
+    m_ui->m_temperatureUnitsBox->setCurrentIndex((int)m_tempUnits);
 
     foreach (QCheckBox *sampleCheckBox, m_enabledSamplesBoxes)
     {
-        m_grid->addWidget(sampleCheckBox, row, (checkboxIndex <= numCheckboxesPerColumn) ? 0 : 1);
-        row = (checkboxIndex == numCheckboxesPerColumn) ? checkboxStartingRow : (row + 1);
+        m_ui->m_checkboxLayout->addWidget(sampleCheckBox, row, column);
+        column = (checkboxIndex < numCheckboxesPerColumn) ? 0 : 1;
+        row = (checkboxIndex == numCheckboxesPerColumn) ? 0 : (row + 1);
         checkboxIndex += 1;
     }
 
-    if (m_enabledSamplesBoxes.count() % 2 == 1)
-    {
-        row++;
-    }
+    connect(m_ui->m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
+    connect(m_ui->m_uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
 
-    m_grid->addWidget(m_horizontalLineB, row++, 0, 1, 2);   
-    m_grid->addWidget(m_refreshFuelMapCheckbox, row++, 0, 1, 2);
-    m_grid->addWidget(m_horizontalLineC, row++, 0, 1, 2);
-
-    m_grid->addWidget(m_okButton, row, 0);
-    m_grid->addWidget(m_cancelButton, row++, 1);
-
-    connect(m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
-    connect(m_uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
-
-    connect(m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_ui->m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(m_ui->m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 void OptionsDialog::checkAll()
@@ -200,7 +139,7 @@ void OptionsDialog::uncheckAll()
  */
 void OptionsDialog::accept()
 {
-    QString newSerialDeviceName = m_serialDeviceBox->currentText();
+    QString newSerialDeviceName = m_ui->m_serialDeviceBox->currentText();
 
     // set a flag if the serial device has been changed;
     // the main application needs to know if it should
@@ -215,9 +154,9 @@ void OptionsDialog::accept()
         m_serialDeviceChanged = false;
     }
 
-    m_tempUnits = (TemperatureUnits)(m_temperatureUnitsBox->currentIndex());
-    m_speedUnits = (SpeedUnits)(m_speedUnitsBox->currentIndex());
-    m_refreshFuelMap = m_refreshFuelMapCheckbox->isChecked();
+    m_tempUnits = (TemperatureUnits)(m_ui->m_temperatureUnitsBox->currentIndex());
+    m_speedUnits = (SpeedUnits)(m_ui->m_speedUnitsBox->currentIndex());
+    m_refreshFuelMap = m_ui->m_refreshFuelMapCheckbox->isChecked();
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
