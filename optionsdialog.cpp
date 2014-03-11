@@ -51,7 +51,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     // Ultimately, to make the read intervals configurable, we'll want to create controls
     // on this form to handle the input. For now, they're just reasonable hardcoded values.
     m_readIntervalsMs[SampleType_EngineTemperature] = 1500;
-    m_readIntervalsMs[SampleType_RoadSpeed] = 203;
+    m_readIntervalsMs[SampleType_RoadSpeed] = 1000;
     m_readIntervalsMs[SampleType_EngineRPM] = 0;
     m_readIntervalsMs[SampleType_FuelTemperature] = 1805;
     m_readIntervalsMs[SampleType_MAF] = 0;
