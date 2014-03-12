@@ -1,9 +1,8 @@
 #include <QThread>
 #include <QDateTime>
+#include <QCoreApplication>
 #include <string.h>
 #include "cuxinterface.h"
-
-#include <stdio.h>
 
 /**
  * Constructor. Sets the serial device and measurement units.
@@ -377,6 +376,7 @@ void CUXInterface::pollEcu()
         {
             emit readError();
         }
+        QCoreApplication::processEvents();
     }
 
     if (connected)
@@ -455,101 +455,85 @@ CUXInterface::ReadResult CUXInterface::readData()
 
     if (isDueForMeasurement(SampleType_MAF))
     {
-        printf("%llu: MAF\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getMAFReading(&m_cuxinfo, m_airflowType, &m_mafReading));
     }
 
     if (isDueForMeasurement(SampleType_Throttle))
     {
-        printf("%llu: Throttle\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getThrottlePosition(&m_cuxinfo, m_throttlePosType, &m_throttlePos));
     }
 
     if (isDueForMeasurement(SampleType_LambdaTrimShort))
     {
-        printf("%llu: Lambda short\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
         result = mergeResult(result, c14cux_getLambdaTrimShort(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
     if (isDueForMeasurement(SampleType_EngineRPM))
     {
-        printf("%llu: RPM\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getEngineRPM(&m_cuxinfo, &m_engineSpeedRPM));
     }
 
     if (isDueForMeasurement(SampleType_FuelMapRowCol))
     {
-        printf("%llu: Fuel map row/col\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex));
         result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex));
     }
 
     if (isDueForMeasurement(SampleType_IdleBypassPosition))
     {
-        printf("%llu: Idle bypass pos\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getIdleBypassMotorPosition(&m_cuxinfo, &m_idleBypassPos));
     }
 
     if (isDueForMeasurement(SampleType_LambdaTrimLong))
     {
-        printf("%llu: Lambda long\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Odd, &m_lambdaTrimOdd));
         result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
     }
 
     if (isDueForMeasurement(SampleType_COTrimVoltage))
     {
-        printf("%llu: CO trim\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
     }
 
     if (isDueForMeasurement(SampleType_MainVoltage))
     {
-        printf("%llu: Main voltage\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getMainVoltage(&m_cuxinfo, &m_mainVoltage));
     }
 
     if (isDueForMeasurement(SampleType_TargetIdleRPM))
     {
-        printf("%llu: Target idle\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getTargetIdle(&m_cuxinfo, &m_targetIdleSpeed));
         result = mergeResult(result, c14cux_getIdleMode(&m_cuxinfo, &m_idleMode));
     }
 
     if (isDueForMeasurement(SampleType_FuelPumpRelay))
     {
-        printf("%llu: Fuel pump relay\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getFuelPumpRelayState(&m_cuxinfo, &m_fuelPumpRelayOn));
     }
 
     if (isDueForMeasurement(SampleType_GearSelection))
     {
-        printf("%llu: Gear selection\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getGearSelection(&m_cuxinfo, &m_gear));
     }
 
     if (isDueForMeasurement(SampleType_RoadSpeed))
     {
-        printf("%llu: Road speed\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getRoadSpeed(&m_cuxinfo, &m_roadSpeedMPH));
     }
 
     if (isDueForMeasurement(SampleType_EngineTemperature))
     {
-        printf("%llu: Coolant temp\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getCoolantTemp(&m_cuxinfo, &m_coolantTempF));
     }
 
     if (isDueForMeasurement(SampleType_FuelTemperature))
     {
-        printf("%llu: Fuel temp\n", QDateTime::currentMSecsSinceEpoch());
         result = mergeResult(result, c14cux_getFuelTemp(&m_cuxinfo, &m_fuelTempF));
     }
 
     if (isDueForMeasurement(SampleType_FuelMapData))
     {
-        printf("%llu: Fuel map index\n", QDateTime::currentMSecsSinceEpoch());
         readFuelMap(m_currentFuelMapIndex);
     }
 
