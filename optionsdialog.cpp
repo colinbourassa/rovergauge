@@ -185,6 +185,8 @@ void OptionsDialog::readSettings()
         m_enabledSamples[sType] = settings.value(m_sampleTypeNames[sType], true).toBool();
     }
 
+    groupLikeSettings();
+
     settings.endGroup();
 }
 
@@ -206,7 +208,23 @@ void OptionsDialog::writeSettings()
         settings.setValue(m_sampleTypeNames[sType], m_enabledSamples[sType]);
     }
 
+    groupLikeSettings();
+
     settings.endGroup();
+}
+
+/**
+ * Sets all enabled samples in the same group to the same value.
+ */
+void OptionsDialog::groupLikeSettings()
+{
+    // There are a few readings that we don't let the user adjust invidivually, so
+    // just force all the readings in a particular group to the same value.
+    // This includes both long- and short-term lambda trim, and the three fuel
+    // map related pieces of data (row/col, index, and the map data itself.)
+    m_enabledSamples[SampleType_LambdaTrimShort] = m_enabledSamples[SampleType_LambdaTrimLong];
+    m_enabledSamples[SampleType_FuelMapRowCol] = m_enabledSamples[SampleType_FuelMapData];
+    m_enabledSamples[SampleType_FuelMapIndex] = m_enabledSamples[SampleType_FuelMapData];
 }
 
 /**

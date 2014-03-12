@@ -57,6 +57,7 @@ private:
     const QString m_settingSpeedUnits;
     const QString m_settingTemperatureUnits;
 
+    void groupLikeSettings();
     void setupWidgets();
     void readSettings();
     void writeSettings();

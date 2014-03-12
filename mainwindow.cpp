@@ -661,14 +661,6 @@ void MainWindow::onEditOptionsClicked()
             }
         }
 
-        // There are a few readings that we don't let the user adjust invidivually, so
-        // just force all the readings in a particular group to the same value.
-        // This includes both long- and short-term lambda trim, and the three fuel
-        // maps related pieces of data (row/col, index, and the map data itself.)
-        m_enabledSamples[SampleType_LambdaTrimShort] = m_enabledSamples[SampleType_LambdaTrimLong];
-        m_enabledSamples[SampleType_FuelMapIndex] = m_enabledSamples[SampleType_FuelMapData];
-        m_enabledSamples[SampleType_FuelMapRowCol] = m_enabledSamples[SampleType_FuelMapData];
-
         m_cux->setEnabledSamples(m_enabledSamples);
         m_cux->setReadIntervals(m_options->getReadIntervals());
 
