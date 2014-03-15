@@ -144,7 +144,7 @@ private:
     c14cux_airflow_type m_airflowType;
     c14cux_throttle_pos_type m_throttlePosType;
 
-    uint16_t m_roadSpeedMPH;
+    uint8_t m_roadSpeedMPH;
     uint16_t m_engineSpeedRPM;
     uint16_t m_targetIdleSpeed;
     int16_t m_coolantTempF;
