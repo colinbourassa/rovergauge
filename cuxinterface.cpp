@@ -312,9 +312,9 @@ bool CUXInterface::isConnected()
 }
 
 /**
- * Responds to the parent thread being started by instantiating the library
- * object and a timer (if necessary), and emitting a signal indicating that
- * the interface is ready.
+ * Responds to the parent thread being started by initializing the libcomm14cux
+ * structure (if necessary), and emitting a signal indicating that the
+ * interface is ready.
  */
 void CUXInterface::onParentThreadStarted()
 {
@@ -589,14 +589,6 @@ CUXInterface::ReadResult CUXInterface::readData()
     }
 
     return result;
-}
-
-/**
- * Responds to the single-shot timer expiring by polling the ECU for new data.
- */
-void CUXInterface::onTimer()
-{
-    pollEcu();
 }
 
 /**

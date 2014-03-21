@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QTimer>
 #include <QHash>
 #include <QByteArray>
 #include <QHash>
@@ -121,9 +120,6 @@ signals:
 
     void data_maf(float data);
     void data_throttle(float data);
-
-private slots:
-    void onTimer();
 
 private:
     static const int s_firstOpenLoopMap = 1;
