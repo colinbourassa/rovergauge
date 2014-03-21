@@ -130,7 +130,6 @@ void MainWindow::buildSpeedAndTempUnitTables()
 {
     m_speedUnitSuffix = new QHash<SpeedUnits,QString>();
     m_speedUnitSuffix->insert(MPH, " MPH");
-    m_speedUnitSuffix->insert(FPS, " ft/s");
     m_speedUnitSuffix->insert(KPH, " km/h");
 
     m_tempUnitSuffix = new QHash<TemperatureUnits,QString>;

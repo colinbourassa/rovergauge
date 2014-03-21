@@ -95,7 +95,6 @@ void OptionsDialog::setupWidgets()
     m_ui->m_serialDeviceBox->addItems(serialDevs.getSerialDevList(m_serialDeviceName));
 
     m_ui->m_speedUnitsBox->addItem("MPH");
-    m_ui->m_speedUnitsBox->addItem("ft/s");
     m_ui->m_speedUnitsBox->addItem("km/h");
     m_ui->m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
 

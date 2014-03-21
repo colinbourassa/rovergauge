@@ -5,9 +5,8 @@
 
 enum SpeedUnits
 {
-    MPH = 0,
-    FPS = 1,
-    KPH = 2
+    MPH,
+    KPH
 };
 
 enum TemperatureUnits
