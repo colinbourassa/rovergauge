@@ -70,6 +70,7 @@ public:
     float getCOTrimVoltage()          { return m_coTrimVoltage; }
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
+    int getFinalFuelingVal(         ) { return m_finalFuelingVal; }
 
     void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
     void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
@@ -165,6 +166,7 @@ private:
     bool m_milOn;
     uint16_t m_rpmLimit;
     bool m_idleMode;    
+    uint16_t m_finalFuelingVal;
 
     QByteArray *m_romImage;
 

@@ -635,6 +635,9 @@
           </item>
           <item row="3" column="1" colspan="3">
            <widget class="QProgressBar" name="m_fuelingValueBar">
+            <property name="maximum">
+             <number>65535</number>
+            </property>
             <property name="value">
              <number>0</number>
             </property>
@@ -767,7 +770,7 @@
  <connections/>
  <buttongroups>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
-  <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
  </buttongroups>
 </ui>

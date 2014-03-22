@@ -51,6 +51,7 @@
     <li><b>Multiplier:</b> This is a value associated with the current fuel map, and it seems to be used to adjust the fueling values for the engine displacement. It will change significantly between fuel maps intended for different engine displacements.</li>
     <li><b>Fuel map:</b> Displays the currently selected fuel map as a 16x8 matrix. Each cell is colored as a quick visual indicator of the fueling values; higher color saturation corresponds to more fuel. Columns in the matrix correspond to different engine speeds, and rows correspond to different engine loads. The cell with the value closest to the fueling value currently in use will be highlighted by the software. The numbers in the header row reflect the engine RPM threshold for each column.</li>
     <li><b>Fuel pump relay:</b> The green lamp will be lit when the ECU is attempting to run the fuel pump.</li>
+    <li><b>Fueling value:</b> The final computed fueling value, after adjustment by all the environmental factors, that is used to set the fuel injector pulse width timing. A large number corresponds to a longer pulse and more fuel.</li>
     </ul>
 
     <h3>Options dialog</h3>
@@ -60,6 +61,7 @@
     <li><b>Temperature units:</b> Sets the preferred units of temperature for the coolant- and fuel-temperature displays.</li>
     <li><b>Enabled readings:</b> These checkboxes allow the user to enable reading only certain parameters. This allows the limited bandwidth of the diagnostic port to be used for only those parameters that interest the user. If fewer readings are enabled, they will update more quickly and smoothly than if all the readings are enabled.</li>
     <li><b>Periodically refresh fuel map data:</b> When set, this causes the fuel map contents to be re-read from the ECU every few seconds. This can be useful when running a ROM emulator to tune a map on a running engine.</li>
+    <li><b>"Soft" fuel map cell highlight:</b> Causes the display to show the weighted average of the four active fuel map cells by shading them in the same proportion. If this option is turned off, the display will round to the nearest row/column and show only a single cell as being active.</li>
     </ul>
 
     <h3>Idle air control dialog</h3>

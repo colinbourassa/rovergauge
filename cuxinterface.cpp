@@ -44,6 +44,7 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_coTrimVoltage(0.0),
     m_milOn(false),
     m_idleMode(false),
+    m_finalFuelingVal(0),
     m_romImage(0),
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
@@ -480,6 +481,11 @@ CUXInterface::ReadResult CUXInterface::readData()
     {
         result = mergeResult(result, c14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex, &m_fuelMapRowWeighting));
         result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex, &m_fuelMapColWeighting));
+    }
+
+    if (isDueForMeasurement(SampleType_FinalFuelingVal))
+    {
+        result = mergeResult(result, c14cux_getFinalFuelingValue(&m_cuxinfo, &m_finalFuelingVal));
     }
 
     if (isDueForMeasurement(SampleType_IdleBypassPosition))

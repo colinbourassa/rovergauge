@@ -33,6 +33,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeNames[SampleType_COTrimVoltage] = "SampleType_COTrimVoltage";
     m_sampleTypeNames[SampleType_FuelMapData] = "SampleType_FuelMap";
     m_sampleTypeNames[SampleType_FuelPumpRelay] = "SampleType_FuelPumpRelay";
+    m_sampleTypeNames[SampleType_FinalFuelingVal] = "SampleType_FinalFuelingVal";
 
     m_sampleTypeLabels[SampleType_EngineTemperature] = "Engine temperature";
     m_sampleTypeLabels[SampleType_RoadSpeed] = "Road speed";
@@ -48,6 +49,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_COTrimVoltage] = "MAF CO trim";
     m_sampleTypeLabels[SampleType_FuelMapData] = "Fuel map data";
     m_sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
+    m_sampleTypeLabels[SampleType_FinalFuelingVal] = "Final fueling value";
 
     // Ultimately, to make the read intervals configurable, we'll want to create controls
     // on this form to handle the input. For now, they're just reasonable hardcoded values.
@@ -68,6 +70,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_readIntervalsMs[SampleType_FuelMapRowCol] = 0;
     m_readIntervalsMs[SampleType_FuelMapData] = 3500;
     m_readIntervalsMs[SampleType_FuelMapIndex] = 1200;
+    m_readIntervalsMs[SampleType_FinalFuelingVal] = 0;
     m_readIntervalsMs[SampleType_MIL] = 333;
 
     this->setWindowTitle(title);
@@ -105,9 +108,9 @@ void OptionsDialog::setupWidgets()
     foreach (QCheckBox *sampleCheckBox, m_enabledSamplesBoxes)
     {
         m_ui->m_checkboxLayout->addWidget(sampleCheckBox, row, column);
-        checkboxIndex += 1;
         column = (checkboxIndex < numCheckboxesPerColumn) ? 0 : 1;
         row = (checkboxIndex == numCheckboxesPerColumn) ? 0 : (row + 1);
+        checkboxIndex += 1;
     }
 
     connect(m_ui->m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));

@@ -497,6 +497,9 @@ void MainWindow::onDataReady()
     if (m_enabledSamples[SampleType_FuelPumpRelay])
         m_ui->m_fuelPumpRelayStateLed->setChecked(m_cux->getFuelPumpRelayState());
 
+    if (m_enabledSamples[SampleType_FinalFuelingVal])
+        m_ui->m_fuelingValueBar->setValue(m_cux->getFinalFuelingVal());
+
     if (m_enabledSamples[SampleType_TargetIdleRPM])
     {
         int targetIdleSpeedRPM = m_cux->getTargetIdleSpeed();
@@ -827,6 +830,10 @@ void MainWindow::dimUnusedControls()
     m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 
+    enabled = m_enabledSamples[SampleType_FinalFuelingVal];
+    m_ui->m_fuelingValueLabel->setEnabled(enabled);
+    m_ui->m_fuelingValueBar->setEnabled(enabled);
+
     // These controls are shown in a disabled state by applying a 50% opacity
     // graphical effect; the 'enabled' bit is therefore inverted because it's
     // controlling the state of the graphical effect (rather than the widget).
@@ -915,6 +922,7 @@ void MainWindow::onDisconnect()
         m_ui->m_oddFuelTrimBarLabel->setText("0.0VDC");
     m_ui->m_evenFuelTrimBar->setValue(0);
     m_ui->m_evenFuelTrimBarLabel->setText("+0%");
+    m_ui->m_fuelingValueBar->setValue(0);
 
     m_ui->m_oddFuelTrimBar->repaint();
     m_ui->m_evenFuelTrimBar->repaint();
