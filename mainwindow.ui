@@ -503,17 +503,20 @@
         </item>
         <item>
          <layout class="QGridLayout" name="m_fuelAndLoggingLayout">
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="m_fuelMapIndexLabel">
-            <property name="text">
-             <string>Current fuel map:</string>
+          <item row="4" column="0" colspan="4">
+           <widget class="Line" name="m_hline0">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="m_fuelMapFactorLabel">
+          <item row="3" column="0">
+           <widget class="QLabel" name="m_fuelingValueLabel">
             <property name="text">
-             <string>Multiplier:</string>
+             <string>Fueling value:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -563,26 +566,6 @@
             <column/>
            </widget>
           </item>
-          <item row="2" column="0" alignment="Qt::AlignRight">
-           <widget class="QLedIndicator" name="m_fuelPumpRelayStateLed" native="true"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="m_fuelPumpRelayStateLabel">
-            <property name="text">
-             <string>Fuel pump relay</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="m_fuelPumpOneshotButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Run pump (one shot)</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="3">
            <widget class="QPushButton" name="m_fuelPumpContinuousButton">
             <property name="enabled">
@@ -596,14 +579,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="4">
-           <widget class="Line" name="m_hline0">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
+          <item row="5" column="0">
            <widget class="QLabel" name="m_logFileNameLabel">
             <property name="text">
              <string>Log file name:</string>
@@ -613,13 +589,20 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2" colspan="2">
-           <widget class="QLineEdit" name="m_logFileNameBox"/>
-          </item>
           <item row="5" column="2">
            <widget class="QPushButton" name="m_startLoggingButton">
             <property name="text">
              <string>Start logging</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="m_fuelPumpOneshotButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Run pump (one shot)</string>
             </property>
            </widget>
           </item>
@@ -630,6 +613,53 @@
             </property>
             <property name="text">
              <string>Stop logging</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="m_fuelMapIndexLabel">
+            <property name="text">
+             <string>Current fuel map:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="m_fuelMapFactorLabel">
+            <property name="text">
+             <string>Multiplier:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="m_logFileNameBox"/>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QProgressBar" name="m_fuelingValueBar">
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="format">
+             <string>%p</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLedIndicator" name="m_fuelPumpRelayStateLed" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>40</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="m_fuelPumpRelayStateLabel">
+            <property name="text">
+             <string>Fuel pump relay:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -736,8 +766,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_mafReadingButtonGroup"/>
-  <buttongroup name="m_throttleTypeButtonGroup"/>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
+  <buttongroup name="m_throttleTypeButtonGroup"/>
+  <buttongroup name="m_mafReadingButtonGroup"/>
  </buttongroups>
 </ui>
