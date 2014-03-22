@@ -21,13 +21,15 @@ public:
     QString getSerialDeviceName();
     bool getSerialDeviceChanged()                     { return m_serialDeviceChanged; }
     bool getRefreshFuelMap()                          { return m_refreshFuelMap; }
+    bool getSoftHighlight()                           { return m_softHighlight; }
     SpeedUnits getSpeedUnits()                        { return m_speedUnits; }
     TemperatureUnits getTemperatureUnits()            { return m_tempUnits; }
-    QHash<SampleType,bool> getEnabledSamples()        { return m_enabledSamples; }
+    QMap<SampleType,bool> getEnabledSamples()         { return m_enabledSamples; }
     QHash<SampleType,unsigned int> getReadIntervals() { return m_readIntervalsMs; }
 
 protected:
     void accept();
+    void reject();
 
 private slots:
     void checkAll();
@@ -36,29 +38,32 @@ private slots:
 private:
     Ui::OptionsDialog *m_ui;
 
-    QHash<SampleType,QCheckBox*> m_enabledSamplesBoxes;
+    QMap<SampleType,QCheckBox*> m_enabledSamplesBoxes;
 
     QString m_serialDeviceName;
     TemperatureUnits m_tempUnits;
     SpeedUnits m_speedUnits;
 
-    QHash<SampleType,bool> m_enabledSamples;
-    QHash<SampleType,QString> m_sampleTypeNames;
-    QHash<SampleType,QString> m_sampleTypeLabels;
+    QMap<SampleType,bool> m_enabledSamples;
+    QMap<SampleType,QString> m_sampleTypeNames;
+    QMap<SampleType,QString> m_sampleTypeLabels;
     QHash<SampleType,unsigned int> m_readIntervalsMs;
     bool m_serialDeviceChanged;
     bool m_refreshFuelMap;
+    bool m_softHighlight;
 
     const QString m_settingsFileName;
     const QString m_settingsGroupName;
 
     const QString m_settingSerialDev;
     const QString m_settingRefreshFuelMap;
+    const QString m_settingSoftHighlight;
     const QString m_settingSpeedUnits;
     const QString m_settingTemperatureUnits;
 
     void groupLikeSettings();
     void setupWidgets();
+    void setWidgetValues();
     void readSettings();
     void writeSettings();
 };

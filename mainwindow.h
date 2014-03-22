@@ -15,6 +15,7 @@
 #include <QFrame>
 #include <QTableWidget>
 #include <QHash>
+#include <QMap>
 #include <QPair>
 #include <QTimer>
 #include <QGraphicsOpacityEffect>
@@ -107,7 +108,7 @@ private:
     QGraphicsOpacityEffect *m_idleModeLedOpacity;
     QGraphicsOpacityEffect *m_fuelPumpLedOpacity;
 
-    QHash<SampleType,bool> m_enabledSamples;
+    QMap<SampleType,bool> m_enabledSamples;
 
     static const float speedometerMaxMPH = 160.0;
     static const float speedometerMaxKPH = 240.0;

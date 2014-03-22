@@ -11,6 +11,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_settingsGroupName("Settings"),
     m_settingSerialDev("SerialDevice"),
     m_settingRefreshFuelMap("RefreshFuelMap"),
+    m_settingSoftHighlight("SoftHighlight"),
     m_settingSpeedUnits("SpeedUnits"),
     m_settingTemperatureUnits("TemperatureUnits"),
     m_ui(new Ui::OptionsDialog)
@@ -87,7 +88,6 @@ void OptionsDialog::setupWidgets()
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
         m_enabledSamplesBoxes.insert(sType, new QCheckBox(m_sampleTypeLabels[sType], this));
-        m_enabledSamplesBoxes[sType]->setChecked(m_enabledSamples[sType]);
     }
     numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
 
@@ -96,18 +96,18 @@ void OptionsDialog::setupWidgets()
 
     m_ui->m_speedUnitsBox->addItem("MPH");
     m_ui->m_speedUnitsBox->addItem("km/h");
-    m_ui->m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
 
     m_ui->m_temperatureUnitsBox->addItem("Fahrenheit");
     m_ui->m_temperatureUnitsBox->addItem("Celcius");
-    m_ui->m_temperatureUnitsBox->setCurrentIndex((int)m_tempUnits);
+
+    setWidgetValues();
 
     foreach (QCheckBox *sampleCheckBox, m_enabledSamplesBoxes)
     {
         m_ui->m_checkboxLayout->addWidget(sampleCheckBox, row, column);
+        checkboxIndex += 1;
         column = (checkboxIndex < numCheckboxesPerColumn) ? 0 : 1;
         row = (checkboxIndex == numCheckboxesPerColumn) ? 0 : (row + 1);
-        checkboxIndex += 1;
     }
 
     connect(m_ui->m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
@@ -115,6 +115,21 @@ void OptionsDialog::setupWidgets()
 
     connect(m_ui->m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_ui->m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+void OptionsDialog::setWidgetValues()
+{
+    foreach (SampleType sType, m_sampleTypeNames.keys())
+    {
+        m_enabledSamplesBoxes[sType]->setChecked(m_enabledSamples[sType]);
+    }
+
+    m_ui->m_serialDeviceBox->setCurrentText(m_serialDeviceName);
+    m_ui->m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
+    m_ui->m_temperatureUnitsBox->setCurrentIndex((int)m_tempUnits);
+
+    m_ui->m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
+    m_ui->m_softHighlightCheckbox->setChecked(m_softHighlight);
 }
 
 void OptionsDialog::checkAll()
@@ -156,6 +171,7 @@ void OptionsDialog::accept()
     m_tempUnits = (TemperatureUnits)(m_ui->m_temperatureUnitsBox->currentIndex());
     m_speedUnits = (SpeedUnits)(m_ui->m_speedUnitsBox->currentIndex());
     m_refreshFuelMap = m_ui->m_refreshFuelMapCheckbox->isChecked();
+    m_softHighlight = m_ui->m_softHighlightCheckbox->isChecked();
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -164,6 +180,15 @@ void OptionsDialog::accept()
 
     writeSettings();
     done(QDialog::Accepted);
+}
+
+void OptionsDialog::reject()
+{
+    // the latest changes are being discarded, so re-read the last saved
+    // settings and adjust the widgets to match
+    readSettings();
+    setWidgetValues();
+    done(QDialog::Rejected);
 }
 
 /**
@@ -177,7 +202,8 @@ void OptionsDialog::readSettings()
     m_serialDeviceName = settings.value(m_settingSerialDev, "").toString();
     m_speedUnits = (SpeedUnits)(settings.value(m_settingSpeedUnits, MPH).toInt());
     m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
-    m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();       
+    m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
+    m_softHighlight = settings.value(m_settingSoftHighlight, false).toBool();
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -201,6 +227,7 @@ void OptionsDialog::writeSettings()
     settings.setValue(m_settingSpeedUnits, m_speedUnits);
     settings.setValue(m_settingTemperatureUnits, m_tempUnits);
     settings.setValue(m_settingRefreshFuelMap, m_refreshFuelMap);
+    settings.setValue(m_settingSoftHighlight, m_softHighlight);
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {

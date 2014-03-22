@@ -726,7 +726,7 @@ int CUXInterface::convertTemperature(int tempF)
 /**
  * Updates the list of sample types that are enabled/disabled for reading
  */
-void CUXInterface::setEnabledSamples(QHash<SampleType, bool> samples)
+void CUXInterface::setEnabledSamples(QMap<SampleType, bool> samples)
 {
     // the fields are updated one at a time, because a replacement of the entire
     // hash table (using the assignment operator) can disrupt other threads that

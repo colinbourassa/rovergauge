@@ -687,7 +687,7 @@ void MainWindow::onEditOptionsClicked()
         // The fields are updated one at a time, because a replacement of the entire
         // hash table (using the assignment operator) can disrupt other threads that
         // are reading the table at that time
-        QHash<SampleType,bool> samples = m_options->getEnabledSamples();
+        QMap<SampleType,bool> samples = m_options->getEnabledSamples();
         foreach (SampleType field, samples.keys())
         {
             if (samples.keys().contains(field))

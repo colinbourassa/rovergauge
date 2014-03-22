@@ -5,7 +5,7 @@
 #include <QString>
 #include <QHash>
 #include <QByteArray>
-#include <QHash>
+#include <QMap>
 #include "comm14cux.h"
 #include "commonunits.h"
 
@@ -31,7 +31,7 @@ public:
     void setMAFReadingType(c14cux_airflow_type type)           { m_airflowType = type; }
     void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
 
-    void setEnabledSamples(QHash<SampleType,bool> samples);
+    void setEnabledSamples(QMap<SampleType,bool> samples);
     void setReadIntervals(QHash<SampleType,unsigned int> intervals);
 
     QString getSerialDevice() { return m_deviceName; }
