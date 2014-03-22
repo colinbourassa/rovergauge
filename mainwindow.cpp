@@ -573,42 +573,82 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
  */
 void MainWindow::highlightActiveFuelMapCells()
 {
-    int idx;
     int fuelMapRow = m_cux->getFuelMapRowIndex();
     int fuelMapCol = m_cux->getFuelMapColumnIndex();
     int rowWeight = m_cux->getFuelMapRowWeighting();
     int colWeight = m_cux->getFuelMapColWeighting();
-    QColor currentColor;
-    QColor newColor;
 
-    float leftPercent = 1.0 - ((colWeight + 1) / 16.0);
-    float rightPercent = 1.0 - leftPercent;
-    float topPercent = 1.0 - ((rowWeight + 1) / 16.0);
-    float bottomPercent = 1.0 - topPercent;
-
-    float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
-
-    shadePercentage[0] = 1.0 - ((leftPercent * 0.5) + (topPercent * 0.5));
-    shadePercentage[1] = 1.0 - ((rightPercent * 0.5) + (topPercent * 0.5));
-    shadePercentage[2] = 1.0 - ((leftPercent * 0.5) + (bottomPercent * 0.5));
-    shadePercentage[3] = 1.0 - ((rightPercent * 0.5) + (bottomPercent * 0.5));
-
-    m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
-    m_lastHighlightedFuelMapCell[1] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol + 1);
-    m_lastHighlightedFuelMapCell[2] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol);
-    m_lastHighlightedFuelMapCell[3] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol + 1);
-
-    for (idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+    if (m_options->getSoftHighlight())
     {
-        currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
-        newColor.setRgb(currentColor.red() * shadePercentage[idx],
-                        currentColor.green() * shadePercentage[idx],
-                        currentColor.blue() * shadePercentage[idx]);
-        m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
-        m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+        int idx;
+        QColor currentColor;
+        QColor newColor;
+
+        // Compute the distribution of shading that should be applied left/right
+        // and top/bottom to the block of four cells.
+        float leftPercent = 1.0 - ((colWeight + 1) / 16.0);
+        float rightPercent = 1.0 - leftPercent;
+        float topPercent = 1.0 - ((rowWeight + 1) / 16.0);
+        float bottomPercent = 1.0 - topPercent;
+
+        float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
+
+        shadePercentage[0] = 1.0 - ((leftPercent * 0.5) + (topPercent * 0.5));
+        shadePercentage[1] = 1.0 - ((rightPercent * 0.5) + (topPercent * 0.5));
+        shadePercentage[2] = 1.0 - ((leftPercent * 0.5) + (bottomPercent * 0.5));
+        shadePercentage[3] = 1.0 - ((rightPercent * 0.5) + (bottomPercent * 0.5));
+
+        m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
+        m_lastHighlightedFuelMapCell[1] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol + 1);
+        m_lastHighlightedFuelMapCell[2] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol);
+        m_lastHighlightedFuelMapCell[3] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol + 1);
+
+        for (idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+        {
+            currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
+            newColor.setRgb(currentColor.red() * shadePercentage[idx],
+                            currentColor.green() * shadePercentage[idx],
+                            currentColor.blue() * shadePercentage[idx]);
+            m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
+            m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+        }
+    }
+    else
+    {
+        // we're not doing a soft-highlight using the weightings, so simply use the row/column
+        // weight to round up to the next row/col index if appropriate
+        if (rowWeight >= 8)
+        {
+            fuelMapRow += 1;
+            if (fuelMapRow >= FUEL_MAP_ROWS)
+            {
+                fuelMapRow = FUEL_MAP_ROWS - 1;
+            }
+        }
+        if (colWeight >= 8)
+        {
+            fuelMapCol += 1;
+            if (fuelMapCol >= FUEL_MAP_COLUMNS)
+            {
+                fuelMapCol = FUEL_MAP_COLUMNS - 1;
+            }
+        }
+
+        // we're only highlighting a single cell (not a block of four), so zero the other pointers
+        m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
+        m_lastHighlightedFuelMapCell[1] = 0;
+        m_lastHighlightedFuelMapCell[2] = 0;
+        m_lastHighlightedFuelMapCell[3] = 0;
+
+        m_lastHighlightedFuelMapCell[0]->setBackgroundColor(Qt::black);
+        m_lastHighlightedFuelMapCell[0]->setTextColor(Qt::white);
     }
 }
 
+/**
+ * Sets the background of the last highlighted fuel map cell(s) back to its
+ * un-highligted color (which is dependent on the value for that cell).
+ */
 void MainWindow::removeFuelMapCellHighlight()
 {
     for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
@@ -628,7 +668,6 @@ void MainWindow::removeFuelMapCellHighlight()
 
 /**
  * Generates a color whose intensity corresponds to a fueling value
- * @return Color that corresponds to a particular fuel map fueling value
  */
 QColor MainWindow::getColorForFuelMapCell(unsigned char value)
 {
