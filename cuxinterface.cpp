@@ -33,7 +33,9 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_fuelMapIndexRead(false),
     m_currentFuelMapIndex(0),
     m_currentFuelMapRowIndex(0),
+    m_fuelMapRowWeighting(0),
     m_currentFuelMapColumnIndex(0),
+    m_fuelMapColWeighting(0),
     m_mafReading(0.0),
     m_idleBypassPos(0.0),
     m_fuelPumpRelayOn(false),
@@ -476,8 +478,8 @@ CUXInterface::ReadResult CUXInterface::readData()
 
     if (isDueForMeasurement(SampleType_FuelMapRowCol))
     {
-        result = mergeResult(result, c14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex));
-        result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex));
+        result = mergeResult(result, c14cux_getFuelMapRowIndex(&m_cuxinfo, &m_currentFuelMapRowIndex, &m_fuelMapRowWeighting));
+        result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex, &m_fuelMapColWeighting));
     }
 
     if (isDueForMeasurement(SampleType_IdleBypassPosition))

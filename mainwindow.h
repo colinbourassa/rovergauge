@@ -32,6 +32,8 @@
     #include "simulationmodedialog.h"
 #endif
 
+#define NUM_ACTIVE_FUEL_MAP_CELLS 4
+
 namespace Ui
 {
     class MainWindow;
@@ -110,7 +112,7 @@ private:
     static const float speedometerMaxMPH = 160.0;
     static const float speedometerMaxKPH = 240.0;
 
-    QTableWidgetItem *m_lastHighlightedFuelMapCell;
+    QTableWidgetItem * m_lastHighlightedFuelMapCell[NUM_ACTIVE_FUEL_MAP_CELLS];
     bool m_fuelMapDataIsCurrent;
 
     QHash<SpeedUnits,QString> *m_speedUnitSuffix;
@@ -124,7 +126,7 @@ private:
 
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
-    void highlightActiveFuelMapCell();
+    void highlightActiveFuelMapCells();
     void removeFuelMapCellHighlight();
     void sendROMImageRequest(QString prompt);
     void dimUnusedControls();    

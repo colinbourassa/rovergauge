@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
       m_aboutBox(0),
       m_pleaseWaitBox(0),
       m_helpViewerDialog(0),
-      m_lastHighlightedFuelMapCell(0),
       m_fuelMapDataIsCurrent(false)
 {
     buildSpeedAndTempUnitTables();
@@ -51,6 +50,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_fuelPumpRefreshTimer = new QTimer(this);
     m_fuelPumpRefreshTimer->setInterval(1000);
+
+    for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+    {
+        m_lastHighlightedFuelMapCell[idx] = 0;
+    }
 
     connect(m_cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
     connect(m_cux, SIGNAL(connected()), this, SLOT(onConnect()));
@@ -433,7 +437,7 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
             QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
         m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + adjFactorLabel);
 
-        highlightActiveFuelMapCell();
+        highlightActiveFuelMapCells();
     }
 }
 
@@ -463,7 +467,7 @@ void MainWindow::onDataReady()
     if (m_enabledSamples[SampleType_FuelMapRowCol] && m_fuelMapDataIsCurrent)
     {
         removeFuelMapCellHighlight();
-        highlightActiveFuelMapCell();
+        highlightActiveFuelMapCells();
     }
 
     if (m_enabledSamples[SampleType_Throttle])
@@ -564,28 +568,60 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
 }
 
 /**
- * Paints a highlight on the fuel map display cell that represents the
+ * Paints a highlight on the fuel map display cells that represent the
  * most-recently-read fueling index.
  */
-void MainWindow::highlightActiveFuelMapCell()
+void MainWindow::highlightActiveFuelMapCells()
 {
+    int idx;
     int fuelMapRow = m_cux->getFuelMapRowIndex();
     int fuelMapCol = m_cux->getFuelMapColumnIndex();
-    m_lastHighlightedFuelMapCell = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
-    m_lastHighlightedFuelMapCell->setBackgroundColor(Qt::black);
-    m_lastHighlightedFuelMapCell->setTextColor(Qt::white);
+    int rowWeight = m_cux->getFuelMapRowWeighting();
+    int colWeight = m_cux->getFuelMapColWeighting();
+    QColor currentColor;
+    QColor newColor;
+
+    float leftPercent = 1.0 - ((colWeight + 1) / 16.0);
+    float rightPercent = 1.0 - leftPercent;
+    float topPercent = 1.0 - ((rowWeight + 1) / 16.0);
+    float bottomPercent = 1.0 - topPercent;
+
+    float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
+
+    shadePercentage[0] = 1.0 - ((leftPercent * 0.5) + (topPercent * 0.5));
+    shadePercentage[1] = 1.0 - ((rightPercent * 0.5) + (topPercent * 0.5));
+    shadePercentage[2] = 1.0 - ((leftPercent * 0.5) + (bottomPercent * 0.5));
+    shadePercentage[3] = 1.0 - ((rightPercent * 0.5) + (bottomPercent * 0.5));
+
+    m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
+    m_lastHighlightedFuelMapCell[1] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol + 1);
+    m_lastHighlightedFuelMapCell[2] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol);
+    m_lastHighlightedFuelMapCell[3] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol + 1);
+
+    for (idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+    {
+        currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
+        newColor.setRgb(currentColor.red() * shadePercentage[idx],
+                        currentColor.green() * shadePercentage[idx],
+                        currentColor.blue() * shadePercentage[idx]);
+        m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
+        m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+    }
 }
 
 void MainWindow::removeFuelMapCellHighlight()
 {
-    if (m_lastHighlightedFuelMapCell != 0)
+    for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
     {
-        bool ok = false;
-        unsigned char value = (unsigned char)(m_lastHighlightedFuelMapCell->text().toInt(&ok, 16));
-        if (ok)
+        if (m_lastHighlightedFuelMapCell[idx] != 0)
         {
-            m_lastHighlightedFuelMapCell->setBackgroundColor(getColorForFuelMapCell(value));
-            m_lastHighlightedFuelMapCell->setTextColor(Qt::black);
+            bool ok = false;
+            unsigned char value = (unsigned char)(m_lastHighlightedFuelMapCell[idx]->text().toInt(&ok, 16));
+            if (ok)
+            {
+                m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(getColorForFuelMapCell(value));
+                m_lastHighlightedFuelMapCell[idx]->setTextColor(Qt::black);
+            }
         }
     }
 }

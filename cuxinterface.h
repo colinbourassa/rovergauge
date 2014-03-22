@@ -58,7 +58,9 @@ public:
     c14cux_rpmtable getRPMTable()     { return m_rpmTable; }
     int getCurrentFuelMapIndex()      { return m_currentFuelMapIndex; }
     int getFuelMapRowIndex()          { return m_currentFuelMapRowIndex; }
+    int getFuelMapRowWeighting()      { return m_fuelMapRowWeighting; }
     int getFuelMapColumnIndex()       { return m_currentFuelMapColumnIndex; }
+    int getFuelMapColWeighting()      { return m_fuelMapColWeighting; }
     float getMAFReading()             { return m_mafReading; }
     float getIdleBypassPos()          { return m_idleBypassPos; }
     bool getFuelPumpRelayState()      { return m_fuelPumpRelayOn; }
@@ -123,7 +125,7 @@ signals:
 
 private:
     static const int s_firstOpenLoopMap = 1;
-    static const int s_lastOpenLoopMap = 3;       
+    static const int s_lastOpenLoopMap = 3;
 
     QString m_deviceName;
     c14cux_info m_cuxinfo;
@@ -151,7 +153,9 @@ private:
     bool m_fuelMapIndexRead;
     uint8_t m_currentFuelMapIndex;
     uint8_t m_currentFuelMapRowIndex;
+    uint8_t m_fuelMapRowWeighting;
     uint8_t m_currentFuelMapColumnIndex;
+    uint8_t m_fuelMapColWeighting;
     float m_mafReading;
     float m_idleBypassPos;
     bool m_fuelPumpRelayOn;
