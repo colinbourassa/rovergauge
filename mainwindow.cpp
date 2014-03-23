@@ -243,6 +243,7 @@ void MainWindow::setupWidgets()
     }
 
     m_ui->m_logFileNameBox->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"));
+    m_ui->m_fuelingValueBar->setAlignment(Qt::AlignCenter);
 
     SpeedUnits speedUnit = m_options->getSpeedUnits();
 
