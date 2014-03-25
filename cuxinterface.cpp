@@ -163,7 +163,10 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
 {
     if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
     {
-        readFuelMap(fuelMapId);
+        if (readFuelMap(fuelMapId))
+        {
+            emit fuelMapReady(fuelMapId);
+        }
 
         if (c14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
         {
@@ -192,7 +195,6 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     {
         m_fuelMapAdjFactors[fuelMapId] = adjFactor;
         m_fuelMapDataIsCurrent[fuelMapId] = true;
-        emit fuelMapReady(fuelMapId);
         status = true;
     }
 
@@ -542,7 +544,10 @@ CUXInterface::ReadResult CUXInterface::readData()
 
     if (isDueForMeasurement(SampleType_FuelMapData))
     {
-        readFuelMap(m_currentFuelMapIndex);
+        if (readFuelMap(m_currentFuelMapIndex))
+        {
+            emit fuelMapReady(m_currentFuelMapIndex);
+        }
     }
 
     // attempt to read the MIL status; if it can't be read, default it to off on the display

@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent)
       m_helpViewerDialog(0),
       m_fuelMapDataIsCurrent(false)
 {
+    // register this special enum type for use in Qt signals/slots
+    qRegisterMetaType<c14cux_feedback_mode>("c14cux_feedback_mode");
+
     buildSpeedAndTempUnitTables();
     m_ui->setupUi(this);
     this->setWindowTitle("RoverGauge");
@@ -1295,12 +1298,13 @@ void MainWindow::onFeedbackModeChanged(c14cux_feedback_mode mode)
 void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
 {
     m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(fuelMapId));
+    m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier:"));
 
     QByteArray *fuelMapData = m_cux->getFuelMap(fuelMapId);
 
     if (fuelMapData != 0)
     {
-        populateFuelMapDisplay(fuelMapData, fuelMapId);
+        populateFuelMapDisplay(fuelMapData, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
         m_fuelMapDataIsCurrent = true;
     }
     else
@@ -1339,4 +1343,3 @@ void MainWindow::onSimDialogClicked()
     m_simDialog->show();
 }
 #endif
-
