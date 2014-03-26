@@ -299,12 +299,16 @@ void CUXInterface::clearFlagsAndData()
  */
 void CUXInterface::onShutdownThreadRequest()
 {
-    if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+    // If we're currently connected, just set a flag to let the polling loop
+    // shut the thread down. Otherwise, shut it down here.
+    if (c14cux_isConnected(&m_cuxinfo))
     {
-        c14cux_disconnect(&m_cuxinfo);
+        m_shutdownThread = true;
     }
-    emit disconnected();
-    QThread::currentThread()->quit();
+    else
+    {
+        QThread::currentThread()->quit();
+    }
 }
 
 /**
@@ -361,7 +365,8 @@ void CUXInterface::onStartPollingRequest()
 }
 
 /**
- * Reads specific locations from the ECU and stores the data locally.
+ * Calls readData() in a loop until commanded to disconnect and possibly
+ * shut down the thread.
  */
 void CUXInterface::pollEcu()
 {
