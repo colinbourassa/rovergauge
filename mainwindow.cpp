@@ -593,17 +593,20 @@ void MainWindow::highlightActiveFuelMapCells()
 
         // Compute the distribution of shading that should be applied left/right
         // and top/bottom to the block of four cells.
-        float leftPercent = 1.0 - ((colWeight + 1) / 16.0);
+        float leftPercent = 1.0 - (colWeight / 15.0);
         float rightPercent = 1.0 - leftPercent;
-        float topPercent = 1.0 - ((rowWeight + 1) / 16.0);
+        float topPercent = 1.0 - (rowWeight / 15.0);
         float bottomPercent = 1.0 - topPercent;
 
         float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
 
-        shadePercentage[0] = 1.0 - ((leftPercent * 0.5) + (topPercent * 0.5));
-        shadePercentage[1] = 1.0 - ((rightPercent * 0.5) + (topPercent * 0.5));
-        shadePercentage[2] = 1.0 - ((leftPercent * 0.5) + (bottomPercent * 0.5));
-        shadePercentage[3] = 1.0 - ((rightPercent * 0.5) + (bottomPercent * 0.5));
+        // We subtract from 1.0 here because these values will be used as multipliers
+        // against the un-highlighted cell's R/G/B components to produce a shade of
+        // the appropriate darkness.
+        shadePercentage[0] = 1.0 - (leftPercent * topPercent);
+        shadePercentage[1] = 1.0 - (rightPercent * topPercent);
+        shadePercentage[2] = 1.0 - (leftPercent * bottomPercent);
+        shadePercentage[3] = 1.0 - (rightPercent * bottomPercent);
 
         m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
         m_lastHighlightedFuelMapCell[1] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol + 1);
