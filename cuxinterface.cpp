@@ -44,7 +44,8 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_coTrimVoltage(0.0),
     m_milOn(false),
     m_idleMode(false),
-    m_finalFuelingVal(0),
+    m_injectorPulseWidthUs(0),
+    m_injectorPulseWidthMs(0.0),
     m_romImage(0),
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
@@ -237,7 +238,6 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
 bool CUXInterface::connectToECU()
 {
     bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str());    
-    uint8_t openLoopByte = 0;
 
     uint16_t tune = 0;
     uint8_t checksumFixer = 0;
@@ -251,10 +251,14 @@ bool CUXInterface::connectToECU()
         {
             emit revisionNumberReady(tune, checksumFixer, ident);
         }
+
+#ifdef ENABLE_FORCE_OPEN_LOOP
+        uint8_t openLoopByte = 0;
         if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &openLoopByte))
         {
             emit forceOpenLoopState(openLoopByte & 0x10);
         }
+#endif
     }
 
     return status;
@@ -347,11 +351,12 @@ void CUXInterface::onStartPollingRequest()
     {
         m_stopPolling = false;
         m_shutdownThread = false;
-        pollEcu();
+        runServiceLoop();
     }
     else
     {
 #ifdef WIN32
+        // workaround for legacy Windows nonsense
         QString simpleDeviceName = m_deviceName;
         if (simpleDeviceName.indexOf("\\\\.\\") == 0)
         {
@@ -368,7 +373,7 @@ void CUXInterface::onStartPollingRequest()
  * Calls readData() in a loop until commanded to disconnect and possibly
  * shut down the thread.
  */
-void CUXInterface::pollEcu()
+void CUXInterface::runServiceLoop()
 {
     ReadResult res = ReadResult_NoStatement;
 
@@ -490,9 +495,10 @@ CUXInterface::ReadResult CUXInterface::readData()
         result = mergeResult(result, c14cux_getFuelMapColumnIndex(&m_cuxinfo, &m_currentFuelMapColumnIndex, &m_fuelMapColWeighting));
     }
 
-    if (isDueForMeasurement(SampleType_FinalFuelingVal))
+    if (isDueForMeasurement(SampleType_InjectorPulseWidth))
     {
-        result = mergeResult(result, c14cux_getFinalFuelingValue(&m_cuxinfo, &m_finalFuelingVal));
+        result = mergeResult(result, c14cux_getInjectorPulseWidth(&m_cuxinfo, &m_injectorPulseWidthUs));
+        m_injectorPulseWidthMs = (float)m_injectorPulseWidthUs / 1000.0;
     }
 
     if (isDueForMeasurement(SampleType_IdleBypassPosition))

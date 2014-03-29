@@ -70,7 +70,7 @@ public:
     float getCOTrimVoltage()          { return m_coTrimVoltage; }
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
-    int getFinalFuelingVal(         ) { return m_finalFuelingVal; }
+    float getInjectorPulseWidthMs()   { return m_injectorPulseWidthMs; }
 
     void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
     void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
@@ -115,14 +115,14 @@ signals:
     void failedToConnect(QString dev);
     void interfaceReadyForPolling();
     void notConnected();
-    void forceOpenLoopState(bool forceOpen);
     void simModeWriteSuccess();
     void simModeWriteFailure();
     void fuelMapIndexHasChanged(unsigned int fuelMapId);
     void feedbackModeHasChanged(c14cux_feedback_mode newMode);
 
-    void data_maf(float data);
-    void data_throttle(float data);
+#ifdef ENABLE_FORCE_OPEN_LOOP
+    void forceOpenLoopState(bool forceOpen);
+#endif
 
 private:
     static const int s_firstOpenLoopMap = 1;
@@ -166,7 +166,8 @@ private:
     bool m_milOn;
     uint16_t m_rpmLimit;
     bool m_idleMode;    
-    uint16_t m_finalFuelingVal;
+    uint16_t m_injectorPulseWidthUs;
+    float m_injectorPulseWidthMs;
 
     QByteArray *m_romImage;
 
@@ -181,7 +182,7 @@ private:
 
     bool m_initComplete;
 
-    void pollEcu();
+    void runServiceLoop();
     void clearFlagsAndData();
     ReadResult readData();
     bool readFuelMap(unsigned int fuelMapId);

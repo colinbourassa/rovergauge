@@ -246,7 +246,7 @@ void MainWindow::setupWidgets()
     }
 
     m_ui->m_logFileNameBox->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"));
-    m_ui->m_fuelingValueBar->setAlignment(Qt::AlignCenter);
+    m_ui->m_injectorDutyCycleBar->setAlignment(Qt::AlignCenter);
 
     SpeedUnits speedUnit = m_options->getSpeedUnits();
 
@@ -465,6 +465,9 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
  */
 void MainWindow::onDataReady()
 {
+    int rpm = 0;
+    float pulseWidth = 0;
+
     m_ui->m_milLed->setChecked(m_cux->isMILOn());
 
     // if fuel map display updates are enabled...
@@ -487,7 +490,10 @@ void MainWindow::onDataReady()
         m_ui->m_speedo->setValue(m_cux->getRoadSpeed());
 
     if (m_enabledSamples[SampleType_EngineRPM])
-        m_ui->m_revCounter->setValue(m_cux->getEngineSpeedRPM());
+    {
+        rpm = m_cux->getEngineSpeedRPM();
+        m_ui->m_revCounter->setValue(rpm);
+    }
 
     if (m_enabledSamples[SampleType_EngineTemperature])
         m_ui->m_waterTempGauge->setValue(m_cux->getCoolantTemp());
@@ -501,8 +507,19 @@ void MainWindow::onDataReady()
     if (m_enabledSamples[SampleType_FuelPumpRelay])
         m_ui->m_fuelPumpRelayStateLed->setChecked(m_cux->getFuelPumpRelayState());
 
-    if (m_enabledSamples[SampleType_FinalFuelingVal])
-        m_ui->m_fuelingValueBar->setValue(m_cux->getFinalFuelingVal());
+    if (m_enabledSamples[SampleType_InjectorPulseWidth])
+    {
+        pulseWidth = m_cux->getInjectorPulseWidthMs();
+
+        // if we're also monitoring the engine speed, we can compute the injector duty
+        // cycle as a percentage of the time available between spark interrupts
+        if (rpm > 0)
+        {
+            m_ui->m_injectorDutyCycleBar->setValue((pulseWidth / (60.0 / (float)rpm * 1000.0)) * 100);
+        }
+
+        m_ui->m_injectorPulseWidthLabel->setText(QString("Pulse width: %1 ms").arg(pulseWidth, 0, 'f', 2));
+    }
 
     if (m_enabledSamples[SampleType_TargetIdleRPM])
     {
@@ -615,12 +632,15 @@ void MainWindow::highlightActiveFuelMapCells()
 
         for (idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
         {
-            currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
-            newColor.setRgb(currentColor.red() * shadePercentage[idx],
-                            currentColor.green() * shadePercentage[idx],
-                            currentColor.blue() * shadePercentage[idx]);
-            m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
-            m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+            if (m_lastHighlightedFuelMapCell[idx] != 0)
+            {
+                currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
+                newColor.setRgb(currentColor.red() * shadePercentage[idx],
+                                currentColor.green() * shadePercentage[idx],
+                                currentColor.blue() * shadePercentage[idx]);
+                m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
+                m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+            }
         }
     }
     else
@@ -837,9 +857,10 @@ void MainWindow::dimUnusedControls()
     m_ui->m_fuelMapFactorLabel->setEnabled(enabled);
     m_fuelMapOpacity->setEnabled(!enabled);
 
-    enabled = m_enabledSamples[SampleType_FinalFuelingVal];
-    m_ui->m_fuelingValueLabel->setEnabled(enabled);
-    m_ui->m_fuelingValueBar->setEnabled(enabled);
+    enabled = m_enabledSamples[SampleType_InjectorPulseWidth];
+    m_ui->m_injectorDutyCycleLabel->setEnabled(enabled);
+    m_ui->m_injectorDutyCycleBar->setEnabled(enabled);
+    m_ui->m_injectorPulseWidthLabel->setEnabled(enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
     // graphical effect; the 'enabled' bit is therefore inverted because it's
@@ -929,7 +950,8 @@ void MainWindow::onDisconnect()
         m_ui->m_oddFuelTrimBarLabel->setText("0.0VDC");
     m_ui->m_evenFuelTrimBar->setValue(0);
     m_ui->m_evenFuelTrimBarLabel->setText("+0%");
-    m_ui->m_fuelingValueBar->setValue(0);
+    m_ui->m_injectorDutyCycleBar->setValue(0);
+    m_ui->m_injectorPulseWidthLabel->setText("Pulse width:");
 
     m_ui->m_oddFuelTrimBar->repaint();
     m_ui->m_evenFuelTrimBar->repaint();

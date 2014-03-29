@@ -34,7 +34,7 @@ enum SampleType
     SampleType_FuelMapRowCol,
     SampleType_FuelMapData,
     SampleType_FuelMapIndex,
-    SampleType_FinalFuelingVal,
+    SampleType_InjectorPulseWidth,
     SampleType_MIL,
     SampleType_NumSampleTypes
 };

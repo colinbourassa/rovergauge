@@ -511,9 +511,9 @@
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="m_fuelingValueLabel">
+           <widget class="QLabel" name="m_injectorDutyCycleLabel">
             <property name="text">
-             <string>Fueling value:</string>
+             <string>Injector duty cycle:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -633,19 +633,6 @@
           <item row="5" column="1">
            <widget class="QLineEdit" name="m_logFileNameBox"/>
           </item>
-          <item row="3" column="1" colspan="3">
-           <widget class="QProgressBar" name="m_fuelingValueBar">
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-            <property name="format">
-             <string>%p</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1">
            <widget class="QLedIndicator" name="m_fuelPumpRelayStateLed" native="true">
             <property name="maximumSize">
@@ -663,6 +650,26 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QProgressBar" name="m_injectorDutyCycleBar">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="format">
+             <string>%p%</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLabel" name="m_injectorPulseWidthLabel">
+            <property name="text">
+             <string>Pulse width:</string>
             </property>
            </widget>
           </item>
@@ -769,8 +776,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
  </buttongroups>
 </ui>
