@@ -487,7 +487,7 @@ void MainWindow::onDataReady()
         m_ui->m_idleBypassPosBar->setValue(m_cux->getIdleBypassPos() * 100);
 
     if (m_enabledSamples[SampleType_RoadSpeed])
-        m_ui->m_speedo->setValue(m_cux->getRoadSpeed());
+        m_ui->m_speedo->setValue((int)m_cux->getRoadSpeed());
 
     if (m_enabledSamples[SampleType_EngineRPM])
     {

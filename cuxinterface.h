@@ -42,7 +42,7 @@ public:
 
     c14cux_feedback_mode getFeedbackMode() { return m_feedbackMode; }
 
-    int getRoadSpeed()                { return convertSpeed(m_roadSpeedMPH); }
+    unsigned int getRoadSpeed()       { return convertSpeed(m_roadSpeedMPH); }
     int getEngineSpeedRPM()           { return m_engineSpeedRPM; }
     int getTargetIdleSpeed()          { return m_targetIdleSpeed; }
     int getCoolantTemp()              { return convertTemperature(m_coolantTempF); }
@@ -187,7 +187,7 @@ private:
     ReadResult readData();
     bool readFuelMap(unsigned int fuelMapId);
     bool connectToECU();
-    int convertSpeed(int speedMph);
+    unsigned int convertSpeed(unsigned int speedMph);
     int convertTemperature(int tempF);
     ReadResult mergeResult(ReadResult total, ReadResult single);
     ReadResult mergeResult(ReadResult total, bool single);
