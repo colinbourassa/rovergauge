@@ -296,6 +296,11 @@ void CUXInterface::clearFlagsAndData()
     {
         m_lastReadTime[(SampleType)type] = 0;
     }
+
+    m_cuxinfo.promRev = C14CUX_DataOffsets_Unset;
+    m_cuxinfo.voltageFactorA = 0;
+    m_cuxinfo.voltageFactorB = 0;
+    m_cuxinfo.voltageFactorC = 0;
 }
 
 /**
