@@ -42,7 +42,7 @@ public:
 
     c14cux_feedback_mode getFeedbackMode() { return m_feedbackMode; }
 
-    unsigned int getRoadSpeed()       { return convertSpeed(m_roadSpeedMPH); }
+    unsigned int getRoadSpeed()       { return (m_speedUnits == MPH) ? m_roadSpeedMPH : convertSpeed(m_roadSpeedMPH); }
     int getEngineSpeedRPM()           { return m_engineSpeedRPM; }
     int getTargetIdleSpeed()          { return m_targetIdleSpeed; }
     int getCoolantTemp()              { return convertTemperature(m_coolantTempF); }

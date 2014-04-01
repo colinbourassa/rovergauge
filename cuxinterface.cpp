@@ -718,11 +718,11 @@ int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId)
  */
 unsigned int CUXInterface::convertSpeed(unsigned int speedMph)
 {
-    float speed;
+    float speed = (float)speedMph;
 
     if (m_speedUnits == KPH)
     {
-        speed = (float)speedMph * 1.609344;
+        speed *= 1.609344;
     }
 
     return (unsigned int)speed;
