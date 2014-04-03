@@ -1254,7 +1254,7 @@ void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
 void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident)
 {
     m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
-    m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 2, 16).toUpper());
+    m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 4, 16).toUpper());
     m_ui->m_checksumFixerLabel->setText(QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
 }
 

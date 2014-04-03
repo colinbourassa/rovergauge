@@ -241,7 +241,7 @@ bool CUXInterface::connectToECU()
 
     uint16_t tune = 0;
     uint8_t checksumFixer = 0;
-    uint8_t ident = 0;
+    uint16_t ident = 0;
 
     if (status)
     {
