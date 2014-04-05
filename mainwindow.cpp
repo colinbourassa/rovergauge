@@ -858,8 +858,6 @@ void MainWindow::dimUnusedControls()
     m_fuelMapOpacity->setEnabled(!enabled);
 
     enabled = m_enabledSamples[SampleType_InjectorPulseWidth];
-    m_ui->m_injectorDutyCycleLabel->setEnabled(enabled);
-    m_ui->m_injectorDutyCycleBar->setEnabled(enabled);
     m_ui->m_injectorPulseWidthLabel->setEnabled(enabled);
 
     // These controls are shown in a disabled state by applying a 50% opacity
@@ -872,7 +870,16 @@ void MainWindow::dimUnusedControls()
     m_fuelTempGaugeOpacity->setEnabled(!enabled);
     m_ui->m_fuelTempLabel->setEnabled(enabled);
 
-    m_revCounterOpacity->setEnabled(!m_enabledSamples[SampleType_EngineRPM]);
+    enabled = m_enabledSamples[SampleType_EngineRPM];
+    m_revCounterOpacity->setEnabled(!enabled);
+
+    // Computing injector duty cycle requires RPM data
+    enabled &= m_enabledSamples[SampleType_InjectorPulseWidth];
+    m_ui->m_injectorDutyCycleBar->setEnabled(enabled);
+    m_ui->m_injectorDutyCycleLabel->setEnabled(enabled);
+    if (!enabled)
+        m_ui->m_injectorDutyCycleBar->setValue(0);
+
     m_speedometerOpacity->setEnabled(!m_enabledSamples[SampleType_RoadSpeed]);
 }
 
@@ -955,6 +962,8 @@ void MainWindow::onDisconnect()
 
     m_ui->m_oddFuelTrimBar->repaint();
     m_ui->m_evenFuelTrimBar->repaint();
+
+    removeFuelMapCellHighlight();
 
     m_fuelMapDataIsCurrent = false;
     m_cux->invalidateFuelMapData();
