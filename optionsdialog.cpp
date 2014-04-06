@@ -51,27 +51,27 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
     m_sampleTypeLabels[SampleType_InjectorPulseWidth] = "Injector pulse with / duty cycle";
 
-    // Ultimately, to make the read intervals configurable, we'll want to create controls
-    // on this form to handle the input. For now, they're just reasonable hardcoded values.
-    m_readIntervalsMs[SampleType_EngineTemperature] = 1500;
-    m_readIntervalsMs[SampleType_RoadSpeed] = 1000;
-    m_readIntervalsMs[SampleType_EngineRPM] = 0;
-    m_readIntervalsMs[SampleType_FuelTemperature] = 1805;
-    m_readIntervalsMs[SampleType_MAF] = 0;
-    m_readIntervalsMs[SampleType_Throttle] = 0;
+    // We try to keep the nonzero intervals prime to avoid statistical
+    // clustering of read calls to the library.
+    m_readIntervalsMs[SampleType_EngineTemperature]  = 1499;
+    m_readIntervalsMs[SampleType_RoadSpeed]          = 997;
+    m_readIntervalsMs[SampleType_EngineRPM]          = 0;
+    m_readIntervalsMs[SampleType_FuelTemperature]    = 1801;
+    m_readIntervalsMs[SampleType_MAF]                = 0;
+    m_readIntervalsMs[SampleType_Throttle]           = 0;
     m_readIntervalsMs[SampleType_IdleBypassPosition] = 0;
-    m_readIntervalsMs[SampleType_TargetIdleRPM] = 485;
-    m_readIntervalsMs[SampleType_GearSelection] = 560;
-    m_readIntervalsMs[SampleType_MainVoltage] = 292;
-    m_readIntervalsMs[SampleType_LambdaTrimShort] = 0;
-    m_readIntervalsMs[SampleType_LambdaTrimLong] = 327;
-    m_readIntervalsMs[SampleType_COTrimVoltage] = 317;
-    m_readIntervalsMs[SampleType_FuelPumpRelay] = 333;
-    m_readIntervalsMs[SampleType_FuelMapRowCol] = 0;
-    m_readIntervalsMs[SampleType_FuelMapData] = 3500;
-    m_readIntervalsMs[SampleType_FuelMapIndex] = 1200;
+    m_readIntervalsMs[SampleType_TargetIdleRPM]      = 487;
+    m_readIntervalsMs[SampleType_GearSelection]      = 563;
+    m_readIntervalsMs[SampleType_MainVoltage]        = 283;
+    m_readIntervalsMs[SampleType_LambdaTrimShort]    = 0;
+    m_readIntervalsMs[SampleType_LambdaTrimLong]     = 331;
+    m_readIntervalsMs[SampleType_COTrimVoltage]      = 317;
+    m_readIntervalsMs[SampleType_FuelPumpRelay]      = 313;
+    m_readIntervalsMs[SampleType_FuelMapRowCol]      = 0;
+    m_readIntervalsMs[SampleType_FuelMapData]        = 3511;
+    m_readIntervalsMs[SampleType_FuelMapIndex]       = 1201;
     m_readIntervalsMs[SampleType_InjectorPulseWidth] = 0;
-    m_readIntervalsMs[SampleType_MIL] = 333;
+    m_readIntervalsMs[SampleType_MIL]                = 347;
 
     this->setWindowTitle(title);
     readSettings();
