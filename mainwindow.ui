@@ -592,7 +592,7 @@
           <item row="5" column="2">
            <widget class="QPushButton" name="m_startLoggingButton">
             <property name="text">
-             <string>Start logging</string>
+             <string>Start log</string>
             </property>
            </widget>
           </item>
@@ -602,7 +602,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Run pump (one shot)</string>
+             <string>Run pump (once)</string>
             </property>
            </widget>
           </item>
@@ -612,7 +612,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Stop logging</string>
+             <string>Stop log</string>
             </property>
            </widget>
           </item>
