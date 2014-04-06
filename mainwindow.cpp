@@ -110,27 +110,6 @@ MainWindow::~MainWindow()
 }
 
 /**
- * Resizes the main window if the screen is small
- */
-void MainWindow::resizeForSmallScreens()
-{
-    QDesktopWidget desktop;
-    const QRect screenGeo = desktop.screenGeometry();
-    int heightPixels = this->minimumHeight();
-    int widthPixels = this->minimumWidth();
-    if ((screenGeo.height() * 0.95) < heightPixels)
-    {
-        heightPixels = screenGeo.height() * 0.9;
-    }
-    if ((screenGeo.width() * 0.95) < widthPixels)
-    {
-        widthPixels = screenGeo.width() * 0.9;
-    }
-
-    this->setMinimumSize(widthPixels, heightPixels);
-}
-
-/**
  * Populates hash tables with unit-of-measure suffixes and temperature thresholds
  */
 void MainWindow::buildSpeedAndTempUnitTables()

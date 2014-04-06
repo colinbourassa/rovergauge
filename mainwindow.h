@@ -123,7 +123,6 @@ private:
 
     void buildSpeedAndTempUnitTables();
     void setupWidgets();
-    void resizeForSmallScreens();
 
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
