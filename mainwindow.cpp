@@ -481,7 +481,7 @@ void MainWindow::onDataReady()
         m_ui->m_fuelTempGauge->setValue(m_cux->getFuelTemp());
 
     if (m_enabledSamples[SampleType_MainVoltage])
-        m_ui->m_voltage->setText(QString::number(m_cux->getMainVoltage(), 'f', 1) + "VDC");
+        m_ui->m_voltage->setText(QString::number(m_cux->getMainVoltage(), 'f', 1) + "V");
 
     if (m_enabledSamples[SampleType_FuelPumpRelay])
         m_ui->m_fuelPumpRelayStateLed->setChecked(m_cux->getFuelPumpRelayState());
@@ -512,12 +512,15 @@ void MainWindow::onDataReady()
         m_ui->m_idleModeLed->setChecked(m_cux->getIdleMode());
     }
 
-    if (m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong])
+    if ((m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]) &&
+        (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop))
     {
-        if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)
-            setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
-        else
-            m_ui->m_oddFuelTrimBarLabel->setText(QString::number(m_cux->getCOTrimVoltage(), 'f', 2) + "VDC");
+        setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
+    }
+
+    if (m_enabledSamples[SampleType_COTrimVoltage] && (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_OpenLoop))
+    {
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(QString::number(m_cux->getCOTrimVoltage(), 'f', 2) + "V");
     }
 
     if (m_enabledSamples[SampleType_GearSelection])
@@ -538,12 +541,10 @@ void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
         QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
         QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
 
-    m_ui->m_oddFuelTrimBar->setEnabled(true);
     m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
-    m_ui->m_evenFuelTrimBar->setEnabled(true);
     m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
 
-    m_ui->m_oddFuelTrimBarLabel->setText(oddLabel);
+    m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(oddLabel);
     m_ui->m_evenFuelTrimBarLabel->setText(evenLabel);
 }
 
@@ -805,25 +806,9 @@ void MainWindow::dimUnusedControls()
     m_ui->m_targetIdle->setEnabled(enabled);
     m_idleModeLedOpacity->setEnabled(!enabled);
 
-    enabled = (m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]);
-    m_ui->m_lambdaTrimTypeLabel->setEnabled(enabled);
-    m_ui->m_lambdaTrimLowLimitLabel->setEnabled(enabled);
-    m_ui->m_lambdaTrimHighLimitLabel->setEnabled(enabled);
-    m_ui->m_lambdaTrimShortButton->setEnabled(enabled);
-    m_ui->m_lambdaTrimLongButton->setEnabled(enabled);
-    m_ui->m_oddFuelTrimBar->setEnabled(enabled);
-    m_ui->m_oddFuelTrimLabel->setEnabled(enabled);
-    m_ui->m_oddFuelTrimBarLabel->setEnabled(enabled);
-    m_ui->m_evenFuelTrimBar->setEnabled(enabled);
-    m_ui->m_evenFuelTrimBarLabel->setEnabled(enabled);
-    m_ui->m_evenFuelTrimLabel->setEnabled(enabled);
-    if (!enabled)
-    {
-        m_ui->m_oddFuelTrimBar->setValue(0);
-        m_ui->m_oddFuelTrimBarLabel->setText("");
-        m_ui->m_evenFuelTrimBar->setValue(0);
-        m_ui->m_evenFuelTrimBarLabel->setText("");
-    }
+    setLambdaWidgetsForFeedbackMode(m_cux->getFeedbackMode(),
+                                    m_enabledSamples[SampleType_COTrimVoltage],
+                                    m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]);
 
     enabled = m_enabledSamples[SampleType_FuelPumpRelay];
     m_ui->m_fuelPumpRelayStateLabel->setEnabled(enabled);
@@ -930,10 +915,10 @@ void MainWindow::onDisconnect()
     m_ui->m_gear->setText("");
     m_ui->m_fuelPumpRelayStateLed->setChecked(false);
     m_ui->m_oddFuelTrimBar->setValue(0);
-    if (m_ui->m_oddFuelTrimBar->isVisible())
-        m_ui->m_oddFuelTrimBarLabel->setText("+0%");
+    if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText("+0%");
     else
-        m_ui->m_oddFuelTrimBarLabel->setText("0.0VDC");
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText("");
     m_ui->m_evenFuelTrimBar->setValue(0);
     m_ui->m_evenFuelTrimBarLabel->setText("+0%");
     m_ui->m_injectorDutyCycleBar->setValue(0);
@@ -1269,37 +1254,65 @@ void MainWindow::onRPMTableReady()
 }
 
 /**
- * Called when the fueling feedback mode (open- vs closed-loop) changes.
- * @param mode The new feedback mode
+ * Sets the visibility, labeling, and default values for the widgets that display
+ * lambda feedback information and MAF CO trim information.
  */
-void MainWindow::onFeedbackModeChanged(c14cux_feedback_mode mode)
+void MainWindow::setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool coTrimEnabled, bool lambdaEnabled)
 {
     if (mode == C14CUX_FeedbackMode_OpenLoop)
     {
         m_ui->m_lambdaTrimTypeLabel->setEnabled(false);
         m_ui->m_lambdaTrimLongButton->setEnabled(false);
         m_ui->m_lambdaTrimShortButton->setEnabled(false);
+
+        m_ui->m_oddFuelTrimAndMAFCOLabel->setText("MAF CO trim:");
+        m_ui->m_oddFuelTrimAndMAFCOLabel->setEnabled(coTrimEnabled);
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(QString::number(m_cux->getCOTrimVoltage(), 'f', 2) + "V");
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setAlignment(Qt::AlignLeft);
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setEnabled(coTrimEnabled);
+
         m_ui->m_lambdaTrimHighLimitLabel->setVisible(false);
         m_ui->m_lambdaTrimLowLimitLabel->setVisible(false);
         m_ui->m_evenFuelTrimBar->setVisible(false);
         m_ui->m_evenFuelTrimBarLabel->setVisible(false);
         m_ui->m_evenFuelTrimLabel->setVisible(false);
         m_ui->m_oddFuelTrimBar->setVisible(false);
-        m_ui->m_oddFuelTrimLabel->setText("MAF CO trim:");
     }
     else
     {
-        m_ui->m_lambdaTrimTypeLabel->setEnabled(true);
-        m_ui->m_lambdaTrimLongButton->setEnabled(true);
-        m_ui->m_lambdaTrimShortButton->setEnabled(true);
+        m_ui->m_lambdaTrimTypeLabel->setEnabled(lambdaEnabled);
+        m_ui->m_lambdaTrimLongButton->setEnabled(lambdaEnabled);
+        m_ui->m_lambdaTrimShortButton->setEnabled(lambdaEnabled);
+        m_ui->m_evenFuelTrimBar->setEnabled(lambdaEnabled);
+        m_ui->m_evenFuelTrimBarLabel->setEnabled(lambdaEnabled);
+        m_ui->m_evenFuelTrimLabel->setEnabled(lambdaEnabled);
+        m_ui->m_lambdaTrimHighLimitLabel->setEnabled(lambdaEnabled);
+        m_ui->m_lambdaTrimLowLimitLabel->setEnabled(lambdaEnabled);
+
+        m_ui->m_oddFuelTrimAndMAFCOLabel->setText("Lambda fuel trim (odd):");
+        m_ui->m_oddFuelTrimAndMAFCOLabel->setEnabled(lambdaEnabled);
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setEnabled(lambdaEnabled);
+        m_ui->m_oddFuelTrimBarAndMAFCOLabel->setAlignment(Qt::AlignRight);
+        setLambdaTrimIndicators(m_cux->getLambdaTrimOdd(), m_cux->getLambdaTrimEven());
+
         m_ui->m_lambdaTrimHighLimitLabel->setVisible(true);
         m_ui->m_lambdaTrimLowLimitLabel->setVisible(true);
         m_ui->m_evenFuelTrimBar->setVisible(true);
         m_ui->m_evenFuelTrimBarLabel->setVisible(true);
         m_ui->m_evenFuelTrimLabel->setVisible(true);
         m_ui->m_oddFuelTrimBar->setVisible(true);
-        m_ui->m_oddFuelTrimLabel->setText("Lambda fuel trim (odd):");
     }
+}
+
+/**
+ * Called when the fueling feedback mode (open- vs closed-loop) changes.
+ * @param mode The new feedback mode
+ */
+void MainWindow::onFeedbackModeChanged(c14cux_feedback_mode mode)
+{
+    setLambdaWidgetsForFeedbackMode(mode,
+                                    m_enabledSamples[SampleType_COTrimVoltage],
+                                    m_enabledSamples[SampleType_LambdaTrimLong] || m_enabledSamples[SampleType_LambdaTrimShort]);
 }
 
 /**

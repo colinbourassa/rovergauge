@@ -605,7 +605,7 @@ CUXInterface::ReadResult CUXInterface::readData()
             if ((m_currentFuelMapIndex >= s_firstOpenLoopMap) &&
                 (m_currentFuelMapIndex <= s_lastOpenLoopMap))
             {
-                m_feedbackMode = C14CUX_FeedbackMode_OpenLoop;
+                newFeedbackMode = C14CUX_FeedbackMode_OpenLoop;
             }
 
             // if the feedback mode has changed, emit a signal

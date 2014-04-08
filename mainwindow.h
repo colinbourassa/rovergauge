@@ -132,6 +132,7 @@ private:
     void dimUnusedControls();    
     void setGearLabel(c14cux_gear gearReading);
     void setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven);
+    void setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool coTrimEnabled, bool lambdaEnabled);
 
 private slots:
     void onSaveROMImageSelected();
