@@ -1,13 +1,8 @@
 #include <QCloseEvent>
 #include <QMessageBox>
-#include <QList>
 #include <QDateTime>
-#include <QDir>
-#include <QHBoxLayout>
 #include <QThread>
 #include <QFileDialog>
-#include <QDesktopWidget>
-#include <QCryptographicHash>
 #include <QGraphicsOpacityEffect>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
