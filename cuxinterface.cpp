@@ -29,6 +29,8 @@ CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits t
     m_fuelTempF(0),
     m_throttlePos(0.0),
     m_gear(C14CUX_Gear_NoReading),
+    m_acCompressor(false),
+    m_screenHeater(false),
     m_mainVoltage(0.0),
     m_fuelMapIndexRead(false),
     m_currentFuelMapIndex(0),
@@ -541,6 +543,16 @@ CUXInterface::ReadResult CUXInterface::readData()
     if (isDueForMeasurement(SampleType_GearSelection))
     {
         result = mergeResult(result, c14cux_getGearSelection(&m_cuxinfo, &m_gear));
+    }
+
+    if (isDueForMeasurement(SampleType_ACCompressor))
+    {
+        result = mergeResult(result, c14cux_getACCompressorState(&m_cuxinfo, &m_acCompressor));
+    }
+
+    if (isDueForMeasurement(SampleType_HeatedScreen))
+    {
+        result = mergeResult(result, c14cux_getScreenHeaterState(&m_cuxinfo, &m_screenHeater));
     }
 
     if (isDueForMeasurement(SampleType_RoadSpeed))

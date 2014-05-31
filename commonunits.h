@@ -26,6 +26,8 @@ enum SampleType
     SampleType_IdleBypassPosition,
     SampleType_TargetIdleRPM,
     SampleType_GearSelection,
+    SampleType_ACCompressor,
+    SampleType_HeatedScreen,
     SampleType_MainVoltage,
     SampleType_LambdaTrimShort,
     SampleType_LambdaTrimLong,
