@@ -16,7 +16,7 @@ cmake_install.cmake
 qrc_rovergauge_resources.cxx
 rovergauge_automoc.cpp
 rovergauge_resources.qrc.depends
-CMakeLists.txt.user
+CMakeLists.txt.user*
 rovergauge.cbp
 LICENSE.TXT
 README.TXT
