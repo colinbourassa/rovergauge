@@ -53,7 +53,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_COTrimVoltage] = "MAF CO trim";
     m_sampleTypeLabels[SampleType_FuelMapData] = "Fuel map data";
     m_sampleTypeLabels[SampleType_FuelPumpRelay] = "Fuel pump relay";
-    m_sampleTypeLabels[SampleType_InjectorPulseWidth] = "Injector pulse with / duty cycle";    
+    m_sampleTypeLabels[SampleType_InjectorPulseWidth] = "Injector pulse width / duty cycle";
 
     // We try to keep the nonzero intervals prime to avoid statistical
     // clustering of read calls to the library.
@@ -187,6 +187,9 @@ void OptionsDialog::accept()
         m_enabledSamples[sType] = m_enabledSamplesBoxes[sType]->isChecked();
     }
 
+    // special case for the MIL; this is always enabled
+    m_enabledSamples[SampleType_MIL] = true;
+
     writeSettings();
     done(QDialog::Accepted);
 }
@@ -218,6 +221,9 @@ void OptionsDialog::readSettings()
     {
         m_enabledSamples[sType] = settings.value(m_sampleTypeNames[sType], true).toBool();
     }
+
+    // special case for the MIL; this is always enabled
+    m_enabledSamples[SampleType_MIL] = true;
 
     groupLikeSettings();
 
