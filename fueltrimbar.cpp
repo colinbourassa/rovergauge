@@ -14,6 +14,19 @@ FuelTrimBar::FuelTrimBar(QWidget *parent) :
 }
 
 /**
+ * Force a repaint when the value has been set to zero.
+ * Not sure why the framework doesn't do this.
+ */
+void FuelTrimBar::setValue(int value)
+{
+    QProgressBar::setValue(value);
+    if (value == 0)
+    {
+        repaint();
+    }
+}
+
+/**
  * Draws a progress bar that extends left or right from the center point.
  */
 void FuelTrimBar::paintEvent(QPaintEvent *)
