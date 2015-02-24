@@ -49,8 +49,6 @@ public:
     int getFuelTemp()                 { return convertTemperature(m_fuelTempF); }
     float getThrottlePos()            { return m_throttlePos; }
     c14cux_gear getGear()             { return m_gear; }
-    bool getACCompressorState()       { return m_acCompressor; }
-    bool getScreenHeaterState()       { return m_screenHeater; }
     c14cux_faultcodes getFaultCodes() { return m_faultCodes; }
     float getMainVoltage()            { return m_mainVoltage; }
     c14cux_version getVersion()       { return c14cux_getLibraryVersion(); }
@@ -152,8 +150,6 @@ private:
     int16_t m_fuelTempF;
     float m_throttlePos;
     c14cux_gear m_gear;
-    bool m_screenHeater;
-    bool m_acCompressor;
     float m_mainVoltage;
     bool m_fuelMapIndexRead;
     uint8_t m_currentFuelMapIndex;

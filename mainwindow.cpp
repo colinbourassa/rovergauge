@@ -521,12 +521,6 @@ void MainWindow::onDataReady()
     if (m_enabledSamples[SampleType_GearSelection])
         setGearLabel(m_cux->getGear());
 
-    if (m_enabledSamples[SampleType_ACCompressor])
-        m_ui->m_acCompressor->setText(m_cux->getACCompressorState() ? "On" : "Off");
-
-    if (m_enabledSamples[SampleType_HeatedScreen])
-        m_ui->m_screenHeater->setText(m_cux->getScreenHeaterState() ? "On" : "Off");
-
     m_logger->logData();
 }
 
@@ -798,14 +792,6 @@ void MainWindow::dimUnusedControls()
     m_ui->m_gearLabel->setEnabled(enabled);
     m_ui->m_gear->setEnabled(enabled);
 
-    enabled = m_enabledSamples[SampleType_ACCompressor];
-    m_ui->m_acCompressorLabel->setEnabled(enabled);
-    m_ui->m_acCompressor->setEnabled(enabled);
-
-    enabled = m_enabledSamples[SampleType_HeatedScreen];
-    m_ui->m_screenHeaterLabel->setEnabled(enabled);
-    m_ui->m_screenHeater->setEnabled(enabled);
-
     enabled = m_enabledSamples[SampleType_MainVoltage];
     m_ui->m_voltageLabel->setEnabled(enabled);
     m_ui->m_voltage->setEnabled(enabled);
@@ -922,8 +908,6 @@ void MainWindow::onDisconnect()
     m_ui->m_targetIdle->setText("--");
     m_ui->m_voltage->setText("--");
     m_ui->m_gear->setText("--");
-    m_ui->m_acCompressor->setText("--");
-    m_ui->m_screenHeater->setText("--");
     m_ui->m_fuelPumpRelayStateLed->setChecked(false);
     m_ui->m_oddFuelTrimBar->setValue(0);
     if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)

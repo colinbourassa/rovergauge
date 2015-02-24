@@ -28,8 +28,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeNames[SampleType_IdleBypassPosition] = "SampleType_IdleBypassPosition";
     m_sampleTypeNames[SampleType_TargetIdleRPM] = "SampleType_TargetIdleRPM";
     m_sampleTypeNames[SampleType_GearSelection] = "SampleType_GearSelection";
-    m_sampleTypeNames[SampleType_ACCompressor] = "SampleType_ACCompressor";
-    m_sampleTypeNames[SampleType_HeatedScreen] = "SampleType_HeatedScreen";
     m_sampleTypeNames[SampleType_MainVoltage] = "SampleType_MainVoltage";
     m_sampleTypeNames[SampleType_LambdaTrimLong] = "SampleType_LambdaTrim";
     m_sampleTypeNames[SampleType_COTrimVoltage] = "SampleType_COTrimVoltage";
@@ -46,8 +44,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_sampleTypeLabels[SampleType_IdleBypassPosition] = "Idle bypass position";
     m_sampleTypeLabels[SampleType_TargetIdleRPM] = "Idle mode / target RPM";
     m_sampleTypeLabels[SampleType_GearSelection] = "Gear selection";
-    m_sampleTypeLabels[SampleType_ACCompressor] = "AC compressor load";
-    m_sampleTypeLabels[SampleType_HeatedScreen] = "Screen heater";
     m_sampleTypeLabels[SampleType_MainVoltage] = "Main voltage";
     m_sampleTypeLabels[SampleType_LambdaTrimLong] = "Lambda trim";
     m_sampleTypeLabels[SampleType_COTrimVoltage] = "MAF CO trim";
@@ -66,8 +62,6 @@ OptionsDialog::OptionsDialog(QString title, QWidget *parent) : QDialog(parent),
     m_readIntervalsMs[SampleType_IdleBypassPosition] = 0;
     m_readIntervalsMs[SampleType_TargetIdleRPM]      = 487;
     m_readIntervalsMs[SampleType_GearSelection]      = 563;
-    m_readIntervalsMs[SampleType_ACCompressor]       = 647;
-    m_readIntervalsMs[SampleType_HeatedScreen]       = 643;
     m_readIntervalsMs[SampleType_MainVoltage]        = 283;
     m_readIntervalsMs[SampleType_LambdaTrimShort]    = 0;
     m_readIntervalsMs[SampleType_LambdaTrimLong]     = 331;
