@@ -8,13 +8,16 @@
  * Constructor. Sets the serial device and measurement units.
  * @param device Name of (or path to) the serial device used to comminucate
  *  with the 14CUX.
+ * @param baud Baud rate to use when communicatin with the ECU. Note that
+ *  standard ECUs only support the standard rate of 7812.5 bps.
  * @param sUnits Units to be used when expressing road speed
  * @param tUnits Units to be used when expressing coolant/fuel temperature
  */
-CUXInterface::CUXInterface(QString device, SpeedUnits sUnits, TemperatureUnits tUnits, bool fuelMapRefresh,
-                           QObject *parent) :
+CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
+                           TemperatureUnits tUnits, bool fuelMapRefresh, QObject *parent) :
     QObject(parent),
     m_deviceName(device),
+    m_baudRate(baud),
     m_stopPolling(false),
     m_shutdownThread(false),
     m_readCanceled(false),
@@ -237,7 +240,7 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
  */
 bool CUXInterface::connectToECU()
 {
-    bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str());    
+    bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
 
     uint16_t tune = 0;
     uint8_t checksumFixer = 0;

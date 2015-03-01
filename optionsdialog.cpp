@@ -2,6 +2,9 @@
 #include "ui_optionsdialog.h"
 #include "optionsdialog.h"
 #include "serialdevenumerator.h"
+#include "comm14cux.h"
+
+extern bool g_doubleBaud;
 
 /**
  * Constructor; sets up the options-dialog UI and sets settings-file field names.
@@ -158,12 +161,18 @@ void OptionsDialog::accept()
 {
     QString newSerialDeviceName = m_ui->m_serialDeviceBox->currentText();
 
-    // set a flag if the serial device has been changed;
+    // TODO: future support for different baud rates will require that we
+    // add a control on this form; for now, always set it to the default
+    unsigned int newBaudRate = (g_doubleBaud ? (C14CUX_BAUD * 2) : C14CUX_BAUD);
+
+    // set a flag if the serial device or baud has been changed;
     // the main application needs to know if it should
     // reconnect to the 14CUX
-    if (m_serialDeviceName.compare(newSerialDeviceName) != 0)
+    if ((m_serialDeviceName.compare(newSerialDeviceName) != 0) ||
+        (newBaudRate != m_baudRate))
     {
         m_serialDeviceName = newSerialDeviceName;
+        m_baudRate = newBaudRate;
         m_serialDeviceChanged = true;
     }
     else
@@ -198,7 +207,7 @@ void OptionsDialog::reject()
 }
 
 /**
- * Reads values for all the settings (either from the settings file, or by return defaults.)
+ * Reads values for all the settings (either from the settings file, or by returning defaults.)
  */
 void OptionsDialog::readSettings()
 {
@@ -210,6 +219,10 @@ void OptionsDialog::readSettings()
     m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
     m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
     m_softHighlight = settings.value(m_settingSoftHighlight, false).toBool();
+
+    // TODO: once support for other baud rates is stabilized,
+    // this will need to pull the value from the settings file
+    m_baudRate = (g_doubleBaud ? C14CUX_BAUD * 2 : C14CUX_BAUD);
 
     foreach (SampleType sType, m_sampleTypeNames.keys())
     {
@@ -273,3 +286,4 @@ QString OptionsDialog::getSerialDeviceName()
     return m_serialDeviceName;
 #endif
 }
+

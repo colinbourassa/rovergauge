@@ -33,8 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("RoverGauge");
 
     m_options = new OptionsDialog(this->windowTitle(), this);
-    m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getSpeedUnits(),
-                             m_options->getTemperatureUnits(), m_options->getRefreshFuelMap());
+    m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getBaudRate(),
+                             m_options->getSpeedUnits(), m_options->getTemperatureUnits(),
+                             m_options->getRefreshFuelMap());
 
     m_enabledSamples = m_options->getEnabledSamples();
     m_cux->setEnabledSamples(m_enabledSamples);
@@ -755,6 +756,7 @@ void MainWindow::onEditOptionsClicked()
                 m_cux->disconnectFromECU();
             }
             m_cux->setSerialDevice(m_options->getSerialDeviceName());
+            m_cux->setBaudRate(m_options->getBaudRate());
         }
     }
 }

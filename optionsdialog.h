@@ -19,6 +19,7 @@ class OptionsDialog : public QDialog
 public:
     OptionsDialog(QString title, QWidget *parent = 0);
     QString getSerialDeviceName();
+    unsigned int getBaudRate()                        { return m_baudRate; }
     bool getSerialDeviceChanged()                     { return m_serialDeviceChanged; }
     bool getRefreshFuelMap()                          { return m_refreshFuelMap; }
     bool getSoftHighlight()                           { return m_softHighlight; }
@@ -41,6 +42,7 @@ private:
     QMap<SampleType,QCheckBox*> m_enabledSamplesBoxes;
 
     QString m_serialDeviceName;
+    unsigned int m_baudRate;
     TemperatureUnits m_tempUnits;
     SpeedUnits m_speedUnits;
 

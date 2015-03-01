@@ -22,11 +22,12 @@ class CUXInterface : public QObject
 
     Q_OBJECT
 public:
-    explicit CUXInterface(QString device, SpeedUnits sUnits,
+    explicit CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
                           TemperatureUnits tUnits, bool fuelMapRefresh, QObject *parent = 0);
     ~CUXInterface();
 
     void setSerialDevice(QString device)                       { m_deviceName = device; }
+    void setBaudRate(unsigned int baud)                        { m_baudRate = baud; }
     void setLambdaTrimType(c14cux_lambda_trim_type type)       { m_lambdaTrimType = type; }
     void setMAFReadingType(c14cux_airflow_type type)           { m_airflowType = type; }
     void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
@@ -129,6 +130,7 @@ private:
     static const int s_lastOpenLoopMap = 3;
 
     QString m_deviceName;
+    unsigned int m_baudRate;
     c14cux_info m_cuxinfo;
     bool m_stopPolling;
     bool m_shutdownThread;
