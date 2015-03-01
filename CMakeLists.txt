@@ -87,7 +87,7 @@ if (MINGW)
 
   message (STATUS "Defaulting installation path to: ${COMM14CUX_PATH}")
   set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/rovergauge")
-  set (EXE_FILE "${CMAKE_CURRENT_BINARY_DIR}/rovergauge.exe")
+  set (EXE_FILE "${CMAKE_BINARY_DIR}/rovergauge.exe")
 
   # When we call find_library() below, we're only looking for DLLs, so set the suffix list appropriately
   set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
@@ -154,11 +154,11 @@ if (MINGW)
   # convert Unix-style newline characters into Windows-style
   file (READ "${CMAKE_SOURCE_DIR}/README" README_CONTENTS)
   file (READ "${CMAKE_SOURCE_DIR}/LICENSE" LICENSE_CONTENTS)
-  file (WRITE "README.TXT" ${README_CONTENTS})
-  file (WRITE "LICENSE.TXT" ${LICENSE_CONTENTS})
+  file (WRITE "${CMAKE_BINARY_DIR}/README.TXT" ${README_CONTENTS})
+  file (WRITE "${CMAKE_BINARY_DIR}/LICENSE.TXT" ${LICENSE_CONTENTS})
 
   install (FILES ${EXE_FILE} DESTINATION ".")
-  install (FILES "README.txt" "LICENSE.txt" DESTINATION "doc")
+  install (FILES "${CMAKE_BINARY_DIR}/README.txt" "${CMAKE_BINARY_DIR}/LICENSE.txt" DESTINATION "doc")
 
   install (FILES ${EXE_FILE}
                  ${MINGW_LIBGCC}
