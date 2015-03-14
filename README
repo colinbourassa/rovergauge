@@ -7,10 +7,10 @@ Rover V8 engine in Land Rover vehicles from 1990 to 1995, and also in sports
 cars made by low-volume automakers (TVR, Morgan, etc.) throughout the 1990s.
 
 RoverGauge depends on another piece of software that I wrote, libcomm14cux.
-Each of these two projects has its own Google Project page:
+Each of these two projects has its own GitHub repository:
 
-http://code.google.com/p/rovergauge/
-http://code.google.com/p/libcomm14cux/
+https://github.com/colinbourassa/rovergauge
+https://github.com/colinbourassa/libcomm14cux
 
 -------
 License
@@ -47,7 +47,7 @@ be connected to the serial port in the 14CUX wiring harness. This requires
 building a custom cable using one of FTDI's USB-to-RS232 converters. You can
 find the details of this on either of these two pages:
 
-http://code.google.com/p/libcomm14cux/wiki/HardwareInterface
+https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md
 http://alum.wpi.edu/~colinb/14cux_interface.html
 
 When the USB FTDI device is connected to the PC, its driver will present it
