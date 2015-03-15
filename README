@@ -1,8 +1,12 @@
 ----------
 RoverGauge
-----------
+
 Download releases:
 https://drive.google.com/folderview?id=0B83FOZ5t1n4cZUNIS2JuMndwYlk&usp=drive_web
+
+Discussion group:
+https://groups.google.com/forum/#!forum/rovergauge
+----------
 
 RoverGauge is a graphical display and diagnostic tool that reads runtime data
 from a Lucas 14CUX engine management system. The 14CUX was paired with the
