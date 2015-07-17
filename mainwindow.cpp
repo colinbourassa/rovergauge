@@ -835,7 +835,8 @@ void MainWindow::dimUnusedControls()
     m_revCounterOpacity->setEnabled(!enabled);
 
     // Computing injector duty cycle requires RPM data
-    enabled &= m_enabledSamples[SampleType_InjectorPulseWidth];
+    enabled = (m_enabledSamples[SampleType_InjectorPulseWidth] &&
+               m_enabledSamples[SampleType_EngineRPM]);
     m_ui->m_injectorDutyCycleBar->setEnabled(enabled);
     m_ui->m_injectorDutyCycleLabel->setEnabled(enabled);
     if (!enabled)
@@ -1280,6 +1281,7 @@ void MainWindow::setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool
         m_ui->m_lambdaTrimTypeLabel->setEnabled(lambdaEnabled);
         m_ui->m_lambdaTrimLongButton->setEnabled(lambdaEnabled);
         m_ui->m_lambdaTrimShortButton->setEnabled(lambdaEnabled);
+        m_ui->m_oddFuelTrimBar->setEnabled(lambdaEnabled);
         m_ui->m_evenFuelTrimBar->setEnabled(lambdaEnabled);
         m_ui->m_evenFuelTrimBarLabel->setEnabled(lambdaEnabled);
         m_ui->m_evenFuelTrimLabel->setEnabled(lambdaEnabled);

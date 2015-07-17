@@ -47,10 +47,10 @@ void FaultCodeDialog::onFaultClearSuccess(c14cux_faultcodes faultCodes)
 void FaultCodeDialog::populateFaultList()
 {
     m_faultNames.insert(FaultCode_ROMChecksumFailure, QString("(29) ECU checksum error"));
-    m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(45) Lambda sensor (odd)"));
-    m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(44) Lambda sensor (even)"));
-    m_faultNames.insert(FaultCode_MisfireOdd, QString("(50) Misfire (odd)"));
-    m_faultNames.insert(FaultCode_MisfireEven, QString("(40) Misfire (even)"));
+    m_faultNames.insert(FaultCode_LambdaSensorOdd, QString("(44) Lambda sensor (odd)"));
+    m_faultNames.insert(FaultCode_LambdaSensorEven, QString("(45) Lambda sensor (even)"));
+    m_faultNames.insert(FaultCode_MisfireOdd, QString("(40) Misfire (odd)"));
+    m_faultNames.insert(FaultCode_MisfireEven, QString("(50) Misfire (even)"));
     m_faultNames.insert(FaultCode_AirflowMeter, QString("(12) Airflow meter"));
     m_faultNames.insert(FaultCode_TuneResistor, QString("(21) Tune resistor out of range"));
     m_faultNames.insert(FaultCode_InjectorOdd, QString("(34) Injector bank (odd)"));
