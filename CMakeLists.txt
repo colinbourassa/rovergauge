@@ -80,6 +80,7 @@ add_executable (rovergauge main.cpp
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
+  # prevent the final executable from launching a terminal window in addition to the main GUI
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
 
   set (COMM14CUX_PATH "$ENV{SystemDrive}/comm14cux")
@@ -93,27 +94,27 @@ if (MINGW)
   set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
   message (STATUS "Limiting find_library() suffixes to ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
-  find_library (MINGW_LIBGCC libgcc_s_dw2-1)
-  if (MINGW_LIBGCC)
-    message (STATUS "Found MinGW's libgcc at ${MINGW_LIBGCC}")
+  find_library (LIBGCC NAMES libgcc_s_sjlj-1 libgcc_s_dw2-1)
+  if (LIBGCC)
+    message (STATUS "Found libgcc at ${LIBGCC}")
   else ()
-    message (SEND_ERROR "Could not find MinGW's libgcc_s_dw2-1.dll! Check that the MinGW bin/ directory is in your PATH.")
+    message (SEND_ERROR "Could not find libgcc!")
   endif ()
 
-  find_library (MINGW_LIBSTDCPP libstdc++-6)
-  if (MINGW_LIBSTDCPP)
-    message (STATUS "Found MinGW's libstdc++ at ${MINGW_LIBSTDCPP}")
+  find_library (LIBSTDCPP libstdc++-6)
+  if (LIBSTDCPP)
+    message (STATUS "Found libstdc++ at ${LIBSTDCPP}")
   else ()
-    message (SEND_ERROR "Could not find MinGW's libstdc++-6.dll! Check that the MinGW bin/ directory is in your PATH.")
+    message (SEND_ERROR "Could not find libstdc++!")
   endif ()
 
-  find_library (MINGW_LIBWINPTHREAD libwinpthread-1)
-  if (MINGW_LIBWINPTHREAD)
-    message (STATUS "Found MinGW's libwinpthread at ${MINGW_LIBWINPTHREAD}")
+  find_library (ZLIB zlib1)
+  if (ZLIB)
+    message (STATUS "Found zlib1 at ${ZLIB}")
   else ()
-    message (SEND_ERROR "Could not find libwinpthread-1.dll! Check that the MinGW bin/ directory is in your PATH.")
+    message (SEND_ERROR "Could not find zlib1!")
   endif ()
-  
+
   find_library (QTCORE_DLL Qt5Core)
   if (QTCORE_DLL)
     message (STATUS "Found QtCore at ${QTCORE_DLL}")
@@ -142,32 +143,30 @@ if (MINGW)
     message (SEND_ERROR "Could not find Qt qwindows platform plugin!")
   endif ()
 
-  find_library(COMM14CUX_DLL libcomm14cux PATHS ${COMM14CUX_PATH} ${CMAKE_INSTALL_PREFIX})
+  find_library(COMM14CUX_DLL libcomm14cux)
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
   else ()
-    message (SEND_ERROR "Could not find libcomm14cux.dll! Check that it exists in one of the directories in your PATH.")
+    message (SEND_ERROR "Could not find libcomm14cux.dll!")
   endif ()
 
   target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt5::Widgets)
 
   # convert Unix-style newline characters into Windows-style
-  file (READ "${CMAKE_SOURCE_DIR}/README" README_CONTENTS)
-  file (READ "${CMAKE_SOURCE_DIR}/LICENSE" LICENSE_CONTENTS)
-  file (WRITE "${CMAKE_BINARY_DIR}/README.TXT" ${README_CONTENTS})
-  file (WRITE "${CMAKE_BINARY_DIR}/LICENSE.TXT" ${LICENSE_CONTENTS})
+  configure_file ("${CMAKE_SOURCE_DIR}/README" "${CMAKE_BINARY_DIR}/README.TXT" NEWLINE_STYLE WIN32)
+  configure_file ("${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/LICENSE.TXT" NEWLINE_STYLE WIN32)
 
   install (FILES ${EXE_FILE} DESTINATION ".")
-  install (FILES "${CMAKE_BINARY_DIR}/README.txt" "${CMAKE_BINARY_DIR}/LICENSE.txt" DESTINATION "doc")
+  install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
 
   install (FILES ${EXE_FILE}
-                 ${MINGW_LIBGCC}
-                 ${MINGW_LIBSTDCPP}
-                 ${MINGW_LIBWINPTHREAD}
+                 ${LIBGCC}
+                 ${LIBSTDCPP}
                  ${QTCORE_DLL}
                  ${QTGUI_DLL}
                  ${QTWIDGETS_DLL}
                  ${COMM14CUX_DLL}
+                 ${ZLIB}
            DESTINATION ".")
   install (FILES ${QWINDOWS_DLL} DESTINATION "platforms")
 
