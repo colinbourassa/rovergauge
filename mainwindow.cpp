@@ -30,7 +30,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     buildSpeedAndTempUnitTables();
     m_ui->setupUi(this);
-    this->setWindowTitle("RoverGauge");
+    this->setWindowTitle("RoverGauge " +
+                         QString::number(ROVERGAUGE_VER_MAJOR) + "." +
+                         QString::number(ROVERGAUGE_VER_MINOR) + "." +
+                         QString::number(ROVERGAUGE_VER_PATCH));
 
     m_options = new OptionsDialog(this->windowTitle(), this);
     m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getBaudRate(),
