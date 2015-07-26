@@ -22,6 +22,9 @@ private:
     QFile m_logFile;
     QTextStream m_logFileStream;
     QString m_lastAttemptedLog;
+
+    float getRowWithWeighting();
+    float getColWithWeighting();
 };
 
 #endif // LOGGER_H

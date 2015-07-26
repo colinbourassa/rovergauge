@@ -73,14 +73,34 @@ void Logger::logData()
                       << m_cux->getIdleBypassPos() << ","
                       << m_cux->getMainVoltage() << ","
                       << m_cux->getCurrentFuelMapIndex() << ","
-                      << m_cux->getFuelMapRowIndex() << ","
-                      << m_cux->getFuelMapColumnIndex() << ","
+                      << getRowWithWeighting() << ","
+                      << getColWithWeighting() << ","
                       << m_cux->getTargetIdleSpeed() << ","
                       << m_cux->getLambdaTrimOdd() << ","
                       << m_cux->getLambdaTrimEven() << ","
                       << m_cux->getInjectorPulseWidthMs()
                       << endl;
     }
+}
+
+/**
+ * Gets a fractional value that describes the current fuel map row index considering
+ * the weighting.
+ */
+float Logger::getRowWithWeighting()
+{
+  return ((float)m_cux->getFuelMapRowIndex() +
+          ((float)m_cux->getFuelMapRowWeighting() / 16.0));
+}
+
+/**
+ * Gets a fractional value that describes the current fuel map column index considering
+ * the weighting.
+ */
+float Logger::getColWithWeighting()
+{
+  return ((float)m_cux->getFuelMapColumnIndex() +
+          ((float)m_cux->getFuelMapColWeighting() / 16.0));
 }
 
 /**
