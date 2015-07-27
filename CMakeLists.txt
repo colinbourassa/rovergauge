@@ -94,7 +94,7 @@ if (MINGW)
   set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
   message (STATUS "Limiting find_library() suffixes to ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
-  find_library (LIBGCC NAMES libgcc_s_sjlj-1 libgcc_s_dw2-1)
+  find_library (LIBGCC NAMES libgcc_s_sjlj-1 libgcc_s_seh-1 libgcc_s_dw2-1)
   if (LIBGCC)
     message (STATUS "Found libgcc at ${LIBGCC}")
   else ()
