@@ -3,7 +3,7 @@ project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 7)
-set (ROVERGAUGE_VER_PATCH 4)
+set (ROVERGAUGE_VER_PATCH 5)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -46,8 +46,8 @@ include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_CURRENT_BINARY_DIR}"
                      "${Qt5Widgets_INCLUDE_DIRS}")
 
-qt5_wrap_ui (UI_SOURCE mainwindow.ui)
-qt5_wrap_ui (UI_SOURCE optionsdialog.ui)
+qt5_wrap_ui (UI_SOURCE "mainwindow.ui")
+qt5_wrap_ui (UI_SOURCE "optionsdialog.ui")
 message (STATUS "Generated: ${UI_SOURCE}")
 qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
@@ -56,39 +56,32 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
                  "-DROVERGAUGE_VER_MINOR=${ROVERGAUGE_VER_MINOR}"
                  "-DROVERGAUGE_VER_PATCH=${ROVERGAUGE_VER_PATCH}")
 
-add_executable (rovergauge main.cpp
-                           cuxinterface.cpp
-                           simulationmodedialog.cpp
-                           helpviewer.cpp
-                           idleaircontroldialog.cpp
-                           logger.cpp
-                           serialdevenumerator.cpp
-                           fueltrimbar.cpp
-                           mainwindow.cpp
-                           faultcodedialog.cpp
-                           aboutbox.cpp
-                           optionsdialog.cpp
-                           qledindicator/qledindicator.cpp
-                           analogwidgets/led.cpp
-                           analogwidgets/functions.cpp
-                           analogwidgets/widgetwithbackground.cpp
-                           analogwidgets/manometer.cpp
-                           analogwidgets/abstractmeter.cpp
-                           ${UI_SOURCE}
-                           ${RG_RESOURCE})
+add_executable (rovergauge "main.cpp"
+                           "cuxinterface.cpp"
+                           "simulationmodedialog.cpp"
+                           "helpviewer.cpp"
+                           "idleaircontroldialog.cpp"
+                           "logger.cpp"
+                           "serialdevenumerator.cpp"
+                           "fueltrimbar.cpp"
+                           "mainwindow.cpp"
+                           "faultcodedialog.cpp"
+                           "aboutbox.cpp"
+                           "optionsdialog.cpp"
+                           "qledindicator/qledindicator.cpp"
+                           "analogwidgets/led.cpp"
+                           "analogwidgets/functions.cpp"
+                           "analogwidgets/widgetwithbackground.cpp"
+                           "analogwidgets/manometer.cpp"
+                           "analogwidgets/abstractmeter.cpp"
+                           "${UI_SOURCE}"
+                           "${RG_RESOURCE}")
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
 
-  # prevent the final executable from launching a terminal window in addition to the main GUI
+  # prevent the final executable from launching a terminal window in parallel with the main GUI
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
-
-  set (COMM14CUX_PATH "$ENV{SystemDrive}/comm14cux")
-  include_directories ("${COMM14CUX_PATH}/include")
-
-  message (STATUS "Defaulting installation path to: ${COMM14CUX_PATH}")
-  set (CMAKE_INSTALL_PREFIX "$ENV{SystemDrive}/rovergauge")
-  set (EXE_FILE "${CMAKE_BINARY_DIR}/rovergauge.exe")
 
   # When we call find_library() below, we're only looking for DLLs, so set the suffix list appropriately
   set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
@@ -156,10 +149,7 @@ if (MINGW)
   configure_file ("${CMAKE_SOURCE_DIR}/README" "${CMAKE_BINARY_DIR}/README.TXT" NEWLINE_STYLE WIN32)
   configure_file ("${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/LICENSE.TXT" NEWLINE_STYLE WIN32)
 
-  install (FILES ${EXE_FILE} DESTINATION ".")
-  install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
-
-  install (FILES ${EXE_FILE}
+  install (FILES "${CMAKE_BINARY_DIR}/rovergauge.exe"
                  ${LIBGCC}
                  ${LIBSTDCPP}
                  ${QTCORE_DLL}
@@ -168,6 +158,7 @@ if (MINGW)
                  ${COMM14CUX_DLL}
                  ${ZLIB}
            DESTINATION ".")
+  install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
   install (FILES ${QWINDOWS_DLL} DESTINATION "platforms")
 
   set (CPACK_GENERATOR "ZIP")
@@ -177,17 +168,17 @@ if (MINGW)
   include (CPack)
 
 else()
-  message (STATUS "Platform is not Windows/MinGW; trying Linux...")
+  message (STATUS "Defaulting to Linux build environment.")
 
   target_link_libraries (rovergauge comm14cux Qt5::Widgets)
 
   set (CMAKE_SKIP_RPATH TRUE)
   set (CMAKE_INSTALL_PREFIX "/usr")
-  set (EXE_FILE "${CMAKE_CURRENT_BINARY_DIR}/rovergauge")
 
   # set the installation destinations for the header files,
   # shared library binaries, and reference utility
-  install (FILES ${EXE_FILE} DESTINATION "bin"
+  install (FILES "${CMAKE_CURRENT_BINARY_DIR}/rovergauge"
+           DESTINATION "bin"
            PERMISSIONS
             OWNER_READ OWNER_EXECUTE OWNER_WRITE
             GROUP_READ GROUP_EXECUTE

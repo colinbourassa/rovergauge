@@ -92,14 +92,19 @@ fuel maps)?
 A: Unfortunately, no. When the ECU is running, it reads fueling values from the
 ROM. Modifying the ROM requires removing and reprogramming the chip.
 
--------------------------------------------
-Notes on building from source under Windows
--------------------------------------------
-If building from source in a Windows environment, note that the default
-installation of Qt includes a dependency on the ICU internationalization
-libraries. The Win32 build of RoverGauge that I provide was linked against
-a customized build of Qt and does not have these dependencies. If you'd like to
-build Qt in a similar way, configure the Qt source tree with this command:
+----------------------------------------------
+Notes on building from source for Win32 target
+----------------------------------------------
+The most straightforward way to build from source is by using the
+M Cross Environment (MXE, http://mxe.cc). Within this environment, both Qt5 and
+libcomm14cux can be built for a Win32 target. The 'mxe-build.sh' script included
+with the RoverGauge source can then be called with the path to MXE. It will run
+CMake with the appropriate parameters.
 
-configure.bat -release -opensource -no-icu -no-opengl -nomake examples -nomake tests
+Note that the packaging portion of CMakeLists.txt does not take into account any
+run time (DLL) dependencies beyond Qt5Core, Qt5Widgets, Qt5Gui, zlib, and the
+C and C++ standard libs. If you build against an installation of Qt with support
+for other features (ICU, libpng, Freetype, etc.), you may find that the
+resulting RoverGauge .zip file does not include all the required DLLs.
 
+(EOF)

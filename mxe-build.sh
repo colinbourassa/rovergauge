@@ -1,19 +1,30 @@
 #!/bin/sh
 
-if [ $# -lt 2 ] ; then
-  echo "Usage: $0 <path-to-mxe-environment> <path-to-directory-containing-libcomm14cux-dll>"
+if [ $# -lt 1 ] ; then
+  echo "Usage: $0 <path-to-mxe-environment>"
   exit
 fi
 
-MXE=$1
-LIBCOMM14CUX=$2
 MXETYPE="i686-w64-mingw32.shared"
+MXE="$1/usr/$MXETYPE"
 
-cp $2/libcomm14cux.dll              $1/usr/$MXETYPE/lib/libcomm14cux.dll
-cp /usr/include/comm14cux.h         $1/usr/$MXETYPE/include/comm14cux.h
-cp /usr/include/comm14cux_version.h $1/usr/$MXETYPE/include/comm14cux_version.h
+if [ ! -d "$MXE" ] ; then
+  echo "Error: This script currently only support i686 shared library builds ($MXETYPE)."
+  echo "Please update your MXE settings.mk file to include this target type and then build Qt5 and libcomm14cux."
+  exit 1
+fi
 
-export PATH=$PATH:$2:$1/usr/$MXETYPE/qt5/bin:$1/usr/$MXETYPE/qt5/plugins/platforms:$MXE/usr/$MXETYPE/lib:$MXE/usr/$MXETYPE/qt5/lib:$MXE/usr/lib/gcc/$MXETYPE/5.1.0/
+if [ ! -d "$MXE/qt5" ] ; then
+  echo "Error: Qt5 must first be built within MXE (expected at: $MXE/qt5)"
+  exit 2
+fi
 
-cmake .. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$MXETYPE/share/cmake/mxe-conf.cmake -DCMAKE_PREFIX_PATH=$MXE/usr/$MXETYPE/qt5/
+if [ ! -f "$MXE/lib/libcomm14cux.dll" ] || [ ! -f "$MXE/include/comm14cux.h" ] ; then
+  echo "Error: libcomm14cux must first be built within MXE."
+  exit 3
+fi
+
+export PATH=$PATH:$MXE/qt5/bin:$MXE/qt5/plugins/platforms:$MXE/lib:$MXE/qt5/lib:$1/usr/lib/gcc/$MXETYPE/5.1.0/
+
+cmake .. -DCMAKE_TOOLCHAIN_FILE=$MXE/share/cmake/mxe-conf.cmake -DCMAKE_PREFIX_PATH=$MXE/qt5/
 
