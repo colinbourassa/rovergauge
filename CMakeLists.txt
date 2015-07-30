@@ -46,8 +46,8 @@ include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_CURRENT_BINARY_DIR}"
                      "${Qt5Widgets_INCLUDE_DIRS}")
 
-qt5_wrap_ui (UI_SOURCE "mainwindow.ui")
-qt5_wrap_ui (UI_SOURCE "optionsdialog.ui")
+qt5_wrap_ui (UI_SOURCE mainwindow.ui)
+qt5_wrap_ui (UI_SOURCE optionsdialog.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
 qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
@@ -56,26 +56,26 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
                  "-DROVERGAUGE_VER_MINOR=${ROVERGAUGE_VER_MINOR}"
                  "-DROVERGAUGE_VER_PATCH=${ROVERGAUGE_VER_PATCH}")
 
-add_executable (rovergauge "main.cpp"
-                           "cuxinterface.cpp"
-                           "simulationmodedialog.cpp"
-                           "helpviewer.cpp"
-                           "idleaircontroldialog.cpp"
-                           "logger.cpp"
-                           "serialdevenumerator.cpp"
-                           "fueltrimbar.cpp"
-                           "mainwindow.cpp"
-                           "faultcodedialog.cpp"
-                           "aboutbox.cpp"
-                           "optionsdialog.cpp"
-                           "qledindicator/qledindicator.cpp"
-                           "analogwidgets/led.cpp"
-                           "analogwidgets/functions.cpp"
-                           "analogwidgets/widgetwithbackground.cpp"
-                           "analogwidgets/manometer.cpp"
-                           "analogwidgets/abstractmeter.cpp"
-                           "${UI_SOURCE}"
-                           "${RG_RESOURCE}")
+add_executable (rovergauge main.cpp
+                           cuxinterface.cpp
+                           simulationmodedialog.cpp
+                           helpviewer.cpp
+                           idleaircontroldialog.cpp
+                           logger.cpp
+                           serialdevenumerator.cpp
+                           fueltrimbar.cpp
+                           mainwindow.cpp
+                           faultcodedialog.cpp
+                           aboutbox.cpp
+                           optionsdialog.cpp
+                           qledindicator/qledindicator.cpp
+                           analogwidgets/led.cpp
+                           analogwidgets/functions.cpp
+                           analogwidgets/widgetwithbackground.cpp
+                           analogwidgets/manometer.cpp
+                           analogwidgets/abstractmeter.cpp
+                           ${UI_SOURCE}
+                           ${RG_RESOURCE})
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
