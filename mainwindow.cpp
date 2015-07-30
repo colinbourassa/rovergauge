@@ -8,6 +8,8 @@
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
 
+extern bool g_autoconnect;
+
 /**
  * Constructor; sets up main UI
  */
@@ -90,6 +92,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupWidgets();
     dimUnusedControls();
+
+    if (g_autoconnect)
+    {
+      doConnect();
+    }
 }
 
 /**
@@ -302,30 +309,38 @@ void MainWindow::setupWidgets()
 }
 
 /**
- * Attempts to open the serial device connected to the 14CUX,
- * and starts updating the display with data if successful.
+ * Handler for the buttonclick on the Connect button
  */
 void MainWindow::onConnectClicked()
 {
-    // If the worker thread hasn't been created yet, do that now.
-    if (m_cuxThread == 0)
-    {
-        m_cuxThread = new QThread(this);
-        m_cux->moveToThread(m_cuxThread);
-        connect(m_cuxThread, SIGNAL(started()), m_cux, SLOT(onParentThreadStarted()));
-    }
+  doConnect();
+}
 
-    // If the worker thread is alreay running, ask it to start polling the ECU.
-    // Otherwise, start the worker thread, but don't ask it to begin polling
-    // yet; it'll signal us when it's ready.
-    if (m_cuxThread->isRunning())
-    {
-        emit requestToStartPolling();
-    }
-    else
-    {
-        m_cuxThread->start();
-    }
+/**
+ * Attempts to open the serial device connected to the 14CUX,
+ * and starts updating the display with data if successful.
+ */
+void MainWindow::doConnect()
+{
+  // If the worker thread hasn't been created yet, do that now.
+  if (m_cuxThread == 0)
+  {
+    m_cuxThread = new QThread(this);
+    m_cux->moveToThread(m_cuxThread);
+    connect(m_cuxThread, SIGNAL(started()), m_cux, SLOT(onParentThreadStarted()));
+  }
+
+  // If the worker thread is alreay running, ask it to start polling the ECU.
+  // Otherwise, start the worker thread, but don't ask it to begin polling
+  // yet; it'll signal us when it's ready.
+  if (m_cuxThread->isRunning())
+  {
+    emit requestToStartPolling();
+  }
+  else
+  {
+    m_cuxThread->start();
+  }
 }
 
 /**

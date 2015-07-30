@@ -121,9 +121,9 @@ private:
     QHash<TemperatureUnits,QPair<int,int> > *m_tempRange;
     QHash<TemperatureUnits,QPair<int,int> > *m_tempLimits;
 
+    void doConnect();
     void buildSpeedAndTempUnitTables();
     void setupWidgets();
-
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCells();
