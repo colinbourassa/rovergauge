@@ -20,7 +20,10 @@
     <p>RoverGauge is a software utility intended for diagnostics and testing of the Lucas 14CUX engine management system, which was fitted to Land Rover vehicles produced from 1990 to 1995, as well as some sports cars produced by TVR, Morgan, Ginetta, and Marcos.</p>
     <p>For RoverGauge to work, the computer must have a specially modified USB-to-serial converter. Instructions for building this cable can be found on the <a href="https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md">libcomm14cux wiki page</a>.</p>
     <h3>Command line parameters</h3>
-    <p>Pass <b>&#8211;a</b> as a parameter to rovergauge.exe to automatically connect to the ECU when the application starts. Note that this will only work if the correct serial port was selected the last time the application was run.</p>
+    <p>Pass these values as parameters to rovergauge.exe:</p>
+    <p><b>&#8211;a</b>: Automatically connect to the ECU when the application starts. Note that this will only work if the correct serial port was selected the last time the application was run.</p>
+    <p><b>&#8211;l</b>: Open the log file immediately when the application starts. This is most useful when paired with <b>&#8211;a</b>.</p>
+    <p>Summary: to automatically connect and begin logging to a file, start the application with: <b>rovergauge.exe -a -l</b></p>
     <h3>Main display</h3>
     <ul>
     <li><b>Tune:</b> The tune revision of the firmware in the ECU, such as "R3360". Note: this number was not always updated by third-party firmware sources for low-volume automakers such as TVR. In that case, multiple different tunes may share the same tune number.</li>

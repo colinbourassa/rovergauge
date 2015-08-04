@@ -122,6 +122,7 @@ private:
     QHash<TemperatureUnits,QPair<int,int> > *m_tempLimits;
 
     void doConnect();
+    void startLogging();
     void buildSpeedAndTempUnitTables();
     void setupWidgets();
     void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);

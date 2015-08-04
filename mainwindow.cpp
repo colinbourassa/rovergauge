@@ -9,6 +9,7 @@
 #include "faultcodedialog.h"
 
 extern bool g_autoconnect;
+extern bool g_autolog;
 
 /**
  * Constructor; sets up main UI
@@ -96,6 +97,11 @@ MainWindow::MainWindow(QWidget *parent)
     if (g_autoconnect)
     {
       doConnect();
+    }
+
+    if (g_autolog)
+    {
+      startLogging();
     }
 }
 
@@ -972,7 +978,7 @@ void MainWindow::onReadSuccess()
 /**
  * Opens the log file for writing.
  */
-void MainWindow::onStartLogging()
+void MainWindow::startLogging()
 {
     if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
     {
@@ -984,6 +990,14 @@ void MainWindow::onStartLogging()
         QMessageBox::warning(this, "Error",
             "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
     }
+}
+
+/**
+ * Opens the log file for writing.
+ */
+void MainWindow::onStartLogging()
+{
+  startLogging();
 }
 
 /**
