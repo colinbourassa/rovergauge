@@ -26,5 +26,5 @@ fi
 
 export PATH=$PATH:$MXE/qt5/bin:$MXE/qt5/plugins/platforms:$MXE/lib:$MXE/qt5/lib:$1/usr/lib/gcc/$MXETYPE/5.1.0/
 
-cmake .. -DCMAKE_TOOLCHAIN_FILE=$MXE/share/cmake/mxe-conf.cmake -DCMAKE_PREFIX_PATH=$MXE/qt5/
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$MXE/share/cmake/mxe-conf.cmake -DCMAKE_PREFIX_PATH=$MXE/qt5/
 
