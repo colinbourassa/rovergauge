@@ -184,6 +184,7 @@ private:
 
     bool m_initComplete;
 
+    void zeroDisabledSamples();
     void runServiceLoop();
     void clearFlagsAndData();
     ReadResult readData();

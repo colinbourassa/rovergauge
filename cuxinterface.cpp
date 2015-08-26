@@ -765,6 +765,48 @@ void CUXInterface::setEnabledSamples(QMap<SampleType, bool> samples)
     {
         m_enabledSamples[field] = samples[field];
     }
+
+    zeroDisabledSamples();
+}
+
+/**
+ * For the samples that are disabled, set the stored last reading to a default
+ * value (zero) so that they do not appear as valid-but-unchanging data points
+ * in the log file.
+ */
+void CUXInterface::zeroDisabledSamples()
+{
+  if (!m_enabledSamples[SampleType_EngineTemperature])  m_coolantTempF = 0;
+  if (!m_enabledSamples[SampleType_RoadSpeed])          m_roadSpeedMPH = 0;
+  if (!m_enabledSamples[SampleType_EngineRPM])          m_engineSpeedRPM = 0;
+  if (!m_enabledSamples[SampleType_FuelTemperature])    m_fuelTempF = 0;
+  if (!m_enabledSamples[SampleType_MAF])                m_mafReading = 0.0;
+  if (!m_enabledSamples[SampleType_Throttle])           m_throttlePos = 0.0;
+  if (!m_enabledSamples[SampleType_IdleBypassPosition]) m_idleBypassPos = 0.0;
+  if (!m_enabledSamples[SampleType_TargetIdleRPM])      m_targetIdleSpeed = 0;
+  if (!m_enabledSamples[SampleType_GearSelection])      m_gear = C14CUX_Gear_NoReading;
+  if (!m_enabledSamples[SampleType_MainVoltage])        m_mainVoltage = 0.0;
+  if (!m_enabledSamples[SampleType_COTrimVoltage])      m_coTrimVoltage = 0.0;
+  if (!m_enabledSamples[SampleType_FuelPumpRelay])      m_fuelPumpRelayOn = false;
+
+  if (!m_enabledSamples[SampleType_InjectorPulseWidth])
+  {
+    m_injectorPulseWidthUs = 0.0;
+    m_injectorPulseWidthMs = 0.0;
+  }
+
+  if (!m_enabledSamples[SampleType_FuelMapRowCol])
+  {
+    m_currentFuelMapRowIndex = 0;
+    m_currentFuelMapColumnIndex = 0;
+  }
+
+  if ( (!m_enabledSamples[SampleType_LambdaTrimShort] && (m_lambdaTrimType == C14CUX_LambdaTrimType_ShortTerm)) ||
+       (!m_enabledSamples[SampleType_LambdaTrimLong]  && (m_lambdaTrimType == C14CUX_LambdaTrimType_LongTerm)) )
+  {
+    m_lambdaTrimOdd = 0;
+    m_lambdaTrimEven = 0;
+  }
 }
 
 /**

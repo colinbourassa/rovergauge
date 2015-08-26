@@ -765,10 +765,10 @@ void MainWindow::onEditOptionsClicked()
             }
         }
 
+        dimUnusedControls();
+
         m_cux->setEnabledSamples(m_enabledSamples);
         m_cux->setReadIntervals(m_options->getReadIntervals());
-
-        dimUnusedControls();
 
         // If the user changed the serial device name and/or the polling
         // interval, stop the timer, re-connect to the 14CUX (if neccessary),
