@@ -20,8 +20,11 @@ private:
     QString m_logExtension;
     QString m_logDir;
     QFile m_logFile;
+    QFile m_staticLogFile;
     QTextStream m_logFileStream;
+    QTextStream m_staticLogFileStream;
     QString m_lastAttemptedLog;
+    QString m_lastAttemptedStaticLog;
 
     float getRowWithWeighting();
     float getColWithWeighting();

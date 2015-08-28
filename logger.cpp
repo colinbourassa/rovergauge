@@ -19,8 +19,11 @@ Logger::Logger(CUXInterface *cuxIFace) :
 bool Logger::openLog(QString fileName)
 {
     bool success = false;
+    unsigned int fmRow = 0;
+    unsigned int fmCol = 0;
 
     m_lastAttemptedLog = m_logDir + QDir::separator() + fileName + m_logExtension;
+    m_lastAttemptedStaticLog = m_logDir + QDir::separator() + fileName + "_static" + m_logExtension;
 
     // if the 'logs' directory exists, or if we're able to create it...
     if (!m_logFile.isOpen() && (QDir(m_logDir).exists() || QDir().mkdir(m_logDir)))
@@ -34,13 +37,33 @@ bool Logger::openLog(QString fileName)
 
             if (!alreadyExists)
             {
-                m_logFileStream << "#time,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
+                m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                                  "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                                  "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
                                  "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
             }
 
             success = true;
+        }
+
+        if (success)
+        {
+          m_staticLogFile.setFileName(m_lastAttemptedStaticLog);
+
+          if (m_staticLogFile.open(QFile::WriteOnly | QFile::Truncate))
+          {
+            m_staticLogFileStream.setDevice(&m_staticLogFile);
+            m_staticLogFileStream << "#datetime,tune,ident,fuelMapIndex,fuelMapMultiplier,rowScalar,mafCOTrim";
+
+            for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
+            {
+              for (fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
+              {
+                m_staticLogFileStream << QString(",FM_R%1C%2").arg(fmRow).arg(fmCol);
+              }
+            }
+            m_staticLogFileStream << endl;
+          }
         }
     }
 
@@ -63,7 +86,7 @@ void Logger::logData()
 {
     if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
     {
-        m_logFileStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << ","
+        m_logFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
                       << m_cux->getRoadSpeed() << ","
                       << m_cux->getEngineSpeedRPM() << ","
                       << m_cux->getCoolantTemp() << ","
