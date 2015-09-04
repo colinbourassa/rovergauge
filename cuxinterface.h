@@ -72,6 +72,9 @@ public:
     bool isMILOn()                    { return m_milOn; }
     bool getIdleMode()                { return m_idleMode; }
     float getInjectorPulseWidthMs()   { return m_injectorPulseWidthMs; }
+    uint16_t getTune()                { return m_tune; }
+    uint8_t getChecksumFixer()        { return m_checksumFixer; }
+    uint16_t getIdent()               { return m_ident; }
 
     void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
     void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
@@ -170,6 +173,9 @@ private:
     bool m_idleMode;    
     uint16_t m_injectorPulseWidthUs;
     float m_injectorPulseWidthMs;
+    uint16_t m_tune;
+    uint8_t m_checksumFixer;
+    uint16_t m_ident;
 
     QByteArray *m_romImage;
 

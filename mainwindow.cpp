@@ -14,7 +14,7 @@ extern bool g_autolog;
 /**
  * Constructor; sets up main UI
  */
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       m_ui(new Ui::MainWindow),
 #ifdef ENABLE_SIM_MODE
@@ -223,7 +223,7 @@ void MainWindow::setupWidgets()
     m_ui->m_fuelMapDisplay->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
     unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
-    QTableWidgetItem *item = 0;
+    QTableWidgetItem* item = 0;
     for (int col = 0; col < colCount; col++)
     {
         m_ui->m_fuelMapDisplay->setHorizontalHeaderItem(col, new QTableWidgetItem(""));
@@ -407,13 +407,13 @@ void MainWindow::onFaultCodesReadFailed()
  * values.
  * @param data Pointer to the ByteArray that contains the map data
  */
-void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentFactor)
+void MainWindow::populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor)
 {
     if (data != 0)
     {        
         int rowCount = m_ui->m_fuelMapDisplay->rowCount();
         int colCount = m_ui->m_fuelMapDisplay->columnCount();
-        QTableWidgetItem *item = 0;
+        QTableWidgetItem* item = 0;
         unsigned char byte = 0;
 
         removeFuelMapCellHighlight();
@@ -450,11 +450,13 @@ void MainWindow::populateFuelMapDisplay(QByteArray *data, int fuelMapAdjustmentF
  */
 void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
 {
-    QByteArray *data = m_cux->getFuelMap(fuelMapId);
+    QByteArray* data = m_cux->getFuelMap(fuelMapId);
     if (data != 0)
     {
         populateFuelMapDisplay(data, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
         m_fuelMapDataIsCurrent = true;
+
+        m_logger->onFuelMapDataReady(fuelMapId);
     }
 }
 
@@ -874,7 +876,7 @@ void MainWindow::dimUnusedControls()
  * the other thread.
  * @param event The event itself.
  */
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
     m_logger->closeLog();
 
@@ -1132,7 +1134,7 @@ void MainWindow::onROMImageReady()
         m_pleaseWaitBox->hide();
     }
 
-    QByteArray *promData = m_cux->getROMImage();
+    QByteArray* promData = m_cux->getROMImage();
 
     if (promData != 0)
     {
@@ -1206,7 +1208,7 @@ void MainWindow::onIdleAirControlClicked()
 /**
  * Sets the type of lambda trim to read from the ECU.
  */
-void MainWindow::onLambdaTrimButtonClicked(QAbstractButton *button)
+void MainWindow::onLambdaTrimButtonClicked(QAbstractButton* button)
 {
     if (button == m_ui->m_lambdaTrimShortButton)
     {
@@ -1221,7 +1223,7 @@ void MainWindow::onLambdaTrimButtonClicked(QAbstractButton *button)
 /**
  * Sets the type of MAF reading to read from the ECU.
  */
-void MainWindow::onMAFReadingButtonClicked(QAbstractButton *button)
+void MainWindow::onMAFReadingButtonClicked(QAbstractButton* button)
 {
     if (button == m_ui->m_mafReadingLinearButton)
     {
@@ -1236,7 +1238,7 @@ void MainWindow::onMAFReadingButtonClicked(QAbstractButton *button)
 /**
  * Sets the type of throttle position to display.
  */
-void MainWindow::onThrottleTypeButtonClicked(QAbstractButton *button)
+void MainWindow::onThrottleTypeButtonClicked(QAbstractButton* button)
 {
     if (button == m_ui->m_throttleTypeAbsoluteButton)
     {
@@ -1357,7 +1359,7 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
     m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(fuelMapId));
     m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier:"));
 
-    QByteArray *fuelMapData = m_cux->getFuelMap(fuelMapId);
+    QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
 
     if (fuelMapData != 0)
     {

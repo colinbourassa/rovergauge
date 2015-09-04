@@ -53,7 +53,10 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_speedUnits(sUnits),
     m_tempUnits(tUnits),
     m_fuelMapRefresh(fuelMapRefresh),
-    m_initComplete(false)
+    m_initComplete(false),
+    m_tune(0),
+    m_checksumFixer(0),
+    m_ident(0)
 {
     for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
     {
@@ -242,17 +245,13 @@ bool CUXInterface::connectToECU()
 {
     bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
 
-    uint16_t tune = 0;
-    uint8_t checksumFixer = 0;
-    uint16_t ident = 0;
-
     if (status)
     {
         emit connected();
 
-        if (c14cux_getTuneRevision(&m_cuxinfo, &tune, &checksumFixer, &ident))
+        if (c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
         {
-            emit revisionNumberReady(tune, checksumFixer, ident);
+            emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
         }
 
 #ifdef ENABLE_FORCE_OPEN_LOOP

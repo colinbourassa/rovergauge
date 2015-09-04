@@ -14,8 +14,11 @@ public:
     void closeLog();
     void logData();
     QString getLogPath();
+    void onFuelMapDataReady(unsigned int fuelMapId);
 
 private:
+    bool m_fuelMapDataIsReady;
+    unsigned int m_fuelMapId;
     CUXInterface *m_cux;
     QString m_logExtension;
     QString m_logDir;
@@ -26,6 +29,7 @@ private:
     QString m_lastAttemptedLog;
     QString m_lastAttemptedStaticLog;
 
+    void logStaticData(unsigned int fuelMapId);
     float getRowWithWeighting();
     float getColWithWeighting();
 };
