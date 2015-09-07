@@ -75,6 +75,7 @@ public:
     uint16_t getTune()                { return m_tune; }
     uint8_t getChecksumFixer()        { return m_checksumFixer; }
     uint16_t getIdent()               { return m_ident; }
+    uint8_t getRowScalar()            { return m_rowScalar; }
 
     void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
     void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
@@ -176,6 +177,7 @@ private:
     uint16_t m_tune;
     uint8_t m_checksumFixer;
     uint16_t m_ident;
+    uint8_t m_rowScalar;
 
     QByteArray *m_romImage;
 

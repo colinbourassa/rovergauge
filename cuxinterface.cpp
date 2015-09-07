@@ -56,7 +56,8 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_initComplete(false),
     m_tune(0),
     m_checksumFixer(0),
-    m_ident(0)
+    m_ident(0),
+    m_rowScalar(0)
 {
     for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
     {
@@ -198,7 +199,8 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     uint16_t adjFactor = 0;
     bool status = false;
 
-    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer))
+    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer) &&
+        c14cux_readMem(&m_cuxinfo, C14CUX_RowScalarOffset, 1, &m_rowScalar))
     {
         m_fuelMapAdjFactors[fuelMapId] = adjFactor;
         m_fuelMapDataIsCurrent[fuelMapId] = true;
