@@ -57,7 +57,8 @@ bool Logger::openLog(QString fileName)
       if (m_staticLogFile.open(QFile::WriteOnly | QFile::Truncate))
       {
         m_staticLogFileStream.setDevice(&m_staticLogFile);
-        m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex,fuelMapMultiplier,rowScalar,mafCOTrim";
+        m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
+          "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
 
         // give each byte of the fuel map a separate field name
         for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
@@ -142,7 +143,8 @@ void Logger::logStaticData(unsigned int fuelMapId)
     << hex << m_cux->getChecksumFixer() << ","
     << dec << fuelMapId << ","
     << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-    << m_cux->getRowScalar() << ","
+    << m_cux->getRowScaler() << ","
+    << m_cux->getMAFRowScaler() << ","
     << mafCoTrim;
 
   if (fuelMapData)

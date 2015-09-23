@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QCoreApplication>
 #include <string.h>
+#include <arpa/inet.h>
 #include "cuxinterface.h"
 
 /**
@@ -57,7 +58,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_tune(0),
     m_checksumFixer(0),
     m_ident(0),
-    m_rowScalar(0)
+    m_rowScaler(0)
 {
     for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
     {
@@ -199,9 +200,13 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     uint16_t adjFactor = 0;
     bool status = false;
 
+    // TODO: update the list of offsets in libcomm14cux's main header to
+    // include the MAF row scaler at $01C7
     if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer) &&
-        c14cux_readMem(&m_cuxinfo, C14CUX_RowScalarOffset, 1, &m_rowScalar))
+        c14cux_readMem(&m_cuxinfo, C14CUX_RowScalarOffset, 1, &m_rowScaler) &&
+        c14cux_readMem(&m_cuxinfo, 0xC1C7, 2, (uint8_t*)&m_mafScaler))
     {
+        m_mafScaler = ntohs(m_mafScaler);
         m_fuelMapAdjFactors[fuelMapId] = adjFactor;
         m_fuelMapDataIsCurrent[fuelMapId] = true;
         status = true;
