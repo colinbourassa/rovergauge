@@ -15,6 +15,7 @@ public:
     void logData();
     QString getLogPath();
     void onFuelMapDataReady(unsigned int fuelMapId);
+    void onDisconnect();
 
 private:
     bool m_fuelMapDataIsReady;
@@ -28,6 +29,7 @@ private:
     QTextStream m_staticLogFileStream;
     QString m_lastAttemptedLog;
     QString m_lastAttemptedStaticLog;
+    bool m_staticDataLogged;
 
     void logStaticData(unsigned int fuelMapId);
     float getRowWithWeighting();

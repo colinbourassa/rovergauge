@@ -10,7 +10,8 @@ Logger::Logger(CUXInterface *cuxIFace) :
 m_fuelMapDataIsReady(false),
 m_fuelMapId(0),
 m_logExtension(".txt"),
-m_logDir("logs")
+m_logDir("logs"),
+m_staticDataLogged(false)
 {
     m_cux = cuxIFace;
 }
@@ -24,6 +25,7 @@ bool Logger::openLog(QString fileName)
   bool success = false;
   unsigned int fmRow = 0;
   unsigned int fmCol = 0;
+  bool alreadyExists = false;
 
   m_lastAttemptedLog = m_logDir + QDir::separator() + fileName + m_logExtension;
   m_lastAttemptedStaticLog = m_logDir + QDir::separator() + fileName + "_static" + m_logExtension;
@@ -32,7 +34,7 @@ bool Logger::openLog(QString fileName)
   if (!m_logFile.isOpen() && (QDir(m_logDir).exists() || QDir().mkdir(m_logDir)))
   {
     // set the name of the log file and open it for writing
-    bool alreadyExists = QFileInfo(m_lastAttemptedLog).exists();
+    alreadyExists = QFileInfo(m_lastAttemptedLog).exists();
     m_logFile.setFileName(m_lastAttemptedLog);
     if (m_logFile.open(QFile::WriteOnly | QFile::Append))
     {
@@ -52,24 +54,29 @@ bool Logger::openLog(QString fileName)
     // if that worked, attempt to open a file for the static/one-shot data
     if (success)
     {
+      alreadyExists = QFileInfo(m_lastAttemptedStaticLog).exists();
       m_staticLogFile.setFileName(m_lastAttemptedStaticLog);
 
-      if (m_staticLogFile.open(QFile::WriteOnly | QFile::Truncate))
+      if (m_staticLogFile.open(QFile::WriteOnly | QFile::Append))
       {
-        m_staticLogFileStream.setDevice(&m_staticLogFile);
-        m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
-          "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
-
-        // give each byte of the fuel map a separate field name
-        for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
+        if (!alreadyExists)
         {
-          for (fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
-          {
-            m_staticLogFileStream << QString(",FM_R%1C%2").arg(fmRow).arg(fmCol);
-          }
-        }
+          m_staticDataLogged = false;
+          m_staticLogFileStream.setDevice(&m_staticLogFile);
+          m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
+            "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
 
-        m_staticLogFileStream << endl;
+          // give each byte of the fuel map a separate field name
+          for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
+          {
+            for (fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
+            {
+              m_staticLogFileStream << QString(",FM_R%1C%2").arg(fmRow).arg(fmCol);
+            }
+          }
+
+          m_staticLogFileStream << endl;
+        }
       }
     }
   }
@@ -113,7 +120,8 @@ void Logger::logData()
       << endl;
   }
 
-  if (m_fuelMapDataIsReady &&
+  if (!m_staticDataLogged &&
+      m_fuelMapDataIsReady &&
       m_staticLogFile.isOpen() &&
       (m_staticLogFileStream.status() == QTextStream::Ok))
   {
@@ -161,7 +169,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
   }
 
   m_staticLogFileStream << endl;
-  m_staticLogFile.close();
+  m_staticDataLogged = true;
 }
 
 /**
@@ -170,17 +178,17 @@ void Logger::logStaticData(unsigned int fuelMapId)
  */
 void Logger::onFuelMapDataReady(unsigned int fuelMapId)
 {
+  m_fuelMapDataIsReady = true;
+  m_fuelMapId = fuelMapId;
+
   // If a log file has already been opened, then log the static data now.
   // Otherwise, set a flag that can be checked if/when a log is ultimately
   // opened.
-  if (m_staticLogFile.isOpen() && (m_staticLogFileStream.status() == QTextStream::Ok))
+  if (!m_staticDataLogged &&
+      m_staticLogFile.isOpen() &&
+      (m_staticLogFileStream.status() == QTextStream::Ok))
   {
     logStaticData(fuelMapId);
-  }
-  else
-  {
-    m_fuelMapDataIsReady = true;
-    m_fuelMapId = fuelMapId;
   }
 }
 
@@ -211,5 +219,15 @@ float Logger::getColWithWeighting()
 QString Logger::getLogPath()
 {
     return m_lastAttemptedLog;
+}
+
+/**
+ * Clears some flags that change the logging behavior for static data
+ */
+void Logger::onDisconnect()
+{
+  m_fuelMapDataIsReady = false;
+  m_fuelMapId = 0;
+  m_staticDataLogged = false;
 }
 

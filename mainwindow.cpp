@@ -367,6 +367,7 @@ void MainWindow::onDisconnectClicked()
 {
     m_ui->m_disconnectButton->setEnabled(false);
     m_cux->disconnectFromECU();
+    m_logger->onDisconnect();
 }
 
 /**
@@ -982,16 +983,17 @@ void MainWindow::onReadSuccess()
  */
 void MainWindow::startLogging()
 {
-    if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
-    {
-        m_ui->m_startLoggingButton->setEnabled(false);
-        m_ui->m_stopLoggingButton->setEnabled(true);
-    }
-    else
-    {
-        QMessageBox::warning(this, "Error",
-            "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
-    }
+  if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
+  {
+    m_ui->m_logFileNameBox->setEnabled(false);
+    m_ui->m_startLoggingButton->setEnabled(false);
+    m_ui->m_stopLoggingButton->setEnabled(true);
+  }
+  else
+  {
+    QMessageBox::warning(this, "Error",
+        "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
+  }
 }
 
 /**
@@ -1007,9 +1009,10 @@ void MainWindow::onStartLogging()
  */
 void MainWindow::onStopLogging()
 {
-    m_logger->closeLog();
-    m_ui->m_stopLoggingButton->setEnabled(false);
-    m_ui->m_startLoggingButton->setEnabled(true);
+  m_logger->closeLog();
+  m_ui->m_logFileNameBox->setEnabled(true);
+  m_ui->m_stopLoggingButton->setEnabled(false);
+  m_ui->m_startLoggingButton->setEnabled(true);
 }
 
 /**
