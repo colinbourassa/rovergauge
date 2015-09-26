@@ -2,7 +2,6 @@
 #include <QDateTime>
 #include <QCoreApplication>
 #include <string.h>
-#include <arpa/inet.h>
 #include "cuxinterface.h"
 
 /**
@@ -203,7 +202,7 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, &m_rowScaler, buffer) &&
         c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, (uint8_t*)&m_mafScaler))
     {
-        m_mafScaler = ntohs(m_mafScaler);
+        m_mafScaler = swapShort(m_mafScaler);
         m_fuelMapAdjFactors[fuelMapId] = adjFactor;
         m_fuelMapDataIsCurrent[fuelMapId] = true;
         status = true;
