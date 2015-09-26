@@ -200,11 +200,8 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     uint16_t adjFactor = 0;
     bool status = false;
 
-    // TODO: update the list of offsets in libcomm14cux's main header to
-    // include the MAF row scaler at $01C7
-    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, buffer) &&
-        c14cux_readMem(&m_cuxinfo, C14CUX_RowScalarOffset, 1, &m_rowScaler) &&
-        c14cux_readMem(&m_cuxinfo, 0xC1C7, 2, (uint8_t*)&m_mafScaler))
+    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, &m_rowScaler, buffer) &&
+        c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, (uint8_t*)&m_mafScaler))
     {
         m_mafScaler = ntohs(m_mafScaler);
         m_fuelMapAdjFactors[fuelMapId] = adjFactor;
