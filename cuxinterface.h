@@ -141,6 +141,7 @@ private:
     bool m_shutdownThread;
     c14cux_faultcodes m_faultCodes;
     bool m_readCanceled;
+    bool m_readTuneId;
     QHash<SampleType,bool> m_enabledSamples;
     QHash<SampleType,qint64> m_lastReadTime;
     QHash<SampleType,unsigned int> m_readIntervals;

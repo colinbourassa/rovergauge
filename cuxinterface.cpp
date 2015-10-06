@@ -21,6 +21,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_stopPolling(false),
     m_shutdownThread(false),
     m_readCanceled(false),
+    m_readTuneId(false),
     m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
     m_feedbackMode(C14CUX_FeedbackMode_ClosedLoop),
     m_airflowType(C14CUX_AirflowType_Linearized),
@@ -252,11 +253,6 @@ bool CUXInterface::connectToECU()
     {
         emit connected();
 
-        if (c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
-        {
-            emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
-        }
-
 #ifdef ENABLE_FORCE_OPEN_LOOP
         uint8_t openLoopByte = 0;
         if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &openLoopByte))
@@ -306,6 +302,7 @@ void CUXInterface::clearFlagsAndData()
     m_cuxinfo.voltageFactorA = 0;
     m_cuxinfo.voltageFactorB = 0;
     m_cuxinfo.voltageFactorC = 0;
+    m_readTuneId = false;
 }
 
 /**
@@ -394,6 +391,13 @@ void CUXInterface::runServiceLoop()
         res = readData();
         if (res == ReadResult_Success)
         {
+            if (!m_readTuneId &&
+                c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
+            {
+              m_readTuneId = true;
+              emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
+            }
+
             emit readSuccess();
             emit dataReady();
         }
