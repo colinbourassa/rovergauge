@@ -408,7 +408,7 @@ void MainWindow::onFaultCodesReadFailed()
  * values.
  * @param data Pointer to the ByteArray that contains the map data
  */
-void MainWindow::populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor)
+void MainWindow::populateFuelMapDisplay(QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
 {
     if (data != 0)
     {        
@@ -437,9 +437,11 @@ void MainWindow::populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentF
             }
         }
 
-        QString adjFactorLabel =
-            QString("%1").arg(fuelMapAdjustmentFactor, 0, 16).toUpper();
-        m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + adjFactorLabel);
+        QString label = QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper();
+        m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + label);
+
+        label = QString("%1").arg(rowScaler, 0, 16).toUpper();
+        m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x") + label);
 
         highlightActiveFuelMapCells();
     }
@@ -454,7 +456,9 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
     QByteArray* data = m_cux->getFuelMap(fuelMapId);
     if (data != 0)
     {
-        populateFuelMapDisplay(data, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
+        populateFuelMapDisplay(data,
+                               m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+                               m_cux->getRowScaler(fuelMapId));
         m_fuelMapDataIsCurrent = true;
 
         m_logger->onFuelMapDataReady(fuelMapId);
@@ -926,6 +930,10 @@ void MainWindow::onDisconnect()
     m_ui->m_tuneRevNumberLabel->setText("Tune:");
     m_ui->m_identLabel->setText("Ident:");
     m_ui->m_checksumFixerLabel->setText("Checksum fixer:");
+    m_ui->m_fuelMapIndexLabel->setText("Current fuel map:");
+    m_ui->m_fuelMapFactorLabel->setText("Multiplier:");
+    m_ui->m_rpmLimitLabel->setText("RPM limit:");
+    m_ui->m_rowScalerLabel->setText("Row scaler:");
 
     m_ui->m_speedo->setValue(0.0);
     m_ui->m_revCounter->setValue(0.0);
@@ -1273,6 +1281,7 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int
 void MainWindow::onRPMLimitReady(int rpmLimit)
 {
     m_ui->m_revCounter->setCritical((double)rpmLimit);
+    m_ui->m_rpmLimitLabel->setText(QString("RPM limit: ") + QString("%1").arg(rpmLimit));
 }
 
 /**
@@ -1366,7 +1375,9 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
 
     if (fuelMapData != 0)
     {
-        populateFuelMapDisplay(fuelMapData, m_cux->getFuelMapAdjustmentFactor(fuelMapId));
+        populateFuelMapDisplay(fuelMapData,
+                               m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+                               m_cux->getRowScaler(fuelMapId));
         m_fuelMapDataIsCurrent = true;
     }
     else

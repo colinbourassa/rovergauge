@@ -215,7 +215,7 @@
           <item row="0" column="1" colspan="2">
            <widget class="QRadioButton" name="m_mafReadingLinearButton">
             <property name="text">
-             <string>Linear</string>
+             <string>Li&amp;near</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -278,7 +278,7 @@
           <item row="2" column="3">
            <widget class="QRadioButton" name="m_throttleTypeCorrectedButton">
             <property name="text">
-             <string>Corrected</string>
+             <string>&amp;Corrected</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">m_throttleTypeButtonGroup</string>
@@ -399,7 +399,7 @@
           <item row="8" column="3">
            <widget class="QRadioButton" name="m_lambdaTrimLongButton">
             <property name="text">
-             <string>Long term</string>
+             <string>Long ter&amp;m</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">m_lambdaTrimButtonGroup</string>
@@ -503,6 +503,38 @@
         </item>
         <item>
          <layout class="QGridLayout" name="m_fuelAndLoggingLayout">
+          <item row="0" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="m_fuelMapFactorsLayout">
+            <item>
+             <widget class="QLabel" name="m_fuelMapIndexLabel">
+              <property name="text">
+               <string>Current fuel map:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="m_fuelMapFactorLabel">
+              <property name="text">
+               <string>Multiplier:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="m_rpmLimitLabel">
+              <property name="text">
+               <string>RPM limit:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="m_rowScalerLabel">
+              <property name="text">
+               <string>Row scaler:</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
           <item row="4" column="0" colspan="4">
            <widget class="Line" name="m_hline0">
             <property name="orientation">
@@ -616,20 +648,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="m_fuelMapIndexLabel">
-            <property name="text">
-             <string>Current fuel map:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="m_fuelMapFactorLabel">
-            <property name="text">
-             <string>Multiplier:</string>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="1">
            <widget class="QLineEdit" name="m_logFileNameBox"/>
           </item>
@@ -643,16 +661,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="m_fuelPumpRelayStateLabel">
-            <property name="text">
-             <string>Fuel pump relay:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="1" colspan="2">
            <widget class="QProgressBar" name="m_injectorDutyCycleBar">
             <property name="maximum">
@@ -663,6 +671,16 @@
             </property>
             <property name="format">
              <string>%p%</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="m_fuelPumpRelayStateLabel">
+            <property name="text">
+             <string>Fuel pump relay:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -687,7 +705,7 @@
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_fileMenu">

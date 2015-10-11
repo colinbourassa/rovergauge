@@ -57,13 +57,13 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_initComplete(false),
     m_tune(0),
     m_checksumFixer(0),
-    m_ident(0),
-    m_rowScaler(0)
+    m_ident(0)
 {
     for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
     {
         m_fuelMaps[idx].fill(0x00, 128);
         m_fuelMapDataIsCurrent[idx] = false;
+        m_rowScaler[idx] = 0;
     }
 
     memset(&m_rpmTable, 0, sizeof(m_rpmTable));
@@ -200,7 +200,7 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     uint16_t adjFactor = 0;
     bool status = false;
 
-    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, &m_rowScaler, buffer) &&
+    if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, &m_rowScaler[fuelMapId], buffer) &&
         c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, (uint8_t*)&m_mafScaler))
     {
         m_mafScaler = swapShort(m_mafScaler);

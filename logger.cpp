@@ -151,7 +151,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
     << hex << m_cux->getChecksumFixer() << ","
     << dec << fuelMapId << ","
     << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-    << m_cux->getRowScaler() << ","
+    << m_cux->getRowScaler(fuelMapId) << ","
     << m_cux->getMAFRowScaler() << ","
     << mafCoTrim;
 

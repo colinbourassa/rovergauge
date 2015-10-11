@@ -125,7 +125,7 @@ private:
     void startLogging();
     void buildSpeedAndTempUnitTables();
     void setupWidgets();
-    void populateFuelMapDisplay(QByteArray* data, int fuelMapAdjustmentFactor);
+    void populateFuelMapDisplay(QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
     QColor getColorForFuelMapCell(unsigned char value);
     void highlightActiveFuelMapCells();
     void removeFuelMapCellHighlight();
