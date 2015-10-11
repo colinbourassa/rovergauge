@@ -28,7 +28,7 @@ bool Logger::openLog(QString fileName)
   bool alreadyExists = false;
 
   m_lastAttemptedLog = m_logDir + QDir::separator() + fileName + m_logExtension;
-  m_lastAttemptedStaticLog = m_logDir + QDir::separator() + fileName + "_static" + m_logExtension;
+  m_lastAttemptedStaticLog = m_logDir + QDir::separator() + "static" + m_logExtension;
 
   // if the 'logs' directory exists, or if we're able to create it...
   if (!m_logFile.isOpen() && (QDir(m_logDir).exists() || QDir().mkdir(m_logDir)))
@@ -59,10 +59,11 @@ bool Logger::openLog(QString fileName)
 
       if (m_staticLogFile.open(QFile::WriteOnly | QFile::Append))
       {
+        m_staticLogFileStream.setDevice(&m_staticLogFile);
+
         if (!alreadyExists)
         {
           m_staticDataLogged = false;
-          m_staticLogFileStream.setDevice(&m_staticLogFile);
           m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
             "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
 
