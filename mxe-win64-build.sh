@@ -9,7 +9,7 @@ MXETYPE="x86_64-w64-mingw32.shared"
 MXE="$1/usr/$MXETYPE"
 
 if [ ! -d "$MXE" ] ; then
-  echo "Error: This script currently only support i686 shared library builds ($MXETYPE)."
+  echo "Error: This script currently only supports x86_64 shared library builds ($MXETYPE)."
   echo "Please update your MXE settings.mk file to include this target type and then build Qt5 and libcomm14cux."
   exit 1
 fi
@@ -19,12 +19,12 @@ if [ ! -d "$MXE/qt5" ] ; then
   exit 2
 fi
 
-if [ ! -f "$MXE/lib/libcomm14cux.dll" ] || [ ! -f "$MXE/include/comm14cux.h" ] ; then
+if [ ! -f "$MXE/bin/libcomm14cux.dll" ] || [ ! -f "$MXE/include/comm14cux.h" ] ; then
   echo "Error: libcomm14cux must first be built within MXE."
   exit 3
 fi
 
-export PATH=$PATH:$MXE/qt5/bin:$MXE/qt5/plugins/platforms:$MXE/lib:$MXE/qt5/lib:$1/usr/lib/gcc/$MXETYPE/5.1.0/
+export PATH=$PATH:$MXE/bin:$MXE/qt5/bin:$MXE/qt5/plugins/platforms:$MXE/lib:$MXE/qt5/lib:$1/usr/lib/gcc/$MXETYPE/5.1.0/
 
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$MXE/share/cmake/mxe-conf.cmake -DCMAKE_PREFIX_PATH=$MXE/qt5/
 
