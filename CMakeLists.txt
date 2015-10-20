@@ -41,7 +41,7 @@ set (CPACK_SOURCE_IGNORE_FILES
 
 find_package (Qt5Widgets)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
 
 include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_SOURCE_DIR}/qledindicator"
