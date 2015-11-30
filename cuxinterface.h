@@ -194,6 +194,7 @@ private:
     bool m_fuelMapRefresh;
 
     bool m_initComplete;
+    bool m_rpmLimitRead;
 
     void zeroDisabledSamples();
     void runServiceLoop();

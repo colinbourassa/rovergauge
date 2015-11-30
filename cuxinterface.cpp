@@ -55,6 +55,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
     m_tempUnits(tUnits),
     m_fuelMapRefresh(fuelMapRefresh),
     m_initComplete(false),
+    m_rpmLimitRead(false),
     m_tune(0),
     m_checksumFixer(0),
     m_ident(0)
@@ -175,11 +176,6 @@ void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
         if (readFuelMap(fuelMapId))
         {
             emit fuelMapReady(fuelMapId);
-        }
-
-        if (c14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
-        {
-            emit rpmLimitReady(m_rpmLimit);
         }
 
         if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
@@ -303,6 +299,7 @@ void CUXInterface::clearFlagsAndData()
     m_cuxinfo.voltageFactorB = 0;
     m_cuxinfo.voltageFactorC = 0;
     m_readTuneId = false;
+    m_rpmLimitRead = false;
 }
 
 /**
@@ -501,6 +498,19 @@ CUXInterface::ReadResult CUXInterface::readData()
     if (isDueForMeasurement(SampleType_EngineRPM))
     {
         result = mergeResult(result, c14cux_getEngineRPM(&m_cuxinfo, &m_engineSpeedRPM));
+
+        // If we haven't yet reported the RPM limit, see if we can read it now.
+        // This is a special case because the limit is only read into its RAM
+        // location in the ECU once the main spark interrupt has run; we therefore
+        // wait until the engine speed > 0 before attempting this.
+        if (!m_rpmLimitRead &&
+            (result == ReadResult_Success) &&
+            (m_engineSpeedRPM > 0) &&
+            c14cux_getRPMLimit(&m_cuxinfo, &m_rpmLimit))
+        {
+          m_rpmLimitRead = true;
+          emit rpmLimitReady(m_rpmLimit);
+        }
     }
 
     if (isDueForMeasurement(SampleType_FuelMapRowCol))
