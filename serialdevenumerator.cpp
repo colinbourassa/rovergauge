@@ -23,103 +23,106 @@ SerialDevEnumerator::SerialDevEnumerator()
  */
 QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
 {
-    QStringList serialDevices;
-    if (savedDevName.isNull() || savedDevName.isEmpty())
-    {
-        serialDevices.append("");
-    }
-    else
-    {
-        serialDevices.append(savedDevName);
-    }
+  QStringList serialDevices;
+
+  if (savedDevName.isNull() || savedDevName.isEmpty())
+  {
+    serialDevices.append("");
+  }
+  else
+  {
+    serialDevices.append(savedDevName);
+  }
 
 #ifdef linux
 
-    // first check to see if this Linux distribution uses the /dev/serial/
-    // directory to store symlinks to each serial device
-    QDir devSerial("/dev/serial/by-id/", "", QDir::Name, QDir::Files | QDir::NoDotAndDotDot);
-    if (devSerial.exists())
-    {
-        QFileInfoList files = devSerial.entryInfoList();
-        foreach (const QFileInfo file, files)
-        {
-            if (file.exists())
-            {
-                if (file.isSymLink())
-                {
-                    serialDevices.append(file.symLinkTarget());
-                }
-                else
-                {
-                    serialDevices.append(file.absoluteFilePath());
-                }
-            }
-        }
-    }
+  // first check to see if this Linux distribution uses the /dev/serial/
+  // directory to store symlinks to each serial device
+  QDir devSerial("/dev/serial/by-id/", "", QDir::Name, QDir::Files | QDir::NoDotAndDotDot);
 
-    // if nothing was found using the method above, simply return a list of
-    // devices that match the pattern "ttyS*"
-    if (serialDevices.count() == 0)
+  if (devSerial.exists())
+  {
+    QFileInfoList files = devSerial.entryInfoList();
+    foreach(const QFileInfo file, files)
     {
-        QDir dev("/dev", "ttyUSB* ttyS*", QDir::NoSort,
-                 QDir::Files | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
-        QFileInfoList files = dev.entryInfoList();
-        foreach (const QFileInfo file, files)
+      if (file.exists())
+      {
+        if (file.isSymLink())
         {
-            if (file.exists())
-            {
-                if (file.isSymLink())
-                {
-                    serialDevices.append(file.symLinkTarget());
-                }
-                else
-                {
-                    serialDevices.append(file.absoluteFilePath());
-                }
-            }
+          serialDevices.append(file.symLinkTarget());
         }
+        else
+        {
+          serialDevices.append(file.absoluteFilePath());
+        }
+      }
     }
+  }
+
+  // if nothing was found using the method above, simply return a list of
+  // devices that match the pattern "ttyS*"
+  if (serialDevices.count() == 0)
+  {
+    QDir dev("/dev", "ttyUSB* ttyS*", QDir::NoSort,
+             QDir::Files | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
+    QFileInfoList files = dev.entryInfoList();
+    foreach(const QFileInfo file, files)
+    {
+      if (file.exists())
+      {
+        if (file.isSymLink())
+        {
+          serialDevices.append(file.symLinkTarget());
+        }
+        else
+        {
+          serialDevices.append(file.absoluteFilePath());
+        }
+      }
+    }
+  }
 
 #elif defined(__APPLE__)
 
-    QDir dev("/dev", "cu.usbserial*", QDir::NoSort,
-            QDir::Files | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
-    QFileInfoList files = dev.entryInfoList();
-    foreach (const QFileInfo file, files)
+  QDir dev("/dev", "cu.usbserial*", QDir::NoSort,
+           QDir::Files | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
+  QFileInfoList files = dev.entryInfoList();
+  foreach(const QFileInfo file, files)
+  {
+    if (file.exists())
     {
-        if (file.exists())
-        {
-            if (file.isSymLink())
-            {
-                serialDevices.append(file.symLinkTarget());
-            }
-            else
-            {
-                serialDevices.append(file.absoluteFilePath());
-            }
-        }
+      if (file.isSymLink())
+      {
+        serialDevices.append(file.symLinkTarget());
+      }
+      else
+      {
+        serialDevices.append(file.absoluteFilePath());
+      }
     }
+  }
 
 #elif defined(WIN32)
 
-    // compiling with MinGW, so use a WinAPI mechanism to enumerate ports
-    char portName[8];
-    COMMCONFIG cc;
-    DWORD dwSize = sizeof(COMMCONFIG);
+  // compiling with MinGW, so use a WinAPI mechanism to enumerate ports
+  char portName[8];
+  COMMCONFIG cc;
+  DWORD dwSize = sizeof(COMMCONFIG);
 
-    // apparently, COM ports can be numbered from 1 to 255
-    for (int portNum = 1; portNum < 256; portNum++)
+  // apparently, COM ports can be numbered from 1 to 255
+  for (int portNum = 1; portNum < 256; portNum++)
+  {
+    snprintf(portName, 8, "COM%d", portNum);
+
+    if (GetDefaultCommConfig(portName, &cc, &dwSize))
     {
-        snprintf(portName, 8, "COM%d", portNum);
-        if (GetDefaultCommConfig(portName, &cc, &dwSize))
-        {
-            serialDevices.append(portName);
-        }
+      serialDevices.append(portName);
     }
+  }
 
 #endif
 
-    serialDevices.removeDuplicates();
-    return serialDevices;
+  serialDevices.removeDuplicates();
+  return serialDevices;
 }
 

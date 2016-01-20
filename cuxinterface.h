@@ -13,201 +13,324 @@ static const unsigned int fuelMapCount = 6;
 
 class CUXInterface : public QObject
 {
-    enum ReadResult
-    {
-        ReadResult_Success,
-        ReadResult_Failure,
-        ReadResult_NoStatement
-    };
+  enum ReadResult
+  {
+    ReadResult_Success,
+    ReadResult_Failure,
+    ReadResult_NoStatement
+  };
 
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
-                          TemperatureUnits tUnits, bool fuelMapRefresh, QObject *parent = 0);
-    ~CUXInterface();
+  explicit CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
+                        TemperatureUnits tUnits, bool fuelMapRefresh, QObject* parent = 0);
+  ~CUXInterface();
 
-    void setSerialDevice(QString device)                       { m_deviceName = device; }
-    void setBaudRate(unsigned int baud)                        { m_baudRate = baud; }
-    void setLambdaTrimType(c14cux_lambda_trim_type type)       { m_lambdaTrimType = type; }
-    void setMAFReadingType(c14cux_airflow_type type)           { m_airflowType = type; }
-    void setThrottleReadingType(c14cux_throttle_pos_type type) { m_throttlePosType = type; }
+  void setSerialDevice(QString device)
+  {
+    m_deviceName = device;
+  }
+  void setBaudRate(unsigned int baud)
+  {
+    m_baudRate = baud;
+  }
+  void setLambdaTrimType(c14cux_lambda_trim_type type)
+  {
+    m_lambdaTrimType = type;
+  }
+  void setMAFReadingType(c14cux_airflow_type type)
+  {
+    m_airflowType = type;
+  }
+  void setThrottleReadingType(c14cux_throttle_pos_type type)
+  {
+    m_throttlePosType = type;
+  }
 
-    void setEnabledSamples(QMap<SampleType,bool> samples);
-    void setReadIntervals(QHash<SampleType,unsigned int> intervals);
+  void setEnabledSamples(QMap<SampleType, bool> samples);
+  void setReadIntervals(QHash<SampleType, unsigned int> intervals);
 
-    QString getSerialDevice() { return m_deviceName; }
-    int getIntervalMsecs();
+  QString getSerialDevice()
+  {
+    return m_deviceName;
+  }
+  int getIntervalMsecs();
 
-    bool isConnected();
-    void disconnectFromECU();
+  bool isConnected();
+  void disconnectFromECU();
 
-    c14cux_feedback_mode getFeedbackMode() { return m_feedbackMode; }
+  c14cux_feedback_mode getFeedbackMode()
+  {
+    return m_feedbackMode;
+  }
 
-    unsigned int getRoadSpeed()       { return (m_speedUnits == MPH) ? m_roadSpeedMPH : convertSpeed(m_roadSpeedMPH); }
-    int getEngineSpeedRPM()           { return m_engineSpeedRPM; }
-    int getTargetIdleSpeed()          { return m_targetIdleSpeed; }
-    int getCoolantTemp()              { return convertTemperature(m_coolantTempF); }
-    int getFuelTemp()                 { return convertTemperature(m_fuelTempF); }
-    float getThrottlePos()            { return m_throttlePos; }
-    c14cux_gear getGear()             { return m_gear; }
-    c14cux_faultcodes getFaultCodes() { return m_faultCodes; }
-    float getMainVoltage()            { return m_mainVoltage; }
-    c14cux_version getVersion()       { return c14cux_getLibraryVersion(); }
-    QByteArray* getFuelMap(unsigned int fuelMapId);
-    void invalidateFuelMapData();
-    int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
-    c14cux_rpmtable getRPMTable()     { return m_rpmTable; }
-    int getCurrentFuelMapIndex()      { return m_currentFuelMapIndex; }
-    int getFuelMapRowIndex()          { return m_currentFuelMapRowIndex; }
-    int getFuelMapRowWeighting()      { return m_fuelMapRowWeighting; }
-    int getFuelMapColumnIndex()       { return m_currentFuelMapColumnIndex; }
-    int getFuelMapColWeighting()      { return m_fuelMapColWeighting; }
-    float getMAFReading()             { return m_mafReading; }
-    float getIdleBypassPos()          { return m_idleBypassPos; }
-    bool getFuelPumpRelayState()      { return m_fuelPumpRelayOn; }
-    QByteArray* getROMImage()         { return m_romImage; }
-    int getLambdaTrimOdd()            { return m_lambdaTrimOdd; }
-    int getLambdaTrimEven()           { return m_lambdaTrimEven; }
-    float getCOTrimVoltage()          { return m_coTrimVoltage; }
-    bool isMILOn()                    { return m_milOn; }
-    bool getIdleMode()                { return m_idleMode; }
-    float getInjectorPulseWidthMs()   { return m_injectorPulseWidthMs; }
-    uint16_t getTune()                { return m_tune; }
-    uint8_t getChecksumFixer()        { return m_checksumFixer; }
-    uint16_t getIdent()               { return m_ident; }
-    uint8_t getRowScaler(unsigned int fuelMapId) { return m_rowScaler[fuelMapId]; }
-    uint16_t getMAFRowScaler()        { return m_mafScaler; }
+  unsigned int getRoadSpeed()
+  {
+    return (m_speedUnits == MPH) ? m_roadSpeedMPH : convertSpeed(m_roadSpeedMPH);
+  }
+  int getEngineSpeedRPM()
+  {
+    return m_engineSpeedRPM;
+  }
+  int getTargetIdleSpeed()
+  {
+    return m_targetIdleSpeed;
+  }
+  int getCoolantTemp()
+  {
+    return convertTemperature(m_coolantTempF);
+  }
+  int getFuelTemp()
+  {
+    return convertTemperature(m_fuelTempF);
+  }
+  float getThrottlePos()
+  {
+    return m_throttlePos;
+  }
+  c14cux_gear getGear()
+  {
+    return m_gear;
+  }
+  c14cux_faultcodes getFaultCodes()
+  {
+    return m_faultCodes;
+  }
+  float getMainVoltage()
+  {
+    return m_mainVoltage;
+  }
+  c14cux_version getVersion()
+  {
+    return c14cux_getLibraryVersion();
+  }
+  QByteArray* getFuelMap(unsigned int fuelMapId);
+  void invalidateFuelMapData();
+  int getFuelMapAdjustmentFactor(unsigned int fuelMapId);
+  c14cux_rpmtable getRPMTable()
+  {
+    return m_rpmTable;
+  }
+  int getCurrentFuelMapIndex()
+  {
+    return m_currentFuelMapIndex;
+  }
+  int getFuelMapRowIndex()
+  {
+    return m_currentFuelMapRowIndex;
+  }
+  int getFuelMapRowWeighting()
+  {
+    return m_fuelMapRowWeighting;
+  }
+  int getFuelMapColumnIndex()
+  {
+    return m_currentFuelMapColumnIndex;
+  }
+  int getFuelMapColWeighting()
+  {
+    return m_fuelMapColWeighting;
+  }
+  float getMAFReading()
+  {
+    return m_mafReading;
+  }
+  float getIdleBypassPos()
+  {
+    return m_idleBypassPos;
+  }
+  bool getFuelPumpRelayState()
+  {
+    return m_fuelPumpRelayOn;
+  }
+  QByteArray* getROMImage()
+  {
+    return m_romImage;
+  }
+  int getLambdaTrimOdd()
+  {
+    return m_lambdaTrimOdd;
+  }
+  int getLambdaTrimEven()
+  {
+    return m_lambdaTrimEven;
+  }
+  float getCOTrimVoltage()
+  {
+    return m_coTrimVoltage;
+  }
+  bool isMILOn()
+  {
+    return m_milOn;
+  }
+  bool getIdleMode()
+  {
+    return m_idleMode;
+  }
+  float getInjectorPulseWidthMs()
+  {
+    return m_injectorPulseWidthMs;
+  }
+  uint16_t getTune()
+  {
+    return m_tune;
+  }
+  uint8_t getChecksumFixer()
+  {
+    return m_checksumFixer;
+  }
+  uint16_t getIdent()
+  {
+    return m_ident;
+  }
+  uint8_t getRowScaler(unsigned int fuelMapId)
+  {
+    return m_rowScaler[fuelMapId];
+  }
+  uint16_t getMAFRowScaler()
+  {
+    return m_mafScaler;
+  }
 
-    void setSpeedUnits(SpeedUnits units)             { m_speedUnits = units; }
-    void setTemperatureUnits(TemperatureUnits units) { m_tempUnits = units; }
-    void setPeriodicFuelMapRefresh(bool on)          { m_fuelMapRefresh = on; }
+  void setSpeedUnits(SpeedUnits units)
+  {
+    m_speedUnits = units;
+  }
+  void setTemperatureUnits(TemperatureUnits units)
+  {
+    m_tempUnits = units;
+  }
+  void setPeriodicFuelMapRefresh(bool on)
+  {
+    m_fuelMapRefresh = on;
+  }
 
-    void cancelRead();
+  void cancelRead();
 
 public slots:
-    void onParentThreadStarted();
-    void onFaultCodesRequested();
-    void onFaultCodesClearRequested();
-    void onFuelMapRequested(unsigned int fuelMapId);
-    void onReadROMImageRequested();
-    void onStartPollingRequest();
-    void onShutdownThreadRequest();
-    void onFuelPumpRunRequest();
-    void onIdleAirControlMovementRequest(int direction, int steps);
+  void onParentThreadStarted();
+  void onFaultCodesRequested();
+  void onFaultCodesClearRequested();
+  void onFuelMapRequested(unsigned int fuelMapId);
+  void onReadROMImageRequested();
+  void onStartPollingRequest();
+  void onShutdownThreadRequest();
+  void onFuelPumpRunRequest();
+  void onIdleAirControlMovementRequest(int direction, int steps);
 #ifdef ENABLE_FORCE_OPEN_LOOP
-    void onForceOpenLoopRequest(bool forceOpen);
+  void onForceOpenLoopRequest(bool forceOpen);
 #endif
 #ifdef ENABLE_SIM_MODE
-    void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes);
+  void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes);
 #endif
 
 signals:
-    void dataReady();
-    void connected();
-    void disconnected();
-    void readError();
-    void readSuccess();
-    void faultCodesReady();
-    void faultCodesReadFailed();
-    void faultCodesClearSuccess(c14cux_faultcodes faultCodes);
-    void faultCodesClearFailure();
-    void fuelMapReady(unsigned int fuelMapId);
-    void fuelMapReadFailed(unsigned int fuelMapId);
-    void rpmLimitReady(int rpmLimiter);
-    void rpmTableReady();
-    void revisionNumberReady(int tuneRevisionNum, int checksumfixer, int ident);
-    void romImageReady();
-    void romImageReadFailed();
-    void failedToConnect(QString dev);
-    void interfaceReadyForPolling();
-    void notConnected();
-    void simModeWriteSuccess();
-    void simModeWriteFailure();
-    void fuelMapIndexHasChanged(unsigned int fuelMapId);
-    void feedbackModeHasChanged(c14cux_feedback_mode newMode);
+  void dataReady();
+  void connected();
+  void disconnected();
+  void readError();
+  void readSuccess();
+  void faultCodesReady();
+  void faultCodesReadFailed();
+  void faultCodesClearSuccess(c14cux_faultcodes faultCodes);
+  void faultCodesClearFailure();
+  void fuelMapReady(unsigned int fuelMapId);
+  void fuelMapReadFailed(unsigned int fuelMapId);
+  void rpmLimitReady(int rpmLimiter);
+  void rpmTableReady();
+  void revisionNumberReady(int tuneRevisionNum, int checksumfixer, int ident);
+  void romImageReady();
+  void romImageReadFailed();
+  void failedToConnect(QString dev);
+  void interfaceReadyForPolling();
+  void notConnected();
+  void simModeWriteSuccess();
+  void simModeWriteFailure();
+  void fuelMapIndexHasChanged(unsigned int fuelMapId);
+  void feedbackModeHasChanged(c14cux_feedback_mode newMode);
 
 #ifdef ENABLE_FORCE_OPEN_LOOP
-    void forceOpenLoopState(bool forceOpen);
+  void forceOpenLoopState(bool forceOpen);
 #endif
 
 private:
-    static const int s_firstOpenLoopMap = 1;
-    static const int s_lastOpenLoopMap = 3;
+  static const int s_firstOpenLoopMap = 1;
+  static const int s_lastOpenLoopMap = 3;
 
-    QString m_deviceName;
-    unsigned int m_baudRate;
-    c14cux_info m_cuxinfo;
-    bool m_stopPolling;
-    bool m_shutdownThread;
-    c14cux_faultcodes m_faultCodes;
-    bool m_readCanceled;
-    bool m_readTuneId;
-    QHash<SampleType,bool> m_enabledSamples;
-    QHash<SampleType,qint64> m_lastReadTime;
-    QHash<SampleType,unsigned int> m_readIntervals;
+  QString m_deviceName;
+  unsigned int m_baudRate;
+  c14cux_info m_cuxinfo;
+  bool m_stopPolling;
+  bool m_shutdownThread;
+  c14cux_faultcodes m_faultCodes;
+  bool m_readCanceled;
+  bool m_readTuneId;
+  QHash<SampleType, bool> m_enabledSamples;
+  QHash<SampleType, qint64> m_lastReadTime;
+  QHash<SampleType, unsigned int> m_readIntervals;
 
-    c14cux_lambda_trim_type m_lambdaTrimType;
-    c14cux_feedback_mode m_feedbackMode;
-    c14cux_airflow_type m_airflowType;
-    c14cux_throttle_pos_type m_throttlePosType;
+  c14cux_lambda_trim_type m_lambdaTrimType;
+  c14cux_feedback_mode m_feedbackMode;
+  c14cux_airflow_type m_airflowType;
+  c14cux_throttle_pos_type m_throttlePosType;
 
-    uint8_t m_roadSpeedMPH;
-    uint16_t m_engineSpeedRPM;
-    uint16_t m_targetIdleSpeed;
-    int16_t m_coolantTempF;
-    int16_t m_fuelTempF;
-    float m_throttlePos;
-    c14cux_gear m_gear;
-    float m_mainVoltage;
-    bool m_fuelMapIndexRead;
-    uint8_t m_currentFuelMapIndex;
-    uint8_t m_currentFuelMapRowIndex;
-    uint8_t m_fuelMapRowWeighting;
-    uint8_t m_currentFuelMapColumnIndex;
-    uint8_t m_fuelMapColWeighting;
-    float m_mafReading;
-    float m_idleBypassPos;
-    bool m_fuelPumpRelayOn;
-    int16_t m_lambdaTrimOdd;
-    int16_t m_lambdaTrimEven;
-    float m_coTrimVoltage;
-    bool m_milOn;
-    uint16_t m_rpmLimit;
-    bool m_idleMode;    
-    uint16_t m_injectorPulseWidthUs;
-    float m_injectorPulseWidthMs;
-    uint16_t m_tune;
-    uint8_t m_checksumFixer;
-    uint16_t m_ident;
-    uint8_t m_rowScaler[fuelMapCount];
-    uint16_t m_mafScaler;
+  uint8_t m_roadSpeedMPH;
+  uint16_t m_engineSpeedRPM;
+  uint16_t m_targetIdleSpeed;
+  int16_t m_coolantTempF;
+  int16_t m_fuelTempF;
+  float m_throttlePos;
+  c14cux_gear m_gear;
+  float m_mainVoltage;
+  bool m_fuelMapIndexRead;
+  uint8_t m_currentFuelMapIndex;
+  uint8_t m_currentFuelMapRowIndex;
+  uint8_t m_fuelMapRowWeighting;
+  uint8_t m_currentFuelMapColumnIndex;
+  uint8_t m_fuelMapColWeighting;
+  float m_mafReading;
+  float m_idleBypassPos;
+  bool m_fuelPumpRelayOn;
+  int16_t m_lambdaTrimOdd;
+  int16_t m_lambdaTrimEven;
+  float m_coTrimVoltage;
+  bool m_milOn;
+  uint16_t m_rpmLimit;
+  bool m_idleMode;
+  uint16_t m_injectorPulseWidthUs;
+  float m_injectorPulseWidthMs;
+  uint16_t m_tune;
+  uint8_t m_checksumFixer;
+  uint16_t m_ident;
+  uint8_t m_rowScaler[fuelMapCount];
+  uint16_t m_mafScaler;
 
-    QByteArray *m_romImage;
+  QByteArray* m_romImage;
 
-    QByteArray m_fuelMaps[fuelMapCount];
-    bool m_fuelMapDataIsCurrent[fuelMapCount];
-    uint16_t m_fuelMapAdjFactors[fuelMapCount];
-    c14cux_rpmtable m_rpmTable;
+  QByteArray m_fuelMaps[fuelMapCount];
+  bool m_fuelMapDataIsCurrent[fuelMapCount];
+  uint16_t m_fuelMapAdjFactors[fuelMapCount];
+  c14cux_rpmtable m_rpmTable;
 
-    SpeedUnits m_speedUnits;
-    TemperatureUnits m_tempUnits;
-    bool m_fuelMapRefresh;
+  SpeedUnits m_speedUnits;
+  TemperatureUnits m_tempUnits;
+  bool m_fuelMapRefresh;
 
-    bool m_initComplete;
-    bool m_rpmLimitRead;
+  bool m_initComplete;
+  bool m_rpmLimitRead;
 
-    void zeroDisabledSamples();
-    void runServiceLoop();
-    void clearFlagsAndData();
-    ReadResult readData();
-    bool readFuelMap(unsigned int fuelMapId);
-    bool connectToECU();
-    unsigned int convertSpeed(unsigned int speedMph);
-    int convertTemperature(int tempF);
-    ReadResult mergeResult(ReadResult total, ReadResult single);
-    ReadResult mergeResult(ReadResult total, bool single);
-    bool isDueForMeasurement(SampleType type);
-    bool isSampleAppropriateForMode(SampleType type);
+  void zeroDisabledSamples();
+  void runServiceLoop();
+  void clearFlagsAndData();
+  ReadResult readData();
+  bool readFuelMap(unsigned int fuelMapId);
+  bool connectToECU();
+  unsigned int convertSpeed(unsigned int speedMph);
+  int convertTemperature(int tempF);
+  ReadResult mergeResult(ReadResult total, ReadResult single);
+  ReadResult mergeResult(ReadResult total, bool single);
+  bool isDueForMeasurement(SampleType type);
+  bool isSampleAppropriateForMode(SampleType type);
 };
 
 #endif // CUXINTERFACE_H

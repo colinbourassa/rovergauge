@@ -6,8 +6,8 @@
 class SerialDevEnumerator
 {
 public:
-    SerialDevEnumerator();
-    QStringList getSerialDevList(QString savedDevName);
+  SerialDevEnumerator();
+  QStringList getSerialDevList(QString savedDevName);
 };
 
 #endif // SERIALDEVENUMERATOR_H

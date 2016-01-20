@@ -10,18 +10,18 @@
 
 class HelpViewer : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit HelpViewer(const QString title, QWidget *parent = 0);
+  explicit HelpViewer(const QString title, QWidget* parent = 0);
 
 private slots:
-    void onCloseClicked();
-    void onAnchorClicked(QUrl url);
+  void onCloseClicked();
+  void onAnchorClicked(QUrl url);
 
 private:
-    QVBoxLayout *m_vbox;
-    QTextBrowser *m_viewer;
-    QPushButton *m_closeButton;
+  QVBoxLayout* m_vbox;
+  QTextBrowser* m_viewer;
+  QPushButton* m_closeButton;
 
 };
 

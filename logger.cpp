@@ -6,14 +6,14 @@
  * Constructor. Sets the 14CUX interface class pointer as
  * well as log directory and log file extension.
  */
-Logger::Logger(CUXInterface *cuxIFace) :
-m_fuelMapDataIsReady(false),
-m_fuelMapId(0),
-m_logExtension(".txt"),
-m_logDir("logs"),
-m_staticDataLogged(false)
+Logger::Logger(CUXInterface* cuxIFace) :
+  m_fuelMapDataIsReady(false),
+  m_fuelMapId(0),
+  m_logExtension(".txt"),
+  m_logDir("logs"),
+  m_staticDataLogged(false)
 {
-    m_cux = cuxIFace;
+  m_cux = cuxIFace;
 }
 
 /**
@@ -36,6 +36,7 @@ bool Logger::openLog(QString fileName)
     // set the name of the log file and open it for writing
     alreadyExists = QFileInfo(m_lastAttemptedLog).exists();
     m_logFile.setFileName(m_lastAttemptedLog);
+
     if (m_logFile.open(QFile::WriteOnly | QFile::Append))
     {
       m_logFileStream.setDevice(&m_logFile);
@@ -43,9 +44,9 @@ bool Logger::openLog(QString fileName)
       if (!alreadyExists)
       {
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
-          "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
-          "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-          "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
+                        "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
+                        "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
+                        "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
       }
 
       success = true;
@@ -65,7 +66,7 @@ bool Logger::openLog(QString fileName)
         {
           m_staticDataLogged = false;
           m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
-            "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
+                                "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
 
           // give each byte of the fuel map a separate field name
           for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
@@ -103,22 +104,22 @@ void Logger::logData()
   if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
   {
     m_logFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-      << m_cux->getRoadSpeed() << ","
-      << m_cux->getEngineSpeedRPM() << ","
-      << m_cux->getCoolantTemp() << ","
-      << m_cux->getFuelTemp() << ","
-      << m_cux->getThrottlePos() << ","
-      << m_cux->getMAFReading() << ","
-      << m_cux->getIdleBypassPos() << ","
-      << m_cux->getMainVoltage() << ","
-      << m_cux->getCurrentFuelMapIndex() << ","
-      << getRowWithWeighting() << ","
-      << getColWithWeighting() << ","
-      << m_cux->getTargetIdleSpeed() << ","
-      << m_cux->getLambdaTrimOdd() << ","
-      << m_cux->getLambdaTrimEven() << ","
-      << m_cux->getInjectorPulseWidthMs()
-      << endl;
+                    << m_cux->getRoadSpeed() << ","
+                    << m_cux->getEngineSpeedRPM() << ","
+                    << m_cux->getCoolantTemp() << ","
+                    << m_cux->getFuelTemp() << ","
+                    << m_cux->getThrottlePos() << ","
+                    << m_cux->getMAFReading() << ","
+                    << m_cux->getIdleBypassPos() << ","
+                    << m_cux->getMainVoltage() << ","
+                    << m_cux->getCurrentFuelMapIndex() << ","
+                    << getRowWithWeighting() << ","
+                    << getColWithWeighting() << ","
+                    << m_cux->getTargetIdleSpeed() << ","
+                    << m_cux->getLambdaTrimOdd() << ","
+                    << m_cux->getLambdaTrimEven() << ","
+                    << m_cux->getInjectorPulseWidthMs()
+                    << endl;
   }
 
   if (!m_staticDataLogged &&
@@ -147,14 +148,14 @@ void Logger::logStaticData(unsigned int fuelMapId)
   }
 
   m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-    << m_cux->getTune() << ","
-    << hex << m_cux->getIdent() << ","
-    << hex << m_cux->getChecksumFixer() << ","
-    << dec << fuelMapId << ","
-    << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-    << m_cux->getRowScaler(fuelMapId) << ","
-    << m_cux->getMAFRowScaler() << ","
-    << mafCoTrim;
+                        << m_cux->getTune() << ","
+                        << hex << m_cux->getIdent() << ","
+                        << hex << m_cux->getChecksumFixer() << ","
+                        << dec << fuelMapId << ","
+                        << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
+                        << m_cux->getRowScaler(fuelMapId) << ","
+                        << m_cux->getMAFRowScaler() << ","
+                        << mafCoTrim;
 
   if (fuelMapData)
   {
@@ -219,7 +220,7 @@ float Logger::getColWithWeighting()
  */
 QString Logger::getLogPath()
 {
-    return m_lastAttemptedLog;
+  return m_lastAttemptedLog;
 }
 
 /**

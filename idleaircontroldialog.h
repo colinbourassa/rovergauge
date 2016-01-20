@@ -12,25 +12,25 @@
 
 class IdleAirControlDialog : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit IdleAirControlDialog(QString title, QWidget *parent = 0);
+  explicit IdleAirControlDialog(QString title, QWidget* parent = 0);
 
 signals:
-    void requestIdleAirControlMovement(int direction, int steps);
+  void requestIdleAirControlMovement(int direction, int steps);
 
 private:
-    QGridLayout *m_iacGrid;
-    QSpinBox *m_stepCountBox;
-    QLabel *m_stepCountLabel;
-    QRadioButton *m_closeValveButton;
-    QRadioButton *m_openValveButton;
-    QPushButton *m_sendCommandButton;
-    QLabel *m_noteLabel;
-    QPushButton *m_closeButton;
+  QGridLayout* m_iacGrid;
+  QSpinBox* m_stepCountBox;
+  QLabel* m_stepCountLabel;
+  QRadioButton* m_closeValveButton;
+  QRadioButton* m_openValveButton;
+  QPushButton* m_sendCommandButton;
+  QLabel* m_noteLabel;
+  QPushButton* m_closeButton;
 
 private slots:
-    void onSendCommand();
+  void onSendCommand();
 
 };
 
