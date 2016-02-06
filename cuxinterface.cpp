@@ -768,7 +768,7 @@ int CUXInterface::convertTemperature(int tempF)
 
   switch (m_tempUnits)
   {
-  case Celcius:
+  case Celsius:
     temp = (temp - 32) * (0.5555556);
     break;
 

@@ -104,7 +104,7 @@ void OptionsDialog::setupWidgets()
   m_ui->m_speedUnitsBox->addItem("km/h");
 
   m_ui->m_temperatureUnitsBox->addItem("Fahrenheit");
-  m_ui->m_temperatureUnitsBox->addItem("Celcius");
+  m_ui->m_temperatureUnitsBox->addItem("Celsius");
 
   setWidgetValues();
 

@@ -132,15 +132,15 @@ void MainWindow::buildSpeedAndTempUnitTables()
 
   m_tempUnitSuffix = new QHash<TemperatureUnits, QString>;
   m_tempUnitSuffix->insert(Fahrenheit, " F");
-  m_tempUnitSuffix->insert(Celcius, " C");
+  m_tempUnitSuffix->insert(Celsius, " C");
 
   m_tempRange = new QHash<TemperatureUnits, QPair<int, int> >;
   m_tempRange->insert(Fahrenheit, qMakePair(-40, 280));
-  m_tempRange->insert(Celcius, qMakePair(-40, 140));
+  m_tempRange->insert(Celsius, qMakePair(-40, 140));
 
   m_tempLimits = new QHash<TemperatureUnits, QPair<int, int> >;
   m_tempLimits->insert(Fahrenheit, qMakePair(180, 210));
-  m_tempLimits->insert(Celcius, qMakePair(80, 98));
+  m_tempLimits->insert(Celsius, qMakePair(80, 98));
 }
 
 /**
