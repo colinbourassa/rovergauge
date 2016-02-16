@@ -3,7 +3,7 @@ project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 8)
-set (ROVERGAUGE_VER_PATCH 5)
+set (ROVERGAUGE_VER_PATCH 6)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -85,6 +85,9 @@ if (MINGW)
 
   # prevent the final executable from launching a terminal window in parallel with the main GUI
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+
+  # -fPIC appears to be redundant when building win32 binaries, so disable that flag
+  string (REGEX REPLACE "-fPIC" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
   # When we call find_library() below, we're only looking for DLLs, so set the suffix list appropriately
   set (CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
