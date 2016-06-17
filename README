@@ -55,7 +55,7 @@ building a custom cable using one of FTDI's USB-to-RS232 converters. You can
 find the details of this on either of these two pages:
 
 https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md
-http://alum.wpi.edu/~colinb/14cux_interface.html
+http://alum.wpi.edu/~colinb/14cux-serial-interface.html
 
 When the USB FTDI device is connected to the PC, its driver will present it
 as a COM port if using Windows, or a /dev node if using Linux. Enter the name
