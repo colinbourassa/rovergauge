@@ -1,5 +1,5 @@
 #include <QStylePainter>
-#include <QStyleOptionProgressBarV2>
+#include <QStyleOptionProgressBar>
 #include <QFrame>
 #include "fueltrimbar.h"
 
@@ -36,7 +36,7 @@ void FuelTrimBar::paintEvent(QPaintEvent*)
   int max = this->maximum();
   int min = this->minimum();
   QStylePainter painter(this);
-  QStyleOptionProgressBarV2 opt;
+  QStyleOptionProgressBar opt;
 
   opt.initFrom(this);
   opt.minimum = min;

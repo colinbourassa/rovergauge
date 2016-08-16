@@ -11,6 +11,9 @@
 extern bool g_autoconnect;
 extern bool g_autolog;
 
+const float MainWindow::s_speedometerMaxMPH = 160.0;
+const float MainWindow::s_speedometerMaxKPH = 240.0;
+
 /**
  * Constructor; sets up main UI
  */
@@ -247,11 +250,11 @@ void MainWindow::setupWidgets()
 
   if (speedUnit == MPH)
   {
-    m_ui->m_speedo->setMaximum(speedometerMaxMPH);
+    m_ui->m_speedo->setMaximum(s_speedometerMaxMPH);
   }
   else
   {
-    m_ui->m_speedo->setMaximum(speedometerMaxKPH);
+    m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
   }
 
   m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
@@ -761,11 +764,11 @@ void MainWindow::onEditOptionsClicked()
 
     if (speedUnit == MPH)
     {
-      m_ui->m_speedo->setMaximum(speedometerMaxMPH);
+      m_ui->m_speedo->setMaximum(s_speedometerMaxMPH);
     }
     else
     {
-      m_ui->m_speedo->setMaximum(speedometerMaxKPH);
+      m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
     }
 
     m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));

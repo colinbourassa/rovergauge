@@ -110,8 +110,8 @@ private:
 
   QMap<SampleType, bool> m_enabledSamples;
 
-  static const float speedometerMaxMPH = 160.0;
-  static const float speedometerMaxKPH = 240.0;
+  static const float s_speedometerMaxMPH;
+  static const float s_speedometerMaxKPH;
 
   QTableWidgetItem* m_lastHighlightedFuelMapCell[NUM_ACTIVE_FUEL_MAP_CELLS];
   bool m_fuelMapDataIsCurrent;
