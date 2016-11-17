@@ -18,6 +18,7 @@
 #include <QMap>
 #include <QPair>
 #include <QTimer>
+#include <QShortcut>
 #include <QGraphicsOpacityEffect>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
@@ -98,6 +99,10 @@ private:
   QMessageBox* m_pleaseWaitBox;
   HelpViewer* m_helpViewerDialog;
 
+  QShortcut* m_shortcutStartLogging;
+  QShortcut* m_shortcutStopLogging;
+  QShortcut* m_shortcutExit;
+
   Logger* m_logger;
 
   QGraphicsOpacityEffect* m_waterTempGaugeOpacity;
@@ -120,6 +125,8 @@ private:
   QHash<TemperatureUnits, QString>* m_tempUnitSuffix;
   QHash<TemperatureUnits, QPair<int, int> >* m_tempRange;
   QHash<TemperatureUnits, QPair<int, int> >* m_tempLimits;
+
+  bool m_isLogging;
 
   void doConnect();
   void startLogging();

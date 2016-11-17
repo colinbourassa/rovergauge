@@ -29,7 +29,8 @@ MainWindow::MainWindow(QWidget* parent)
     m_aboutBox(0),
     m_pleaseWaitBox(0),
     m_helpViewerDialog(0),
-    m_fuelMapDataIsCurrent(false)
+    m_fuelMapDataIsCurrent(false),
+    m_isLogging(false)
 {
   // register this special enum type for use in Qt signals/slots
   qRegisterMetaType<c14cux_feedback_mode>("c14cux_feedback_mode");
@@ -63,6 +64,14 @@ MainWindow::MainWindow(QWidget* parent)
   {
     m_lastHighlightedFuelMapCell[idx] = 0;
   }
+
+  m_shortcutStartLogging = new QShortcut(QKeySequence(Qt::Key_F5), this);
+  m_shortcutStopLogging  = new QShortcut(QKeySequence(Qt::Key_F7), this);
+  m_shortcutExit         = new QShortcut(QKeySequence("Ctrl+Q"),   this);
+
+  connect(m_shortcutStartLogging, SIGNAL(activated()), this, SLOT(onStartLogging()));
+  connect(m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
+  connect(m_shortcutExit,         SIGNAL(activated()), this, SLOT(onExitSelected()));
 
   connect(m_cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
   connect(m_cux, SIGNAL(connected()), this, SLOT(onConnect()));
@@ -1050,16 +1059,20 @@ void MainWindow::onReadSuccess()
  */
 void MainWindow::startLogging()
 {
-  if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
+  if (!m_isLogging)
   {
-    m_ui->m_logFileNameBox->setEnabled(false);
-    m_ui->m_startLoggingButton->setEnabled(false);
-    m_ui->m_stopLoggingButton->setEnabled(true);
-  }
-  else
-  {
-    QMessageBox::warning(this, "Error",
-                         "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
+    if (m_logger->openLog(m_ui->m_logFileNameBox->text()))
+    {
+      m_isLogging = true;
+      m_ui->m_logFileNameBox->setEnabled(false);
+      m_ui->m_startLoggingButton->setEnabled(false);
+      m_ui->m_stopLoggingButton->setEnabled(true);
+    }
+    else
+    {
+      QMessageBox::warning(this, "Error",
+                           "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
+    }
   }
 }
 
@@ -1076,6 +1089,7 @@ void MainWindow::onStartLogging()
  */
 void MainWindow::onStopLogging()
 {
+  m_isLogging = false;
   m_logger->closeLog();
   m_ui->m_logFileNameBox->setEnabled(true);
   m_ui->m_stopLoggingButton->setEnabled(false);
