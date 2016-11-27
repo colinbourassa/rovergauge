@@ -96,6 +96,11 @@ public:
   {
     return m_faultCodes;
   }
+  QByteArray* getBatteryBackedMem()
+  {
+    return m_batteryBackedMem;
+  }
+
   float getMainVoltage()
   {
     return m_mainVoltage;
@@ -211,6 +216,7 @@ public slots:
   void onParentThreadStarted();
   void onFaultCodesRequested();
   void onFaultCodesClearRequested();
+  void onBatteryBackedMemRequested();
   void onFuelMapRequested(unsigned int fuelMapId);
   void onReadROMImageRequested();
   void onStartPollingRequest();
@@ -234,6 +240,8 @@ signals:
   void faultCodesReadFailed();
   void faultCodesClearSuccess(c14cux_faultcodes faultCodes);
   void faultCodesClearFailure();
+  void batteryBackedMemReady();
+  void batteryBackedMemReadFailed();
   void fuelMapReady(unsigned int fuelMapId);
   void fuelMapReadFailed(unsigned int fuelMapId);
   void rpmLimitReady(int rpmLimiter);
@@ -263,6 +271,7 @@ private:
   bool m_stopPolling;
   bool m_shutdownThread;
   c14cux_faultcodes m_faultCodes;
+  QByteArray* m_batteryBackedMem;
   bool m_readCanceled;
   bool m_readTuneId;
   QHash<SampleType, bool> m_enabledSamples;

@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget* parent)
     m_cuxThread(0),
     m_cux(0),
     m_options(0),
+    m_batteryBackedDisplay(0),
     m_aboutBox(0),
     m_pleaseWaitBox(0),
     m_helpViewerDialog(0),
@@ -73,24 +74,26 @@ MainWindow::MainWindow(QWidget* parent)
   connect(m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
   connect(m_shortcutExit,         SIGNAL(activated()), this, SLOT(onExitSelected()));
 
-  connect(m_cux, SIGNAL(dataReady()), this, SLOT(onDataReady()));
-  connect(m_cux, SIGNAL(connected()), this, SLOT(onConnect()));
-  connect(m_cux, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
-  connect(m_cux, SIGNAL(readError()), this, SLOT(onReadError()));
-  connect(m_cux, SIGNAL(readSuccess()), this, SLOT(onReadSuccess()));
-  connect(m_cux, SIGNAL(failedToConnect(QString)), this, SLOT(onFailedToConnect(QString)));
-  connect(m_cux, SIGNAL(faultCodesReady()), this, SLOT(onFaultCodesReady()));
-  connect(m_cux, SIGNAL(faultCodesReadFailed()), this, SLOT(onFaultCodesReadFailed()));
-  connect(m_cux, SIGNAL(fuelMapReady(unsigned int)), this, SLOT(onFuelMapDataReady(unsigned int)));
+  connect(m_cux, SIGNAL(dataReady()),                        this, SLOT(onDataReady()));
+  connect(m_cux, SIGNAL(connected()),                        this, SLOT(onConnect()));
+  connect(m_cux, SIGNAL(disconnected()),                     this, SLOT(onDisconnect()));
+  connect(m_cux, SIGNAL(readError()),                        this, SLOT(onReadError()));
+  connect(m_cux, SIGNAL(readSuccess()),                      this, SLOT(onReadSuccess()));
+  connect(m_cux, SIGNAL(failedToConnect(QString)),           this, SLOT(onFailedToConnect(QString)));
+  connect(m_cux, SIGNAL(faultCodesReady()),                  this, SLOT(onFaultCodesReady()));
+  connect(m_cux, SIGNAL(faultCodesReadFailed()),             this, SLOT(onFaultCodesReadFailed()));
+  connect(m_cux, SIGNAL(batteryBackedMemReady()),            this, SLOT(onBatteryBackedMemReady()));
+  connect(m_cux, SIGNAL(batteryBackedMemReadFailed()),       this, SLOT(onBatteryBackedMemReadFailed()));
+  connect(m_cux, SIGNAL(fuelMapReady(unsigned int)),         this, SLOT(onFuelMapDataReady(unsigned int)));
   connect(m_cux, SIGNAL(revisionNumberReady(int, int, int)), this, SLOT(onTuneRevisionReady(int, int, int)));
-  connect(m_cux, SIGNAL(interfaceReadyForPolling()), this, SLOT(onInterfaceReady()));
-  connect(m_cux, SIGNAL(notConnected()), this, SLOT(onNotConnected()));
-  connect(m_cux, SIGNAL(romImageReady()), this, SLOT(onROMImageReady()));
-  connect(m_cux, SIGNAL(romImageReadFailed()), this, SLOT(onROMImageReadFailed()));
-  connect(m_cux, SIGNAL(rpmLimitReady(int)), this, SLOT(onRPMLimitReady(int)));
-  connect(m_cux, SIGNAL(rpmTableReady()), this, SLOT(onRPMTableReady()));
+  connect(m_cux, SIGNAL(interfaceReadyForPolling()),         this, SLOT(onInterfaceReady()));
+  connect(m_cux, SIGNAL(notConnected()),                     this, SLOT(onNotConnected()));
+  connect(m_cux, SIGNAL(romImageReady()),                    this, SLOT(onROMImageReady()));
+  connect(m_cux, SIGNAL(romImageReadFailed()),               this, SLOT(onROMImageReadFailed()));
+  connect(m_cux, SIGNAL(rpmLimitReady(int)),                 this, SLOT(onRPMLimitReady(int)));
+  connect(m_cux, SIGNAL(rpmTableReady()),                    this, SLOT(onRPMTableReady()));
   connect(m_cux, SIGNAL(feedbackModeHasChanged(c14cux_feedback_mode)), this, SLOT(onFeedbackModeChanged(c14cux_feedback_mode)));
-  connect(m_cux, SIGNAL(fuelMapIndexHasChanged(uint)), this, SLOT(onFuelMapIndexChanged(uint)));
+  connect(m_cux, SIGNAL(fuelMapIndexHasChanged(uint)),       this, SLOT(onFuelMapIndexChanged(uint)));
 #ifdef ENABLE_FORCE_OPEN_LOOP
   connect(m_cux, SIGNAL(forceOpenLoopState(bool)), this, SLOT(onForceOpenLoopStateReceived(bool)));
 #endif
@@ -131,6 +134,7 @@ MainWindow::~MainWindow()
   delete m_options;
   delete m_cux;
   delete m_cuxThread;
+  delete m_batteryBackedDisplay;
 }
 
 /**
@@ -171,13 +175,14 @@ void MainWindow::setupWidgets()
   m_ui->m_stopLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
 
   // connect menu item signals
-  connect(m_ui->m_saveROMImageAction, SIGNAL(triggered()), this, SLOT(onSaveROMImageSelected()));
-  connect(m_ui->m_exitAction, SIGNAL(triggered()), this, SLOT(onExitSelected()));
-  connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()), m_cux, SLOT(onFaultCodesRequested()));
-  connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
-  connect(m_ui->m_editSettingsAction, SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
-  connect(m_ui->m_helpContentsAction, SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
-  connect(m_ui->m_helpAboutAction, SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
+  connect(m_ui->m_saveROMImageAction,   SIGNAL(triggered()),     this,  SLOT(onSaveROMImageSelected()));
+  connect(m_ui->m_exitAction,           SIGNAL(triggered()),     this,  SLOT(onExitSelected()));
+  connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()),     m_cux, SLOT(onFaultCodesRequested()));
+  connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()),     this,  SLOT(onIdleAirControlClicked()));
+  connect(m_ui->m_batteryBackedAction,  SIGNAL(triggered(bool)), m_cux, SLOT(onBatteryBackedMemRequested()));
+  connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()),     this,  SLOT(onEditOptionsClicked()));
+  connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()),     this,  SLOT(onHelpContentsClicked()));
+  connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()),     this,  SLOT(onHelpAboutClicked()));
 
 #ifdef ENABLE_FORCE_OPEN_LOOP
   connect(m_ui->m_forceOpenLoopCheckbox, SIGNAL(clicked(bool)), m_cux, SLOT(onForceOpenLoopRequest(bool)));
@@ -416,6 +421,27 @@ void MainWindow::onFaultCodesReadFailed()
 {
   QMessageBox::warning(this, "Error",
                        "Unable to read fault codes from ECU.",
+                       QMessageBox::Ok);
+}
+
+/**
+ * Opens the battery-backed memory dialog.
+ */
+void MainWindow::onBatteryBackedMemReady()
+{
+  QByteArray* batteryBackedMemory = m_cux->getBatteryBackedMem();
+  BatteryBackedDisplay batteryDialog(this->windowTitle(), batteryBackedMemory, 0x0040, this);
+  batteryDialog.exec();
+}
+
+/**
+ * Responds to a signal from the worker thread that indicates there was a
+ * problem reading the battery-backed memory. Displays a message box indicating the same.
+ */
+void MainWindow::onBatteryBackedMemReadFailed()
+{
+  QMessageBox::warning(this, "Error",
+                       "Unable to read battery-backed memory from ECU.",
                        QMessageBox::Ok);
 }
 

@@ -567,7 +567,7 @@
              <number>16</number>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
@@ -705,7 +705,7 @@
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_fileMenu">
@@ -718,10 +718,11 @@
    </widget>
    <widget class="QMenu" name="m_optionsMenu">
     <property name="title">
-     <string>&amp;Options</string>
+     <string>Optio&amp;ns</string>
     </property>
     <addaction name="m_showFaultCodesAction"/>
     <addaction name="m_idleAirControlAction"/>
+    <addaction name="m_batteryBackedAction"/>
     <addaction name="m_editSettingsAction"/>
    </widget>
    <widget class="QMenu" name="m_helpMenu">
@@ -770,6 +771,11 @@
     <string>&amp;Exit</string>
    </property>
   </action>
+  <action name="m_batteryBackedAction">
+   <property name="text">
+    <string>&amp;Battery-backed RAM...</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -794,8 +800,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
-  <buttongroup name="m_lambdaTrimButtonGroup"/>
  </buttongroups>
 </ui>

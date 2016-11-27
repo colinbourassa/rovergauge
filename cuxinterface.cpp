@@ -20,6 +20,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
   m_baudRate(baud),
   m_stopPolling(false),
   m_shutdownThread(false),
+  m_batteryBackedMem(0),
   m_readCanceled(false),
   m_readTuneId(false),
   m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
@@ -98,6 +99,33 @@ void CUXInterface::onFaultCodesRequested()
     else
     {
       emit faultCodesReadFailed();
+    }
+  }
+  else
+  {
+    emit notConnected();
+  }
+}
+
+/**
+ * Reads battery-backed memory from the 14CUX and stores in a member structure
+ */
+void CUXInterface::onBatteryBackedMemRequested()
+{
+  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  {
+    if (m_batteryBackedMem == 0)
+    {
+      m_batteryBackedMem = new QByteArray(20, 0x00);
+    }
+
+    if (c14cux_readMem(&m_cuxinfo, 0x0040, 20, (uint8_t*)m_batteryBackedMem->data()))
+    {
+      emit batteryBackedMemReady();
+    }
+    else
+    {
+      emit batteryBackedMemReadFailed();
     }
   }
   else

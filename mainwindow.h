@@ -30,6 +30,7 @@
 #include "fueltrimbar.h"
 #include "commonunits.h"
 #include "helpviewer.h"
+#include "batterybackeddisplay.h"
 #ifdef ENABLE_SIM_MODE
 #include "simulationmodedialog.h"
 #endif
@@ -58,6 +59,8 @@ public slots:
   void onFailedToConnect(QString dev);
   void onFaultCodesReady();
   void onFaultCodesReadFailed();
+  void onBatteryBackedMemReady();
+  void onBatteryBackedMemReadFailed();
   void onFuelMapDataReady(unsigned int fuelMapId);
   void onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident);
   void onRPMLimitReady(int rpmLimit);
@@ -95,6 +98,7 @@ private:
   CUXInterface* m_cux;
   OptionsDialog* m_options;
   IdleAirControlDialog* m_iacDialog;
+  BatteryBackedDisplay* m_batteryBackedDisplay;
   AboutBox* m_aboutBox;
   QMessageBox* m_pleaseWaitBox;
   HelpViewer* m_helpViewerDialog;

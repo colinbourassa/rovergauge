@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.8.11)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
-set (ROVERGAUGE_VER_MINOR 8)
-set (ROVERGAUGE_VER_PATCH 9)
+set (ROVERGAUGE_VER_MINOR 9)
+set (ROVERGAUGE_VER_PATCH 0)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -51,6 +51,7 @@ include_directories ("${CMAKE_SOURCE_DIR}"
 
 qt5_wrap_ui (UI_SOURCE mainwindow.ui)
 qt5_wrap_ui (UI_SOURCE optionsdialog.ui)
+qt5_wrap_ui (UI_SOURCE batterybackeddisplay.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
 qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
@@ -71,6 +72,7 @@ add_executable (rovergauge main.cpp
                            faultcodedialog.cpp
                            aboutbox.cpp
                            optionsdialog.cpp
+                           batterybackeddisplay.cpp
                            qledindicator/qledindicator.cpp
                            analogwidgets/led.cpp
                            analogwidgets/functions.cpp
