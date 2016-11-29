@@ -68,11 +68,9 @@ MainWindow::MainWindow(QWidget* parent)
 
   m_shortcutStartLogging = new QShortcut(QKeySequence(Qt::Key_F5), this);
   m_shortcutStopLogging  = new QShortcut(QKeySequence(Qt::Key_F7), this);
-  m_shortcutExit         = new QShortcut(QKeySequence("Ctrl+Q"),   this);
 
   connect(m_shortcutStartLogging, SIGNAL(activated()), this, SLOT(onStartLogging()));
   connect(m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
-  connect(m_shortcutExit,         SIGNAL(activated()), this, SLOT(onExitSelected()));
 
   connect(m_cux, SIGNAL(dataReady()),                        this, SLOT(onDataReady()));
   connect(m_cux, SIGNAL(connected()),                        this, SLOT(onConnect()));

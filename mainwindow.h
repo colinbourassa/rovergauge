@@ -105,7 +105,6 @@ private:
 
   QShortcut* m_shortcutStartLogging;
   QShortcut* m_shortcutStopLogging;
-  QShortcut* m_shortcutExit;
 
   Logger* m_logger;
 

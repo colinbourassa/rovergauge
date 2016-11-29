@@ -624,7 +624,7 @@
           <item row="5" column="2">
            <widget class="QPushButton" name="m_startLoggingButton">
             <property name="text">
-             <string>Start log</string>
+             <string>Start log (F5)</string>
             </property>
            </widget>
           </item>
@@ -644,7 +644,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Stop log</string>
+             <string>Stop log (F7)</string>
             </property>
            </widget>
           </item>
@@ -770,6 +770,9 @@
    <property name="text">
     <string>&amp;Exit</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="m_batteryBackedAction">
    <property name="text">
@@ -800,8 +803,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="m_lambdaTrimButtonGroup"/>
   <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
+  <buttongroup name="m_lambdaTrimButtonGroup"/>
  </buttongroups>
 </ui>

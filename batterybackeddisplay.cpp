@@ -28,5 +28,8 @@ BatteryBackedDisplay::BatteryBackedDisplay(QString title, QByteArray *batteryBac
     item = new QTableWidgetItem(QString("%1").arg(currentByte, 0, 16).toUpper());
     m_ui->m_batteryBackedTable->setItem(idx, 1, item);
   }
+
+  m_ui->m_batteryBackedTable->resizeRowsToContents();
+
 }
 
