@@ -16,9 +16,6 @@ class BatteryBackedDisplay : public QDialog
 public:
   BatteryBackedDisplay(QString title, QByteArray* batteryBackedMemory, uint16_t startOffset, QWidget* parent = 0);
 
-private slots:
-  void refresh();
-
 private:
   Ui::BatteryBackedDisplay* m_ui;
 };

@@ -84,6 +84,9 @@
     <p>This dialog allows the user to drive the idle air control (IAC) valve in the intake plenum. <b>Because the ECU is adjusting the valve when the engine is idling, it is recommended to only test movement of the valve when the engine is off.</b> Otherwise, unpredictable behavior may result.</p> 
     <p>The motor controlling the valve has a total of 180 steps of movement, so commanding it to open or close by 180 (or more) steps will ensure that it reaches its fully-open or fully-closed position (assuming the valve is functioning mechanically.) Note: after the IAC valve has been moved from its fully-open position, the ECU will only allow it to return to a maximum of 99% open until the next startup. This is normal behavior.</p>
 
+    <h3>Battery-backed RAM display</h3>
+    <p>Opening this dialog will read 20 bytes of battery-backed RAM from the ECU and display it in a simple tabular form. Refreshing the display can be done by closing and re-opening this dialog.</p>
+
 </body>
 </html>
 

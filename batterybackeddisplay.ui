@@ -6,32 +6,32 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>300</height>
+    <width>250</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
-    <width>350</width>
-    <height>300</height>
+    <width>250</width>
+    <height>700</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Options</string>
+   <string>Battery-backed RAM display</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>331</width>
-     <height>302</height>
+     <width>296</width>
+     <height>681</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="m_mainLayout">
@@ -47,29 +47,31 @@
     <property name="bottomMargin">
      <number>20</number>
     </property>
-    <item row="1" column="0" colspan="2">
+    <item row="2" column="0" colspan="2">
      <widget class="Line" name="m_horizontalLineC">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="0" colspan="2">
      <widget class="QPushButton" name="m_closeButton">
       <property name="text">
        <string>Close</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QPushButton" name="m_refreshButton">
-      <property name="text">
-       <string>Refresh</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="2">
+    <item row="1" column="0" colspan="2">
      <widget class="QTableWidget" name="m_batteryBackedTable">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
       <column>
        <property name="text">
         <string>Offset</string>
@@ -80,6 +82,19 @@
         <string>Value</string>
        </property>
       </column>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="2">
+     <widget class="QLabel" name="m_titleLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Battery-backed RAM contents:</string>
+      </property>
      </widget>
     </item>
    </layout>
