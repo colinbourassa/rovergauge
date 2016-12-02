@@ -116,10 +116,10 @@ void CUXInterface::onBatteryBackedMemRequested()
   {
     if (m_batteryBackedMem == 0)
     {
-      m_batteryBackedMem = new QByteArray(20, 0x00);
+      m_batteryBackedMem = new QByteArray(21, 0x00);
     }
 
-    if (c14cux_readMem(&m_cuxinfo, 0x0040, 20, (uint8_t*)m_batteryBackedMem->data()))
+    if (c14cux_readMem(&m_cuxinfo, 0x0040, 21, (uint8_t*)m_batteryBackedMem->data()))
     {
       emit batteryBackedMemReady();
     }
