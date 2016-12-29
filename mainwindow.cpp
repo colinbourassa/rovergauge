@@ -269,6 +269,8 @@ void MainWindow::setupWidgets()
     m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
   }
 
+  setSpeedoLabel();
+
   m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
   m_ui->m_speedo->setNominal(1000.0);
   m_ui->m_speedo->setCritical(1000.0);
@@ -542,7 +544,16 @@ void MainWindow::onDataReady()
 
   if (m_enabledSamples[SampleType_RoadSpeed])
   {
-    m_ui->m_speedo->setValue((int)m_cux->getRoadSpeed());
+    if (m_options->getSpeedoAdjust())
+    {
+      int adjustedSpeed =
+        (m_cux->getRoadSpeed() * m_options->getSpeedoMultiplier()) + m_options->getSpeedoOffset();
+      m_ui->m_speedo->setValue(adjustedSpeed);
+    }
+    else
+    {
+      m_ui->m_speedo->setValue((int)m_cux->getRoadSpeed());
+    }
   }
 
   if (m_enabledSamples[SampleType_EngineRPM])
@@ -807,6 +818,8 @@ void MainWindow::onEditOptionsClicked()
     m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
     m_ui->m_speedo->repaint();
 
+    setSpeedoLabel();
+
     TemperatureUnits tempUnits = m_options->getTemperatureUnits();
     QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
 
@@ -863,6 +876,23 @@ void MainWindow::onEditOptionsClicked()
       m_cux->setSerialDevice(m_options->getSerialDeviceName());
       m_cux->setBaudRate(m_options->getBaudRate());
     }
+  }
+}
+
+/**
+ * Sets the speedometer label to display either the default description,
+ * or the description that identifies the data as being modified
+ * (depending on the value of the checkbox in the Options)
+ */
+void MainWindow::setSpeedoLabel()
+{
+  if (m_options->getSpeedoAdjust())
+  {
+    m_ui->m_speedoLabel->setText("<b>Adjusted road speed</b>");
+  }
+  else
+  {
+    m_ui->m_speedoLabel->setText("Road speed");
   }
 }
 

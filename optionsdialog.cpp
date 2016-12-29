@@ -17,6 +17,9 @@ OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
   m_settingSoftHighlight("SoftHighlight"),
   m_settingSpeedUnits("SpeedUnits"),
   m_settingTemperatureUnits("TemperatureUnits"),
+  m_settingSpeedoAdjust("SpeedometerAdjustment"),
+  m_settingSpeedoMultiplier("SpeedometerMultiplier"),
+  m_settingSpeedoOffset("SpeedometerOffset"),
   m_ui(new Ui::OptionsDialog)
 {
   m_ui->setupUi(this);
@@ -121,6 +124,8 @@ void OptionsDialog::setupWidgets()
 
   connect(m_ui->m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(m_ui->m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+
+  connect(m_ui->m_adjustSpeedoCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggledSpeedoAdjust(bool)));
 }
 
 void OptionsDialog::setWidgetValues()
@@ -136,6 +141,23 @@ void OptionsDialog::setWidgetValues()
 
   m_ui->m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
   m_ui->m_softHighlightCheckbox->setChecked(m_softHighlight);
+
+  m_ui->m_adjustSpeedoCheckbox->setChecked(m_speedoAdjust);
+  m_ui->m_speedoMultiplierSpinbox->setValue(m_speedoMultiplier);
+  m_ui->m_speedoOffsetSpinbox->setValue(m_speedoOffset);
+
+  m_ui->m_speedoMultiplierLabel->setEnabled(m_speedoAdjust);
+  m_ui->m_speedoMultiplierSpinbox->setEnabled(m_speedoAdjust);
+  m_ui->m_speedoOffsetLabel->setEnabled(m_speedoAdjust);
+  m_ui->m_speedoOffsetSpinbox->setEnabled(m_speedoAdjust);
+}
+
+void OptionsDialog::toggledSpeedoAdjust(bool value)
+{
+  m_ui->m_speedoMultiplierLabel->setEnabled(value);
+  m_ui->m_speedoMultiplierSpinbox->setEnabled(value);
+  m_ui->m_speedoOffsetLabel->setEnabled(value);
+  m_ui->m_speedoOffsetSpinbox->setEnabled(value);
 }
 
 void OptionsDialog::checkAll()
@@ -180,10 +202,13 @@ void OptionsDialog::accept()
     m_serialDeviceChanged = false;
   }
 
-  m_tempUnits = (TemperatureUnits)(m_ui->m_temperatureUnitsBox->currentIndex());
-  m_speedUnits = (SpeedUnits)(m_ui->m_speedUnitsBox->currentIndex());
-  m_refreshFuelMap = m_ui->m_refreshFuelMapCheckbox->isChecked();
-  m_softHighlight = m_ui->m_softHighlightCheckbox->isChecked();
+  m_tempUnits        = (TemperatureUnits)(m_ui->m_temperatureUnitsBox->currentIndex());
+  m_speedUnits       = (SpeedUnits)(m_ui->m_speedUnitsBox->currentIndex());
+  m_refreshFuelMap   = m_ui->m_refreshFuelMapCheckbox->isChecked();
+  m_softHighlight    = m_ui->m_softHighlightCheckbox->isChecked();
+  m_speedoAdjust     = m_ui->m_adjustSpeedoCheckbox->isChecked();
+  m_speedoMultiplier = m_ui->m_speedoMultiplierSpinbox->value();
+  m_speedoOffset     = m_ui->m_speedoOffsetSpinbox->value();
 
   foreach(SampleType sType, m_sampleTypeNames.keys())
   {
@@ -219,6 +244,9 @@ void OptionsDialog::readSettings()
   m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
   m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
   m_softHighlight = settings.value(m_settingSoftHighlight, false).toBool();
+  m_speedoAdjust = settings.value(m_settingSpeedoAdjust, false).toBool();
+  m_speedoMultiplier = settings.value(m_settingSpeedoMultiplier, 1.0).toDouble();
+  m_speedoOffset = settings.value(m_settingSpeedoOffset, 0).toInt();
 
   // TODO: once support for other baud rates is stabilized,
   // this will need to pull the value from the settings file
@@ -250,6 +278,9 @@ void OptionsDialog::writeSettings()
   settings.setValue(m_settingTemperatureUnits, m_tempUnits);
   settings.setValue(m_settingRefreshFuelMap, m_refreshFuelMap);
   settings.setValue(m_settingSoftHighlight, m_softHighlight);
+  settings.setValue(m_settingSpeedoAdjust, m_speedoAdjust);
+  settings.setValue(m_settingSpeedoMultiplier, m_speedoMultiplier);
+  settings.setValue(m_settingSpeedoOffset, m_speedoOffset);
 
   foreach(SampleType sType, m_sampleTypeNames.keys())
   {

@@ -144,6 +144,7 @@ private:
   void setGearLabel(c14cux_gear gearReading);
   void setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven);
   void setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool coTrimEnabled, bool lambdaEnabled);
+  void setSpeedoLabel();
 
 private slots:
   void onSaveROMImageSelected();
