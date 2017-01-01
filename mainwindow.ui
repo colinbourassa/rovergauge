@@ -750,7 +750,7 @@
    </widget>
    <widget class="QMenu" name="m_optionsMenu">
     <property name="title">
-     <string>Optio&amp;ns</string>
+     <string>&amp;Options</string>
     </property>
     <addaction name="m_showFaultCodesAction"/>
     <addaction name="m_idleAirControlAction"/>
