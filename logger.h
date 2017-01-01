@@ -5,11 +5,12 @@
 #include <QFile>
 #include <QTextStream>
 #include "cuxinterface.h"
+#include "optionsdialog.h"
 
 class Logger
 {
 public:
-  Logger(CUXInterface* cuxIFace);
+  Logger(CUXInterface* cuxIFace, OptionsDialog* options);
   bool openLog(QString fileName);
   void closeLog();
   void logData();
@@ -21,6 +22,7 @@ private:
   bool m_fuelMapDataIsReady;
   unsigned int m_fuelMapId;
   CUXInterface* m_cux;
+  OptionsDialog* m_options;
   QString m_logExtension;
   QString m_logDir;
   QFile m_logFile;

@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget* parent)
   connect(m_iacDialog, SIGNAL(requestIdleAirControlMovement(int, int)),
           m_cux, SLOT(onIdleAirControlMovementRequest(int, int)));
 
-  m_logger = new Logger(m_cux);
+  m_logger = new Logger(m_cux, m_options);
 
   m_fuelPumpRefreshTimer = new QTimer(this);
   m_fuelPumpRefreshTimer->setInterval(1000);

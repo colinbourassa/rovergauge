@@ -6,14 +6,15 @@
  * Constructor. Sets the 14CUX interface class pointer as
  * well as log directory and log file extension.
  */
-Logger::Logger(CUXInterface* cuxIFace) :
+Logger::Logger(CUXInterface* cuxIFace, OptionsDialog* options) :
   m_fuelMapDataIsReady(false),
   m_fuelMapId(0),
+  m_cux(cuxIFace),
+  m_options(options),
   m_logExtension(".txt"),
   m_logDir("logs"),
   m_staticDataLogged(false)
 {
-  m_cux = cuxIFace;
 }
 
 /**
@@ -103,8 +104,16 @@ void Logger::logData()
 {
   if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
   {
+    double roadSpeed = m_cux->getRoadSpeed();
+
+    if (m_options->getSpeedoAdjust())
+    {
+      roadSpeed *= m_options->getSpeedoMultiplier();
+      roadSpeed += m_options->getSpeedoOffset();
+    }
+
     m_logFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-                    << m_cux->getRoadSpeed() << ","
+                    << roadSpeed << ","
                     << m_cux->getEngineSpeedRPM() << ","
                     << m_cux->getCoolantTemp() << ","
                     << m_cux->getFuelTemp() << ","
