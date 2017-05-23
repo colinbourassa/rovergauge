@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QByteArray>
+#include <stdint.h>
 
 namespace Ui
 {
