@@ -233,7 +233,7 @@ void MainWindow::setupWidgets()
   // set up the fuel map display
   setStyleSheet("QTableWidget {background-color: transparent;}");
 
-  m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 7pt; }");
+  m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 11pt; }");
   m_ui->m_fuelMapDisplay->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   m_ui->m_fuelMapDisplay->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
