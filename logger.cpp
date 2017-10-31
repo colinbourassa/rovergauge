@@ -157,6 +157,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
   }
 
   m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
+                        << uppercasedigits
                         << m_cux->getTune() << ","
                         << hex << m_cux->getIdent() << ","
                         << hex << m_cux->getChecksumFixer() << ","
