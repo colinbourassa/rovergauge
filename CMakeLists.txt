@@ -3,7 +3,7 @@ project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 9)
-set (ROVERGAUGE_VER_PATCH 3)
+set (ROVERGAUGE_VER_PATCH 4)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -62,23 +62,41 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
 
 add_executable (rovergauge main.cpp
                            cuxinterface.cpp
+			   cuxinterface.h
                            simulationmodedialog.cpp
+			   simulationmodedialog.h
                            helpviewer.cpp
+			   helpviewer.h
                            idleaircontroldialog.cpp
+			   idleaircontroldialog.h
                            logger.cpp
+			   logger.h
                            serialdevenumerator.cpp
+			   serialdevenumerator.h
                            fueltrimbar.cpp
+			   fueltrimbar.h
                            mainwindow.cpp
+			   mainwindow.h
                            faultcodedialog.cpp
+			   faultcodedialog.h
                            aboutbox.cpp
+			   aboutbox.h
                            optionsdialog.cpp
+			   optionsdialog.h
                            batterybackeddisplay.cpp
+			   batterybackeddisplay.h
                            qledindicator/qledindicator.cpp
+                           qledindicator/qledindicator.h
                            analogwidgets/led.cpp
+                           analogwidgets/led.h
                            analogwidgets/functions.cpp
+                           analogwidgets/functions.h
                            analogwidgets/widgetwithbackground.cpp
+                           analogwidgets/widgetwithbackground.h
                            analogwidgets/manometer.cpp
+                           analogwidgets/manometer.h
                            analogwidgets/abstractmeter.cpp
+                           analogwidgets/abstractmeter.h
                            ${UI_SOURCE}
                            ${RG_RESOURCE})
 
