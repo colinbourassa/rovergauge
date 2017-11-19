@@ -14,17 +14,13 @@ FuelTrimBar::FuelTrimBar(QWidget* parent) :
 }
 
 /**
- * Force a repaint when the value has been set to zero.
- * Not sure why the framework doesn't do this.
+ * Call update() when the value changes; this avoids the problem of the
+ * bar not getting repainted when a small value (< 3 and > -3) is set.
  */
 void FuelTrimBar::setValue(int value)
 {
   QProgressBar::setValue(value);
-
-  if (value == 0)
-  {
-    repaint();
-  }
+  update();
 }
 
 /**
