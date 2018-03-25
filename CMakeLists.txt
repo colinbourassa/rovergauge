@@ -127,46 +127,48 @@ if (MINGW)
     message (SEND_ERROR "Could not find libstdc++!")
   endif ()
 
-  find_library (ZLIB zlib1)
-  if (ZLIB)
-    message (STATUS "Found zlib1 at ${ZLIB}")
+  find_package (ZLIB REQUIRED)
+  if (ZLIB_FOUND)
+    message ("ZLIB location is ${ZLIB_LIBRARIES}")
   else ()
     message (SEND_ERROR "Could not find zlib1!")
   endif ()
 
-  find_library (QTCORE_DLL Qt5Core)
-  if (QTCORE_DLL)
-    message (STATUS "Found QtCore at ${QTCORE_DLL}")
+  find_package (Qt5 COMPONENTS Core Widgets REQUIRED)
+
+  get_target_property (QT5CORE_LIB Qt5::Core LOCATION)
+  if (QT5CORE_LIB)
+    message (STATUS "Qt5::Core location is ${QT5CORE_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt5Core.dll! Check that the Qt5 bin/ directory (or the qtbase/bin/ directory) is in your PATH.")
+    message (SEND_ERROR "Could not find Qt5Core library!")
   endif ()
 
-  find_library (QTGUI_DLL Qt5Gui)
-  if (QTGUI_DLL)
-    message (STATUS "Found QtGui at ${QTGUI_DLL}")
+  get_target_property (QT5WIDGETS_LIB Qt5::Widgets LOCATION)
+  if (QT5WIDGETS_LIB)
+    message (STATUS "Qt5::Widgets location is ${QT5WIDGETS_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt5Gui.dll! Check that the Qt5 bin/ directory (or the qtbase/bin/ directory) is in your PATH.")
+    message (SEND_ERROR "Could not find Qt5Widgets library!")
   endif ()
 
-  find_library (QTWIDGETS_DLL Qt5Widgets)
-  if (QTGUI_DLL)
-    message (STATUS "Found QtWidgets at ${QTWIDGETS_DLL}")
+  get_target_property (QT5GUI_LIB Qt5::Gui LOCATION)
+  if (QT5GUI_LIB)
+    message (STATUS "Qt5::Gui location is ${QT5GUI_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt5Widgets.dll! Check that the Qt5 bin/ directory (or the qtbase/bin/ directory) is in your PATH.")
+    message (SEND_ERROR "Could not find Qt5Gui library!")
   endif ()
 
-  find_library (QWINDOWS_DLL qwindows)
-  if (QWINDOWS_DLL)
-    message (STATUS "Found Qt qwindows platform plugin at ${QWINDOWS_DLL}")
+  get_target_property (QT5WINDOWS_LIB Qt5::QWindowsIntegrationPlugin LOCATION)
+  if (QT5WINDOWS_LIB)
+    message (STATUS "Qt5::QWindows location is ${QT5WINDOWS_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt qwindows platform plugin!")
+    message (SEND_ERROR "Could not find Qt5 Windows GUI plugin!")
   endif ()
 
-  find_library(COMM14CUX_DLL libcomm14cux)
+  find_library (COMM14CUX_DLL libcomm14cux)
   if (COMM14CUX_DLL)
     message (STATUS "Found libcomm14cux at ${COMM14CUX_DLL}")
   else ()
-    message (SEND_ERROR "Could not find libcomm14cux.dll!")
+    message (SEND_ERROR "Could not find libcomm14cux!")
   endif ()
 
   target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt5::Widgets)
@@ -176,16 +178,16 @@ if (MINGW)
   configure_file ("${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/LICENSE.TXT" NEWLINE_STYLE WIN32)
 
   install (FILES "${CMAKE_BINARY_DIR}/rovergauge.exe"
-                 ${LIBGCC}
-                 ${LIBSTDCPP}
-                 ${QTCORE_DLL}
-                 ${QTGUI_DLL}
-                 ${QTWIDGETS_DLL}
-                 ${COMM14CUX_DLL}
-                 ${ZLIB}
+                  ${LIBGCC}
+                  ${LIBSTDCPP}
+		  ${QT5CORE_LIB}
+                  ${QT5WIDGETS_LIB}
+                  ${QT5GUI_LIB}
+                  ${COMM14CUX_DLL}
+		  ${ZLIB_LIBRARIES}
            DESTINATION ".")
   install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
-  install (FILES ${QWINDOWS_DLL} DESTINATION "platforms")
+  install (FILES ${QT5WINDOWS_LIB} DESTINATION "platforms")
 
   set (CPACK_GENERATOR "ZIP")
   set (CPACK_PACKAGE_NAME ${PROJECT_NAME})
