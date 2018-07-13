@@ -52,7 +52,7 @@ Usage and features
 For RoverGauge to do anything useful, the computer on which it's running must
 be connected to the serial port in the 14CUX wiring harness. This requires
 building a custom cable using one of FTDI's USB-to-RS232 converters. You can
-find the details of this on either of these two pages:
+find the details in this article:
 
 https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md
 
