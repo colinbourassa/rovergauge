@@ -18,48 +18,55 @@ class OptionsDialog : public QDialog
 
 public:
   OptionsDialog(QString title, QWidget* parent = 0);
-  QString getSerialDeviceName();
-  unsigned int getBaudRate()
-  {
-    return m_baudRate;
-  }
-  bool getSerialDeviceChanged()
+
+  QString getSerialDeviceName() const;
+
+  inline bool getSerialDeviceChanged() const
   {
     return m_serialDeviceChanged;
   }
-  bool getRefreshFuelMap()
+
+  inline bool getRefreshFuelMap() const
   {
     return m_refreshFuelMap;
   }
-  bool getSoftHighlight()
+
+  inline bool getSoftHighlight() const
   {
     return m_softHighlight;
   }
-  SpeedUnits getSpeedUnits()
+
+  inline SpeedUnits getSpeedUnits() const
   {
     return m_speedUnits;
   }
-  TemperatureUnits getTemperatureUnits()
+
+  inline TemperatureUnits getTemperatureUnits() const
   {
     return m_tempUnits;
   }
-  QMap<SampleType, bool> getEnabledSamples()
+
+  inline QMap<SampleType, bool> getEnabledSamples() const
   {
     return m_enabledSamples;
   }
-  QHash<SampleType, unsigned int> getReadIntervals()
+
+  inline QHash<SampleType, unsigned int> getReadIntervals() const
   {
     return m_readIntervalsMs;
   }
-  bool getSpeedoAdjust()
+
+  inline bool getSpeedoAdjust() const
   {
     return m_speedoAdjust;
   }
-  double getSpeedoMultiplier()
+
+  inline double getSpeedoMultiplier() const
   {
     return m_speedoMultiplier;
   }
-  int getSpeedoOffset()
+
+  inline int getSpeedoOffset() const
   {
     return m_speedoOffset;
   }
@@ -79,7 +86,6 @@ private:
   QMap<SampleType, QCheckBox*> m_enabledSamplesBoxes;
 
   QString m_serialDeviceName;
-  unsigned int m_baudRate;
   TemperatureUnits m_tempUnits;
   SpeedUnits m_speedUnits;
 
@@ -114,4 +120,3 @@ private:
 };
 
 #endif // OPTIONSDIALOG_H
-

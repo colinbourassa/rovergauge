@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.8.11)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
-set (ROVERGAUGE_VER_MINOR 9)
-set (ROVERGAUGE_VER_PATCH 4)
+set (ROVERGAUGE_VER_MINOR 10)
+set (ROVERGAUGE_VER_PATCH 0)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -60,45 +60,46 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
                  "-DROVERGAUGE_VER_MINOR=${ROVERGAUGE_VER_MINOR}"
                  "-DROVERGAUGE_VER_PATCH=${ROVERGAUGE_VER_PATCH}")
 
-add_executable (rovergauge main.cpp
-                           cuxinterface.cpp
-			   cuxinterface.h
-                           simulationmodedialog.cpp
-			   simulationmodedialog.h
-                           helpviewer.cpp
-			   helpviewer.h
-                           idleaircontroldialog.cpp
-			   idleaircontroldialog.h
-                           logger.cpp
-			   logger.h
-                           serialdevenumerator.cpp
-			   serialdevenumerator.h
-                           fueltrimbar.cpp
-			   fueltrimbar.h
-                           mainwindow.cpp
-			   mainwindow.h
-                           faultcodedialog.cpp
-			   faultcodedialog.h
-                           aboutbox.cpp
-			   aboutbox.h
-                           optionsdialog.cpp
-			   optionsdialog.h
-                           batterybackeddisplay.cpp
-			   batterybackeddisplay.h
-                           qledindicator/qledindicator.cpp
-                           qledindicator/qledindicator.h
-                           analogwidgets/led.cpp
-                           analogwidgets/led.h
-                           analogwidgets/functions.cpp
-                           analogwidgets/functions.h
-                           analogwidgets/widgetwithbackground.cpp
-                           analogwidgets/widgetwithbackground.h
-                           analogwidgets/manometer.cpp
-                           analogwidgets/manometer.h
-                           analogwidgets/abstractmeter.cpp
-                           analogwidgets/abstractmeter.h
-                           ${UI_SOURCE}
-                           ${RG_RESOURCE})
+add_executable (rovergauge
+    main.cpp
+    cuxinterface.cpp
+    cuxinterface.h
+    simulationmodedialog.cpp
+    simulationmodedialog.h
+    helpviewer.cpp
+    helpviewer.h
+    idleaircontroldialog.cpp
+    idleaircontroldialog.h
+    logger.cpp
+    logger.h
+    serialdevenumerator.cpp
+    serialdevenumerator.h
+    fueltrimbar.cpp
+    fueltrimbar.h
+    mainwindow.cpp
+    mainwindow.h
+    faultcodedialog.cpp
+    faultcodedialog.h
+    aboutbox.cpp
+    aboutbox.h
+    optionsdialog.cpp
+    optionsdialog.h
+    batterybackeddisplay.cpp
+    batterybackeddisplay.h
+    qledindicator/qledindicator.cpp
+    qledindicator/qledindicator.h
+    analogwidgets/led.cpp
+    analogwidgets/led.h
+    analogwidgets/functions.cpp
+    analogwidgets/functions.h
+    analogwidgets/widgetwithbackground.cpp
+    analogwidgets/widgetwithbackground.h
+    analogwidgets/manometer.cpp
+    analogwidgets/manometer.h
+    analogwidgets/abstractmeter.cpp
+    analogwidgets/abstractmeter.h
+    ${UI_SOURCE}
+    ${RG_RESOURCE})
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
@@ -180,11 +181,11 @@ if (MINGW)
   install (FILES "${CMAKE_BINARY_DIR}/rovergauge.exe"
                   ${LIBGCC}
                   ${LIBSTDCPP}
-		  ${QT5CORE_LIB}
+                  ${QT5CORE_LIB}
                   ${QT5WIDGETS_LIB}
                   ${QT5GUI_LIB}
                   ${COMM14CUX_DLL}
-		  ${ZLIB_LIBRARIES}
+                  ${ZLIB_LIBRARIES}
            DESTINATION ".")
   install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
   install (FILES ${QT5WINDOWS_LIB} DESTINATION "platforms")

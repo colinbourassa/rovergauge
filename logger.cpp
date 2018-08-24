@@ -146,7 +146,7 @@ void Logger::logData()
  */
 void Logger::logStaticData(unsigned int fuelMapId)
 {
-  QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
+  const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
   float mafCoTrim = 0.0;
   unsigned char c;
 

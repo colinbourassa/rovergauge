@@ -21,8 +21,9 @@
     <p>For RoverGauge to work, the computer must have a specially modified USB-to-serial converter. Instructions for building this cable can be found on the <a href="https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md">libcomm14cux wiki page</a>.</p>
     <h3>Command line parameters</h3>
     <p>Pass these values as parameters to rovergauge.exe:</p>
-    <p><b>&#8211;a</b>: Automatically connect to the ECU when the application starts. Note that this will only work if the correct serial port was selected the last time the application was run.</p>
-    <p><b>&#8211;l</b>: Open the log file immediately when the application starts. This is most useful when paired with <b>&#8211;a</b>.</p>
+    <p><b>&#8211;a</b> or <b>&#8211;&#8211;autoconnect</b>: Automatically connect to the ECU when the application starts. Note that this will only work if the correct serial port was selected the last time the application was run.</p>
+    <p><b>&#8211;l</b> or <b>&#8211;&#8211;autolog</b>: Open the log file immediately when the application starts. This is most useful when paired with <b>&#8211;a</b>.</p>
+    <p><b>&#8211;f</b> or <b>&#8211;&#8211;fullscreen</b>: Start in fullscreen mode. Maximize/minimize buttons will not be availble, but the application can be exited by using the <b>File</b> menu or by pressing Ctrl-Q.</p>
     <p>Summary: to automatically connect and begin logging to a file, start the application with: <b>rovergauge.exe -a -l</b></p>
 
     <h3>Keyboard shortcuts</h3>

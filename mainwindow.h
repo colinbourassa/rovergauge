@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  MainWindow(QWidget* parent = 0);
+  MainWindow (bool autoconnect, bool autolog, bool doublebaud, QWidget* parent = 0);
   ~MainWindow();
 
 public slots:
@@ -102,6 +102,7 @@ private:
   AboutBox* m_aboutBox;
   QMessageBox* m_pleaseWaitBox;
   HelpViewer* m_helpViewerDialog;
+  bool m_doubleBaudRate;
 
   QShortcut* m_shortcutStartLogging;
   QShortcut* m_shortcutStopLogging;
@@ -135,7 +136,7 @@ private:
   void startLogging();
   void buildSpeedAndTempUnitTables();
   void setupWidgets();
-  void populateFuelMapDisplay(QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
+  void populateFuelMapDisplay(const QByteArray *data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
   QColor getColorForFuelMapCell(unsigned char value);
   void highlightActiveFuelMapCells();
   void removeFuelMapCellHighlight();

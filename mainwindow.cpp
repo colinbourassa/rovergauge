@@ -8,16 +8,16 @@
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
 
-extern bool g_autoconnect;
-extern bool g_autolog;
-
 const float MainWindow::s_speedometerMaxMPH = 160.0;
 const float MainWindow::s_speedometerMaxKPH = 240.0;
 
 /**
  * Constructor; sets up main UI
  */
-MainWindow::MainWindow(QWidget* parent)
+MainWindow::MainWindow (bool autoconnect,
+                        bool autolog,
+                        bool doublebaud,
+                        QWidget* parent)
   : QMainWindow(parent),
     m_ui(new Ui::MainWindow),
 #ifdef ENABLE_SIM_MODE
@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget* parent)
     m_aboutBox(0),
     m_pleaseWaitBox(0),
     m_helpViewerDialog(0),
+    m_doubleBaudRate(doublebaud),
     m_fuelMapDataIsCurrent(false),
     m_isLogging(false)
 {
@@ -44,7 +45,7 @@ MainWindow::MainWindow(QWidget* parent)
                        QString::number(ROVERGAUGE_VER_PATCH));
 
   m_options = new OptionsDialog(this->windowTitle(), this);
-  m_cux = new CUXInterface(m_options->getSerialDeviceName(), m_options->getBaudRate(),
+  m_cux = new CUXInterface(m_options->getSerialDeviceName(), CUXInterface::getBaudRate(doublebaud),
                            m_options->getSpeedUnits(), m_options->getTemperatureUnits(),
                            m_options->getRefreshFuelMap());
 
@@ -107,12 +108,12 @@ MainWindow::MainWindow(QWidget* parent)
   setupWidgets();
   dimUnusedControls();
 
-  if (g_autoconnect)
+  if (autoconnect)
   {
     doConnect();
   }
 
-  if (g_autolog)
+  if (autolog)
   {
     startLogging();
   }
@@ -450,7 +451,7 @@ void MainWindow::onBatteryBackedMemReadFailed()
  * values.
  * @param data Pointer to the ByteArray that contains the map data
  */
-void MainWindow::populateFuelMapDisplay(QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
+void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
 {
   if (data != 0)
   {
@@ -496,7 +497,7 @@ void MainWindow::populateFuelMapDisplay(QByteArray* data, unsigned int fuelMapMu
  */
 void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
 {
-  QByteArray* data = m_cux->getFuelMap(fuelMapId);
+  const QByteArray* data = m_cux->getFuelMap(fuelMapId);
 
   if (data != 0)
   {
@@ -874,7 +875,7 @@ void MainWindow::onEditOptionsClicked()
       }
 
       m_cux->setSerialDevice(m_options->getSerialDeviceName());
-      m_cux->setBaudRate(m_options->getBaudRate());
+      m_cux->setBaudRate(CUXInterface::getBaudRate(m_doubleBaudRate));
     }
   }
 }
@@ -1502,7 +1503,7 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
   m_ui->m_fuelMapIndexLabel->setText(QString("Current fuel map: %1").arg(fuelMapId));
   m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier:"));
 
-  QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
+  const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
 
   if (fuelMapData != 0)
   {

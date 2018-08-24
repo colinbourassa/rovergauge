@@ -1,36 +1,53 @@
 #include <QApplication>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QString>
 #include "mainwindow.h"
-
-bool g_doubleBaud;
-bool g_autoconnect;
-bool g_autolog;
 
 int main(int argc, char* argv[])
 {
+  const QString versionStr = QString("%1.%2.%3").arg(ROVERGAUGE_VER_MAJOR).arg(ROVERGAUGE_VER_MINOR).arg(ROVERGAUGE_VER_PATCH);
+
   QApplication a(argc, argv);
+  a.setApplicationVersion(versionStr);
+  a.setApplicationName("RoverGauge");
 
-  g_doubleBaud = false;
-  g_autoconnect = false;
-  g_autolog = false;
+  QCommandLineParser parser;
 
-  for (unsigned int idx = 1; idx < argc; idx += 1)
+  parser.setApplicationDescription("Diagnostic utility that will interface with the Lucas 14CUX automotive ECU");
+
+  const QCommandLineOption autoconnectOption
+      ({"a", "autoconnect"}, "Automatically connect to ECU when starting.");
+  const QCommandLineOption autologOption
+      ({"l", "autolog"}, "Automatically start logging to a file on startup.");
+  const QCommandLineOption fullscreenOption
+      ({"f", "fullscreen"}, "Start in fullscreen mode.");
+  QCommandLineOption doublebaudOption
+      ({"d", "doublebaud"}, "Connect to an ECU that has customized firmware doubling the serial baud rate.");
+  doublebaudOption.setFlags(QCommandLineOption::HiddenFromHelp);
+
+  parser.addHelpOption();
+  parser.addVersionOption();
+  parser.addOption(autoconnectOption);
+  parser.addOption(autologOption);
+  parser.addOption(fullscreenOption);
+  parser.addOption(doublebaudOption);
+
+  parser.process(a);
+
+  MainWindow w (parser.isSet(autoconnectOption),
+                parser.isSet(autologOption),
+                parser.isSet(doublebaudOption));
+
+  if (parser.isSet(fullscreenOption))
   {
-    if (strcmp(argv[idx], "-d") == 0)
-    {
-      g_doubleBaud = true;
-    }
-    else if (strcmp(argv[idx], "-a") == 0)
-    {
-      g_autoconnect = true;
-    }
-    else if (strcmp(argv[idx], "-l") == 0)
-    {
-      g_autolog = true;
-    }
+    w.showFullScreen();
+  }
+  else
+  {
+    w.show();
   }
 
-  MainWindow w;
-  w.show();
   return a.exec();
 }
 

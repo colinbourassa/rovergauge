@@ -4,8 +4,6 @@
 #include "serialdevenumerator.h"
 #include "comm14cux.h"
 
-extern bool g_doubleBaud;
-
 /**
  * Constructor; sets up the options-dialog UI and sets settings-file field names.
  */
@@ -183,18 +181,12 @@ void OptionsDialog::accept()
 {
   QString newSerialDeviceName = m_ui->m_serialDeviceBox->currentText();
 
-  // TODO: future support for different baud rates will require that we
-  // add a control on this form; for now, always set it to the default
-  unsigned int newBaudRate = (g_doubleBaud ? (C14CUX_BAUD * 2) : C14CUX_BAUD);
-
-  // set a flag if the serial device or baud has been changed;
+  // set a flag if the serial device has been changed;
   // the main application needs to know if it should
   // reconnect to the 14CUX
-  if ((m_serialDeviceName.compare(newSerialDeviceName) != 0) ||
-      (newBaudRate != m_baudRate))
+  if (m_serialDeviceName.compare(newSerialDeviceName) != 0)
   {
     m_serialDeviceName = newSerialDeviceName;
-    m_baudRate = newBaudRate;
     m_serialDeviceChanged = true;
   }
   else
@@ -222,6 +214,9 @@ void OptionsDialog::accept()
   done(QDialog::Accepted);
 }
 
+/**
+ * Cancels any changes in the options dialog and keeps the existing settings.
+ */
 void OptionsDialog::reject()
 {
   // the latest changes are being discarded, so re-read the last saved
@@ -247,10 +242,6 @@ void OptionsDialog::readSettings()
   m_speedoAdjust = settings.value(m_settingSpeedoAdjust, false).toBool();
   m_speedoMultiplier = settings.value(m_settingSpeedoMultiplier, 1.0).toDouble();
   m_speedoOffset = settings.value(m_settingSpeedoOffset, 0).toInt();
-
-  // TODO: once support for other baud rates is stabilized,
-  // this will need to pull the value from the settings file
-  m_baudRate = (g_doubleBaud ? C14CUX_BAUD * 2 : C14CUX_BAUD);
 
   foreach(SampleType sType, m_sampleTypeNames.keys())
   {
@@ -309,7 +300,7 @@ void OptionsDialog::groupLikeSettings()
 /**
  * Returns the name of the serial device.
  */
-QString OptionsDialog::getSerialDeviceName()
+QString OptionsDialog::getSerialDeviceName() const
 {
 #ifdef WIN32
   return QString("\\\\.\\%1").arg(m_serialDeviceName);

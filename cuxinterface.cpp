@@ -457,7 +457,7 @@ void CUXInterface::runServiceLoop()
 /**
  * Determines if the sample type should be read given the current operating mode
  */
-bool CUXInterface::isSampleAppropriateForMode(SampleType type)
+bool CUXInterface::isSampleAppropriateForMode(SampleType type) const
 {
   bool status = true;
 
@@ -726,9 +726,9 @@ void CUXInterface::cancelRead()
  * @return Pointer to the container holding the fuel map data, or 0 if the
  *   fuel map in question has not yet been retrieved
  */
-QByteArray* CUXInterface::getFuelMap(unsigned int fuelMapId)
+const QByteArray* CUXInterface::getFuelMap(unsigned int fuelMapId) const
 {
-  QByteArray* map = 0;
+  const QByteArray* map = 0;
 
   if (m_fuelMapDataIsCurrent[fuelMapId])
   {
@@ -756,7 +756,7 @@ void CUXInterface::invalidateFuelMapData()
  * Returns the last-read fuel map adjustment factor.
  * @return Last-read fuel map adjustment factor
  */
-int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId)
+int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId) const
 {
   int adjFactor = -1;
 
@@ -773,7 +773,7 @@ int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId)
  * @param speedMph Speed in miles per hour
  * @return Speed in the desired units
  */
-unsigned int CUXInterface::convertSpeed(unsigned int speedMph)
+unsigned int CUXInterface::convertSpeed(unsigned int speedMph) const
 {
   float speed = (float)speedMph;
 
@@ -790,7 +790,7 @@ unsigned int CUXInterface::convertSpeed(unsigned int speedMph)
  * @param tempF Temperature in Fahrenheit degrees
  * @return Temperature in the desired units
  */
-int CUXInterface::convertTemperature(int tempF)
+int CUXInterface::convertTemperature(int tempF) const
 {
   double temp = tempF;
 

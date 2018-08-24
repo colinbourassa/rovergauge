@@ -11,8 +11,8 @@ enum SpeedUnits
 
 enum TemperatureUnits
 {
-  Fahrenheit = 0,
-  Celsius    = 1
+  Fahrenheit,
+  Celsius
 };
 
 enum SampleType
