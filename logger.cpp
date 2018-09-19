@@ -175,7 +175,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
       for (unsigned int fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
       {
         c = fuelMapData->at(fmRow * FUEL_MAP_COLUMNS + fmCol);
-        m_staticLogFileStream << "," << QString::number(c);
+        m_staticLogFileStream << "," << QString::number(c, 16).toUpper();
       }
     }
   }
