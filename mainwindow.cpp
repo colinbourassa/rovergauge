@@ -4,12 +4,15 @@
 #include <QThread>
 #include <QFileDialog>
 #include <QGraphicsOpacityEffect>
+#include <QIcon>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
 
 const float MainWindow::s_speedometerMaxMPH = 160.0;
 const float MainWindow::s_speedometerMaxKPH = 240.0;
+
+#define ICON_PATH ":/icon/icon/rovergauge_48x48.png"
 
 /**
  * Constructor; sets up main UI
@@ -103,7 +106,7 @@ MainWindow::MainWindow (bool autoconnect,
   connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
   connect(this, SIGNAL(requestFuelPumpRun()), m_cux, SLOT(onFuelPumpRunRequest()));
 
-  setWindowIcon(QIcon(":/icons/key.png"));
+  setWindowIcon(QIcon(ICON_PATH));
 
   setupWidgets();
   dimUnusedControls();

@@ -38,7 +38,7 @@ void AboutBox::setupWidgets()
   this->setLayout(m_grid);
 
   m_iconLabel = new QLabel(this);
-  m_iconLabel->setPixmap(m_style->standardIcon(QStyle::SP_MessageBoxInformation).pixmap(32, 32));
+  m_iconLabel->setPixmap(QPixmap(":/icon/icon/rovergauge_48x48.png"));
 
   m_name = new QLabel("RoverGauge " +
                       makeVersionString(ROVERGAUGE_VER_MAJOR, ROVERGAUGE_VER_MINOR, ROVERGAUGE_VER_PATCH),

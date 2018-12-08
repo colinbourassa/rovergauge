@@ -99,7 +99,8 @@ add_executable (rovergauge
     analogwidgets/abstractmeter.cpp
     analogwidgets/abstractmeter.h
     ${UI_SOURCE}
-    ${RG_RESOURCE})
+    ${RG_RESOURCE}
+    rovergauge.rc)
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")

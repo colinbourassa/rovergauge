@@ -1,6 +1,6 @@
 <RCC>
-    <qresource prefix="/icons">
-        <file>key.png</file>
+    <qresource prefix="/icon">
+        <file>icon/rovergauge_48x48.png</file>
     </qresource>
     <qresource prefix="/help">
         <file>help.html</file>
