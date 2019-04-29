@@ -572,11 +572,6 @@ CUXInterface::ReadResult CUXInterface::readData()
     result = mergeResult(result, c14cux_getLambdaTrimLong(&m_cuxinfo, C14CUX_Bank_Even, &m_lambdaTrimEven));
   }
 
-  if (isDueForMeasurement(SampleType_COTrimVoltage))
-  {
-    result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
-  }
-
   if (isDueForMeasurement(SampleType_MainVoltage))
   {
     result = mergeResult(result, c14cux_getMainVoltage(&m_cuxinfo, &m_mainVoltage));
@@ -671,6 +666,11 @@ CUXInterface::ReadResult CUXInterface::readData()
         emit feedbackModeHasChanged(m_feedbackMode);
       }
     }
+  }
+  
+  if (isDueForMeasurement(SampleType_COTrimVoltage))
+  {
+    result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
   }
 
   return result;
