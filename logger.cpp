@@ -8,6 +8,7 @@
  */
 Logger::Logger(CUXInterface* cuxIFace, OptionsDialog* options) :
   m_fuelMapDataIsReady(false),
+  m_miscStaticDataIsReady(false),
   m_fuelMapId(0),
   m_cux(cuxIFace),
   m_options(options),
@@ -45,9 +46,9 @@ bool Logger::openLog(QString fileName)
       if (!alreadyExists)
       {
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
-                        "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
-                        "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                        "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
+                           "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
+                           "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
+                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
       }
 
       success = true;
@@ -67,7 +68,7 @@ bool Logger::openLog(QString fileName)
         {
           m_staticDataLogged = false;
           m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
-                                "fuelMapMultiplier,rowScaler,mafScaler,mafCOTrim";
+                                   "fuelMapMultiplier,rowScaler,rowOffset,mafCOTrim";
 
           // give each byte of the fuel map a separate field name
           for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
@@ -102,6 +103,11 @@ void Logger::closeLog()
  */
 void Logger::logData()
 {
+  // One of two flags that must be set to allow logging of static data.
+  // This one keeps track of the receipt of firmware build identifiers (tune ID, etc.)
+  // and the other keeps track of the receipt of actual fuel map data.
+  m_miscStaticDataIsReady = true;
+
   if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
   {
     double roadSpeed = m_cux->getRoadSpeed();
@@ -146,42 +152,46 @@ void Logger::logData()
  */
 void Logger::logStaticData(unsigned int fuelMapId)
 {
-  const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
-  float mafCoTrim = 0.0;
-  unsigned char c;
-
-  // only get the MAF CO trim if an open-loop map is selected
-  if ((fuelMapId > 0) && (fuelMapId < 4))
+  if (m_staticLogLock.tryLock())
   {
-    mafCoTrim = m_cux->getCOTrimVoltage();
-  }
+    m_staticDataLogged = true;
 
-  m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-                        << uppercasedigits
-                        << m_cux->getTune() << ","
-                        << hex << m_cux->getIdent() << ","
-                        << hex << m_cux->getChecksumFixer() << ","
-                        << dec << fuelMapId << ","
-                        << hex << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-                        << hex << m_cux->getRowScaler(fuelMapId) << ","
-                        << m_cux->getMAFRowScaler() << ","
-                        << mafCoTrim;
+    const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
+    float mafCoTrim = 0.0;
+    unsigned char c;
 
-  if (fuelMapData)
-  {
-    // write out every byte of the fuel map data
-    for (unsigned int fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
+    // only get the MAF CO trim if an open-loop map is selected
+    if ((fuelMapId > 0) && (fuelMapId < 4))
     {
-      for (unsigned int fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
+      mafCoTrim = m_cux->getCOTrimVoltage();
+    }
+
+    m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
+      << uppercasedigits
+      << m_cux->getTune() << ","
+      << hex << m_cux->getIdent() << ","
+      << hex << m_cux->getChecksumFixer() << ","
+      << dec << fuelMapId << ","
+      << hex << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
+      << hex << m_cux->getRowScaler(fuelMapId) << ","
+      << m_cux->getMAFRowScaler() << ","
+      << mafCoTrim;
+
+    if (fuelMapData)
+    {
+      // write out every byte of the fuel map data
+      for (unsigned int fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
       {
-        c = fuelMapData->at(fmRow * FUEL_MAP_COLUMNS + fmCol);
-        m_staticLogFileStream << "," << QString::number(c, 16).toUpper();
+        for (unsigned int fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
+        {
+          c = fuelMapData->at(fmRow * FUEL_MAP_COLUMNS + fmCol);
+          m_staticLogFileStream << "," << QString::number(c, 16).toUpper();
+        }
       }
     }
-  }
 
-  m_staticLogFileStream << endl;
-  m_staticDataLogged = true;
+    m_staticLogFileStream << endl;
+  }
 }
 
 /**
@@ -197,6 +207,7 @@ void Logger::onFuelMapDataReady(unsigned int fuelMapId)
   // Otherwise, set a flag that can be checked if/when a log is ultimately
   // opened.
   if (!m_staticDataLogged &&
+      m_miscStaticDataIsReady && // check that the other static data is actually ready
       m_staticLogFile.isOpen() &&
       (m_staticLogFileStream.status() == QTextStream::Ok))
   {

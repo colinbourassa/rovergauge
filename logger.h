@@ -4,6 +4,7 @@
 #include <QString>
 #include <QFile>
 #include <QTextStream>
+#include <QMutex>
 #include "cuxinterface.h"
 #include "optionsdialog.h"
 
@@ -20,6 +21,7 @@ public:
 
 private:
   bool m_fuelMapDataIsReady;
+  bool m_miscStaticDataIsReady;
   unsigned int m_fuelMapId;
   CUXInterface* m_cux;
   OptionsDialog* m_options;
@@ -36,6 +38,8 @@ private:
   void logStaticData(unsigned int fuelMapId);
   float getRowWithWeighting();
   float getColWithWeighting();
+
+  QMutex m_staticLogLock;
 };
 
 #endif // LOGGER_H
