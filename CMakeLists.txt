@@ -3,7 +3,7 @@ project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 0)
 set (ROVERGAUGE_VER_MINOR 10)
-set (ROVERGAUGE_VER_PATCH 4)
+set (ROVERGAUGE_VER_PATCH 5)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
@@ -129,6 +129,13 @@ if (MINGW)
     message (SEND_ERROR "Could not find libstdc++!")
   endif ()
 
+  find_library (LIBWINPTHREAD libwinpthread-1)
+  if (LIBWINPTHREAD)
+    message (STATUS "Found libwinpthread at ${LIBWINPTHREAD}")
+  else ()
+    message (SEND_ERROR "Could not find libwinpthread!")
+  endif ()
+
   find_package (ZLIB REQUIRED)
   if (ZLIB_FOUND)
     message ("ZLIB location is ${ZLIB_LIBRARIES}")
@@ -189,6 +196,7 @@ if (MINGW)
   install (FILES "${CMAKE_BINARY_DIR}/rovergauge.exe"
                   ${LIBGCC}
                   ${LIBSTDCPP}
+                  ${LIBWINPTHREAD}
                   ${QT5CORE_LIB}
                   ${QT5WIDGETS_LIB}
                   ${QT5GUI_LIB}
