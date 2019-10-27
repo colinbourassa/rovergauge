@@ -41,7 +41,9 @@ set (CPACK_SOURCE_IGNORE_FILES
 
 find_package (Qt5Widgets)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
+endif ()
 
 include_directories ("${CMAKE_SOURCE_DIR}"
                      "${CMAKE_SOURCE_DIR}/qledindicator"
@@ -101,6 +103,8 @@ add_executable (rovergauge
     ${UI_SOURCE}
     ${RG_RESOURCE}
     rovergauge.rc)
+
+message (STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
 
 if (MINGW)
   message (STATUS "Found Windows/MinGW platform.")
