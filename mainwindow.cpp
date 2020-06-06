@@ -244,11 +244,11 @@ void MainWindow::setupWidgets()
   unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
   QTableWidgetItem* item = 0;
 
-  for (int col = 0; col < colCount; col++)
+  for (unsigned int col = 0; col < colCount; col++)
   {
     m_ui->m_fuelMapDisplay->setHorizontalHeaderItem(col, new QTableWidgetItem(""));
 
-    for (int row = 0; row < rowCount; row++)
+    for (unsigned int row = 0; row < rowCount; row++)
     {
       item = new QTableWidgetItem("");
       item->setTextAlignment(Qt::AlignCenter);

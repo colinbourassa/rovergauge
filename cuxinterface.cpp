@@ -51,15 +51,15 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
   m_idleMode(false),
   m_injectorPulseWidthUs(0),
   m_injectorPulseWidthMs(0.0),
+  m_tune(0),
+  m_checksumFixer(0),
+  m_ident(0),
   m_romImage(0),
   m_speedUnits(sUnits),
   m_tempUnits(tUnits),
   m_fuelMapRefresh(fuelMapRefresh),
   m_initComplete(false),
-  m_rpmLimitRead(false),
-  m_tune(0),
-  m_checksumFixer(0),
-  m_ident(0)
+  m_rpmLimitRead(false)
 {
   for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
   {
