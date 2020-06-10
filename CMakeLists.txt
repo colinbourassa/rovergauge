@@ -66,8 +66,6 @@ add_executable (rovergauge
     main.cpp
     cuxinterface.cpp
     cuxinterface.h
-    simulationmodedialog.cpp
-    simulationmodedialog.h
     helpviewer.cpp
     helpviewer.h
     idleaircontroldialog.cpp
@@ -140,11 +138,11 @@ if (MINGW)
     message (SEND_ERROR "Could not find libwinpthread!")
   endif ()
 
-  find_package (ZLIB REQUIRED)
-  if (ZLIB_FOUND)
-    message ("ZLIB location is ${ZLIB_LIBRARIES}")
+  find_library (LIBZSTD libzstd)
+  if (LIBZSTD)
+    message (STATUS "libzstd location is ${LIBZSTD}")
   else ()
-    message (SEND_ERROR "Could not find zlib1!")
+    message (SEND_ERROR "Could not find libzstd!")
   endif ()
 
   find_package (Qt5 COMPONENTS Core Widgets REQUIRED)
@@ -205,10 +203,10 @@ if (MINGW)
                   ${QT5WIDGETS_LIB}
                   ${QT5GUI_LIB}
                   ${COMM14CUX_DLL}
-                  ${ZLIB_LIBRARIES}
+                  ${LIBZSTD}
            DESTINATION ".")
   install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
-  install (FILES ${QT5WINDOWS_LIB}      DESTINATION "platforms")
+  install (FILES ${QT5WINDOWS_LIB} DESTINATION "platforms")
   if (QT5WINDOWSVISTA_LIB)
     install (FILES ${QT5WINDOWSVISTA_LIB} DESTINATION "styles")
   endif ()
