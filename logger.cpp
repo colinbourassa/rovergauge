@@ -48,7 +48,7 @@ bool Logger::openLog(QString fileName)
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                            "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                            "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << endl;
+                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << Qt::endl;
       }
 
       success = true;
@@ -79,7 +79,7 @@ bool Logger::openLog(QString fileName)
             }
           }
 
-          m_staticLogFileStream << endl;
+          m_staticLogFileStream << Qt::endl;
         }
       }
     }
@@ -134,7 +134,7 @@ void Logger::logData()
                     << m_cux->getLambdaTrimOdd() << ","
                     << m_cux->getLambdaTrimEven() << ","
                     << m_cux->getInjectorPulseWidthMs()
-                    << endl;
+                    << Qt::endl;
   }
 
   if (!m_staticDataLogged &&
@@ -167,13 +167,13 @@ void Logger::logStaticData(unsigned int fuelMapId)
     }
 
     m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-      << uppercasedigits
+      << Qt::uppercasedigits
       << m_cux->getTune() << ","
-      << hex << m_cux->getIdent() << ","
-      << hex << m_cux->getChecksumFixer() << ","
-      << dec << fuelMapId << ","
-      << hex << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-      << hex << m_cux->getRowScaler(fuelMapId) << ","
+      << Qt::hex << m_cux->getIdent() << ","
+      << Qt::hex << m_cux->getChecksumFixer() << ","
+      << Qt::dec << fuelMapId << ","
+      << Qt::hex << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
+      << Qt::hex << m_cux->getRowScaler(fuelMapId) << ","
       << m_cux->getMAFRowScaler() << ","
       << mafCoTrim;
 
@@ -190,7 +190,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
       }
     }
 
-    m_staticLogFileStream << endl;
+    m_staticLogFileStream << Qt::endl;
   }
 }
 

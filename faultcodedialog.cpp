@@ -82,7 +82,7 @@ void FaultCodeDialog::setupWidgets()
 
   QLedIndicator* currentLed;
   QLabel* currentLabel;
-  QList<FaultCode> faultTypes = m_faultNames.uniqueKeys();
+  const QList<FaultCode> faultTypes = m_faultNames.keys();
   int position = 0;
   foreach(FaultCode fault, faultTypes)
   {

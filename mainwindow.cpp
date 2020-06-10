@@ -252,7 +252,7 @@ void MainWindow::setupWidgets()
     {
       item = new QTableWidgetItem("");
       item->setTextAlignment(Qt::AlignCenter);
-      item->setFlags(0);
+      item->setFlags(Qt::NoItemFlags);
       m_ui->m_fuelMapDisplay->setItem(row, col, item);
     }
   }
@@ -478,8 +478,8 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
           byte = data->at(row * colCount + col);
 
           item->setText(QString("%1").arg(byte, 2, 16, QChar('0')).toUpper());
-          item->setBackgroundColor(getColorForFuelMapCell(byte));
-          item->setTextColor(Qt::black);
+          item->setBackground(getColorForFuelMapCell(byte));
+          item->setForeground(Qt::black);
         }
       }
     }
@@ -693,16 +693,12 @@ void MainWindow::highlightActiveFuelMapCells()
 
   if (m_options->getSoftHighlight())
   {
-    int idx;
-    QColor currentColor;
-    QColor newColor;
-
     // Compute the distribution of shading that should be applied left/right
     // and top/bottom to the block of four cells.
-    float leftPercent = 1.0 - (colWeight / 15.0);
-    float rightPercent = 1.0 - leftPercent;
-    float topPercent = 1.0 - (rowWeight / 15.0);
-    float bottomPercent = 1.0 - topPercent;
+    const float leftPercent = 1.0 - (colWeight / 15.0);
+    const float rightPercent = 1.0 - leftPercent;
+    const float topPercent = 1.0 - (rowWeight / 15.0);
+    const float bottomPercent = 1.0 - topPercent;
 
     float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
 
@@ -719,16 +715,19 @@ void MainWindow::highlightActiveFuelMapCells()
     m_lastHighlightedFuelMapCell[2] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol);
     m_lastHighlightedFuelMapCell[3] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol + 1);
 
-    for (idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+    for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
     {
       if (m_lastHighlightedFuelMapCell[idx] != 0)
       {
-        currentColor = m_lastHighlightedFuelMapCell[idx]->backgroundColor();
+        QColor currentColor;
+        QColor newColor;
+
+        currentColor = m_lastHighlightedFuelMapCell[idx]->background().color();
         newColor.setRgb(currentColor.red() * shadePercentage[idx],
                         currentColor.green() * shadePercentage[idx],
                         currentColor.blue() * shadePercentage[idx]);
-        m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(newColor);
-        m_lastHighlightedFuelMapCell[idx]->setTextColor((newColor.value() > 128) ? Qt::black : Qt::white);
+        m_lastHighlightedFuelMapCell[idx]->setBackground(newColor);
+        m_lastHighlightedFuelMapCell[idx]->setForeground((newColor.value() > 128) ? Qt::black : Qt::white);
       }
     }
   }
@@ -762,8 +761,8 @@ void MainWindow::highlightActiveFuelMapCells()
     m_lastHighlightedFuelMapCell[2] = 0;
     m_lastHighlightedFuelMapCell[3] = 0;
 
-    m_lastHighlightedFuelMapCell[0]->setBackgroundColor(Qt::black);
-    m_lastHighlightedFuelMapCell[0]->setTextColor(Qt::white);
+    m_lastHighlightedFuelMapCell[0]->setBackground(Qt::black);
+    m_lastHighlightedFuelMapCell[0]->setForeground(Qt::white);
   }
 }
 
@@ -782,8 +781,8 @@ void MainWindow::removeFuelMapCellHighlight()
 
       if (ok)
       {
-        m_lastHighlightedFuelMapCell[idx]->setBackgroundColor(getColorForFuelMapCell(value));
-        m_lastHighlightedFuelMapCell[idx]->setTextColor(Qt::black);
+        m_lastHighlightedFuelMapCell[idx]->setBackground(getColorForFuelMapCell(value));
+        m_lastHighlightedFuelMapCell[idx]->setForeground(Qt::black);
       }
     }
   }
@@ -1243,7 +1242,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
         m_pleaseWaitBox = new QMessageBox(
           QMessageBox::Information, "In Progress",
           QString("Please wait while the ROM image is read.\n\n"),
-          0, this, Qt::Dialog);
+          QMessageBox::Ok, this, Qt::Dialog);
         m_pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
         connect(m_pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onROMReadCancelled()));
       }
