@@ -1,6 +1,19 @@
+#include <QtGlobal>
 #include <QDir>
 #include <QDateTime>
 #include "logger.h"
+
+#if ((QT_VERSION_MAJOR >= 5) && (QT_VERSION_MINOR >= 15))
+  #define LINE_END Qt::endl
+  #define HEX_FMT Qt::hex
+  #define DEC_FMT Qt::dec
+  #define UCASE_FMT Qt::uppercasedigits
+#else
+  #define LINE_END endl;
+  #define HEX_FMT hex
+  #define DEC_FMT dec
+  #define UCASE_FMT uppercasedigits
+#endif
 
 /**
  * Constructor. Sets the 14CUX interface class pointer as
@@ -48,7 +61,7 @@ bool Logger::openLog(QString fileName)
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                            "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                            "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << Qt::endl;
+                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << LINE_END;
       }
 
       success = true;
@@ -79,7 +92,7 @@ bool Logger::openLog(QString fileName)
             }
           }
 
-          m_staticLogFileStream << Qt::endl;
+          m_staticLogFileStream << LINE_END;
         }
       }
     }
@@ -134,7 +147,7 @@ void Logger::logData()
                     << m_cux->getLambdaTrimOdd() << ","
                     << m_cux->getLambdaTrimEven() << ","
                     << m_cux->getInjectorPulseWidthMs()
-                    << Qt::endl;
+                    << LINE_END;
   }
 
   if (!m_staticDataLogged &&
@@ -167,13 +180,13 @@ void Logger::logStaticData(unsigned int fuelMapId)
     }
 
     m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-      << Qt::uppercasedigits
+      << UCASE_FMT
       << m_cux->getTune() << ","
-      << Qt::hex << m_cux->getIdent() << ","
-      << Qt::hex << m_cux->getChecksumFixer() << ","
-      << Qt::dec << fuelMapId << ","
-      << Qt::hex << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-      << Qt::hex << m_cux->getRowScaler(fuelMapId) << ","
+      << HEX_FMT << m_cux->getIdent() << ","
+      << HEX_FMT << m_cux->getChecksumFixer() << ","
+      << DEC_FMT << fuelMapId << ","
+      << HEX_FMT << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
+      << HEX_FMT << m_cux->getRowScaler(fuelMapId) << ","
       << m_cux->getMAFRowScaler() << ","
       << mafCoTrim;
 
@@ -190,7 +203,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
       }
     }
 
-    m_staticLogFileStream << Qt::endl;
+    m_staticLogFileStream << LINE_END;
   }
 }
 
