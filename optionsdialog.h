@@ -36,6 +36,11 @@ public:
     return m_softHighlight;
   }
 
+  inline int getDisplayNumberBase() const
+  {
+    return m_displayNumberBase;
+  }
+
   inline SpeedUnits getSpeedUnits() const
   {
     return m_speedUnits;
@@ -99,6 +104,7 @@ private:
   bool m_speedoAdjust;
   double m_speedoMultiplier;
   int m_speedoOffset;
+  int m_displayNumberBase;
 
   const QString m_settingsFileName;
   const QString m_settingsGroupName;
@@ -107,6 +113,7 @@ private:
   const QString m_settingRefreshFuelMap;
   const QString m_settingSoftHighlight;
   const QString m_settingSpeedUnits;
+  const QString m_settingDisplayNumBase;
   const QString m_settingTemperatureUnits;
   const QString m_settingSpeedoAdjust;
   const QString m_settingSpeedoMultiplier;

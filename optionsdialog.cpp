@@ -8,20 +8,20 @@
  * Constructor; sets up the options-dialog UI and sets settings-file field names.
  */
 OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
+  m_ui(new Ui::OptionsDialog),
   m_serialDeviceChanged(false),
   m_settingsGroupName("Settings"),
   m_settingSerialDev("SerialDevice"),
   m_settingRefreshFuelMap("RefreshFuelMap"),
   m_settingSoftHighlight("SoftHighlight"),
   m_settingSpeedUnits("SpeedUnits"),
+  m_settingDisplayNumBase("FuelMapDisplayNumberBase"),
   m_settingTemperatureUnits("TemperatureUnits"),
   m_settingSpeedoAdjust("SpeedometerAdjustment"),
   m_settingSpeedoMultiplier("SpeedometerMultiplier"),
-  m_settingSpeedoOffset("SpeedometerOffset"),
-  m_ui(new Ui::OptionsDialog)
+  m_settingSpeedoOffset("SpeedometerOffset")
 {
   m_ui->setupUi(this);
-  this->setLayout(m_ui->m_mainLayout);
 
   m_sampleTypeNames[SampleType_EngineTemperature] = "SampleType_EngineTemperature";
   m_sampleTypeNames[SampleType_RoadSpeed] = "SampleType_RoadSpeed";
@@ -90,22 +90,16 @@ void OptionsDialog::setupWidgets()
   unsigned char column = 0;
   unsigned char row = 0;
   unsigned char checkboxIndex = 0;
-  unsigned char numCheckboxesPerColumn;
 
-  foreach(SampleType sType, m_sampleTypeNames.keys())
+  foreach(const SampleType sType, m_sampleTypeNames.keys())
   {
     m_enabledSamplesBoxes.insert(sType, new QCheckBox(m_sampleTypeLabels[sType], this));
   }
-  numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
+
+  const unsigned char numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
 
   SerialDevEnumerator serialDevs;
   m_ui->m_serialDeviceBox->addItems(serialDevs.getSerialDevList(m_serialDeviceName));
-
-  m_ui->m_speedUnitsBox->addItem("MPH");
-  m_ui->m_speedUnitsBox->addItem("km/h");
-
-  m_ui->m_temperatureUnitsBox->addItem("Fahrenheit");
-  m_ui->m_temperatureUnitsBox->addItem("Celsius");
 
   setWidgetValues();
 
@@ -136,6 +130,8 @@ void OptionsDialog::setWidgetValues()
   m_ui->m_serialDeviceBox->setCurrentText(m_serialDeviceName);
   m_ui->m_speedUnitsBox->setCurrentIndex((int)m_speedUnits);
   m_ui->m_temperatureUnitsBox->setCurrentIndex((int)m_tempUnits);
+  // set to combo box index 0 for decimal, index 1 otherwise (since hex is the only other option)
+  m_ui->m_fuelMapDispBaseBox->setCurrentIndex((m_displayNumberBase == 10) ? 0 : 1);
 
   m_ui->m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
   m_ui->m_softHighlightCheckbox->setChecked(m_softHighlight);
@@ -160,7 +156,7 @@ void OptionsDialog::toggledSpeedoAdjust(bool value)
 
 void OptionsDialog::checkAll()
 {
-  foreach(QCheckBox * box, m_enabledSamplesBoxes)
+  foreach(QCheckBox* box, m_enabledSamplesBoxes)
   {
     box->setChecked(true);
   }
@@ -168,7 +164,7 @@ void OptionsDialog::checkAll()
 
 void OptionsDialog::uncheckAll()
 {
-  foreach(QCheckBox * box, m_enabledSamplesBoxes)
+  foreach(QCheckBox* box, m_enabledSamplesBoxes)
   {
     box->setChecked(false);
   }
@@ -179,7 +175,7 @@ void OptionsDialog::uncheckAll()
  */
 void OptionsDialog::accept()
 {
-  QString newSerialDeviceName = m_ui->m_serialDeviceBox->currentText();
+  const QString newSerialDeviceName = m_ui->m_serialDeviceBox->currentText();
 
   // set a flag if the serial device has been changed;
   // the main application needs to know if it should
@@ -201,6 +197,10 @@ void OptionsDialog::accept()
   m_speedoAdjust     = m_ui->m_adjustSpeedoCheckbox->isChecked();
   m_speedoMultiplier = m_ui->m_speedoMultiplierSpinbox->value();
   m_speedoOffset     = m_ui->m_speedoOffsetSpinbox->value();
+
+  // display number based (used for rendering fuel map cell data:
+  // first entry in list is 'decimal', otherwise use hex
+  m_displayNumberBase = (m_ui->m_fuelMapDispBaseBox->currentIndex() == 0) ? 10 : 16;
 
   foreach(SampleType sType, m_sampleTypeNames.keys())
   {
@@ -237,6 +237,7 @@ void OptionsDialog::readSettings()
   m_serialDeviceName = settings.value(m_settingSerialDev, "").toString();
   m_speedUnits = (SpeedUnits)(settings.value(m_settingSpeedUnits, MPH).toInt());
   m_tempUnits = (TemperatureUnits)(settings.value(m_settingTemperatureUnits, Fahrenheit).toInt());
+  m_displayNumberBase = settings.value(m_settingDisplayNumBase, 16).toInt();
   m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
   m_softHighlight = settings.value(m_settingSoftHighlight, false).toBool();
   m_speedoAdjust = settings.value(m_settingSpeedoAdjust, false).toBool();
@@ -267,6 +268,7 @@ void OptionsDialog::writeSettings()
   settings.setValue(m_settingSerialDev, m_serialDeviceName);
   settings.setValue(m_settingSpeedUnits, m_speedUnits);
   settings.setValue(m_settingTemperatureUnits, m_tempUnits);
+  settings.setValue(m_settingDisplayNumBase, m_displayNumberBase);
   settings.setValue(m_settingRefreshFuelMap, m_refreshFuelMap);
   settings.setValue(m_settingSoftHighlight, m_softHighlight);
   settings.setValue(m_settingSpeedoAdjust, m_speedoAdjust);

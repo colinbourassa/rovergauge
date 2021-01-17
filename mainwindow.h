@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <QShortcut>
 #include <QGraphicsOpacityEffect>
+#include <QMutex>
 #include <analogwidgets/manometer.h>
 #include <qledindicator/qledindicator.h>
 #include "optionsdialog.h"
@@ -93,6 +94,8 @@ private:
   SimulationModeDialog* m_simDialog;
 #endif
 
+  //! Mutex to ensure exclusive access to the grid display for the fuel map
+  QMutex m_fuelMapRedrawMutex;
   QTimer* m_fuelPumpRefreshTimer;
   QThread* m_cuxThread;
   CUXInterface* m_cux;
@@ -137,7 +140,8 @@ private:
   void buildSpeedAndTempUnitTables();
   void setupWidgets();
   void populateFuelMapDisplay(const QByteArray *data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
-  QColor getColorForFuelMapCell(unsigned char value);
+  void redrawFuelMapGrid(const int lastBase, const int newBase);
+  QColor getColorForFuelMapCell(unsigned char value) const;
   void highlightActiveFuelMapCells();
   void removeFuelMapCellHighlight();
   void sendROMImageRequest(QString prompt);

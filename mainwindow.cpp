@@ -240,8 +240,8 @@ void MainWindow::setupWidgets()
   m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 11pt; }");
   m_ui->m_fuelMapDisplay->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   m_ui->m_fuelMapDisplay->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
-  unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
+  const unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
+  const unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
   QTableWidgetItem* item = 0;
 
   for (unsigned int col = 0; col < colCount; col++)
@@ -260,7 +260,7 @@ void MainWindow::setupWidgets()
   m_ui->m_logFileNameBox->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"));
   m_ui->m_injectorDutyCycleBar->setAlignment(Qt::AlignCenter);
 
-  SpeedUnits speedUnit = m_options->getSpeedUnits();
+  const SpeedUnits speedUnit = m_options->getSpeedUnits();
 
   m_ui->m_speedo->setMinimum(0.0);
 
@@ -285,9 +285,9 @@ void MainWindow::setupWidgets()
   m_ui->m_revCounter->setNominal(100000.0);
   m_ui->m_revCounter->setCritical(8000);
 
-  TemperatureUnits tempUnits = m_options->getTemperatureUnits();
-  int tempMin = m_tempRange->value(tempUnits).first;
-  int tempMax = m_tempRange->value(tempUnits).second;
+  const TemperatureUnits tempUnits = m_options->getTemperatureUnits();
+  const int tempMin = m_tempRange->value(tempUnits).first;
+  const int tempMax = m_tempRange->value(tempUnits).second;
 
   m_ui->m_waterTempGauge->setValue(tempMin);
   m_ui->m_waterTempGauge->setMaximum(tempMax);
@@ -458,12 +458,17 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
 {
   if (data != 0)
   {
-    int rowCount = m_ui->m_fuelMapDisplay->rowCount();
-    int colCount = m_ui->m_fuelMapDisplay->columnCount();
+    const int rowCount = m_ui->m_fuelMapDisplay->rowCount();
+    const int colCount = m_ui->m_fuelMapDisplay->columnCount();
     QTableWidgetItem* item = 0;
     unsigned char byte = 0;
 
     removeFuelMapCellHighlight();
+
+    // if the user happens to change the number base used to
+    // display the fuel map at the same time fuel map data is
+    // coming in, lock access to prevent unpredictable behavior
+    m_fuelMapRedrawMutex.lock();
 
     // populate all the cells with the data for this map
     for (int row = 0; row < rowCount; row++)
@@ -477,12 +482,21 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
           // retrieve the fuel map value at the current row/col
           byte = data->at(row * colCount + col);
 
-          item->setText(QString("%1").arg(byte, 2, 16, QChar('0')).toUpper());
+          if (m_options->getDisplayNumberBase() == 16)
+          {
+            item->setText(QString("%1").arg(byte, 2, 16, QChar('0')).toUpper());
+          }
+          else if (m_options->getDisplayNumberBase() == 10)
+          {
+            item->setText(QString("%1").arg(byte));
+          }
           item->setBackground(getColorForFuelMapCell(byte));
           item->setForeground(Qt::black);
         }
       }
     }
+
+    m_fuelMapRedrawMutex.unlock();
 
     QString label = QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper();
     m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + label);
@@ -492,6 +506,45 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
 
     highlightActiveFuelMapCells();
   }
+}
+
+/**
+ * Redraws the fuel map grid by interpreting the contents of each cell in
+ * the old number base, and rewriting the value in the new number base.
+ * Supported are hex and decimal. Arbitrary bases are not supported because
+ * we use specific formatting rules for each.
+ */
+void MainWindow::redrawFuelMapGrid(const int lastBase, const int newBase)
+{
+  const int rowCount = m_ui->m_fuelMapDisplay->rowCount();
+  const int colCount = m_ui->m_fuelMapDisplay->columnCount();
+
+  m_fuelMapRedrawMutex.lock();
+
+  for (int row = 0; row < rowCount; row++)
+  {
+    for (int col = 0; col < colCount; col++)
+    {
+      QTableWidgetItem* const item = m_ui->m_fuelMapDisplay->item(row, col);
+
+      bool ok = false;
+      const unsigned char byte = item->text().toInt(&ok, lastBase);
+      if (ok)
+      {
+        // specific formatting rules for each of hex and decimal
+        if (newBase == 16)
+        {
+          item->setText(QString("%1").arg(byte, 2, newBase, QChar('0')).toUpper());
+        }
+        else if (newBase == 10)
+        {
+          item->setText(QString("%1").arg(byte));
+        }
+      }
+    }
+  }
+
+  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
@@ -691,6 +744,8 @@ void MainWindow::highlightActiveFuelMapCells()
   int rowWeight = m_cux->getFuelMapRowWeighting();
   int colWeight = m_cux->getFuelMapColWeighting();
 
+  m_fuelMapRedrawMutex.lock();
+
   if (m_options->getSoftHighlight())
   {
     // Compute the distribution of shading that should be applied left/right
@@ -764,6 +819,8 @@ void MainWindow::highlightActiveFuelMapCells()
     m_lastHighlightedFuelMapCell[0]->setBackground(Qt::black);
     m_lastHighlightedFuelMapCell[0]->setForeground(Qt::white);
   }
+
+  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
@@ -772,12 +829,16 @@ void MainWindow::highlightActiveFuelMapCells()
  */
 void MainWindow::removeFuelMapCellHighlight()
 {
+  const int curNumBase = m_options->getDisplayNumberBase();
+
+  m_fuelMapRedrawMutex.lock();
+
   for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
   {
     if (m_lastHighlightedFuelMapCell[idx] != 0)
     {
       bool ok = false;
-      unsigned char value = (unsigned char)(m_lastHighlightedFuelMapCell[idx]->text().toInt(&ok, 16));
+      unsigned char value = (unsigned char)(m_lastHighlightedFuelMapCell[idx]->text().toInt(&ok, curNumBase));
 
       if (ok)
       {
@@ -786,12 +847,14 @@ void MainWindow::removeFuelMapCellHighlight()
       }
     }
   }
+
+  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
  * Generates a color whose intensity corresponds to a fueling value
  */
-QColor MainWindow::getColorForFuelMapCell(unsigned char value)
+QColor MainWindow::getColorForFuelMapCell(unsigned char value) const
 {
   return QColor::fromRgb(255, (value / 2 * -1) + 255, 255.0 - value);
 }
@@ -803,11 +866,13 @@ QColor MainWindow::getColorForFuelMapCell(unsigned char value)
  */
 void MainWindow::onEditOptionsClicked()
 {
+  const int lastBase = m_options->getDisplayNumberBase();
+
   // if the user doesn't cancel the options dialog...
   if (m_options->exec() == QDialog::Accepted)
   {
     // update the speedo appropriately
-    SpeedUnits speedUnit = m_options->getSpeedUnits();
+    const SpeedUnits speedUnit = m_options->getSpeedUnits();
 
     if (speedUnit == MPH)
     {
@@ -823,13 +888,19 @@ void MainWindow::onEditOptionsClicked()
 
     setSpeedoLabel();
 
-    TemperatureUnits tempUnits = m_options->getTemperatureUnits();
-    QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
+    // if the number base for the fuel map changed, redraw it with the new base
+    if (m_options->getDisplayNumberBase() != lastBase)
+    {
+      redrawFuelMapGrid(lastBase, m_options->getDisplayNumberBase());
+    }
 
-    int tempMin = m_tempRange->value(tempUnits).first;
-    int tempMax = m_tempRange->value(tempUnits).second;
-    int tempNominal = m_tempLimits->value(tempUnits).first;
-    int tempCritical = m_tempLimits->value(tempUnits).second;
+    const TemperatureUnits tempUnits = m_options->getTemperatureUnits();
+    const QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
+
+    const int tempMin = m_tempRange->value(tempUnits).first;
+    const int tempMax = m_tempRange->value(tempUnits).second;
+    const int tempNominal = m_tempLimits->value(tempUnits).first;
+    const int tempCritical = m_tempLimits->value(tempUnits).second;
 
     m_ui->m_fuelTempGauge->setSuffix(tempUnitStr);
     m_ui->m_fuelTempGauge->setValue(tempMin);
@@ -852,7 +923,7 @@ void MainWindow::onEditOptionsClicked()
     // The fields are updated one at a time, because a replacement of the entire
     // hash table (using the assignment operator) can disrupt other threads that
     // are reading the table at that time
-    QMap<SampleType, bool> samples = m_options->getEnabledSamples();
+    const QMap<SampleType, bool> samples = m_options->getEnabledSamples();
     foreach(SampleType field, samples.keys())
     {
       if (samples.keys().contains(field))
@@ -1423,7 +1494,7 @@ void MainWindow::onRPMLimitReady(int rpmLimit)
  */
 void MainWindow::onRPMTableReady()
 {
-  c14cux_rpmtable table = m_cux->getRPMTable();
+  const c14cux_rpmtable table = m_cux->getRPMTable();
 
   for (int col = 0; col < FUEL_MAP_COLUMNS; col++)
   {
