@@ -465,11 +465,6 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
 
     removeFuelMapCellHighlight();
 
-    // if the user happens to change the number base used to
-    // display the fuel map at the same time fuel map data is
-    // coming in, lock access to prevent unpredictable behavior
-    m_fuelMapRedrawMutex.lock();
-
     // populate all the cells with the data for this map
     for (int row = 0; row < rowCount; row++)
     {
@@ -496,55 +491,25 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
       }
     }
 
-    m_fuelMapRedrawMutex.unlock();
+    if (m_options->getDisplayNumberBase() == 16)
+    {
+      QString label = QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper();
+      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + label);
 
-    QString label = QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper();
-    m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + label);
+      label = QString("%1").arg(rowScaler, 0, 16).toUpper();
+      m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x") + label);
+    }
+    else if (m_options->getDisplayNumberBase() == 10)
+    {
+      QString label = QString("%1").arg(fuelMapMultiplier);
+      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: ") + label);
 
-    label = QString("%1").arg(rowScaler, 0, 16).toUpper();
-    m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x") + label);
+      label = QString("%1").arg(rowScaler);
+      m_ui->m_rowScalerLabel->setText(QString("Row scaler: ") + label);
+    }
 
     highlightActiveFuelMapCells();
   }
-}
-
-/**
- * Redraws the fuel map grid by interpreting the contents of each cell in
- * the old number base, and rewriting the value in the new number base.
- * Supported are hex and decimal. Arbitrary bases are not supported because
- * we use specific formatting rules for each.
- */
-void MainWindow::redrawFuelMapGrid(const int lastBase, const int newBase)
-{
-  const int rowCount = m_ui->m_fuelMapDisplay->rowCount();
-  const int colCount = m_ui->m_fuelMapDisplay->columnCount();
-
-  m_fuelMapRedrawMutex.lock();
-
-  for (int row = 0; row < rowCount; row++)
-  {
-    for (int col = 0; col < colCount; col++)
-    {
-      QTableWidgetItem* const item = m_ui->m_fuelMapDisplay->item(row, col);
-
-      bool ok = false;
-      const unsigned char byte = item->text().toInt(&ok, lastBase);
-      if (ok)
-      {
-        // specific formatting rules for each of hex and decimal
-        if (newBase == 16)
-        {
-          item->setText(QString("%1").arg(byte, 2, newBase, QChar('0')).toUpper());
-        }
-        else if (newBase == 10)
-        {
-          item->setText(QString("%1").arg(byte));
-        }
-      }
-    }
-  }
-
-  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
@@ -744,8 +709,6 @@ void MainWindow::highlightActiveFuelMapCells()
   int rowWeight = m_cux->getFuelMapRowWeighting();
   int colWeight = m_cux->getFuelMapColWeighting();
 
-  m_fuelMapRedrawMutex.lock();
-
   if (m_options->getSoftHighlight())
   {
     // Compute the distribution of shading that should be applied left/right
@@ -819,8 +782,6 @@ void MainWindow::highlightActiveFuelMapCells()
     m_lastHighlightedFuelMapCell[0]->setBackground(Qt::black);
     m_lastHighlightedFuelMapCell[0]->setForeground(Qt::white);
   }
-
-  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
@@ -830,8 +791,6 @@ void MainWindow::highlightActiveFuelMapCells()
 void MainWindow::removeFuelMapCellHighlight()
 {
   const int curNumBase = m_options->getDisplayNumberBase();
-
-  m_fuelMapRedrawMutex.lock();
 
   for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
   {
@@ -847,8 +806,6 @@ void MainWindow::removeFuelMapCellHighlight()
       }
     }
   }
-
-  m_fuelMapRedrawMutex.unlock();
 }
 
 /**
@@ -866,8 +823,6 @@ QColor MainWindow::getColorForFuelMapCell(unsigned char value) const
  */
 void MainWindow::onEditOptionsClicked()
 {
-  const int lastBase = m_options->getDisplayNumberBase();
-
   // if the user doesn't cancel the options dialog...
   if (m_options->exec() == QDialog::Accepted)
   {
@@ -887,12 +842,6 @@ void MainWindow::onEditOptionsClicked()
     m_ui->m_speedo->repaint();
 
     setSpeedoLabel();
-
-    // if the number base for the fuel map changed, redraw it with the new base
-    if (m_options->getDisplayNumberBase() != lastBase)
-    {
-      redrawFuelMapGrid(lastBase, m_options->getDisplayNumberBase());
-    }
 
     const TemperatureUnits tempUnits = m_options->getTemperatureUnits();
     const QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
