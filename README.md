@@ -1,0 +1,59 @@
+# RoverGauge
+
+![RoverGauge screenshot](docs/rovergauge-0.10.7.png)
+
+RoverGauge is a graphical display and diagnostic tool that reads runtime data from a Lucas 14CUX engine management system. The 14CUX was paired with the Rover V8 engine in Land Rover vehicles from 1990 to 1995, and also in sports cars made by low-volume automakers (TVR, Morgan, etc.) throughout the 1990s.
+
+RoverGauge depends on another piece of software that I wrote, libcomm14cux. Each of these two projects has its own GitHub repository:
+
+ - https://github.com/colinbourassa/rovergauge
+ - https://github.com/colinbourassa/libcomm14cux
+
+## License
+
+RoverGauge is licensed under the GPL v3. See the file "LICENSE" for details.
+
+## Disclaimer
+
+While this software has been shown to be reliable and is provided in good faith, it is provided with ABSOLUTELY NO WARRANTY.
+
+## Installing and running
+
+If you're running Windows, the simplest way to get started is to download the Win32 binary archive. Most people will probably want to do this. If you have a 64-bit version of Windows, get the file with ``Windows-x86_64`` in the name; for 32-bit, get ``Windows-i686``. The archive contains the RoverGauge executable, Qt libraries, and libcomm14cux library, all of which are required to run.
+
+If you're running Linux, you can get a Debian package (.DEB) for your system's architecture.
+
+It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3 or newer) as well as version 5.x of the Qt SDK.
+
+ - https://github.com/colinbourassa/rovergauge/releases/latest
+
+## Usage and features
+
+For RoverGauge to do anything useful, the computer on which it's running must be connected to the serial port in the 14CUX wiring harness. This requires building a custom cable using one of FTDI's USB-to-RS232 converters. You can find the details in this article:
+
+ - https://github.com/colinbourassa/libcomm14cux/blob/wiki/HardwareInterface.md
+
+When the USB FTDI device is connected to the PC, its driver will present it as a COM port if using Windows, or a /dev node if using Linux. Enter the name of the device (such as "COM3") in the "Serial device name" field of the "Edit settings" dialog, under the "Options" menu. (The software will attempt to populate the list of serial devices automatically, so that you can simply select it from the drop-down box.)
+
+Once the device name is set and the 14CUX is running, use the "Connect" button in the upper left of the main window to open the serial port and begin reading data. The "Communications" lights in the upper right will show the status: green if everything is working and the 14CUX is responding to read requests, or
+red if there's a problem. The red light will be lit if the 14CUX is off, if the serial cable wasn't wired correctly, or if the wrong COM port was chosen.
+
+To access the online help about the data displayed by RoverGauge, open the "Help" menu and select "Contents..."
+
+## FAQ
+
+Q: Is this an alternative to OBD-II code readers or OBD-II diagnostic software?
+
+A: No. The 14CUX system doesn't conform to the OBD-II standard. This software uses a library that I wrote specifically to communicate with the 14CUX, using the ECU's unusual baud rate and proprietary software protocol. The details of all of this were discovered through reverse-engineering the code in the 14CUX ROM.
+
+
+Q: Can this software be used to modify the code or data in the ECU (such as the fuel maps)?
+
+A: Unfortunately, no. When the ECU is running, it reads fueling values from the ROM. Modifying the ROM requires removing and reprogramming the chip.
+
+## Notes on building from source for Win32 target
+
+The most straightforward way to build from source is by using the M Cross Environment (MXE, http://mxe.cc). Within this environment, both Qt5 and libcomm14cux can be built for a Win32 target. The 'mxe-build.sh' script included with the RoverGauge source can then be called with the path to MXE. It will run CMake with the appropriate parameters.
+
+Note that the packaging portion of CMakeLists.txt does not take into account any run time (DLL) dependencies beyond Qt5Core, Qt5Widgets, Qt5Gui, zlib, and the C and C++ standard libs. If you build against an installation of Qt with support for other features (ICU, libpng, Freetype, etc.), you may find that the resulting RoverGauge .zip file does not include all the required DLLs.
+
