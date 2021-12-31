@@ -192,7 +192,7 @@ if (MINGW)
   target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt5::Widgets)
 
   # convert Unix-style newline characters into Windows-style
-  configure_file ("${CMAKE_SOURCE_DIR}/README" "${CMAKE_BINARY_DIR}/README.TXT" NEWLINE_STYLE WIN32)
+  configure_file ("${CMAKE_SOURCE_DIR}/README.md" "${CMAKE_BINARY_DIR}/README.TXT" NEWLINE_STYLE WIN32)
   configure_file ("${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/LICENSE.TXT" NEWLINE_STYLE WIN32)
 
   install (FILES "${CMAKE_BINARY_DIR}/rovergauge.exe"
@@ -239,7 +239,7 @@ else()
             GROUP_READ GROUP_EXECUTE
             WORLD_READ WORLD_EXECUTE)
 
-  install (FILES "${CMAKE_SOURCE_DIR}/README"
+  install (FILES "${CMAKE_SOURCE_DIR}/README.md"
                  "${CMAKE_SOURCE_DIR}/LICENSE"
            DESTINATION "share/doc/rovergauge"
            PERMISSIONS
@@ -263,7 +263,7 @@ else()
   set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.13), libstdc++6 (>= 4.6.3), libcomm14cux (>= 2.1.0), libqt5core5 (>= 5.8.0) | libqt5core5a (>= 5.8.0), libqt5gui5 (>= 5.8.0), libqt5widgets5 (>= 5.8.0)")
   set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-${CMAKE_SYSTEM_NAME}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
   set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-  set (CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README")
+  set (CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
   include(CPack)
 
