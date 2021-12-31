@@ -92,11 +92,10 @@ To access the online help about the data displayed by RoverGauge, open the "Help
 
 ## FAQ
 
-Q: Is this an alternative to OBD-II code readers or OBD-II diagnostic software?
+Q: Is this an alternative to OBD-II code readers or OBD-II diagnostic software?  
 A: No. The 14CUX system doesn't conform to the OBD-II standard. This software uses a library that I wrote specifically to communicate with the 14CUX, using the ECU's unusual baud rate and proprietary software protocol. The details of all of this were discovered through reverse-engineering the code in the 14CUX ROM.
 
-
-Q: Can this software be used to modify the code or data in the ECU (such as the fuel maps)?
+Q: Can this software be used to modify the code or data in the ECU (such as the fuel maps)?  
 A: Unfortunately, no. When the ECU is running, it reads fueling values from the ROM. Modifying the ROM requires removing and reprogramming the chip.
 
 ## Notes on building RoverGauge from source for Win32 target
