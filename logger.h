@@ -11,7 +11,7 @@
 class Logger
 {
 public:
-  Logger(CUXInterface* cuxIFace, OptionsDialog* options);
+  Logger(CUXInterface& cuxIFace, OptionsDialog& options);
   bool openLog(QString fileName);
   void closeLog();
   void logData();
@@ -23,8 +23,8 @@ private:
   bool m_fuelMapDataIsReady;
   bool m_miscStaticDataIsReady;
   unsigned int m_fuelMapId;
-  CUXInterface* m_cux;
-  OptionsDialog* m_options;
+  CUXInterface& m_cux;
+  OptionsDialog& m_options;
   QString m_logExtension;
   QString m_logDir;
   QFile m_logFile;

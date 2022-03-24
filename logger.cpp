@@ -3,23 +3,11 @@
 #include <QDateTime>
 #include "logger.h"
 
-#if ((QT_VERSION_MAJOR >= 5) && (QT_VERSION_MINOR >= 15))
-  #define LINE_END Qt::endl
-  #define HEX_FMT Qt::hex
-  #define DEC_FMT Qt::dec
-  #define UCASE_FMT Qt::uppercasedigits
-#else
-  #define LINE_END endl;
-  #define HEX_FMT hex
-  #define DEC_FMT dec
-  #define UCASE_FMT uppercasedigits
-#endif
-
 /**
  * Constructor. Sets the 14CUX interface class pointer as
  * well as log directory and log file extension.
  */
-Logger::Logger(CUXInterface* cuxIFace, OptionsDialog* options) :
+Logger::Logger(CUXInterface& cuxIFace, OptionsDialog& options) :
   m_fuelMapDataIsReady(false),
   m_miscStaticDataIsReady(false),
   m_fuelMapId(0),
@@ -61,7 +49,7 @@ bool Logger::openLog(QString fileName)
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
                            "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
                            "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << LINE_END;
+                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << Qt::endl;
       }
 
       success = true;
@@ -92,7 +80,7 @@ bool Logger::openLog(QString fileName)
             }
           }
 
-          m_staticLogFileStream << LINE_END;
+          m_staticLogFileStream << Qt::endl;
         }
       }
     }
@@ -123,31 +111,31 @@ void Logger::logData()
 
   if (m_logFile.isOpen() && (m_logFileStream.status() == QTextStream::Ok))
   {
-    double roadSpeed = m_cux->getRoadSpeed();
+    double roadSpeed = m_cux.getRoadSpeed();
 
-    if (m_options->getSpeedoAdjust())
+    if (m_options.getSpeedoAdjust())
     {
-      roadSpeed *= m_options->getSpeedoMultiplier();
-      roadSpeed += m_options->getSpeedoOffset();
+      roadSpeed *= m_options.getSpeedoMultiplier();
+      roadSpeed += m_options.getSpeedoOffset();
     }
 
     m_logFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
                     << roadSpeed << ","
-                    << m_cux->getEngineSpeedRPM() << ","
-                    << m_cux->getCoolantTemp() << ","
-                    << m_cux->getFuelTemp() << ","
-                    << m_cux->getThrottlePos() << ","
-                    << m_cux->getMAFReading() << ","
-                    << m_cux->getIdleBypassPos() << ","
-                    << m_cux->getMainVoltage() << ","
-                    << m_cux->getCurrentFuelMapIndex() << ","
+                    << m_cux.getEngineSpeedRPM() << ","
+                    << m_cux.getCoolantTemp() << ","
+                    << m_cux.getFuelTemp() << ","
+                    << m_cux.getThrottlePos() << ","
+                    << m_cux.getMAFReading() << ","
+                    << m_cux.getIdleBypassPos() << ","
+                    << m_cux.getMainVoltage() << ","
+                    << m_cux.getCurrentFuelMapIndex() << ","
                     << getRowWithWeighting() << ","
                     << getColWithWeighting() << ","
-                    << m_cux->getTargetIdleSpeed() << ","
-                    << m_cux->getLambdaTrimOdd() << ","
-                    << m_cux->getLambdaTrimEven() << ","
-                    << m_cux->getInjectorPulseWidthMs()
-                    << LINE_END;
+                    << m_cux.getTargetIdleSpeed() << ","
+                    << m_cux.getLambdaTrimOdd() << ","
+                    << m_cux.getLambdaTrimEven() << ","
+                    << m_cux.getInjectorPulseWidthMs()
+                    << Qt::endl;
   }
 
   if (!m_staticDataLogged &&
@@ -169,25 +157,25 @@ void Logger::logStaticData(unsigned int fuelMapId)
   {
     m_staticDataLogged = true;
 
-    const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
+    const QByteArray* fuelMapData = m_cux.getFuelMap(fuelMapId);
     float mafCoTrim = 0.0;
     unsigned char c;
 
     // only get the MAF CO trim if an open-loop map is selected
     if ((fuelMapId > 0) && (fuelMapId < 4))
     {
-      mafCoTrim = m_cux->getCOTrimVoltage();
+      mafCoTrim = m_cux.getCOTrimVoltage();
     }
 
     m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-      << UCASE_FMT
-      << m_cux->getTune() << ","
-      << HEX_FMT << m_cux->getIdent() << ","
-      << HEX_FMT << m_cux->getChecksumFixer() << ","
-      << DEC_FMT << fuelMapId << ","
-      << HEX_FMT << m_cux->getFuelMapAdjustmentFactor(fuelMapId) << ","
-      << HEX_FMT << m_cux->getRowScaler(fuelMapId) << ","
-      << m_cux->getMAFRowScaler() << ","
+      << Qt::uppercasedigits
+      << m_cux.getTune() << ","
+      << Qt::hex << m_cux.getIdent() << ","
+      << Qt::hex << m_cux.getChecksumFixer() << ","
+      << Qt::dec << fuelMapId << ","
+      << Qt::hex << m_cux.getFuelMapAdjustmentFactor(fuelMapId) << ","
+      << Qt::hex << m_cux.getRowScaler(fuelMapId) << ","
+      << m_cux.getMAFRowScaler() << ","
       << mafCoTrim;
 
     if (fuelMapData)
@@ -203,7 +191,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
       }
     }
 
-    m_staticLogFileStream << LINE_END;
+    m_staticLogFileStream << Qt::endl;
   }
 }
 
@@ -234,8 +222,8 @@ void Logger::onFuelMapDataReady(unsigned int fuelMapId)
  */
 float Logger::getRowWithWeighting()
 {
-  return ((float)m_cux->getFuelMapRowIndex() +
-          ((float)m_cux->getFuelMapRowWeighting() / 16.0));
+  return ((float)m_cux.getFuelMapRowIndex() +
+          ((float)m_cux.getFuelMapRowWeighting() / 16.0));
 }
 
 /**
@@ -244,8 +232,8 @@ float Logger::getRowWithWeighting()
  */
 float Logger::getColWithWeighting()
 {
-  return ((float)m_cux->getFuelMapColumnIndex() +
-          ((float)m_cux->getFuelMapColWeighting() / 16.0));
+  return ((float)m_cux.getFuelMapColumnIndex() +
+          ((float)m_cux.getFuelMapColWeighting() / 16.0));
 }
 
 /**

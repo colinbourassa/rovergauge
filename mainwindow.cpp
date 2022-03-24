@@ -14,6 +14,30 @@ const float MainWindow::s_speedometerMaxKPH = 240.0;
 
 #define ICON_PATH ":/icon/icon/rovergauge_48x48.png"
 
+const QHash<TemperatureUnits, QPair<int,int> > MainWindow::s_tempLimits
+{
+  { Fahrenheit, { 180, 210 } },
+  { Celsius,    {  80, 98  } }
+};
+
+const QHash<TemperatureUnits, QPair<int,int> > MainWindow::s_tempRange
+{
+  { Fahrenheit, { -40, 280 } },
+  { Celsius,    { -40, 140 } }
+};
+
+const QHash<SpeedUnits, QString> MainWindow::s_speedUnitSuffix
+{
+  { MPH, " MPH"  },
+  { KPH, " km/h" }
+};
+
+const QHash<TemperatureUnits, QString> MainWindow::s_tempUnitSuffix
+{
+  { Fahrenheit, " F" },
+  { Celsius,    " C" }
+};
+
 /**
  * Constructor; sets up main UI
  */
@@ -23,17 +47,17 @@ MainWindow::MainWindow (bool autoconnect,
                         QWidget* parent)
   : QMainWindow(parent),
     m_ui(new Ui::MainWindow),
-#ifdef ENABLE_SIM_MODE
-    m_simDialog(0),
-#endif
-    m_cuxThread(0),
-    m_cux(0),
-    m_options(0),
-    m_batteryBackedDisplay(0),
-    m_aboutBox(0),
-    m_pleaseWaitBox(0),
-    m_helpViewerDialog(0),
+    m_cuxThread(nullptr),
+    m_cux(nullptr),
+    m_options(nullptr),
+    m_iacDialog(nullptr),
+    m_batteryBackedDisplay(nullptr),
+    m_aboutBox(nullptr),
+    m_pleaseWaitBox(nullptr),
+    m_helpViewerDialog(nullptr),
     m_doubleBaudRate(doublebaud),
+    m_shortcutStartLogging(QKeySequence(Qt::Key_F5), this),
+    m_shortcutStopLogging(QKeySequence(Qt::Key_F7), this),
     m_fuelMapDataIsCurrent(false),
     m_isLogging(false)
 {
@@ -56,25 +80,52 @@ MainWindow::MainWindow (bool autoconnect,
   m_cux->setEnabledSamples(m_enabledSamples);
   m_cux->setReadIntervals(m_options->getReadIntervals());
 
-  m_iacDialog = new IdleAirControlDialog(this->windowTitle(), this);
-  connect(m_iacDialog, SIGNAL(requestIdleAirControlMovement(int, int)),
-          m_cux, SLOT(onIdleAirControlMovementRequest(int, int)));
+  m_iacDialog = new IdleAirControlDialog(this->windowTitle(), *m_cux, this);
+  m_logger = new Logger(*m_cux, *m_options);
 
-  m_logger = new Logger(m_cux, m_options);
-
-  m_fuelPumpRefreshTimer = new QTimer(this);
-  m_fuelPumpRefreshTimer->setInterval(1000);
+  m_fuelPumpRefreshTimer.setInterval(1000);
 
   for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
   {
     m_lastHighlightedFuelMapCell[idx] = 0;
   }
 
-  m_shortcutStartLogging = new QShortcut(QKeySequence(Qt::Key_F5), this);
-  m_shortcutStopLogging  = new QShortcut(QKeySequence(Qt::Key_F7), this);
+  connectInterfaceSignals();
+  setWindowIcon(QIcon(ICON_PATH));
+  setupWidgets();
+  dimUnusedControls();
 
-  connect(m_shortcutStartLogging, SIGNAL(activated()), this, SLOT(onStartLogging()));
-  connect(m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
+  if (autolog)
+  {
+    startLogging();
+  }
+  if (autoconnect)
+  {
+    doConnect();
+  }
+}
+
+/**
+ * Destructor; cleans up instance of 14CUX communications library
+ *  and miscellaneous data storage
+ */
+MainWindow::~MainWindow()
+{
+  delete m_aboutBox;
+  delete m_options;
+  delete m_cux;
+  delete m_cuxThread;
+  delete m_batteryBackedDisplay;
+}
+
+/**
+ * Establish the signals/slots connections between the 14CUX interface class
+ * and the other RoverGauge components.
+ */
+void MainWindow::connectInterfaceSignals()
+{
+  connect(&m_shortcutStartLogging, SIGNAL(activated()), this, SLOT(onStartLogging()));
+  connect(&m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
 
   connect(m_cux, SIGNAL(dataReady()),                        this, SLOT(onDataReady()));
   connect(m_cux, SIGNAL(connected()),                        this, SLOT(onConnect()));
@@ -96,47 +147,9 @@ MainWindow::MainWindow (bool autoconnect,
   connect(m_cux, SIGNAL(rpmTableReady()),                    this, SLOT(onRPMTableReady()));
   connect(m_cux, SIGNAL(feedbackModeHasChanged(c14cux_feedback_mode)), this, SLOT(onFeedbackModeChanged(c14cux_feedback_mode)));
   connect(m_cux, SIGNAL(fuelMapIndexHasChanged(uint)),       this, SLOT(onFuelMapIndexChanged(uint)));
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  connect(m_cux, SIGNAL(forceOpenLoopState(bool)), this, SLOT(onForceOpenLoopStateReceived(bool)));
-#endif
-  connect(m_fuelPumpRefreshTimer, SIGNAL(timeout()), m_cux, SLOT(onFuelPumpRunRequest()));
+  connect(&m_fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRunTimer()));
   connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
   connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
-  connect(this, SIGNAL(requestFuelMapData(unsigned int)), m_cux, SLOT(onFuelMapRequested(unsigned int)));
-  connect(this, SIGNAL(requestROMImage()), m_cux, SLOT(onReadROMImageRequested()));
-  connect(this, SIGNAL(requestFuelPumpRun()), m_cux, SLOT(onFuelPumpRunRequest()));
-
-  setWindowIcon(QIcon(ICON_PATH));
-
-  setupWidgets();
-  dimUnusedControls();
-
-  if (autoconnect)
-  {
-    doConnect();
-  }
-
-  if (autolog)
-  {
-    startLogging();
-  }
-}
-
-/**
- * Destructor; cleans up instance of 14CUX communications library
- *  and miscellaneous data storage
- */
-MainWindow::~MainWindow()
-{
-  delete m_tempLimits;
-  delete m_tempRange;
-  delete m_speedUnitSuffix;
-  delete m_tempUnitSuffix;
-  delete m_aboutBox;
-  delete m_options;
-  delete m_cux;
-  delete m_cuxThread;
-  delete m_batteryBackedDisplay;
 }
 
 /**
@@ -144,21 +157,6 @@ MainWindow::~MainWindow()
  */
 void MainWindow::buildSpeedAndTempUnitTables()
 {
-  m_speedUnitSuffix = new QHash<SpeedUnits, QString>();
-  m_speedUnitSuffix->insert(MPH, " MPH");
-  m_speedUnitSuffix->insert(KPH, " km/h");
-
-  m_tempUnitSuffix = new QHash<TemperatureUnits, QString>;
-  m_tempUnitSuffix->insert(Fahrenheit, " F");
-  m_tempUnitSuffix->insert(Celsius, " C");
-
-  m_tempRange = new QHash<TemperatureUnits, QPair<int, int> >;
-  m_tempRange->insert(Fahrenheit, qMakePair(-40, 280));
-  m_tempRange->insert(Celsius, qMakePair(-40, 140));
-
-  m_tempLimits = new QHash<TemperatureUnits, QPair<int, int> >;
-  m_tempLimits->insert(Fahrenheit, qMakePair(180, 210));
-  m_tempLimits->insert(Celsius, qMakePair(80, 98));
 }
 
 /**
@@ -179,22 +177,10 @@ void MainWindow::setupWidgets()
   // connect menu item signals
   connect(m_ui->m_saveROMImageAction,   SIGNAL(triggered()),     this,  SLOT(onSaveROMImageSelected()));
   connect(m_ui->m_exitAction,           SIGNAL(triggered()),     this,  SLOT(onExitSelected()));
-  connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()),     m_cux, SLOT(onFaultCodesRequested()));
   connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()),     this,  SLOT(onIdleAirControlClicked()));
-  connect(m_ui->m_batteryBackedAction,  SIGNAL(triggered(bool)), m_cux, SLOT(onBatteryBackedMemRequested()));
   connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()),     this,  SLOT(onEditOptionsClicked()));
   connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()),     this,  SLOT(onHelpContentsClicked()));
   connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()),     this,  SLOT(onHelpAboutClicked()));
-
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  connect(m_ui->m_forceOpenLoopCheckbox, SIGNAL(clicked(bool)), m_cux, SLOT(onForceOpenLoopRequest(bool)));
-#endif
-
-#ifdef ENABLE_SIM_MODE
-  m_ui->m_optionsMenu->addSeparator();
-  m_simDialogAction = m_ui->m_optionsMenu->addAction("&Simulation mode control...");
-  connect(m_simDialogAction, SIGNAL(triggered()), this, SLOT(onSimDialogClicked()));
-#endif
 
   // connect button signals
   connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
@@ -202,7 +188,6 @@ void MainWindow::setupWidgets()
   connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
   connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
   connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_fuelPumpOneshotButton, SIGNAL(clicked()), m_cux, SLOT(onFuelPumpRunRequest()));
   connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
   connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
   connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
@@ -275,7 +260,7 @@ void MainWindow::setupWidgets()
 
   setSpeedoLabel();
 
-  m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
+  m_ui->m_speedo->setSuffix(s_speedUnitSuffix.value(speedUnit));
   m_ui->m_speedo->setNominal(1000.0);
   m_ui->m_speedo->setCritical(1000.0);
 
@@ -286,20 +271,20 @@ void MainWindow::setupWidgets()
   m_ui->m_revCounter->setCritical(8000);
 
   const TemperatureUnits tempUnits = m_options->getTemperatureUnits();
-  const int tempMin = m_tempRange->value(tempUnits).first;
-  const int tempMax = m_tempRange->value(tempUnits).second;
+  const int tempMin = s_tempRange.value(tempUnits).first;
+  const int tempMax = s_tempRange.value(tempUnits).second;
 
   m_ui->m_waterTempGauge->setValue(tempMin);
   m_ui->m_waterTempGauge->setMaximum(tempMax);
   m_ui->m_waterTempGauge->setMinimum(tempMin);
-  m_ui->m_waterTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
-  m_ui->m_waterTempGauge->setNominal(m_tempLimits->value(tempUnits).first);
-  m_ui->m_waterTempGauge->setCritical(m_tempLimits->value(tempUnits).second);
+  m_ui->m_waterTempGauge->setSuffix(s_tempUnitSuffix.value(tempUnits));
+  m_ui->m_waterTempGauge->setNominal(s_tempLimits.value(tempUnits).first);
+  m_ui->m_waterTempGauge->setCritical(s_tempLimits.value(tempUnits).second);
 
   m_ui->m_fuelTempGauge->setValue(tempMin);
   m_ui->m_fuelTempGauge->setMaximum(tempMax);
   m_ui->m_fuelTempGauge->setMinimum(tempMin);
-  m_ui->m_fuelTempGauge->setSuffix(m_tempUnitSuffix->value(tempUnits));
+  m_ui->m_fuelTempGauge->setSuffix(s_tempUnitSuffix.value(tempUnits));
   m_ui->m_fuelTempGauge->setNominal(10000.0);
   m_ui->m_fuelTempGauge->setCritical(10000.0);
 
@@ -361,7 +346,7 @@ void MainWindow::doConnect()
     connect(m_cuxThread, SIGNAL(started()), m_cux, SLOT(onParentThreadStarted()));
   }
 
-  // If the worker thread is alreay running, ask it to start polling the ECU.
+  // If the worker thread is already running, ask it to start polling the ECU.
   // Otherwise, start the worker thread, but don't ask it to begin polling
   // yet; it'll signal us when it's ready.
   if (m_cuxThread->isRunning())
@@ -433,8 +418,7 @@ void MainWindow::onFaultCodesReadFailed()
  */
 void MainWindow::onBatteryBackedMemReady()
 {
-  QByteArray* batteryBackedMemory = m_cux->getBatteryBackedMem();
-  BatteryBackedDisplay batteryDialog(this->windowTitle(), batteryBackedMemory, 0x0040, this);
+  BatteryBackedDisplay batteryDialog(this->windowTitle(), m_cux->getBatteryBackedMem(), 0x0040, this);
   batteryDialog.exec();
 }
 
@@ -838,18 +822,18 @@ void MainWindow::onEditOptionsClicked()
       m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
     }
 
-    m_ui->m_speedo->setSuffix(m_speedUnitSuffix->value(speedUnit));
+    m_ui->m_speedo->setSuffix(s_speedUnitSuffix.value(speedUnit));
     m_ui->m_speedo->repaint();
 
     setSpeedoLabel();
 
     const TemperatureUnits tempUnits = m_options->getTemperatureUnits();
-    const QString tempUnitStr = m_tempUnitSuffix->value(tempUnits);
+    const QString tempUnitStr = s_tempUnitSuffix.value(tempUnits);
 
-    const int tempMin = m_tempRange->value(tempUnits).first;
-    const int tempMax = m_tempRange->value(tempUnits).second;
-    const int tempNominal = m_tempLimits->value(tempUnits).first;
-    const int tempCritical = m_tempLimits->value(tempUnits).second;
+    const int tempMin = s_tempRange.value(tempUnits).first;
+    const int tempMax = s_tempRange.value(tempUnits).second;
+    const int tempNominal = s_tempLimits.value(tempUnits).first;
+    const int tempCritical = s_tempLimits.value(tempUnits).second;
 
     m_ui->m_fuelTempGauge->setSuffix(tempUnitStr);
     m_ui->m_fuelTempGauge->setValue(tempMin);
@@ -1045,9 +1029,6 @@ void MainWindow::onConnect()
   m_ui->m_commsBadLed->setChecked(false);
   m_ui->m_fuelPumpOneshotButton->setEnabled(true);
   m_ui->m_fuelPumpContinuousButton->setEnabled(true);
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  m_ui->m_forceOpenLoopCheckbox->setEnabled(true);
-#endif
 }
 
 /**
@@ -1063,9 +1044,6 @@ void MainWindow::onDisconnect()
   m_ui->m_commsBadLed->setChecked(false);
   m_ui->m_fuelPumpOneshotButton->setEnabled(false);
   m_ui->m_fuelPumpContinuousButton->setEnabled(false);
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  m_ui->m_forceOpenLoopCheckbox->setEnabled(false);
-#endif
   m_ui->m_tuneRevNumberLabel->setText("Tune:");
   m_ui->m_identLabel->setText("Ident:");
   m_ui->m_checksumFixerLabel->setText("Checksum fixer:");
@@ -1268,8 +1246,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
       }
 
       m_pleaseWaitBox->show();
-
-      emit requestROMImage();
+      m_cux->enqueueRequest(QueueableRequest_ROMImage);
     }
   }
   else
@@ -1298,32 +1275,29 @@ void MainWindow::onROMImageReady()
     m_pleaseWaitBox->hide();
   }
 
-  QByteArray* promData = m_cux->getROMImage();
+  const QByteArray& promData = m_cux->getROMImage();
 
-  if (promData != 0)
+  const QString saveFileName =
+    QFileDialog::getSaveFileName(this, "Select output file for ROM image:");
+
+  if (!saveFileName.isNull() && !saveFileName.isEmpty())
   {
-    QString saveFileName =
-      QFileDialog::getSaveFileName(this, "Select output file for ROM image:");
+    QFile saveFile(saveFileName);
 
-    if (!saveFileName.isNull() && !saveFileName.isEmpty())
+    if (saveFile.open(QIODevice::WriteOnly))
     {
-      QFile saveFile(saveFileName);
-
-      if (saveFile.open(QIODevice::WriteOnly))
-      {
-        if (saveFile.write(*promData) != promData->capacity())
-        {
-          QMessageBox::warning(this, "Error",
-                               QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
-        }
-
-        saveFile.close();
-      }
-      else
+      if (saveFile.write(promData) != promData.capacity())
       {
         QMessageBox::warning(this, "Error",
-                             QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+            QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
       }
+
+      saveFile.close();
+    }
+    else
+    {
+      QMessageBox::warning(this, "Error",
+          QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
     }
   }
 }
@@ -1350,15 +1324,24 @@ void MainWindow::onFuelPumpContinuous()
 {
   if (m_ui->m_fuelPumpContinuousButton->isChecked())
   {
-    emit requestFuelPumpRun();
-    m_fuelPumpRefreshTimer->start();
+    m_cux->enqueueRequest(QueueableRequest_FuelPumpRun);
+    m_fuelPumpRefreshTimer.start();
     m_ui->m_fuelPumpOneshotButton->setEnabled(false);
   }
   else
   {
-    m_fuelPumpRefreshTimer->stop();
+    m_fuelPumpRefreshTimer.stop();
     m_ui->m_fuelPumpOneshotButton->setEnabled(true);
   }
+}
+
+/**
+ * Responds to the fuel pump run timer by re-sending the command to run
+ * the fuel pump.
+ */
+void MainWindow::onFuelPumpRunTimer()
+{
+  m_cux->enqueueRequest(QueueableRequest_FuelPumpRun);
 }
 
 /**
@@ -1540,34 +1523,7 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
     // ECU yet, so put in a request. We'll update the display when
     // we receive the signal that the new data is ready.
     m_fuelMapDataIsCurrent = false;
-    emit requestFuelMapData(fuelMapId);
+    m_cux->enqueueRequest(QueueableRequest_FuelMapData, fuelMapId);
   }
 }
 
-#ifdef ENABLE_FORCE_OPEN_LOOP
-/**
- * Changes the state of the "force open loop" checkbox depending on the state of a bit in the ECU
- * @param forceOpen True when the bit is set, false otherwise
- */
-void MainWindow::onForceOpenLoopStateReceived(bool forceOpen)
-{
-  m_ui->m_forceOpenLoopCheckbox->setChecked(forceOpen);
-}
-#endif
-
-#ifdef ENABLE_SIM_MODE
-void MainWindow::onSimDialogClicked()
-{
-  if (m_simDialog == 0)
-  {
-    m_simDialog = new SimulationModeDialog(QString(this->windowTitle() + " - Simulation Mode"), this);
-    connect(m_cux, SIGNAL(simModeWriteSuccess()), m_simDialog, SLOT(onWriteSuccess()));
-    connect(m_cux, SIGNAL(simModeWriteFailure()), m_simDialog, SLOT(onWriteFailure()));
-    connect(m_simDialog, SIGNAL(writeSimulationInputValues(bool, SimulationInputValues, SimulationInputChanges)),
-            m_cux, SLOT(onSimModeWriteRequest(bool, SimulationInputValues, SimulationInputChanges)));
-
-  }
-
-  m_simDialog->show();
-}
-#endif

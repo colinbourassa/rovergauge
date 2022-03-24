@@ -127,3 +127,4 @@ private:
 };
 
 #endif // OPTIONSDIALOG_H
+

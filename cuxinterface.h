@@ -1,8 +1,11 @@
 #ifndef CUXINTERFACE_H
 #define CUXINTERFACE_H
 
+#include <QMutex>
+#include <utility>
 #include <QObject>
 #include <QString>
+#include <QQueue>
 #include <QHash>
 #include <QByteArray>
 #include <QMap>
@@ -53,6 +56,8 @@ public:
 
   void setEnabledSamples(QMap<SampleType, bool> samples);
   void setReadIntervals(QHash<SampleType, unsigned int> intervals);
+  void enqueueRequest(QueueableRequest req);
+  void enqueueRequest(QueueableRequest req, int data);
 
   QString getSerialDevice() const
   {
@@ -107,7 +112,7 @@ public:
     return m_faultCodes;
   }
 
-  QByteArray* getBatteryBackedMem() const
+  const QByteArray& getBatteryBackedMem() const
   {
     return m_batteryBackedMem;
   }
@@ -122,7 +127,7 @@ public:
     return c14cux_getLibraryVersion();
   }
 
-  const QByteArray* getFuelMap(unsigned int fuelMapId) const;
+  const QByteArray* const getFuelMap(unsigned int fuelMapId) const;
   void invalidateFuelMapData();
   int getFuelMapAdjustmentFactor(unsigned int fuelMapId) const;
 
@@ -171,7 +176,7 @@ public:
     return m_fuelPumpRelayOn;
   }
 
-  QByteArray* getROMImage() const
+  const QByteArray& getROMImage() const
   {
     return m_romImage;
   }
@@ -255,21 +260,8 @@ public:
 
 public slots:
   void onParentThreadStarted();
-  void onFaultCodesRequested();
-  void onFaultCodesClearRequested();
-  void onBatteryBackedMemRequested();
-  void onFuelMapRequested(unsigned int fuelMapId);
-  void onReadROMImageRequested();
   void onStartPollingRequest();
   void onShutdownThreadRequest();
-  void onFuelPumpRunRequest();
-  void onIdleAirControlMovementRequest(int direction, int steps);
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  void onForceOpenLoopRequest(bool forceOpen);
-#endif
-#ifdef ENABLE_SIM_MODE
-  void onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes);
-#endif
 
 signals:
   void dataReady();
@@ -293,18 +285,15 @@ signals:
   void failedToConnect(QString dev);
   void interfaceReadyForPolling();
   void notConnected();
-  void simModeWriteSuccess();
-  void simModeWriteFailure();
   void fuelMapIndexHasChanged(unsigned int fuelMapId);
   void feedbackModeHasChanged(c14cux_feedback_mode newMode);
-
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  void forceOpenLoopState(bool forceOpen);
-#endif
 
 private:
   static const int s_firstOpenLoopMap = 1;
   static const int s_lastOpenLoopMap = 3;
+
+  QMutex m_queueMutex;
+  QQueue<std::pair<QueueableRequest, int> > m_reqQueue;
 
   QString m_deviceName;
   unsigned int m_baudRate;
@@ -312,9 +301,8 @@ private:
   bool m_stopPolling;
   bool m_shutdownThread;
   c14cux_faultcodes m_faultCodes;
-  QByteArray* m_batteryBackedMem;
+  QByteArray m_batteryBackedMem;
   bool m_readCanceled;
-  bool m_readTuneId;
   QHash<SampleType, bool> m_enabledSamples;
   QHash<SampleType, qint64> m_lastReadTime;
   QHash<SampleType, unsigned int> m_readIntervals;
@@ -355,7 +343,7 @@ private:
   uint8_t m_rowScaler[fuelMapCount];
   uint16_t m_mafScaler;
 
-  QByteArray* m_romImage;
+  QByteArray m_romImage;
 
   QByteArray m_fuelMaps[fuelMapCount];
   bool m_fuelMapDataIsCurrent[fuelMapCount];
@@ -373,7 +361,6 @@ private:
   void runServiceLoop();
   void clearFlagsAndData();
   ReadResult readData();
-  bool readFuelMap(unsigned int fuelMapId);
   bool connectToECU();
   unsigned int convertSpeed(unsigned int speedMph) const;
   int convertTemperature(int tempF) const;
@@ -381,6 +368,17 @@ private:
   static ReadResult mergeResult(ReadResult total, bool single);
   bool isDueForMeasurement(SampleType type);
   bool isSampleAppropriateForMode(SampleType type) const;
+  void processQueuedRequest();
+  void readFaultCodes();
+  void clearFaultCodes();
+  bool readFuelMap(unsigned int fuelMapId);
+  void readROMImage();
+  void runFuelPump();
+  void driveIACMotor(int steps);
+  void readRPMTable();
+  void readTuneRevID();
+  void readBatteryBackedMem();
 };
 
 #endif // CUXINTERFACE_H
+

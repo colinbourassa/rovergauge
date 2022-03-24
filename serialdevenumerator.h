@@ -3,12 +3,7 @@
 
 #include <QStringList>
 
-class SerialDevEnumerator
-{
-public:
-  SerialDevEnumerator();
-  QStringList getSerialDevList(QString savedDevName);
-};
+QStringList getSerialDevList(const QString savedDevName);
 
 #endif // SERIALDEVENUMERATOR_H
 

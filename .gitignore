@@ -25,4 +25,4 @@ install_manifest.txt
 rovergauge-*.zip
 *.deb
 *.tar.gz
-build/
+build*/

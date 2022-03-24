@@ -98,8 +98,7 @@ void OptionsDialog::setupWidgets()
 
   const unsigned char numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
 
-  SerialDevEnumerator serialDevs;
-  m_ui->m_serialDeviceBox->addItems(serialDevs.getSerialDevList(m_serialDeviceName));
+  m_ui->m_serialDeviceBox->addItems(getSerialDevList(m_serialDeviceName));
 
   setWidgetValues();
 

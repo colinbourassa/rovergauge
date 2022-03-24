@@ -10,29 +10,14 @@
 #include "serialdevenumerator.h"
 
 /**
- * Constructor.
- */
-SerialDevEnumerator::SerialDevEnumerator()
-{
-}
-
-/**
  * Queries the OS / device filesystem for the list of serial devices likely
  * to be the one that is connected to the 14CUX ECU.
  * @return List of device names
  */
-QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
+QStringList getSerialDevList(const QString savedDevName)
 {
   QStringList serialDevices;
-
-  if (savedDevName.isNull() || savedDevName.isEmpty())
-  {
-    serialDevices.append("");
-  }
-  else
-  {
-    serialDevices.append(savedDevName);
-  }
+  serialDevices.append(savedDevName.isEmpty() ? "" : savedDevName);
 
 #ifdef linux
 
@@ -60,7 +45,7 @@ QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
   }
 
   // if nothing was found using the method above, simply return a list of
-  // devices that match the pattern "ttyS*"
+  // devices that match the patterns "ttyUSB*" and "ttyS*"
   if (serialDevices.count() == 0)
   {
     QDir dev("/dev", "ttyUSB* ttyS*", QDir::NoSort,
@@ -104,7 +89,7 @@ QStringList SerialDevEnumerator::getSerialDevList(QString savedDevName)
 
 #elif defined(WIN32)
 
-  // compiling with MinGW, so use a WinAPI mechanism to enumerate ports
+  // use a WinAPI mechanism to enumerate ports
   char portName[8];
   COMMCONFIG cc;
   DWORD dwSize = sizeof(COMMCONFIG);

@@ -31,9 +31,6 @@
 #include "commonunits.h"
 #include "helpviewer.h"
 #include "batterybackeddisplay.h"
-#ifdef ENABLE_SIM_MODE
-#include "simulationmodedialog.h"
-#endif
 
 #define NUM_ACTIVE_FUEL_MAP_CELLS 4
 
@@ -71,16 +68,10 @@ public slots:
   void onNotConnected();
   void onFeedbackModeChanged(c14cux_feedback_mode mode);
   void onFuelMapIndexChanged(unsigned int fuelMapId);
-#ifdef ENABLE_FORCE_OPEN_LOOP
-  void onForceOpenLoopStateReceived(bool forceOpen);
-#endif
 
 signals:
   void requestToStartPolling();
-  void requestFuelMapData(unsigned int fuelMapId);
-  void requestROMImage();
   void requestThreadShutdown();
-  void requestFuelPumpRun();
 
 protected:
   void closeEvent(QCloseEvent* event);
@@ -88,12 +79,7 @@ protected:
 private:
   Ui::MainWindow* m_ui;
 
-#ifdef ENABLE_SIM_MODE
-  QAction* m_simDialogAction;
-  SimulationModeDialog* m_simDialog;
-#endif
-
-  QTimer* m_fuelPumpRefreshTimer;
+  QTimer m_fuelPumpRefreshTimer;
   QThread* m_cuxThread;
   CUXInterface* m_cux;
   OptionsDialog* m_options;
@@ -104,8 +90,8 @@ private:
   HelpViewer* m_helpViewerDialog;
   bool m_doubleBaudRate;
 
-  QShortcut* m_shortcutStartLogging;
-  QShortcut* m_shortcutStopLogging;
+  QShortcut m_shortcutStartLogging;
+  QShortcut m_shortcutStopLogging;
 
   Logger* m_logger;
 
@@ -125,13 +111,14 @@ private:
   QTableWidgetItem* m_lastHighlightedFuelMapCell[NUM_ACTIVE_FUEL_MAP_CELLS];
   bool m_fuelMapDataIsCurrent;
 
-  QHash<SpeedUnits, QString>* m_speedUnitSuffix;
-  QHash<TemperatureUnits, QString>* m_tempUnitSuffix;
-  QHash<TemperatureUnits, QPair<int, int> >* m_tempRange;
-  QHash<TemperatureUnits, QPair<int, int> >* m_tempLimits;
+  static const QHash<SpeedUnits, QString> s_speedUnitSuffix;
+  static const QHash<TemperatureUnits, QString> s_tempUnitSuffix;
+  static const QHash<TemperatureUnits, QPair<int, int> > s_tempRange;
+  static const QHash<TemperatureUnits, QPair<int, int> > s_tempLimits;
 
   bool m_isLogging;
 
+  void connectInterfaceSignals();
   void doConnect();
   void startLogging();
   void buildSpeedAndTempUnitTables();
@@ -158,14 +145,12 @@ private slots:
   void onDisconnectClicked();
   void onStartLogging();
   void onStopLogging();
+  void onFuelPumpRunTimer();
   void onFuelPumpContinuous();
   void onIdleAirControlClicked();
   void onLambdaTrimButtonClicked(QAbstractButton* button);
   void onMAFReadingButtonClicked(QAbstractButton* button);
   void onThrottleTypeButtonClicked(QAbstractButton* button);
-#ifdef ENABLE_SIM_MODE
-  void onSimDialogClicked();
-#endif
 };
 
 #endif // MAINWINDOW_H

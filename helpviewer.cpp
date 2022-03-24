@@ -40,3 +40,4 @@ void HelpViewer::onAnchorClicked(QUrl url)
 {
   QDesktopServices::openUrl(url);
 }
+

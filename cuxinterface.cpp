@@ -20,9 +20,8 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
   m_baudRate(baud),
   m_stopPolling(false),
   m_shutdownThread(false),
-  m_batteryBackedMem(0),
+  m_batteryBackedMem(21, 0x00),
   m_readCanceled(false),
-  m_readTuneId(false),
   m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
   m_feedbackMode(C14CUX_FeedbackMode_ClosedLoop),
   m_airflowType(C14CUX_AirflowType_Linearized),
@@ -54,7 +53,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
   m_tune(0),
   m_checksumFixer(0),
   m_ident(0),
-  m_romImage(0),
+  m_romImage(16384, 0x00),
   m_speedUnits(sUnits),
   m_tempUnits(tUnits),
   m_fuelMapRefresh(fuelMapRefresh),
@@ -84,148 +83,156 @@ CUXInterface::~CUXInterface()
 }
 
 /**
- * Reads fault codes from the 14CUX and stores in a member structure.
+ * Enqueue a data request that requires a parameter (such as a fuel map ID,
+ * or number of steps to move the IAC motor.)
  */
-void CUXInterface::onFaultCodesRequested()
+void CUXInterface::enqueueRequest(QueueableRequest req, int data)
+{
+  m_queueMutex.lock();
+  m_reqQueue.enqueue(std::pair<QueueableRequest, int>(req, data));
+  m_queueMutex.unlock();
+}
+
+/**
+ * Enqueue a data request that does not require a parameter.
+ */
+void CUXInterface::enqueueRequest(QueueableRequest req)
+{
+  enqueueRequest(req, 0);
+}
+
+void CUXInterface::processQueuedRequest()
 {
   if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
   {
-    memset(&m_faultCodes, 0, sizeof(m_faultCodes));
+    m_queueMutex.lock();
+    const std::pair<QueueableRequest, int> req = m_reqQueue.dequeue();
+    m_queueMutex.unlock();
 
-    if (c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+    const QueueableRequest reqType = std::get<0>(req);
+    const int reqData = std::get<1>(req);
+
+    switch (reqType)
     {
-      emit faultCodesReady();
-    }
-    else
-    {
-      emit faultCodesReadFailed();
+    case QueueableRequest_BatteryBackedMem:
+      readBatteryBackedMem();
+      break;
+    case QueueableRequest_ClearFaultCodes:
+      clearFaultCodes();
+      break;
+    case QueueableRequest_FaultCodes:
+      readFaultCodes();
+      break;
+    case QueueableRequest_FuelMapData:
+      readFuelMap(reqData);
+      break;
+    case QueueableRequest_IACMotorDrive:
+      driveIACMotor(reqData);
+      break;
+    case QueueableRequest_ROMImage:
+      readROMImage();
+      break;
+    case QueueableRequest_RPMTable:
+      readRPMTable();
+      break;
+    case QueueableRequest_TuneRevID:
+      readTuneRevID();
+      break;
+    default:
+      // nop
+      break;
     }
   }
   else
   {
     emit notConnected();
+  }
+}
+
+/**
+ * Reads fault codes data from the 14CUX and stores it in a member structure.
+ * Note that this routine does not check for an existing connection to the ECU.
+ */
+void CUXInterface::readFaultCodes()
+{
+  memset(&m_faultCodes, 0, sizeof(m_faultCodes));
+  if (c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+  {
+    emit faultCodesReady();
+  }
+  else
+  {
+    emit faultCodesReadFailed();
   }
 }
 
 /**
  * Reads battery-backed memory from the 14CUX and stores in a member structure
  */
-void CUXInterface::onBatteryBackedMemRequested()
+void CUXInterface::readBatteryBackedMem()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  if (c14cux_readMem(&m_cuxinfo, 0x0040, 21, reinterpret_cast<uint8_t*>(m_batteryBackedMem.data())))
   {
-    if (m_batteryBackedMem == 0)
-    {
-      m_batteryBackedMem = new QByteArray(21, 0x00);
-    }
-
-    if (c14cux_readMem(&m_cuxinfo, 0x0040, 21, (uint8_t*)m_batteryBackedMem->data()))
-    {
-      emit batteryBackedMemReady();
-    }
-    else
-    {
-      emit batteryBackedMemReadFailed();
-    }
+    emit batteryBackedMemReady();
   }
   else
   {
-    emit notConnected();
+    emit batteryBackedMemReadFailed();
   }
 }
 
 /**
  * Clears the block of fault codes.
  */
-void CUXInterface::onFaultCodesClearRequested()
+void CUXInterface::clearFaultCodes()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  if (c14cux_clearFaultCodes(&m_cuxinfo) &&
+      c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
   {
-    if (c14cux_clearFaultCodes(&m_cuxinfo) &&
-        c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
-    {
-      emit faultCodesClearSuccess(m_faultCodes);
-    }
-    else
-    {
-      emit faultCodesClearFailure();
-    }
+    emit faultCodesClearSuccess(m_faultCodes);
   }
   else
   {
-    emit notConnected();
+    emit faultCodesClearFailure();
   }
 }
 
 /**
  * Reads the entire 16KB ROM.
  */
-void CUXInterface::onReadROMImageRequested()
+void CUXInterface::readROMImage()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  if (c14cux_dumpROM(&m_cuxinfo, reinterpret_cast<uint8_t*>(m_romImage.data())))
   {
-    if (m_romImage == 0)
+    if (!m_readCanceled)
     {
-      m_romImage = new QByteArray(16384, 0x00);
+      emit romImageReady();
     }
-
-    if (c14cux_dumpROM(&m_cuxinfo, (uint8_t*)m_romImage->data()))
-    {
-      if (!m_readCanceled)
-      {
-        emit romImageReady();
-      }
-    }
-    else
-    {
-      if (!m_readCanceled)
-      {
-        emit romImageReadFailed();
-      }
-    }
-
-    m_readCanceled = false;
   }
   else
   {
-    emit notConnected();
+    if (!m_readCanceled)
+    {
+      emit romImageReadFailed();
+    }
   }
+
+  m_readCanceled = false;
 }
 
 /**
- * Respond to a signal requesting fuel map data by reading the desired fuel
- * map from the ECU, and emitting a signal when done.
+ * Reads the data for the specified fuel map from the ECU, emitting a signal
+ * when done.
  * @param fuelMapId ID of the fuel map that should be retrieved (1 through 5)
- */
-void CUXInterface::onFuelMapRequested(unsigned int fuelMapId)
-{
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
-  {
-    if (readFuelMap(fuelMapId))
-    {
-      emit fuelMapReady(fuelMapId);
-    }
-
-    if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
-    {
-      emit rpmTableReady();
-    }
-  }
-}
-
-/**
- * Reads a single fuel map (along with its multiplier factor) from the ECU
- * @param fuelMapId Index of the fuel map to read
- * @return True when the map was read successfully, false otherwise
  */
 bool CUXInterface::readFuelMap(unsigned int fuelMapId)
 {
-  uint8_t* buffer = (uint8_t*)(m_fuelMaps[fuelMapId].data());
+  uint8_t* const buffer = reinterpret_cast<uint8_t* const>(m_fuelMaps[fuelMapId].data());
   uint16_t adjFactor = 0;
   bool status = false;
 
-  if (c14cux_getFuelMap(&m_cuxinfo, (int8_t)fuelMapId, &adjFactor, &m_rowScaler[fuelMapId], buffer) &&
-      c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, (uint8_t*)&m_mafScaler))
+  if (c14cux_getFuelMap(&m_cuxinfo, static_cast<int8_t>(fuelMapId), &adjFactor, &m_rowScaler[fuelMapId], buffer) &&
+      c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, reinterpret_cast<uint8_t*>(&m_mafScaler)))
   {
     m_mafScaler = swapShort(m_mafScaler);
     m_fuelMapAdjFactors[fuelMapId] = adjFactor;
@@ -233,35 +240,52 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
     status = true;
   }
 
+  if (status)
+  {
+    emit fuelMapReady(fuelMapId);
+  }
+
   return status;
 }
 
 /**
- * Responds to a signal requesting that the fuel pump be run.
+ * Reads the RPM table from the ECU, emitting a signal if successful.
  */
-void CUXInterface::onFuelPumpRunRequest()
+void CUXInterface::readRPMTable()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
   {
-    c14cux_runFuelPump(&m_cuxinfo);
+    emit rpmTableReady();
   }
 }
 
 /**
- * Responds to a signal requesting that the idle air control valve be moved.
- * @param direction Direction of travel for the idle air control valve;
- *  0 to open and 1 to close
- * @param steps Number of steps to move the valve in the specified direction
+ * Commands the ECU to close the fuel pump relay and run the fuel pump for
+ * a single time interval.
  */
-void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
+void CUXInterface::runFuelPump()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  c14cux_runFuelPump(&m_cuxinfo);
+}
+
+/**
+ * Commands the ECU to move the idle air control valve.
+ * @param steps Direction and distance of travel for the idle air control valve;
+ *  positive to open and negative to close
+ */
+void CUXInterface::driveIACMotor(int steps)
+{
+  // this should be set to 0 when opening the valve, 1 when closing
+  const uint8_t direction = (steps >= 0) ? 0 : 1;
+  const uint8_t distance = abs(steps);
+  c14cux_driveIdleAirControlMotor(&m_cuxinfo, direction, distance);
+}
+
+void CUXInterface::readTuneRevID()
+{
+  if (c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
   {
-    c14cux_driveIdleAirControlMotor(&m_cuxinfo, (uint8_t)direction, (uint8_t)steps);
-  }
-  else
-  {
-    emit notConnected();
+    emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
   }
 }
 
@@ -271,21 +295,11 @@ void CUXInterface::onIdleAirControlMovementRequest(int direction, int steps)
  */
 bool CUXInterface::connectToECU()
 {
-  bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
+  const bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
 
   if (status)
   {
     emit connected();
-
-#ifdef ENABLE_FORCE_OPEN_LOOP
-    uint8_t openLoopByte = 0;
-
-    if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &openLoopByte))
-    {
-      emit forceOpenLoopState(openLoopByte & 0x10);
-    }
-
-#endif
   }
 
   return status;
@@ -305,12 +319,6 @@ void CUXInterface::disconnectFromECU()
  */
 void CUXInterface::clearFlagsAndData()
 {
-  if (m_romImage != 0)
-  {
-    delete m_romImage;
-    m_romImage = 0;
-  }
-
   // invalidate the stored fuel map data so that it is retrieved again upon reconnecting
   for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
   {
@@ -328,7 +336,6 @@ void CUXInterface::clearFlagsAndData()
   m_cuxinfo.voltageFactorA = 0;
   m_cuxinfo.voltageFactorB = 0;
   m_cuxinfo.voltageFactorC = 0;
-  m_readTuneId = false;
   m_rpmLimitRead = false;
 }
 
@@ -412,22 +419,20 @@ void CUXInterface::onStartPollingRequest()
 void CUXInterface::runServiceLoop()
 {
   ReadResult res = ReadResult_NoStatement;
-
   bool connected = c14cux_isConnected(&m_cuxinfo);
 
   while (!m_stopPolling && !m_shutdownThread && connected)
   {
+    // process any queued requests before we get the periodic data update
+    while (!m_reqQueue.isEmpty())
+    {
+      processQueuedRequest();
+    }
+
     res = readData();
 
     if (res == ReadResult_Success)
     {
-      if (!m_readTuneId &&
-          c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
-      {
-        m_readTuneId = true;
-        emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
-      }
-
       emit readSuccess();
       emit dataReady();
     }
@@ -445,7 +450,6 @@ void CUXInterface::runServiceLoop()
   }
 
   emit disconnected();
-
   clearFlagsAndData();
 
   if (m_shutdownThread)
@@ -723,19 +727,12 @@ void CUXInterface::cancelRead()
 /**
  * Returns the data for a particular fuel map.
  * @param fuelMapId ID of the fuel map to retrieve
- * @return Pointer to the container holding the fuel map data, or 0 if the
+ * @return Pointer to the container holding the fuel map data, or nullptr if the
  *   fuel map in question has not yet been retrieved
  */
-const QByteArray* CUXInterface::getFuelMap(unsigned int fuelMapId) const
+const QByteArray* const CUXInterface::getFuelMap(unsigned int fuelMapId) const
 {
-  const QByteArray* map = 0;
-
-  if (m_fuelMapDataIsCurrent[fuelMapId])
-  {
-    map = &(m_fuelMaps[fuelMapId]);
-  }
-
-  return map;
+  return (m_fuelMapDataIsCurrent[fuelMapId] ? &m_fuelMaps[fuelMapId] : nullptr);
 }
 
 /**
@@ -758,14 +755,7 @@ void CUXInterface::invalidateFuelMapData()
  */
 int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId) const
 {
-  int adjFactor = -1;
-
-  if (m_fuelMapDataIsCurrent[fuelMapId])
-  {
-    adjFactor = m_fuelMapAdjFactors[fuelMapId];
-  }
-
-  return adjFactor;
+  return (m_fuelMapDataIsCurrent[fuelMapId] ? m_fuelMapAdjFactors[fuelMapId] : -1);
 }
 
 /**
@@ -922,139 +912,3 @@ void CUXInterface::setReadIntervals(QHash<SampleType, unsigned int> intervals)
   }
 }
 
-#ifdef ENABLE_FORCE_OPEN_LOOP
-/**
- * Resets the long term lambda trim to the midpoint value
- */
-void CUXInterface::onForceOpenLoopRequest(bool forceOpen)
-{
-  if (c14cux_isConnected(&m_cuxinfo))
-  {
-    uint8_t byte87 = 0x00;
-
-    if (c14cux_readMem(&m_cuxinfo, 0x0087, 1, &byte87))
-    {
-      if (forceOpen)
-      {
-        byte87 |= 0x10;
-      }
-      else
-      {
-        byte87 &= 0xEF;
-      }
-
-      c14cux_writeMem(&m_cuxinfo, 0x0087, byte87);
-    }
-  }
-}
-#endif
-
-#ifdef ENABLE_SIM_MODE
-void CUXInterface::onSimModeWriteRequest(bool enableSimMode, SimulationInputValues simVals, SimulationInputChanges changes)
-{
-  if (c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str()))
-  {
-    bool success = true;
-
-    if (changes.inertiaSwitch)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2060, simVals.inertiaSwitch);
-    }
-
-    if (changes.heatedScreen)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2061, simVals.heatedScreen);
-    }
-
-    if (changes.maf)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2062, (uint8_t)((simVals.maf & (0xFF00)) >> 8));
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2063, (uint8_t)(simVals.maf & (0x00FF)));
-    }
-
-    if (changes.throttle)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2064, (uint8_t)((simVals.throttle & (0xFF00)) >> 8));
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2065, (uint8_t)(simVals.throttle & (0x00FF)));
-    }
-
-    if (changes.coolantTemp)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2066, simVals.coolantTemp);
-    }
-
-    if (changes.neutralSwitch)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2067, simVals.neutralSwitch);
-    }
-
-    if (changes.airConLoad)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2068, simVals.airConLoad);
-    }
-
-    if (changes.mainRelay)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206A, simVals.mainRelay);
-    }
-
-    if (changes.mafTrim)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206B, simVals.mafTrim);
-    }
-
-    if (changes.tuneResistor)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206C, simVals.tuneResistor);
-    }
-
-    if (changes.fuelTemp)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206D, simVals.fuelTemp);
-    }
-
-    if (changes.o2OddDutyCycle)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206E, simVals.o2OddDutyCycle);
-    }
-
-    if (changes.o2SensorReference)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x206F, simVals.o2SensorReference);
-    }
-
-    if (changes.diagnosticPlug)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2070, simVals.diagnosticPlug);
-    }
-
-    if (changes.o2EvenDutyCycle)
-    {
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2071, simVals.o2EvenDutyCycle);
-    }
-
-    if (enableSimMode && success)
-    {
-      // write the magic pattern to turn on simulation mode
-      success &= c14cux_writeMem(&m_cuxinfo, 0x2072, 0x55);
-
-      // clear any fault codes that were set as a result of running the ECU
-      // with sensors missing from the harness
-      success &= c14cux_clearFaultCodes(&m_cuxinfo);
-    }
-
-    if (success)
-    {
-      emit simModeWriteSuccess();
-    }
-    else
-    {
-      emit simModeWriteFailure();
-    }
-  }
-  else
-  {
-    emit notConnected();
-  }
-}
-#endif

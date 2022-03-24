@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IdleAirControlDialog</class>
+ <widget class="QDialog" name="IdleAirControlDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>421</width>
+    <height>181</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Idle Air Control</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="3">
+    <widget class="QRadioButton" name="m_openValveButton">
+     <property name="text">
+      <string>Open IAC valve</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QRadioButton" name="m_closeValveButton">
+     <property name="text">
+      <string>Close IAC valve</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QSpinBox" name="m_stepCountBox">
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="value">
+      <number>255</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QPushButton" name="m_closeButton">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="m_stepCountLabel">
+     <property name="text">
+      <string>Steps:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QPushButton" name="m_sendCommandButton">
+     <property name="text">
+      <string>Send command</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="6">
+    <widget class="QLabel" name="m_noticeLabel">
+     <property name="text">
+      <string>Note: it is recommended to only test the idle air control movement when the engine is not running. Attempting to move the bypass valve while the engine is running may result in unpredictable behavior.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

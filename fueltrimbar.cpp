@@ -28,9 +28,9 @@ void FuelTrimBar::setValue(int value)
  */
 void FuelTrimBar::paintEvent(QPaintEvent*)
 {
-  int currentVal = this->value();
-  int max = this->maximum();
-  int min = this->minimum();
+  const int currentVal = this->value();
+  const int max = this->maximum();
+  const int min = this->minimum();
   QStylePainter painter(this);
   QStyleOptionProgressBar opt;
 
@@ -48,15 +48,16 @@ void FuelTrimBar::paintEvent(QPaintEvent*)
   // a narrow gutter inside the groove not occupied by the bar.
   opt.rect = style()->subElementRect(QStyle::SE_ProgressBarContents, &opt, this);
 
-  float percentOfWidth = (float)(qAbs(currentVal)) / (float)(max - min);
-  int left = opt.rect.topLeft().x();
-  int right = opt.rect.topRight().x();
-  int top = opt.rect.topLeft().y();
-  int height = opt.rect.bottomLeft().y() - top + 1;
-  int barWidth = (right - left) * percentOfWidth;
-  int midPoint = left + ((right - left) / 2);
-  int startPoint = (currentVal >= 0) ? midPoint : midPoint - barWidth;
+  const float percentOfWidth = (float)(qAbs(currentVal)) / (float)(max - min);
+  const int left = opt.rect.topLeft().x();
+  const int right = opt.rect.topRight().x();
+  const int top = opt.rect.topLeft().y();
+  const int height = opt.rect.bottomLeft().y() - top + 1;
+  const int barWidth = (right - left) * percentOfWidth;
+  const int midPoint = left + ((right - left) / 2);
+  const int startPoint = (currentVal >= 0) ? midPoint : midPoint - barWidth;
 
   opt.rect = QRect(startPoint, top, barWidth + 2, height);
   style()->drawControl(QStyle::CE_ProgressBarContents, &opt, &painter, this);
 }
+
