@@ -38,7 +38,7 @@ set (CPACK_SOURCE_IGNORE_FILES
       "release"
       "object_script.*")
 
-find_package (Qt6Widgets)
+find_package (Qt6 COMPONENTS Core Widgets REQUIRED)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
@@ -144,8 +144,6 @@ if (MINGW)
   else ()
     message (SEND_ERROR "Could not find libzstd!")
   endif ()
-
-  find_package (Qt6 COMPONENTS Core Widgets REQUIRED)
 
   get_target_property (QT6CORE_LIB Qt6::Core LOCATION)
   if (QT6CORE_LIB)

@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 #elif defined(WIN32)
+#include <wchar.h>
 #include <stdio.h>
 #include <windows.h>
 #endif
@@ -90,18 +91,18 @@ QStringList getSerialDevList(const QString savedDevName)
 #elif defined(WIN32)
 
   // use a WinAPI mechanism to enumerate ports
-  char portName[8];
+  wchar_t portName[16];
   COMMCONFIG cc;
   DWORD dwSize = sizeof(COMMCONFIG);
 
   // apparently, COM ports can be numbered from 1 to 255
   for (int portNum = 1; portNum < 256; portNum++)
   {
-    snprintf(portName, 8, "COM%d", portNum);
+    swprintf(portName, (const wchar_t*)"COM%d", portNum);
 
     if (GetDefaultCommConfig(portName, &cc, &dwSize))
     {
-      serialDevices.append(portName);
+      serialDevices.append(QString::fromWCharArray(portName));
     }
   }
 
