@@ -44,6 +44,7 @@ const QHash<TemperatureUnits, QString> MainWindow::s_tempUnitSuffix
 MainWindow::MainWindow (bool autoconnect,
                         bool autolog,
                         bool doublebaud,
+                        bool simulateConnection,
                         QWidget* parent)
   : QMainWindow(parent),
     m_ui(new Ui::MainWindow),
@@ -74,7 +75,7 @@ MainWindow::MainWindow (bool autoconnect,
   m_options = new OptionsDialog(this->windowTitle(), this);
   m_cux = new CUXInterface(m_options->getSerialDeviceName(), CUXInterface::getBaudRate(doublebaud),
                            m_options->getSpeedUnits(), m_options->getTemperatureUnits(),
-                           m_options->getRefreshFuelMap());
+                           m_options->getRefreshFuelMap(), simulateConnection);
 
   m_enabledSamples = m_options->getEnabledSamples();
   m_cux->setEnabledSamples(m_enabledSamples);

@@ -64,6 +64,8 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
 
 add_executable (rovergauge
     main.cpp
+    simulatedecudata.cpp
+    simulatedecudata.h
     cuxinterface.cpp
     cuxinterface.h
     helpviewer.cpp

@@ -11,6 +11,7 @@
 #include <QMap>
 #include "comm14cux.h"
 #include "commonunits.h"
+#include "simulatedecudata.h"
 
 static const unsigned int fuelMapCount = 6;
 
@@ -26,7 +27,8 @@ class CUXInterface : public QObject
   Q_OBJECT
 public:
   explicit CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
-                        TemperatureUnits tUnits, bool fuelMapRefresh, QObject* parent = 0);
+                        TemperatureUnits tUnits, bool fuelMapRefresh, bool simulateConnection,
+                        QObject* parent = 0);
   ~CUXInterface();
 
   void setSerialDevice(QString device)
@@ -292,6 +294,9 @@ private:
   static const int s_firstOpenLoopMap = 1;
   static const int s_lastOpenLoopMap = 3;
 
+  const bool m_sim;
+  bool m_simConnected;
+  SimulatedECUData* m_simEcu;
   QMutex m_queueMutex;
   QQueue<std::pair<QueueableRequest, int> > m_reqQueue;
 
@@ -361,6 +366,7 @@ private:
   void runServiceLoop();
   void clearFlagsAndData();
   ReadResult readData();
+  ReadResult readSimData();
   bool connectToECU();
   unsigned int convertSpeed(unsigned int speedMph) const;
   int convertTemperature(int tempF) const;

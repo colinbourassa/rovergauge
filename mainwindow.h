@@ -27,7 +27,6 @@
 #include "cuxinterface.h"
 #include "aboutbox.h"
 #include "logger.h"
-#include "fueltrimbar.h"
 #include "commonunits.h"
 #include "helpviewer.h"
 #include "batterybackeddisplay.h"
@@ -44,7 +43,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  MainWindow (bool autoconnect, bool autolog, bool doublebaud, QWidget* parent = 0);
+  MainWindow (bool autoconnect, bool autolog, bool doublebaud, bool simulateConnection, QWidget* parent = 0);
   ~MainWindow();
 
 public slots:

@@ -14,8 +14,12 @@
  * @param tUnits Units to be used when expressing coolant/fuel temperature
  */
 CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
-                           TemperatureUnits tUnits, bool fuelMapRefresh, QObject* parent) :
+                           TemperatureUnits tUnits, bool fuelMapRefresh, bool simulateConnection,
+                           QObject* parent) :
   QObject(parent),
+  m_sim(simulateConnection),
+  m_simConnected(false),
+  m_simEcu(nullptr),
   m_deviceName(device),
   m_baudRate(baud),
   m_stopPolling(false),
@@ -73,6 +77,11 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
   {
     m_lastReadTime.insert((SampleType)type, 0);
   }
+
+  if (m_sim)
+  {
+    m_simEcu = new SimulatedECUData();
+  }
 }
 
 /**
@@ -80,6 +89,7 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
  */
 CUXInterface::~CUXInterface()
 {
+  delete m_simEcu;
 }
 
 /**
@@ -156,7 +166,7 @@ void CUXInterface::processQueuedRequest()
 void CUXInterface::readFaultCodes()
 {
   memset(&m_faultCodes, 0, sizeof(m_faultCodes));
-  if (c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+  if (m_sim || c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
   {
     emit faultCodesReady();
   }
@@ -171,7 +181,7 @@ void CUXInterface::readFaultCodes()
  */
 void CUXInterface::readBatteryBackedMem()
 {
-  if (c14cux_readMem(&m_cuxinfo, 0x0040, 21, reinterpret_cast<uint8_t*>(m_batteryBackedMem.data())))
+  if (m_sim || c14cux_readMem(&m_cuxinfo, 0x0040, 21, reinterpret_cast<uint8_t*>(m_batteryBackedMem.data())))
   {
     emit batteryBackedMemReady();
   }
@@ -186,14 +196,22 @@ void CUXInterface::readBatteryBackedMem()
  */
 void CUXInterface::clearFaultCodes()
 {
-  if (c14cux_clearFaultCodes(&m_cuxinfo) &&
-      c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+  if (m_sim)
   {
+    memset(&m_faultCodes, 0, sizeof(m_faultCodes));
     emit faultCodesClearSuccess(m_faultCodes);
   }
   else
   {
-    emit faultCodesClearFailure();
+    if (c14cux_clearFaultCodes(&m_cuxinfo) &&
+        c14cux_getFaultCodes(&m_cuxinfo, &m_faultCodes))
+    {
+      emit faultCodesClearSuccess(m_faultCodes);
+    }
+    else
+    {
+      emit faultCodesClearFailure();
+    }
   }
 }
 
@@ -202,18 +220,26 @@ void CUXInterface::clearFaultCodes()
  */
 void CUXInterface::readROMImage()
 {
-  if (c14cux_dumpROM(&m_cuxinfo, reinterpret_cast<uint8_t*>(m_romImage.data())))
+  if (m_sim)
   {
-    if (!m_readCanceled)
-    {
-      emit romImageReady();
-    }
+    // In simulation mode, we don't support reading the ROM image.
+    emit romImageReadFailed();
   }
   else
   {
-    if (!m_readCanceled)
+    if (c14cux_dumpROM(&m_cuxinfo, reinterpret_cast<uint8_t*>(m_romImage.data())))
     {
-      emit romImageReadFailed();
+      if (!m_readCanceled)
+      {
+        emit romImageReady();
+      }
+    }
+    else
+    {
+      if (!m_readCanceled)
+      {
+        emit romImageReadFailed();
+      }
     }
   }
 
@@ -231,8 +257,16 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
   uint16_t adjFactor = 0;
   bool status = false;
 
-  if (c14cux_getFuelMap(&m_cuxinfo, static_cast<int8_t>(fuelMapId), &adjFactor, &m_rowScaler[fuelMapId], buffer) &&
-      c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, reinterpret_cast<uint8_t*>(&m_mafScaler)))
+  if (m_sim)
+  {
+    // TODO: populate buffer with fuel map data
+    m_mafScaler = 0xabcd;
+    m_fuelMapAdjFactors[fuelMapId] = 0xaaaa;
+    m_fuelMapDataIsCurrent[fuelMapId] = true;
+    status = true;
+  }
+  else if (c14cux_getFuelMap(&m_cuxinfo, static_cast<int8_t>(fuelMapId), &adjFactor, &m_rowScaler[fuelMapId], buffer) &&
+           c14cux_readMem(&m_cuxinfo, C14CUX_MAFRowScalerOffset, 2, reinterpret_cast<uint8_t*>(&m_mafScaler)))
   {
     m_mafScaler = swapShort(m_mafScaler);
     m_fuelMapAdjFactors[fuelMapId] = adjFactor;
@@ -253,7 +287,12 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
  */
 void CUXInterface::readRPMTable()
 {
-  if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
+  if (m_sim)
+  {
+    // TODO: populate m_rpmTable with simulated RPM table data
+    emit rpmTableReady();
+  }
+  else if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))
   {
     emit rpmTableReady();
   }
@@ -265,7 +304,14 @@ void CUXInterface::readRPMTable()
  */
 void CUXInterface::runFuelPump()
 {
-  c14cux_runFuelPump(&m_cuxinfo);
+  if (m_sim)
+  {
+    // TODO: set fuel pump run flag
+  }
+  else
+  {
+    c14cux_runFuelPump(&m_cuxinfo);
+  }
 }
 
 /**
@@ -278,12 +324,19 @@ void CUXInterface::driveIACMotor(int steps)
   // this should be set to 0 when opening the valve, 1 when closing
   const uint8_t direction = (steps >= 0) ? 0 : 1;
   const uint8_t distance = abs(steps);
-  c14cux_driveIdleAirControlMotor(&m_cuxinfo, direction, distance);
+  if (!m_sim)
+  {
+    c14cux_driveIdleAirControlMotor(&m_cuxinfo, direction, distance);
+  }
 }
 
 void CUXInterface::readTuneRevID()
 {
-  if (c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
+  if (m_sim)
+  {
+    emit revisionNumberReady(1234, 255, 255);
+  }
+  else if (c14cux_getTuneRevision(&m_cuxinfo, &m_tune, &m_checksumFixer, &m_ident))
   {
     emit revisionNumberReady(m_tune, m_checksumFixer, m_ident);
   }
@@ -295,7 +348,13 @@ void CUXInterface::readTuneRevID()
  */
 bool CUXInterface::connectToECU()
 {
-  const bool status = c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
+  if (m_sim)
+  {
+    m_simConnected = true;
+  }
+
+  const bool status = m_sim ?
+    true : c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
 
   if (status)
   {
@@ -346,13 +405,27 @@ void CUXInterface::onShutdownThreadRequest()
 {
   // If we're currently connected, just set a flag to let the polling loop
   // shut the thread down. Otherwise, shut it down here.
-  if (c14cux_isConnected(&m_cuxinfo))
+  if (m_sim)
   {
-    m_shutdownThread = true;
+    if (m_simConnected)
+    {
+      m_shutdownThread = true;
+    }
+    else
+    {
+      QThread::currentThread()->quit();
+    }
   }
   else
   {
-    QThread::currentThread()->quit();
+    if (c14cux_isConnected(&m_cuxinfo))
+    {
+      m_shutdownThread = true;
+    }
+    else
+    {
+      QThread::currentThread()->quit();
+    }
   }
 }
 
@@ -362,7 +435,9 @@ void CUXInterface::onShutdownThreadRequest()
  */
 bool CUXInterface::isConnected()
 {
-  return (m_initComplete && c14cux_isConnected(&m_cuxinfo));
+  return m_sim ?
+        (m_initComplete && m_simConnected) :
+        (m_initComplete && c14cux_isConnected(&m_cuxinfo));
 }
 
 /**
@@ -376,7 +451,10 @@ void CUXInterface::onParentThreadStarted()
   // it's in the context of the thread that will use it.
   if (!m_initComplete)
   {
-    c14cux_init(&m_cuxinfo);
+    if (!m_sim)
+    {
+      c14cux_init(&m_cuxinfo);
+    }
     m_initComplete = true;
   }
 
@@ -419,7 +497,7 @@ void CUXInterface::onStartPollingRequest()
 void CUXInterface::runServiceLoop()
 {
   ReadResult res = ReadResult_NoStatement;
-  bool connected = c14cux_isConnected(&m_cuxinfo);
+  bool connected = m_sim ? m_simConnected : c14cux_isConnected(&m_cuxinfo);
 
   while (!m_stopPolling && !m_shutdownThread && connected)
   {
@@ -429,7 +507,7 @@ void CUXInterface::runServiceLoop()
       processQueuedRequest();
     }
 
-    res = readData();
+    res = m_sim ? readSimData() : readData();
 
     if (res == ReadResult_Success)
     {
@@ -444,7 +522,7 @@ void CUXInterface::runServiceLoop()
     QCoreApplication::processEvents();
   }
 
-  if (connected)
+  if (connected && !m_sim)
   {
     c14cux_disconnect(&m_cuxinfo);
   }
@@ -680,6 +758,164 @@ CUXInterface::ReadResult CUXInterface::readData()
   return result;
 }
 
+CUXInterface::ReadResult CUXInterface::readSimData()
+{
+  if (isDueForMeasurement(SampleType_MAF))
+  {
+    QThread::currentThread()->msleep(5);
+    m_mafReading = m_simEcu->maf();
+  }
+
+  if (isDueForMeasurement(SampleType_Throttle))
+  {
+    QThread::currentThread()->msleep(5);
+    m_throttlePos = m_simEcu->throttle();
+  }
+
+  if (isDueForMeasurement(SampleType_LambdaTrimShort))
+  {
+    QThread::currentThread()->msleep(5);
+    m_lambdaTrimOdd = m_simEcu->lambdaShortOdd();
+    m_lambdaTrimEven = m_simEcu->lambdaShortEven();
+  }
+
+  if (isDueForMeasurement(SampleType_EngineRPM))
+  {
+    QThread::currentThread()->msleep(5);
+    m_engineSpeedRPM = m_simEcu->engineRPM();
+    m_rpmLimitRead = true;
+    emit rpmLimitReady(m_simEcu->engineRPMLimit());
+  }
+
+  if (isDueForMeasurement(SampleType_FuelMapRowCol))
+  {
+    QThread::currentThread()->msleep(5);
+    m_currentFuelMapRowIndex = m_simEcu->fuelMapRowIndex();
+    m_fuelMapRowWeighting = m_simEcu->fuelMapRowWeighting();
+    m_currentFuelMapColumnIndex = m_simEcu->fuelMapRowIndex();
+    m_fuelMapColWeighting = m_simEcu->fuelMapRowWeighting();
+  }
+
+  if (isDueForMeasurement(SampleType_InjectorPulseWidth))
+  {
+    QThread::currentThread()->msleep(5);
+    m_injectorPulseWidthUs = m_simEcu->injectorPulsewidthUs();
+    m_injectorPulseWidthMs = (float)m_injectorPulseWidthUs / 1000.0;
+  }
+
+  if (isDueForMeasurement(SampleType_IdleBypassPosition))
+  {
+    QThread::currentThread()->msleep(5);
+    m_idleBypassPos = m_simEcu->idleBypassPos();
+  }
+
+  if (isDueForMeasurement(SampleType_LambdaTrimLong))
+  {
+    QThread::currentThread()->msleep(5);
+    m_lambdaTrimOdd = m_simEcu->lambdaLongOdd();
+    m_lambdaTrimEven = m_simEcu->lambdaLongEven();
+  }
+
+  if (isDueForMeasurement(SampleType_MainVoltage))
+  {
+    QThread::currentThread()->msleep(5);
+    m_mainVoltage = m_simEcu->mainVoltage();
+  }
+
+  if (isDueForMeasurement(SampleType_TargetIdleRPM))
+  {
+    QThread::currentThread()->msleep(5);
+    m_targetIdleSpeed = m_simEcu->targetIdle();
+    m_idleMode = m_simEcu->idleMode();
+  }
+
+  if (isDueForMeasurement(SampleType_FuelPumpRelay))
+  {
+    QThread::currentThread()->msleep(5);
+    m_fuelPumpRelayOn = m_simEcu->fuelPumpRelayState();
+  }
+
+  if (isDueForMeasurement(SampleType_GearSelection))
+  {
+    QThread::currentThread()->msleep(5);
+    m_gear = m_simEcu->gearSelection();
+  }
+
+  if (isDueForMeasurement(SampleType_RoadSpeed))
+  {
+    QThread::currentThread()->msleep(5);
+    m_roadSpeedMPH = m_simEcu->roadSpeedMPH();
+  }
+
+  if (isDueForMeasurement(SampleType_EngineTemperature))
+  {
+    QThread::currentThread()->msleep(5);
+    m_coolantTempF = m_simEcu->coolantTempF();
+  }
+
+  if (isDueForMeasurement(SampleType_FuelTemperature))
+  {
+    QThread::currentThread()->msleep(5);
+    m_fuelTempF = m_simEcu->fuelTempF();
+  }
+
+  if (isDueForMeasurement(SampleType_FuelMapData))
+  {
+    if (readFuelMap(m_currentFuelMapIndex))
+    {
+      emit fuelMapReady(m_currentFuelMapIndex);
+    }
+  }
+
+  // attempt to read the MIL status; if it can't be read, default it to off on the display
+  if (isDueForMeasurement(SampleType_MIL))
+  {
+    QThread::currentThread()->msleep(5);
+    m_milOn = m_simEcu->milOn();
+  }
+
+  if (isDueForMeasurement(SampleType_FuelMapIndex))
+  {
+    QThread::currentThread()->msleep(5);
+    uint8_t newFuelMapIndex = m_simEcu->currentFuelMap();
+
+    // if the fuel map index has changed, or if this is the first time we've read it
+    if ((newFuelMapIndex != m_currentFuelMapIndex) || !m_fuelMapIndexRead)
+    {
+      m_currentFuelMapIndex = newFuelMapIndex;
+      emit fuelMapIndexHasChanged(m_currentFuelMapIndex);
+    }
+
+    // regardless of whether the map has changed, we know now
+    // that is has been read at least once
+    m_fuelMapIndexRead = true;
+
+    // set the current fueling mode (open-loop or closed-loop)
+    c14cux_feedback_mode newFeedbackMode = C14CUX_FeedbackMode_ClosedLoop;
+
+    if ((m_currentFuelMapIndex >= s_firstOpenLoopMap) &&
+        (m_currentFuelMapIndex <= s_lastOpenLoopMap))
+    {
+      newFeedbackMode = C14CUX_FeedbackMode_OpenLoop;
+    }
+
+    // if the feedback mode has changed, emit a signal
+    if (newFeedbackMode != m_feedbackMode)
+    {
+      m_feedbackMode = newFeedbackMode;
+      emit feedbackModeHasChanged(m_feedbackMode);
+    }
+  }
+
+  if (isDueForMeasurement(SampleType_COTrimVoltage))
+  {
+    QThread::currentThread()->msleep(5);
+    m_coTrimVoltage = m_simEcu->coTrimVoltage();
+  }
+
+  return CUXInterface::ReadResult_Success;
+}
+
 /**
  * Merges the result of a group of read attempts with a running aggregation of read results.
  */
@@ -721,7 +957,10 @@ CUXInterface::ReadResult CUXInterface::mergeResult(ReadResult total, bool single
 void CUXInterface::cancelRead()
 {
   m_readCanceled = true;
-  c14cux_cancelRead(&m_cuxinfo);
+  if (!m_sim)
+  {
+    c14cux_cancelRead(&m_cuxinfo);
+  }
 }
 
 /**
