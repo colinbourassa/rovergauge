@@ -792,8 +792,8 @@ CUXInterface::ReadResult CUXInterface::readSimData()
     QThread::currentThread()->msleep(5);
     m_currentFuelMapRowIndex = m_simEcu->fuelMapRowIndex();
     m_fuelMapRowWeighting = m_simEcu->fuelMapRowWeighting();
-    m_currentFuelMapColumnIndex = m_simEcu->fuelMapRowIndex();
-    m_fuelMapColWeighting = m_simEcu->fuelMapRowWeighting();
+    m_currentFuelMapColumnIndex = m_simEcu->fuelMapColumnIndex();
+    m_fuelMapColWeighting = m_simEcu->fuelMapColumnWeighting();
   }
 
   if (isDueForMeasurement(SampleType_InjectorPulseWidth))
@@ -838,7 +838,7 @@ CUXInterface::ReadResult CUXInterface::readSimData()
   if (isDueForMeasurement(SampleType_GearSelection))
   {
     QThread::currentThread()->msleep(5);
-    m_gear = m_simEcu->gearSelection();
+    m_gear = (c14cux_gear)m_simEcu->gearSelection();
   }
 
   if (isDueForMeasurement(SampleType_RoadSpeed))
