@@ -108,3 +108,31 @@ bool SimulatedECUData::mil()
   return m_milOn;
 }
 
+float SimulatedECUData::coolantTempF()
+{
+  m_coolantTempF += m_coolantTempDirection ? 1.0f : -1.0f;
+  if (m_coolantTempDirection && (m_coolantTempF >= 230.0f))
+  {
+    m_coolantTempDirection = false;
+  }
+  else if (!m_coolantTempDirection && (m_coolantTempF <= 40.0f))
+  {
+    m_coolantTempDirection = true;
+  }
+  return m_coolantTempF;
+}
+
+float SimulatedECUData::fuelTempF()
+{
+  m_fuelTempF += m_fuelTempDirection ? 1.0f : -1.0f;
+  if (m_fuelTempDirection && (m_fuelTempF >= 230.0f))
+  {
+    m_fuelTempDirection = false;
+  }
+  else if (!m_fuelTempDirection && (m_fuelTempF <= 40.0f))
+  {
+    m_fuelTempDirection = true;
+  }
+  return m_fuelTempF;
+}
+
