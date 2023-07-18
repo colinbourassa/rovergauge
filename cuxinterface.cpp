@@ -871,7 +871,7 @@ CUXInterface::ReadResult CUXInterface::readSimData()
   if (isDueForMeasurement(SampleType_MIL))
   {
     QThread::currentThread()->msleep(5);
-    m_milOn = m_simEcu->milOn();
+    m_milOn = m_simEcu->mil();
   }
 
   if (isDueForMeasurement(SampleType_FuelMapIndex))

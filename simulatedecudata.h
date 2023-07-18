@@ -13,6 +13,7 @@ public:
   int16_t lambdaShortEven();
   int16_t lambdaLongOdd();
   int16_t lambdaLongEven();
+  bool mil();
 
 private:
   float m_maf;
@@ -29,6 +30,7 @@ private:
   int16_t m_lambdaLongEven;
   bool m_lambdaLongEvenDirection;
 
+  bool m_milOn;
 };
 
 #endif // SIMULATEDECUDATA_H
