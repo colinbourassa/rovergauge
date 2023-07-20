@@ -113,7 +113,7 @@ void CUXInterface::enqueueRequest(QueueableRequest req)
 
 void CUXInterface::processQueuedRequest()
 {
-  if (m_initComplete && c14cux_isConnected(&m_cuxinfo))
+  if (isConnected())
   {
     m_queueMutex.lock();
     const std::pair<QueueableRequest, int> req = m_reqQueue.dequeue();
@@ -522,7 +522,11 @@ void CUXInterface::runServiceLoop()
     QCoreApplication::processEvents();
   }
 
-  if (connected && !m_sim)
+  if (m_sim)
+  {
+    m_simConnected = false;
+  }
+  else if (connected)
   {
     c14cux_disconnect(&m_cuxinfo);
   }

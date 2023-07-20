@@ -90,13 +90,13 @@ void SimulatedECUData::adjust(
 
 float SimulatedECUData::maf()
 {
-  adjust(m_maf, m_mafDirection, 1.0f, 99.0f, 1.0f);
+  adjust(m_maf, m_mafDirection, 0.01f, 0.99f, 0.01f);
   return m_maf;
 }
 
 float SimulatedECUData::throttle()
 {
-  adjust(m_throttle, m_throttleDirection, 1.0f, 99.0f, 1.0f);
+  adjust(m_throttle, m_throttleDirection, 0.01f, 0.99f, 0.01f);
   return m_throttle;
 }
 
@@ -131,13 +131,13 @@ bool SimulatedECUData::mil()
 
 float SimulatedECUData::coolantTempF()
 {
-  adjust(m_coolantTempF, m_coolantTempDirection, 40.0f, 230.0f, 0.8f);
+  adjust(m_coolantTempF, m_coolantTempDirection, 40.0f, 230.0f, 2.5f);
   return m_coolantTempF;
 }
 
 float SimulatedECUData::fuelTempF()
 {
-  adjust(m_fuelTempF, m_fuelTempDirection, 40.0f, 230.0f, 0.4f);
+  adjust(m_fuelTempF, m_fuelTempDirection, 40.0f, 230.0f, 2.0f);
   return m_fuelTempF;
 }
 
@@ -206,7 +206,7 @@ uint8_t SimulatedECUData::currentFuelMap()
 
 uint8_t SimulatedECUData::roadSpeedMPH()
 {
-  adjust(m_roadSpeedMPH, m_roadSpeedMPHDirection, 0, 157, 1);
+  adjust(m_roadSpeedMPH, m_roadSpeedMPHDirection, 20, 25, 1);
   return m_roadSpeedMPH;
 }
 
