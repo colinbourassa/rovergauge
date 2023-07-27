@@ -212,7 +212,7 @@ uint8_t SimulatedECUData::roadSpeedMPH()
 
 float SimulatedECUData::idleBypassPos()
 {
-  adjust(m_idleBypassPercentage, m_idleBypassPercentageDirection, 1.0f, 99.0f, 1.0f);
+  adjust(m_idleBypassPercentage, m_idleBypassPercentageDirection, 0.01f, 0.99f, 0.01f);
   return m_idleBypassPercentage;
 }
 

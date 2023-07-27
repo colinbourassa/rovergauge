@@ -16,8 +16,8 @@ const float MainWindow::s_speedometerMaxKPH = 240.0;
 
 const QHash<TemperatureUnits, QPair<int,int> > MainWindow::s_tempLimits
 {
-  { Fahrenheit, { 180, 210 } },
-  { Celsius,    {  80, 98  } }
+  { Fahrenheit, { 180, 225 } },
+  { Celsius,    {  80, 108 } }
 };
 
 const QHash<TemperatureUnits, QPair<int,int> > MainWindow::s_tempRange
