@@ -1548,6 +1548,7 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
     // we receive the signal that the new data is ready.
     m_fuelMapDataIsCurrent = false;
     m_cux->enqueueRequest(QueueableRequest_FuelMapData, fuelMapId);
+    m_cux->enqueueRequest(QueueableRequest_RPMTable);
   }
 }
 
