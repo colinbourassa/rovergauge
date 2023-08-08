@@ -180,6 +180,7 @@ void MainWindow::setupWidgets()
   connect(m_ui->m_exitAction,           SIGNAL(triggered()), this, SLOT(onExitSelected()));
   connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
   connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()), this, SLOT(onShowFaultCodesClicked()));
+  connect(m_ui->m_batteryBackedAction,  SIGNAL(triggered()), this, SLOT(onBatteryBackedMemClicked()));
   connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
   connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
   connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
@@ -1360,11 +1361,19 @@ void MainWindow::onIdleAirControlClicked()
 }
 
 /**
- * Sends a request to read the fault codes.
+ * Queues a request to read the fault codes.
  */
 void MainWindow::onShowFaultCodesClicked()
 {
   m_cux->enqueueRequest(QueueableRequest_FaultCodes);
+}
+
+/**
+ * Queues a request to read the battery-backed memory.
+ */
+void MainWindow::onBatteryBackedMemClicked()
+{
+  m_cux->enqueueRequest(QueueableRequest_BatteryBackedMem);
 }
 
 /**

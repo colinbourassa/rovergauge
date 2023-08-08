@@ -149,6 +149,7 @@ private slots:
   void onFuelPumpContinuous();
   void onIdleAirControlClicked();
   void onShowFaultCodesClicked();
+  void onBatteryBackedMemClicked();
   void onLambdaTrimButtonClicked(QAbstractButton* button);
   void onMAFReadingButtonClicked(QAbstractButton* button);
   void onThrottleTypeButtonClicked(QAbstractButton* button);
