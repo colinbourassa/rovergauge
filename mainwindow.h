@@ -55,6 +55,7 @@ public slots:
   void onFailedToConnect(QString dev);
   void onFaultCodesReady();
   void onFaultCodesReadFailed();
+  void onFaultCodesClearRequested();
   void onBatteryBackedMemReady();
   void onBatteryBackedMemReadFailed();
   void onFuelMapDataReady(unsigned int fuelMapId);
@@ -147,6 +148,7 @@ private slots:
   void onFuelPumpRunTimer();
   void onFuelPumpContinuous();
   void onIdleAirControlClicked();
+  void onShowFaultCodesClicked();
   void onLambdaTrimButtonClicked(QAbstractButton* button);
   void onMAFReadingButtonClicked(QAbstractButton* button);
   void onThrottleTypeButtonClicked(QAbstractButton* button);

@@ -176,12 +176,13 @@ void MainWindow::setupWidgets()
   m_ui->m_stopLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
 
   // connect menu item signals
-  connect(m_ui->m_saveROMImageAction,   SIGNAL(triggered()),     this,  SLOT(onSaveROMImageSelected()));
-  connect(m_ui->m_exitAction,           SIGNAL(triggered()),     this,  SLOT(onExitSelected()));
-  connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()),     this,  SLOT(onIdleAirControlClicked()));
-  connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()),     this,  SLOT(onEditOptionsClicked()));
-  connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()),     this,  SLOT(onHelpContentsClicked()));
-  connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()),     this,  SLOT(onHelpAboutClicked()));
+  connect(m_ui->m_saveROMImageAction,   SIGNAL(triggered()), this, SLOT(onSaveROMImageSelected()));
+  connect(m_ui->m_exitAction,           SIGNAL(triggered()), this, SLOT(onExitSelected()));
+  connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
+  connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()), this, SLOT(onShowFaultCodesClicked()));
+  connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
+  connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
+  connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
 
   // connect button signals
   connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
@@ -396,11 +397,16 @@ void MainWindow::onFaultCodesReady()
 {
   c14cux_faultcodes faultCodes = m_cux->getFaultCodes();
   FaultCodeDialog faultDialog(this->windowTitle(), faultCodes);
-  connect(&faultDialog, SIGNAL(clearFaultCodes()), m_cux, SLOT(onFaultCodesClearRequested()));
+  connect(&faultDialog, SIGNAL(clearFaultCodes()), this, SLOT(onFaultCodesClearRequested()));
   connect(m_cux, SIGNAL(faultCodesClearSuccess(c14cux_faultcodes)),
           &faultDialog, SLOT(onFaultClearSuccess(c14cux_faultcodes)));
   connect(m_cux, SIGNAL(faultCodesClearFailure()), &faultDialog, SLOT(onFaultClearFailure()));
   faultDialog.exec();
+}
+
+void MainWindow::onFaultCodesClearRequested()
+{
+  m_cux->enqueueRequest(QueueableRequest_ClearFaultCodes);
 }
 
 /**
@@ -1351,6 +1357,14 @@ void MainWindow::onFuelPumpRunTimer()
 void MainWindow::onIdleAirControlClicked()
 {
   m_iacDialog->show();
+}
+
+/**
+ * Sends a request to read the fault codes.
+ */
+void MainWindow::onShowFaultCodesClicked()
+{
+  m_cux->enqueueRequest(QueueableRequest_FaultCodes);
 }
 
 /**
