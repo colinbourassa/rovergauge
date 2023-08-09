@@ -44,8 +44,7 @@ SimulatedECUData::SimulatedECUData() :
 {
 }
 
-void SimulatedECUData::adjust(
-  int& val, bool& direction, int min, int max, int increment)
+void SimulatedECUData::adjust(int& val, bool& direction, int min, int max, int increment)
 {
   if (direction)
   {
@@ -66,8 +65,7 @@ void SimulatedECUData::adjust(
   }
 }
 
-void SimulatedECUData::adjust(
-  float& val, bool& direction, float min, float max, float increment)
+void SimulatedECUData::adjust(float& val, bool& direction, float min, float max, float increment)
 {
   if (direction)
   {
@@ -162,6 +160,27 @@ uint16_t SimulatedECUData::engineRPM()
 uint16_t SimulatedECUData::engineRPMLimit()
 {
   return m_engineRPMLimit;
+}
+
+void SimulatedECUData::engineRPMTable(c14cux_rpmtable& table)
+{
+  for (int col = 0; col < FUEL_MAP_COLUMNS; col++)
+  {
+    table.rpm[col] = 500 + (col * 250);
+  }
+}
+
+void SimulatedECUData::fuelMapData(uint8_t* buf, uint16_t& mafScaler, uint16_t& adjFactor)
+{
+  mafScaler = 0xabcd;
+  adjFactor = 0xaaaa;
+  for (int row = 0; row < FUEL_MAP_ROWS; row++)
+  {
+    for (int col = 0; col < FUEL_MAP_COLUMNS; col++)
+    {
+      buf[row*16 + col] = row * col * 2 + row * 3 + col;
+    }
+  }
 }
 
 uint8_t SimulatedECUData::fuelMapRowIndex()

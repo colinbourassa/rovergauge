@@ -259,9 +259,7 @@ bool CUXInterface::readFuelMap(unsigned int fuelMapId)
 
   if (m_sim)
   {
-    // TODO: populate buffer with fuel map data
-    m_mafScaler = 0xabcd;
-    m_fuelMapAdjFactors[fuelMapId] = 0xaaaa;
+    m_simEcu->fuelMapData(buffer, m_mafScaler, m_fuelMapAdjFactors[fuelMapId]);
     m_fuelMapDataIsCurrent[fuelMapId] = true;
     status = true;
   }
@@ -289,7 +287,7 @@ void CUXInterface::readRPMTable()
 {
   if (m_sim)
   {
-    // TODO: populate m_rpmTable with simulated RPM table data
+    m_simEcu->engineRPMTable(m_rpmTable);
     emit rpmTableReady();
   }
   else if (c14cux_getRpmTable(&m_cuxinfo, &m_rpmTable))

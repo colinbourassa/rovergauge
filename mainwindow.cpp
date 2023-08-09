@@ -1259,9 +1259,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
   }
   else
   {
-    QMessageBox::warning(this, "Error",
-                         "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
-                         QMessageBox::Ok);
+    onNotConnected();
   }
 }
 
@@ -1365,7 +1363,14 @@ void MainWindow::onIdleAirControlClicked()
  */
 void MainWindow::onShowFaultCodesClicked()
 {
-  m_cux->enqueueRequest(QueueableRequest_FaultCodes);
+  if (m_cux->isConnected())
+  {
+    m_cux->enqueueRequest(QueueableRequest_FaultCodes);
+  }
+  else
+  {
+    onNotConnected();
+  }
 }
 
 /**
@@ -1373,7 +1378,14 @@ void MainWindow::onShowFaultCodesClicked()
  */
 void MainWindow::onBatteryBackedMemClicked()
 {
-  m_cux->enqueueRequest(QueueableRequest_BatteryBackedMem);
+  if (m_cux->isConnected())
+  {
+    m_cux->enqueueRequest(QueueableRequest_BatteryBackedMem);
+  }
+  else
+  {
+    onNotConnected();
+  }
 }
 
 /**

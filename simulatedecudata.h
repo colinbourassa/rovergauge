@@ -2,6 +2,7 @@
 #define SIMULATEDECUDATA_H
 
 #include <stdint.h>
+#include "comm14cux.h"
 
 class SimulatedECUData
 {
@@ -20,6 +21,8 @@ public:
   float coTrimVoltage();
   uint16_t engineRPM();
   uint16_t engineRPMLimit();
+  void engineRPMTable(c14cux_rpmtable& table);
+  void fuelMapData(uint8_t* buf, uint16_t& mafScaler, uint16_t& adjFactor);
   uint8_t fuelMapRowIndex();
   uint8_t fuelMapRowWeighting();
   uint8_t fuelMapColumnIndex();
