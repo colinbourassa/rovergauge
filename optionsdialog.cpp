@@ -10,6 +10,7 @@
 OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
   m_ui(new Ui::OptionsDialog),
   m_serialDeviceChanged(false),
+  m_displayNumberBaseChanged(false),
   m_settingsGroupName("Settings"),
   m_settingSerialDev("SerialDevice"),
   m_settingRefreshFuelMap("RefreshFuelMap"),
@@ -197,9 +198,14 @@ void OptionsDialog::accept()
   m_speedoMultiplier = m_ui->m_speedoMultiplierSpinbox->value();
   m_speedoOffset     = m_ui->m_speedoOffsetSpinbox->value();
 
-  // display number based (used for rendering fuel map cell data:
+  // display number based (used for rendering fuel map cell data)
   // first entry in list is 'decimal', otherwise use hex
-  m_displayNumberBase = (m_ui->m_fuelMapDispBaseBox->currentIndex() == 0) ? 10 : 16;
+  const int newDisplayNumberBase = (m_ui->m_fuelMapDispBaseBox->currentIndex() == 0) ? 10 : 16;
+  m_displayNumberBaseChanged = (newDisplayNumberBase != m_displayNumberBase);
+  if (m_displayNumberBaseChanged)
+  {
+    m_displayNumberBase = newDisplayNumberBase;
+  }
 
   foreach(SampleType sType, m_sampleTypeNames.keys())
   {

@@ -41,6 +41,11 @@ public:
     return m_displayNumberBase;
   }
 
+  inline bool getDisplayNumberBaseChanged() const
+  {
+    return m_displayNumberBaseChanged;
+  }
+
   inline SpeedUnits getSpeedUnits() const
   {
     return m_speedUnits;
@@ -105,6 +110,7 @@ private:
   double m_speedoMultiplier;
   int m_speedoOffset;
   int m_displayNumberBase;
+  bool m_displayNumberBaseChanged;
 
   const QString m_settingsFileName;
   const QString m_settingsGroupName;

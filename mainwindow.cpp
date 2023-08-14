@@ -59,6 +59,7 @@ MainWindow::MainWindow (bool autoconnect,
     m_doubleBaudRate(doublebaud),
     m_shortcutStartLogging(QKeySequence(Qt::Key_F5), this),
     m_shortcutStopLogging(QKeySequence(Qt::Key_F7), this),
+    m_lastFuelMapCellHiliteCount(0),
     m_fuelMapDataIsCurrent(false),
     m_isLogging(false)
 {
@@ -85,11 +86,6 @@ MainWindow::MainWindow (bool autoconnect,
   m_logger = new Logger(*m_cux, *m_options);
 
   m_fuelPumpRefreshTimer.setInterval(1000);
-
-  for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
-  {
-    m_lastHighlightedFuelMapCell[idx] = 0;
-  }
 
   connectInterfaceSignals();
   setWindowIcon(QIcon(ICON_PATH));
@@ -249,20 +245,9 @@ void MainWindow::setupWidgets()
   m_ui->m_injectorDutyCycleBar->setAlignment(Qt::AlignCenter);
 
   const SpeedUnits speedUnit = m_options->getSpeedUnits();
-
   m_ui->m_speedo->setMinimum(0.0);
-
-  if (speedUnit == MPH)
-  {
-    m_ui->m_speedo->setMaximum(s_speedometerMaxMPH);
-  }
-  else
-  {
-    m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
-  }
-
+  m_ui->m_speedo->setMaximum((speedUnit == MPH) ? s_speedometerMaxMPH : s_speedometerMaxKPH);
   setSpeedoLabel();
-
   m_ui->m_speedo->setSuffix(s_speedUnitSuffix.value(speedUnit));
   m_ui->m_speedo->setNominal(1000.0);
   m_ui->m_speedo->setCritical(1000.0);
@@ -448,23 +433,21 @@ void MainWindow::onBatteryBackedMemReadFailed()
  */
 void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
 {
-  if (data != 0)
+  if (data)
   {
     const int rowCount = m_ui->m_fuelMapDisplay->rowCount();
     const int colCount = m_ui->m_fuelMapDisplay->columnCount();
-    QTableWidgetItem* item = 0;
+    QTableWidgetItem* item = nullptr;
     unsigned char byte = 0;
 
     removeFuelMapCellHighlight();
-
     // populate all the cells with the data for this map
     for (int row = 0; row < rowCount; row++)
     {
       for (int col = 0; col < colCount; col++)
       {
         item = m_ui->m_fuelMapDisplay->item(row, col);
-
-        if (item != 0)
+        if (item)
         {
           // retrieve the fuel map value at the current row/col
           byte = data->at(row * colCount + col);
@@ -477,7 +460,8 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
           {
             item->setText(QString("%1").arg(byte));
           }
-          item->setBackground(getColorForFuelMapCell(byte));
+          m_fuelMapCellColors[row][col] = getColorForFuelMapCell(byte);
+          item->setBackground(m_fuelMapCellColors[row][col]);
           item->setForeground(Qt::black);
         }
       }
@@ -485,19 +469,13 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
 
     if (m_options->getDisplayNumberBase() == 16)
     {
-      QString label = QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper();
-      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x") + label);
-
-      label = QString("%1").arg(rowScaler, 0, 16).toUpper();
-      m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x") + label);
+      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x%1").arg(fuelMapMultiplier, 0, 16).toUpper());
+      m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x%1").arg(rowScaler, 0, 16).toUpper());
     }
     else if (m_options->getDisplayNumberBase() == 10)
     {
-      QString label = QString("%1").arg(fuelMapMultiplier);
-      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: ") + label);
-
-      label = QString("%1").arg(rowScaler);
-      m_ui->m_rowScalerLabel->setText(QString("Row scaler: ") + label);
+      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: %1").arg(fuelMapMultiplier));
+      m_ui->m_rowScalerLabel->setText(QString("Row scaler: %1").arg(rowScaler));
     }
 
     highlightActiveFuelMapCells();
@@ -512,7 +490,7 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
 {
   const QByteArray* data = m_cux->getFuelMap(fuelMapId);
 
-  if (data != 0)
+  if (data)
   {
     populateFuelMapDisplay(data,
                            m_cux->getFuelMapAdjustmentFactor(fuelMapId),
@@ -612,17 +590,8 @@ void MainWindow::onDataReady()
 
   if (m_enabledSamples[SampleType_TargetIdleRPM])
   {
-    int targetIdleSpeedRPM = m_cux->getTargetIdleSpeed();
-
-    if (targetIdleSpeedRPM > 0)
-    {
-      m_ui->m_targetIdle->setText(QString::number(targetIdleSpeedRPM));
-    }
-    else
-    {
-      m_ui->m_targetIdle->setText("");
-    }
-
+    const int targetIdleSpeedRPM = m_cux->getTargetIdleSpeed();
+    m_ui->m_targetIdle->setText((targetIdleSpeedRPM > 0) ? QString::number(targetIdleSpeedRPM) : "");
     m_ui->m_idleModeLed->setChecked(m_cux->getIdleMode());
   }
 
@@ -720,35 +689,42 @@ void MainWindow::highlightActiveFuelMapCells()
     shadePercentage[2] = 1.0 - (leftPercent * bottomPercent);
     shadePercentage[3] = 1.0 - (rightPercent * bottomPercent);
 
-    m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
-    m_lastHighlightedFuelMapCell[1] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol + 1);
-    m_lastHighlightedFuelMapCell[2] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol);
-    m_lastHighlightedFuelMapCell[3] = m_ui->m_fuelMapDisplay->item(fuelMapRow + 1, fuelMapCol + 1);
+    // Save the row/column positions for the fuel map cells that will be highlighted.
+    m_lastFuelMapCellHilite[0].first = fuelMapRow;
+    m_lastFuelMapCellHilite[0].second = fuelMapCol;
+    m_lastFuelMapCellHilite[1].first = fuelMapRow;
+    m_lastFuelMapCellHilite[1].second = fuelMapCol + 1;
+    m_lastFuelMapCellHilite[2].first = fuelMapRow + 1;
+    m_lastFuelMapCellHilite[2].second = fuelMapCol;
+    m_lastFuelMapCellHilite[3].first = fuelMapRow + 1;
+    m_lastFuelMapCellHilite[3].second = fuelMapCol + 1;
+    m_lastFuelMapCellHiliteCount = 4;
 
-    for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+    // Set the shaded color as the background for the highlighted cells.
+    for (int idx = 0; idx < m_lastFuelMapCellHiliteCount; idx++)
     {
-      if (m_lastHighlightedFuelMapCell[idx] != 0)
+      const int row = m_lastFuelMapCellHilite[idx].first;
+      const int col = m_lastFuelMapCellHilite[idx].second;
+      QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(row, col);
+      if (cell)
       {
-        QColor currentColor;
+        const QColor& currentColor = m_fuelMapCellColors[row][col];
         QColor newColor;
-
-        currentColor = m_lastHighlightedFuelMapCell[idx]->background().color();
         newColor.setRgb(currentColor.red() * shadePercentage[idx],
                         currentColor.green() * shadePercentage[idx],
                         currentColor.blue() * shadePercentage[idx]);
-        m_lastHighlightedFuelMapCell[idx]->setBackground(newColor);
-        m_lastHighlightedFuelMapCell[idx]->setForeground((newColor.value() > 128) ? Qt::black : Qt::white);
+        cell->setBackground(newColor);
+        cell->setForeground((newColor.value() > 128) ? Qt::black : Qt::white);
       }
     }
   }
   else
   {
-    // we're not doing a soft-highlight using the weightings, so simply use the row/column
-    // weight to round up to the next row/col index if appropriate
+    // We're not doing a soft-highlight using the weightings, so simply use the row/column
+    // weight to round up to the next row/col index if appropriate.
     if (rowWeight >= 8)
     {
       fuelMapRow += 1;
-
       if (fuelMapRow >= FUEL_MAP_ROWS)
       {
         fuelMapRow = FUEL_MAP_ROWS - 1;
@@ -758,21 +734,20 @@ void MainWindow::highlightActiveFuelMapCells()
     if (colWeight >= 8)
     {
       fuelMapCol += 1;
-
       if (fuelMapCol >= FUEL_MAP_COLUMNS)
       {
         fuelMapCol = FUEL_MAP_COLUMNS - 1;
       }
     }
 
-    // we're only highlighting a single cell (not a block of four), so zero the other pointers
-    m_lastHighlightedFuelMapCell[0] = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
-    m_lastHighlightedFuelMapCell[1] = 0;
-    m_lastHighlightedFuelMapCell[2] = 0;
-    m_lastHighlightedFuelMapCell[3] = 0;
+    // We're only highlighting a single cell (not a block of four).
+    m_lastFuelMapCellHilite[0].first = fuelMapRow;
+    m_lastFuelMapCellHilite[0].second = fuelMapCol;
+    m_lastFuelMapCellHiliteCount = 1;
 
-    m_lastHighlightedFuelMapCell[0]->setBackground(Qt::black);
-    m_lastHighlightedFuelMapCell[0]->setForeground(Qt::white);
+    QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
+    cell->setBackground(Qt::black);
+    cell->setForeground(Qt::white);
   }
 }
 
@@ -784,18 +759,16 @@ void MainWindow::removeFuelMapCellHighlight()
 {
   const int curNumBase = m_options->getDisplayNumberBase();
 
-  for (int idx = 0; idx < NUM_ACTIVE_FUEL_MAP_CELLS; idx += 1)
+  for (int idx = 0; idx < m_lastFuelMapCellHiliteCount; idx++)
   {
-    if (m_lastHighlightedFuelMapCell[idx] != 0)
+    const int row = m_lastFuelMapCellHilite[idx].first;
+    const int col = m_lastFuelMapCellHilite[idx].second;
+    if ((row >= 0) && (row < FUEL_MAP_ROWS) &&
+        (col >= 0) && (col < FUEL_MAP_COLUMNS))
     {
-      bool ok = false;
-      unsigned char value = (unsigned char)(m_lastHighlightedFuelMapCell[idx]->text().toInt(&ok, curNumBase));
-
-      if (ok)
-      {
-        m_lastHighlightedFuelMapCell[idx]->setBackground(getColorForFuelMapCell(value));
-        m_lastHighlightedFuelMapCell[idx]->setForeground(Qt::black);
-      }
+      QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(row, col);
+      cell->setBackground(m_fuelMapCellColors[row][col]);
+      cell->setForeground(Qt::black);
     }
   }
 }
@@ -820,16 +793,7 @@ void MainWindow::onEditOptionsClicked()
   {
     // update the speedo appropriately
     const SpeedUnits speedUnit = m_options->getSpeedUnits();
-
-    if (speedUnit == MPH)
-    {
-      m_ui->m_speedo->setMaximum(s_speedometerMaxMPH);
-    }
-    else
-    {
-      m_ui->m_speedo->setMaximum(s_speedometerMaxKPH);
-    }
-
+    m_ui->m_speedo->setMaximum((speedUnit == MPH) ? s_speedometerMaxMPH : s_speedometerMaxKPH);
     m_ui->m_speedo->setSuffix(s_speedUnitSuffix.value(speedUnit));
     m_ui->m_speedo->repaint();
 
@@ -891,6 +855,15 @@ void MainWindow::onEditOptionsClicked()
       m_cux->setSerialDevice(m_options->getSerialDeviceName());
       m_cux->setBaudRate(CUXInterface::getBaudRate(m_doubleBaudRate));
     }
+
+    if (m_options->getDisplayNumberBaseChanged())
+    {
+      const int fuelMapId = m_cux->getCurrentFuelMapIndex();
+      const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
+      populateFuelMapDisplay(fuelMapData,
+                             m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+                             m_cux->getRowScaler(fuelMapId));
+    }
   }
 }
 
@@ -901,14 +874,8 @@ void MainWindow::onEditOptionsClicked()
  */
 void MainWindow::setSpeedoLabel()
 {
-  if (m_options->getSpeedoAdjust())
-  {
-    m_ui->m_speedoLabel->setText("<b>Adjusted road speed</b>");
-  }
-  else
-  {
-    m_ui->m_speedoLabel->setText("Road speed");
-  }
+  m_ui->m_speedoLabel->setText(
+    m_options->getSpeedoAdjust() ? "<b>Adjusted road speed</b>" : "Road speed");
 }
 
 /**
@@ -962,9 +929,10 @@ void MainWindow::dimUnusedControls()
   m_ui->m_targetIdle->setEnabled(enabled);
   m_idleModeLedOpacity->setEnabled(!enabled);
 
-  setLambdaWidgetsForFeedbackMode(m_cux->getFeedbackMode(),
-                                  m_enabledSamples[SampleType_COTrimVoltage],
-                                  m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]);
+  setLambdaWidgetsForFeedbackMode(
+    m_cux->getFeedbackMode(),
+    m_enabledSamples[SampleType_COTrimVoltage],
+    m_enabledSamples[SampleType_LambdaTrimShort] || m_enabledSamples[SampleType_LambdaTrimLong]);
 
   enabled = m_enabledSamples[SampleType_FuelPumpRelay];
   m_ui->m_fuelPumpRelayStateLabel->setEnabled(enabled);
@@ -1016,7 +984,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 {
   m_logger->closeLog();
 
-  if ((m_cuxThread != 0) && m_cuxThread->isRunning())
+  if (m_cuxThread && m_cuxThread->isRunning())
   {
     emit requestThreadShutdown();
     m_cuxThread->wait(2000);
@@ -1074,14 +1042,8 @@ void MainWindow::onDisconnect()
   m_ui->m_fuelPumpRelayStateLed->setChecked(false);
   m_ui->m_oddFuelTrimBar->setValue(0);
 
-  if (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop)
-  {
-    m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText("+0%");
-  }
-  else
-  {
-    m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText("");
-  }
+	m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(
+    (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop) ? "+0%" : "");
 
   m_ui->m_evenFuelTrimBar->setValue(0);
   m_ui->m_evenFuelTrimBarLabel->setText("+0%");
@@ -1164,11 +1126,10 @@ void MainWindow::onStopLogging()
  */
 void MainWindow::onHelpAboutClicked()
 {
-  if (m_aboutBox == 0)
+  if (m_aboutBox == nullptr)
   {
     m_aboutBox = new AboutBox(style(), this->windowTitle(), m_cux->getVersion(), this);
   }
-
   m_aboutBox->exec();
 }
 
@@ -1177,11 +1138,10 @@ void MainWindow::onHelpAboutClicked()
  */
 void MainWindow::onHelpContentsClicked()
 {
-  if (m_helpViewerDialog == 0)
+  if (m_helpViewerDialog == nullptr)
   {
     m_helpViewerDialog = new HelpViewer(this->windowTitle(), this);
   }
-
   m_helpViewerDialog->show();
 }
 
@@ -1313,7 +1273,7 @@ void MainWindow::onROMImageReady()
  */
 void MainWindow::onROMImageReadFailed()
 {
-  if (m_pleaseWaitBox != 0)
+  if (m_pleaseWaitBox)
   {
     m_pleaseWaitBox->hide();
   }
@@ -1393,14 +1353,8 @@ void MainWindow::onBatteryBackedMemClicked()
  */
 void MainWindow::onLambdaTrimButtonClicked(QAbstractButton* button)
 {
-  if (button == m_ui->m_lambdaTrimShortButton)
-  {
-    m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_ShortTerm);
-  }
-  else
-  {
-    m_cux->setLambdaTrimType(C14CUX_LambdaTrimType_LongTerm);
-  }
+	m_cux->setLambdaTrimType((button == m_ui->m_lambdaTrimShortButton) ?
+	  C14CUX_LambdaTrimType_ShortTerm : C14CUX_LambdaTrimType_LongTerm);
 }
 
 /**
@@ -1408,14 +1362,8 @@ void MainWindow::onLambdaTrimButtonClicked(QAbstractButton* button)
  */
 void MainWindow::onMAFReadingButtonClicked(QAbstractButton* button)
 {
-  if (button == m_ui->m_mafReadingLinearButton)
-  {
-    m_cux->setMAFReadingType(C14CUX_AirflowType_Linearized);
-  }
-  else
-  {
-    m_cux->setMAFReadingType(C14CUX_AirflowType_Direct);
-  }
+	m_cux->setMAFReadingType((button == m_ui->m_mafReadingLinearButton) ?
+	  C14CUX_AirflowType_Linearized : C14CUX_AirflowType_Direct);
 }
 
 /**
@@ -1423,14 +1371,8 @@ void MainWindow::onMAFReadingButtonClicked(QAbstractButton* button)
  */
 void MainWindow::onThrottleTypeButtonClicked(QAbstractButton* button)
 {
-  if (button == m_ui->m_throttleTypeAbsoluteButton)
-  {
-    m_cux->setThrottleReadingType(C14CUX_ThrottlePosType_Absolute);
-  }
-  else
-  {
-    m_cux->setThrottleReadingType(C14CUX_ThrottlePosType_Corrected);
-  }
+  m_cux->setThrottleReadingType((button == m_ui->m_throttleTypeAbsoluteButton) ?
+		C14CUX_ThrottlePosType_Absolute : C14CUX_ThrottlePosType_Corrected);
 }
 
 /**
@@ -1528,9 +1470,10 @@ void MainWindow::setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool
  */
 void MainWindow::onFeedbackModeChanged(c14cux_feedback_mode mode)
 {
-  setLambdaWidgetsForFeedbackMode(mode,
-                                  m_enabledSamples[SampleType_COTrimVoltage],
-                                  m_enabledSamples[SampleType_LambdaTrimLong] || m_enabledSamples[SampleType_LambdaTrimShort]);
+  setLambdaWidgetsForFeedbackMode(
+	  mode,
+    m_enabledSamples[SampleType_COTrimVoltage],
+    m_enabledSamples[SampleType_LambdaTrimLong] || m_enabledSamples[SampleType_LambdaTrimShort]);
 }
 
 /**
@@ -1546,7 +1489,7 @@ void MainWindow::onFuelMapIndexChanged(unsigned int fuelMapId)
 
   const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
 
-  if (fuelMapData != 0)
+  if (fuelMapData)
   {
     populateFuelMapDisplay(fuelMapData,
                            m_cux->getFuelMapAdjustmentFactor(fuelMapId),

@@ -108,7 +108,9 @@ private:
   static const float s_speedometerMaxMPH;
   static const float s_speedometerMaxKPH;
 
-  QTableWidgetItem* m_lastHighlightedFuelMapCell[NUM_ACTIVE_FUEL_MAP_CELLS];
+  QColor m_fuelMapCellColors[FUEL_MAP_ROWS][FUEL_MAP_COLUMNS];
+  QPair<int,int> m_lastFuelMapCellHilite[NUM_ACTIVE_FUEL_MAP_CELLS];
+  int m_lastFuelMapCellHiliteCount;
   bool m_fuelMapDataIsCurrent;
 
   static const QHash<SpeedUnits, QString> s_speedUnitSuffix;
