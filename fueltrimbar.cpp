@@ -38,6 +38,7 @@ void FuelTrimBar::paintEvent(QPaintEvent*)
   opt.minimum = min;
   opt.maximum = max;
   opt.progress = (currentVal >= 0) ? qAbs(max) : qAbs(min);
+  opt.state |= QStyle::State_Horizontal;
 
   // Draw the groove. This should simply be the same size as the outside dimensions of the widget.
   style()->drawControl(QStyle::CE_ProgressBarGroove, &opt, &painter, this);
