@@ -123,7 +123,6 @@ private:
   void connectInterfaceSignals();
   void doConnect();
   void startLogging();
-  void buildSpeedAndTempUnitTables();
   void setupWidgets();
   void populateFuelMapDisplay(const QByteArray *data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
   QColor getColorForFuelMapCell(unsigned char value) const;

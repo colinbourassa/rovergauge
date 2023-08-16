@@ -66,7 +66,6 @@ MainWindow::MainWindow (bool autoconnect,
   // register this special enum type for use in Qt signals/slots
   qRegisterMetaType<c14cux_feedback_mode>("c14cux_feedback_mode");
 
-  buildSpeedAndTempUnitTables();
   m_ui->setupUi(this);
   this->setWindowTitle("RoverGauge " +
                        QString::number(ROVERGAUGE_VER_MAJOR) + "." +
@@ -150,13 +149,6 @@ void MainWindow::connectInterfaceSignals()
 }
 
 /**
- * Populates hash tables with unit-of-measure suffixes and temperature thresholds
- */
-void MainWindow::buildSpeedAndTempUnitTables()
-{
-}
-
-/**
  * Instantiates widgets used in the main window.
  */
 void MainWindow::setupWidgets()
@@ -184,9 +176,12 @@ void MainWindow::setupWidgets()
   // connect button signals
   connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
   connect(m_ui->m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
-  connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
+  connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
+	        this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
+  connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
+	        this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
+  connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
+	        this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
   connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
   connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
   connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
@@ -327,7 +322,7 @@ void MainWindow::onConnectClicked()
 void MainWindow::doConnect()
 {
   // If the worker thread hasn't been created yet, do that now.
-  if (m_cuxThread == 0)
+  if (m_cuxThread == nullptr)
   {
     m_cuxThread = new QThread(this);
     m_cux->moveToThread(m_cuxThread);
@@ -401,9 +396,7 @@ void MainWindow::onFaultCodesClearRequested()
  */
 void MainWindow::onFaultCodesReadFailed()
 {
-  QMessageBox::warning(this, "Error",
-                       "Unable to read fault codes from ECU.",
-                       QMessageBox::Ok);
+  QMessageBox::warning(this, "Error", "Unable to read fault codes from ECU.", QMessageBox::Ok);
 }
 
 /**
@@ -421,9 +414,7 @@ void MainWindow::onBatteryBackedMemReady()
  */
 void MainWindow::onBatteryBackedMemReadFailed()
 {
-  QMessageBox::warning(this, "Error",
-                       "Unable to read battery-backed memory from ECU.",
-                       QMessageBox::Ok);
+  QMessageBox::warning(this, "Error", "Unable to read battery-backed memory from ECU.", QMessageBox::Ok);
 }
 
 /**
@@ -469,8 +460,10 @@ void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fue
 
     if (m_options->getDisplayNumberBase() == 16)
     {
-      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: 0x%1").arg(fuelMapMultiplier, 0, 16).toUpper());
-      m_ui->m_rowScalerLabel->setText(QString("Row scaler: 0x%1").arg(rowScaler, 0, 16).toUpper());
+      m_ui->m_fuelMapFactorLabel->setText(
+        QString("Multiplier: 0x%1").arg(QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper()));
+      m_ui->m_rowScalerLabel->setText(
+        QString("Row scaler: 0x%1").arg(QString("%1").arg(rowScaler, 0, 16).toUpper()));
     }
     else if (m_options->getDisplayNumberBase() == 10)
     {
@@ -619,12 +612,12 @@ void MainWindow::onDataReady()
  */
 void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
 {
-  QString oddLabel = (lambdaTrimOdd >= 0) ?
-                     QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
-                     QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
-  QString evenLabel = (lambdaTrimEven >= 0) ?
-                      QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
-                      QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
+  const QString oddLabel = (lambdaTrimOdd >= 0) ?
+    QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
+    QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
+  const QString evenLabel = (lambdaTrimEven >= 0) ?
+    QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
+    QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
 
   m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
   m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
@@ -1096,7 +1089,7 @@ void MainWindow::startLogging()
     else
     {
       QMessageBox::warning(this, "Error",
-                           "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
+        "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
     }
   }
 }
@@ -1155,15 +1148,15 @@ void MainWindow::onFailedToConnect(QString dev)
   if (dev.isEmpty() || dev.isNull())
   {
     QMessageBox::warning(this, "Error",
-                         QString("Error connecting to 14CUX. No serial port name specified.\n\n") +
-                         QString("Set a serial device using \"Options\" --> \"Edit Settings\""),
-                         QMessageBox::Ok);
+      QString("Error connecting to 14CUX. No serial port name specified.\n\n") +
+      QString("Set a serial device using \"Options\" --> \"Edit Settings\""),
+      QMessageBox::Ok);
   }
   else
   {
     QMessageBox::warning(this, "Error",
-                         "Error connecting to 14CUX. Could not open serial device: " + dev,
-                         QMessageBox::Ok);
+      "Error connecting to 14CUX. Could not open serial device: " + dev,
+      QMessageBox::Ok);
   }
 }
 
@@ -1173,14 +1166,14 @@ void MainWindow::onFailedToConnect(QString dev)
  */
 void MainWindow::onNotConnected()
 {
-  if (m_pleaseWaitBox != 0)
+  if (m_pleaseWaitBox)
   {
     m_pleaseWaitBox->hide();
   }
 
   QMessageBox::warning(this, "Error",
-                       "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
-                       QMessageBox::Ok);
+    "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
+    QMessageBox::Ok);
 }
 
 /**
@@ -1203,7 +1196,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
     if (QMessageBox::question(this, "Confirm", prompt,
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
-      if (m_pleaseWaitBox == 0)
+      if (m_pleaseWaitBox == nullptr)
       {
         m_pleaseWaitBox = new QMessageBox(
           QMessageBox::Information, "In Progress",
@@ -1236,7 +1229,7 @@ void MainWindow::onROMReadCancelled()
  */
 void MainWindow::onROMImageReady()
 {
-  if (m_pleaseWaitBox != 0)
+  if (m_pleaseWaitBox)
   {
     m_pleaseWaitBox->hide();
   }
@@ -1255,7 +1248,7 @@ void MainWindow::onROMImageReady()
       if (saveFile.write(promData) != promData.capacity())
       {
         QMessageBox::warning(this, "Error",
-            QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+          QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
       }
 
       saveFile.close();
@@ -1263,7 +1256,7 @@ void MainWindow::onROMImageReady()
     else
     {
       QMessageBox::warning(this, "Error",
-          QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+        QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
     }
   }
 }
@@ -1385,7 +1378,8 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int
 {
   m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
   m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 4, 16).toUpper());
-  m_ui->m_checksumFixerLabel->setText(QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
+  m_ui->m_checksumFixerLabel->setText(
+	  QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
 }
 
 /**
