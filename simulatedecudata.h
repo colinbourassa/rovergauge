@@ -1,6 +1,4 @@
-#ifndef SIMULATEDECUDATA_H
-#define SIMULATEDECUDATA_H
-
+#pragma once
 #include <stdint.h>
 #include "comm14cux.h"
 
@@ -23,10 +21,7 @@ public:
   uint16_t engineRPMLimit();
   void engineRPMTable(c14cux_rpmtable& table);
   void fuelMapData(uint8_t* buf, uint16_t& mafScaler, uint16_t& adjFactor);
-  uint8_t fuelMapRowIndex();
-  uint8_t fuelMapRowWeighting();
-  uint8_t fuelMapColumnIndex();
-  uint8_t fuelMapColumnWeighting();
+  void fuelMapRowColIndices(uint8_t& rowIndex, uint8_t& rowWeight, uint8_t& colIndex, uint8_t& colWeight);
   uint16_t targetIdle();
   bool idleMode();
   uint8_t currentFuelMap();
@@ -62,12 +57,11 @@ private:
   bool m_engineRPMDirection;
   int m_engineRPMLimit;
   int m_fuelMapRowIndex;
-  bool m_fuelMapRowIndexDirection;
   int m_fuelMapRowWeight;
-  bool m_fuelMapRowWeightDirection;
+  bool m_fuelMapRowDirection;
   int m_fuelMapColumnIndex;
-  bool m_fuelMapColumnIndexDirection;
   int m_fuelMapColumnWeight;
+  bool m_fuelMapColumnDirection;
   bool m_fuelMapColumnWeightDirection;
   int m_targetIdleRPM;
   bool m_targetIdleRPMDirection;
@@ -81,6 +75,5 @@ private:
 
   void adjust(int& val, bool& direction, int min, int max, int inc);
   void adjust(float& val, bool& direction, float min, float max, float inc);
+  void adjustFuelMapRowCol();
 };
-
-#endif // SIMULATEDECUDATA_H

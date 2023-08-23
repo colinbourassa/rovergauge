@@ -76,6 +76,8 @@ add_executable (rovergauge
     logger.h
     serialdevenumerator.cpp
     serialdevenumerator.h
+    fuelmapgrid.cpp
+    fuelmapgrid.h
     fueltrimbar.cpp
     fueltrimbar.h
     mainwindow.cpp

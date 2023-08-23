@@ -534,7 +534,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QGridLayout" name="m_fuelAndLoggingLayout">
+         <layout class="QGridLayout" name="m_fuelAndLoggingLayout" rowstretch="0,1,0,0,0,0">
           <item row="0" column="0" colspan="4">
            <layout class="QHBoxLayout" name="m_fuelMapFactorsLayout">
             <item>
@@ -585,49 +585,19 @@
            </widget>
           </item>
           <item row="1" column="0" colspan="4">
-           <widget class="QTableWidget" name="m_fuelMapDisplay">
+           <widget class="FuelMapGrid" name="m_fuelMapDisplay" native="true">
             <property name="font">
              <font>
               <family>Andale Mono</family>
               <pointsize>9</pointsize>
              </font>
             </property>
-            <property name="rowCount">
+            <property name="rowCount" stdset="0">
              <number>8</number>
             </property>
-            <property name="columnCount">
+            <property name="columnCount" stdset="0">
              <number>16</number>
             </property>
-            <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
            </widget>
           </item>
           <item row="2" column="3">
@@ -736,8 +706,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1050</width>
-     <height>19</height>
+     <width>1150</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_fileMenu">
@@ -831,12 +801,17 @@
    <header>qledindicator.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>FuelMapGrid</class>
+   <extends>QWidget</extends>
+   <header>fuelmapgrid.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
  <buttongroups>
   <buttongroup name="m_lambdaTrimButtonGroup"/>
-  <buttongroup name="m_mafReadingButtonGroup"/>
   <buttongroup name="m_throttleTypeButtonGroup"/>
+  <buttongroup name="m_mafReadingButtonGroup"/>
  </buttongroups>
 </ui>
