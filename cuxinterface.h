@@ -158,7 +158,7 @@ public:
     return m_currentFuelMapColumnIndex;
   }
 
-  int getFuelMapColWeighting() const
+  int getFuelMapColumnWeighting() const
   {
     return m_fuelMapColWeighting;
   }

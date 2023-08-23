@@ -792,10 +792,8 @@ CUXInterface::ReadResult CUXInterface::readSimData()
   if (isDueForMeasurement(SampleType_FuelMapRowCol))
   {
     QThread::currentThread()->msleep(5);
-    m_currentFuelMapRowIndex = m_simEcu->fuelMapRowIndex();
-    m_fuelMapRowWeighting = m_simEcu->fuelMapRowWeighting();
-    m_currentFuelMapColumnIndex = m_simEcu->fuelMapColumnIndex();
-    m_fuelMapColWeighting = m_simEcu->fuelMapColumnWeighting();
+    m_simEcu->fuelMapRowColIndices(m_currentFuelMapRowIndex, m_fuelMapRowWeighting,
+                                   m_currentFuelMapColumnIndex, m_fuelMapColWeighting);
   }
 
   if (isDueForMeasurement(SampleType_InjectorPulseWidth))

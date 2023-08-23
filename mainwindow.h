@@ -1,6 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
@@ -30,8 +28,6 @@
 #include "commonunits.h"
 #include "helpviewer.h"
 #include "batterybackeddisplay.h"
-
-#define NUM_ACTIVE_FUEL_MAP_CELLS 4
 
 namespace Ui
 {
@@ -108,9 +104,6 @@ private:
   static const float s_speedometerMaxMPH;
   static const float s_speedometerMaxKPH;
 
-  QColor m_fuelMapCellColors[FUEL_MAP_ROWS][FUEL_MAP_COLUMNS];
-  QPair<int,int> m_lastFuelMapCellHilite[NUM_ACTIVE_FUEL_MAP_CELLS];
-  int m_lastFuelMapCellHiliteCount;
   bool m_fuelMapDataIsCurrent;
 
   static const QHash<SpeedUnits, QString> s_speedUnitSuffix;
@@ -125,15 +118,13 @@ private:
   void startLogging();
   void setupWidgets();
   void populateFuelMapDisplay(const QByteArray *data, unsigned int fuelMapMultiplier, unsigned int rowScaler);
-  QColor getColorForFuelMapCell(unsigned char value) const;
-  void highlightActiveFuelMapCells();
-  void removeFuelMapCellHighlight();
   void sendROMImageRequest(QString prompt);
   void dimUnusedControls();
   void setGearLabel(c14cux_gear gearReading);
   void setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven);
   void setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool coTrimEnabled, bool lambdaEnabled);
   void setSpeedoLabel();
+  void moveFuelMapCellHighlight();
 
 private slots:
   void onSaveROMImageSelected();
@@ -155,6 +146,4 @@ private slots:
   void onMAFReadingButtonClicked(QAbstractButton* button);
   void onThrottleTypeButtonClicked(QAbstractButton* button);
 };
-
-#endif // MAINWINDOW_H
 

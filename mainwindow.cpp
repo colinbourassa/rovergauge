@@ -59,7 +59,6 @@ MainWindow::MainWindow (bool autoconnect,
     m_doubleBaudRate(doublebaud),
     m_shortcutStartLogging(QKeySequence(Qt::Key_F5), this),
     m_shortcutStopLogging(QKeySequence(Qt::Key_F7), this),
-    m_lastFuelMapCellHiliteCount(0),
     m_fuelMapDataIsCurrent(false),
     m_isLogging(false)
 {
@@ -213,29 +212,11 @@ void MainWindow::setupWidgets()
   m_ui->m_fuelPumpRelayStateLed->setOffColor2(QColor(0, 51, 0));
   m_ui->m_fuelPumpRelayStateLed->setDisabled(true);
 
-  // set up the fuel map display
+  // TODO: can this be done in the FuelMapGrid class?
+  // If it needs to stay here, should the 'QTableWidget'
+  // change to 'FuelMapGrid'?
   setStyleSheet("QTableWidget {background-color: transparent;}");
-
-  m_ui->m_fuelMapDisplay->horizontalHeader()->setStyleSheet("QHeaderView { font-size: 11pt; }");
-  m_ui->m_fuelMapDisplay->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  m_ui->m_fuelMapDisplay->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  const unsigned int rowCount = m_ui->m_fuelMapDisplay->rowCount();
-  const unsigned int colCount = m_ui->m_fuelMapDisplay->columnCount();
-  QTableWidgetItem* item = 0;
-
-  for (unsigned int col = 0; col < colCount; col++)
-  {
-    m_ui->m_fuelMapDisplay->setHorizontalHeaderItem(col, new QTableWidgetItem(""));
-
-    for (unsigned int row = 0; row < rowCount; row++)
-    {
-      item = new QTableWidgetItem("");
-      item->setTextAlignment(Qt::AlignCenter);
-      item->setFlags(Qt::NoItemFlags);
-      m_ui->m_fuelMapDisplay->setItem(row, col, item);
-    }
-  }
-
+  m_ui->m_fuelMapDisplay->setup(m_options->getDisplayNumberBase());
   m_ui->m_logFileNameBox->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss"));
   m_ui->m_injectorDutyCycleBar->setAlignment(Qt::AlignCenter);
 
@@ -418,6 +399,20 @@ void MainWindow::onBatteryBackedMemReadFailed()
 }
 
 /**
+ * Moves the highlight for the active cell in the fuel map display, based on the
+ * most recent active row/column index data.
+ */
+void MainWindow::moveFuelMapCellHighlight()
+{
+  m_ui->m_fuelMapDisplay->moveCellHighlight(
+    m_cux->getFuelMapRowIndex(),
+    m_cux->getFuelMapRowWeighting(),
+    m_cux->getFuelMapColumnIndex(),
+    m_cux->getFuelMapColumnWeighting(),
+    m_options->getSoftHighlight());
+}
+
+/**
  * Uses a fuel map array to populate a 16x8 grid that shows all the fueling
  * values.
  * @param data Pointer to the ByteArray that contains the map data
@@ -425,53 +420,23 @@ void MainWindow::onBatteryBackedMemReadFailed()
 void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
 {
   if (data)
+	{
+    m_ui->m_fuelMapDisplay->setData(*data);
+	}
+
+  moveFuelMapCellHighlight();
+
+  if (m_options->getDisplayNumberBase() == 16)
   {
-    const int rowCount = m_ui->m_fuelMapDisplay->rowCount();
-    const int colCount = m_ui->m_fuelMapDisplay->columnCount();
-    QTableWidgetItem* item = nullptr;
-    unsigned char byte = 0;
-
-    removeFuelMapCellHighlight();
-    // populate all the cells with the data for this map
-    for (int row = 0; row < rowCount; row++)
-    {
-      for (int col = 0; col < colCount; col++)
-      {
-        item = m_ui->m_fuelMapDisplay->item(row, col);
-        if (item)
-        {
-          // retrieve the fuel map value at the current row/col
-          byte = data->at(row * colCount + col);
-
-          if (m_options->getDisplayNumberBase() == 16)
-          {
-            item->setText(QString("%1").arg(byte, 2, 16, QChar('0')).toUpper());
-          }
-          else if (m_options->getDisplayNumberBase() == 10)
-          {
-            item->setText(QString("%1").arg(byte));
-          }
-          m_fuelMapCellColors[row][col] = getColorForFuelMapCell(byte);
-          item->setBackground(m_fuelMapCellColors[row][col]);
-          item->setForeground(Qt::black);
-        }
-      }
-    }
-
-    if (m_options->getDisplayNumberBase() == 16)
-    {
-      m_ui->m_fuelMapFactorLabel->setText(
-        QString("Multiplier: 0x%1").arg(QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper()));
-      m_ui->m_rowScalerLabel->setText(
-        QString("Row scaler: 0x%1").arg(QString("%1").arg(rowScaler, 0, 16).toUpper()));
-    }
-    else if (m_options->getDisplayNumberBase() == 10)
-    {
-      m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: %1").arg(fuelMapMultiplier));
-      m_ui->m_rowScalerLabel->setText(QString("Row scaler: %1").arg(rowScaler));
-    }
-
-    highlightActiveFuelMapCells();
+    m_ui->m_fuelMapFactorLabel->setText(
+      QString("Multiplier: 0x%1").arg(QString("%1").arg(fuelMapMultiplier, 0, 16).toUpper()));
+    m_ui->m_rowScalerLabel->setText(
+      QString("Row scaler: 0x%1").arg(QString("%1").arg(rowScaler, 0, 16).toUpper()));
+  }
+  else if (m_options->getDisplayNumberBase() == 10)
+  {
+    m_ui->m_fuelMapFactorLabel->setText(QString("Multiplier: %1").arg(fuelMapMultiplier));
+    m_ui->m_rowScalerLabel->setText(QString("Row scaler: %1").arg(rowScaler));
   }
 }
 
@@ -486,8 +451,8 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
   if (data)
   {
     populateFuelMapDisplay(data,
-                           m_cux->getFuelMapAdjustmentFactor(fuelMapId),
-                           m_cux->getRowScaler(fuelMapId));
+      m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+      m_cux->getRowScaler(fuelMapId));
     m_fuelMapDataIsCurrent = true;
 
     m_logger->onFuelMapDataReady(fuelMapId);
@@ -508,8 +473,7 @@ void MainWindow::onDataReady()
   // if fuel map display updates are enabled...
   if (m_enabledSamples[SampleType_FuelMapRowCol] && m_fuelMapDataIsCurrent)
   {
-    removeFuelMapCellHighlight();
-    highlightActiveFuelMapCells();
+    moveFuelMapCellHighlight();
   }
 
   if (m_enabledSamples[SampleType_Throttle])
@@ -531,7 +495,7 @@ void MainWindow::onDataReady()
   {
     if (m_options->getSpeedoAdjust())
     {
-      int adjustedSpeed =
+      const int adjustedSpeed =
         (m_cux->getRoadSpeed() * m_options->getSpeedoMultiplier()) + m_options->getSpeedoOffset();
       m_ui->m_speedo->setValue(adjustedSpeed);
     }
@@ -653,128 +617,6 @@ void MainWindow::setGearLabel(c14cux_gear gearReading)
 }
 
 /**
- * Paints a highlight on the fuel map display cells that represent the
- * most-recently-read fueling index.
- */
-void MainWindow::highlightActiveFuelMapCells()
-{
-  int fuelMapRow = m_cux->getFuelMapRowIndex();
-  int fuelMapCol = m_cux->getFuelMapColumnIndex();
-  int rowWeight = m_cux->getFuelMapRowWeighting();
-  int colWeight = m_cux->getFuelMapColWeighting();
-
-  if (m_options->getSoftHighlight())
-  {
-    // Compute the distribution of shading that should be applied left/right
-    // and top/bottom to the block of four cells.
-    const float leftPercent = 1.0 - (colWeight / 15.0);
-    const float rightPercent = 1.0 - leftPercent;
-    const float topPercent = 1.0 - (rowWeight / 15.0);
-    const float bottomPercent = 1.0 - topPercent;
-
-    float shadePercentage[NUM_ACTIVE_FUEL_MAP_CELLS];
-
-    // We subtract from 1.0 here because these values will be used as multipliers
-    // against the un-highlighted cell's R/G/B components to produce a shade of
-    // the appropriate darkness.
-    shadePercentage[0] = 1.0 - (leftPercent * topPercent);
-    shadePercentage[1] = 1.0 - (rightPercent * topPercent);
-    shadePercentage[2] = 1.0 - (leftPercent * bottomPercent);
-    shadePercentage[3] = 1.0 - (rightPercent * bottomPercent);
-
-    // Save the row/column positions for the fuel map cells that will be highlighted.
-    m_lastFuelMapCellHilite[0].first = fuelMapRow;
-    m_lastFuelMapCellHilite[0].second = fuelMapCol;
-    m_lastFuelMapCellHilite[1].first = fuelMapRow;
-    m_lastFuelMapCellHilite[1].second = fuelMapCol + 1;
-    m_lastFuelMapCellHilite[2].first = fuelMapRow + 1;
-    m_lastFuelMapCellHilite[2].second = fuelMapCol;
-    m_lastFuelMapCellHilite[3].first = fuelMapRow + 1;
-    m_lastFuelMapCellHilite[3].second = fuelMapCol + 1;
-    m_lastFuelMapCellHiliteCount = 4;
-
-    // Set the shaded color as the background for the highlighted cells.
-    for (int idx = 0; idx < m_lastFuelMapCellHiliteCount; idx++)
-    {
-      const int row = m_lastFuelMapCellHilite[idx].first;
-      const int col = m_lastFuelMapCellHilite[idx].second;
-      QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(row, col);
-      if (cell)
-      {
-        const QColor& currentColor = m_fuelMapCellColors[row][col];
-        QColor newColor;
-        newColor.setRgb(currentColor.red() * shadePercentage[idx],
-                        currentColor.green() * shadePercentage[idx],
-                        currentColor.blue() * shadePercentage[idx]);
-        cell->setBackground(newColor);
-        cell->setForeground((newColor.value() > 128) ? Qt::black : Qt::white);
-      }
-    }
-  }
-  else
-  {
-    // We're not doing a soft-highlight using the weightings, so simply use the row/column
-    // weight to round up to the next row/col index if appropriate.
-    if (rowWeight >= 8)
-    {
-      fuelMapRow += 1;
-      if (fuelMapRow >= FUEL_MAP_ROWS)
-      {
-        fuelMapRow = FUEL_MAP_ROWS - 1;
-      }
-    }
-
-    if (colWeight >= 8)
-    {
-      fuelMapCol += 1;
-      if (fuelMapCol >= FUEL_MAP_COLUMNS)
-      {
-        fuelMapCol = FUEL_MAP_COLUMNS - 1;
-      }
-    }
-
-    // We're only highlighting a single cell (not a block of four).
-    m_lastFuelMapCellHilite[0].first = fuelMapRow;
-    m_lastFuelMapCellHilite[0].second = fuelMapCol;
-    m_lastFuelMapCellHiliteCount = 1;
-
-    QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(fuelMapRow, fuelMapCol);
-    cell->setBackground(Qt::black);
-    cell->setForeground(Qt::white);
-  }
-}
-
-/**
- * Sets the background of the last highlighted fuel map cell(s) back to its
- * un-highligted color (which is dependent on the value for that cell).
- */
-void MainWindow::removeFuelMapCellHighlight()
-{
-  const int curNumBase = m_options->getDisplayNumberBase();
-
-  for (int idx = 0; idx < m_lastFuelMapCellHiliteCount; idx++)
-  {
-    const int row = m_lastFuelMapCellHilite[idx].first;
-    const int col = m_lastFuelMapCellHilite[idx].second;
-    if ((row >= 0) && (row < FUEL_MAP_ROWS) &&
-        (col >= 0) && (col < FUEL_MAP_COLUMNS))
-    {
-      QTableWidgetItem* cell = m_ui->m_fuelMapDisplay->item(row, col);
-      cell->setBackground(m_fuelMapCellColors[row][col]);
-      cell->setForeground(Qt::black);
-    }
-  }
-}
-
-/**
- * Generates a color whose intensity corresponds to a fueling value
- */
-QColor MainWindow::getColorForFuelMapCell(unsigned char value) const
-{
-  return QColor::fromRgb(255, (value / 2 * -1) + 255, 255.0 - value);
-}
-
-/**
  * Opens the settings dialog, where the user may change the
  * serial device, timer interval, gauge settings, and
  * correction factors.
@@ -851,11 +693,12 @@ void MainWindow::onEditOptionsClicked()
 
     if (m_options->getDisplayNumberBaseChanged())
     {
+		  m_ui->m_fuelMapDisplay->setNumberBase(m_options->getDisplayNumberBase());
       const int fuelMapId = m_cux->getCurrentFuelMapIndex();
       const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
       populateFuelMapDisplay(fuelMapData,
-                             m_cux->getFuelMapAdjustmentFactor(fuelMapId),
-                             m_cux->getRowScaler(fuelMapId));
+        m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+        m_cux->getRowScaler(fuelMapId));
     }
   }
 }
@@ -1046,7 +889,7 @@ void MainWindow::onDisconnect()
   m_ui->m_oddFuelTrimBar->repaint();
   m_ui->m_evenFuelTrimBar->repaint();
 
-  removeFuelMapCellHighlight();
+  m_ui->m_fuelMapDisplay->clearCellHighlight();
 
   m_fuelMapDataIsCurrent = false;
   m_cux->invalidateFuelMapData();

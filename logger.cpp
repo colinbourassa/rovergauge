@@ -233,7 +233,7 @@ float Logger::getRowWithWeighting()
 float Logger::getColWithWeighting()
 {
   return ((float)m_cux.getFuelMapColumnIndex() +
-          ((float)m_cux.getFuelMapColWeighting() / 16.0));
+          ((float)m_cux.getFuelMapColumnWeighting() / 16.0));
 }
 
 /**

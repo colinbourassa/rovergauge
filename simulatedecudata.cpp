@@ -26,13 +26,11 @@ SimulatedECUData::SimulatedECUData() :
   m_engineRPMDirection(true),
   m_engineRPMLimit(5750),
   m_fuelMapRowIndex(0),
-  m_fuelMapRowIndexDirection(true),
   m_fuelMapRowWeight(0),
-  m_fuelMapRowWeightDirection(true),
+  m_fuelMapRowDirection(true),
   m_fuelMapColumnIndex(0),
-  m_fuelMapColumnIndexDirection(true),
   m_fuelMapColumnWeight(0),
-  m_fuelMapColumnWeightDirection(true),
+  m_fuelMapColumnDirection(true),
   m_targetIdleRPM(580),
   m_targetIdleRPMDirection(true),
   m_currentFuelMap(5),
@@ -83,6 +81,91 @@ void SimulatedECUData::adjust(float& val, bool& direction, float min, float max,
   else if (!direction && (val <= min))
   {
     direction = true;
+  }
+}
+
+void SimulatedECUData::adjustFuelMapRowCol()
+{
+  if (m_fuelMapRowDirection)
+  {
+    if (m_fuelMapRowWeight < 15)
+    {
+      m_fuelMapRowWeight++;
+    }
+    else
+    {
+      if (m_fuelMapRowIndex < 7)
+      {
+        m_fuelMapRowIndex++;
+        m_fuelMapRowWeight = 0;
+      }
+      else
+      {
+        m_fuelMapRowWeight--;
+        m_fuelMapRowDirection = false;
+      }
+    }
+  }
+  else // decreasing value
+  {
+    if (m_fuelMapRowWeight > 0)
+    {
+      m_fuelMapRowWeight--;
+    }
+    else
+    {
+      if (m_fuelMapRowIndex > 0)
+      {
+        m_fuelMapRowIndex--;
+        m_fuelMapRowWeight = 15;
+      }
+      else
+      {
+        m_fuelMapRowWeight++;
+        m_fuelMapRowDirection = true;
+      }
+    }
+  }
+
+  if (m_fuelMapColumnDirection)
+  {
+    if (m_fuelMapColumnWeight < 15)
+    {
+      m_fuelMapColumnWeight++;
+    }
+    else
+    {
+      if (m_fuelMapColumnIndex < 15)
+      {
+        m_fuelMapColumnIndex++;
+        m_fuelMapColumnWeight = 0;
+      }
+      else
+      {
+        m_fuelMapColumnWeight--;
+        m_fuelMapColumnDirection = false;
+      }
+    }
+  }
+  else // decreasing value
+  {
+    if (m_fuelMapColumnWeight > 0)
+    {
+      m_fuelMapColumnWeight--;
+    }
+    else
+    {
+      if (m_fuelMapColumnIndex > 0)
+      {
+        m_fuelMapColumnIndex--;
+        m_fuelMapColumnWeight = 15;
+      }
+      else
+      {
+        m_fuelMapColumnWeight++;
+        m_fuelMapColumnDirection = true;
+      }
+    }
   }
 }
 
@@ -183,28 +266,13 @@ void SimulatedECUData::fuelMapData(uint8_t* buf, uint16_t& mafScaler, uint16_t& 
   }
 }
 
-uint8_t SimulatedECUData::fuelMapRowIndex()
+void SimulatedECUData::fuelMapRowColIndices(uint8_t& rowIndex, uint8_t& rowWeight, uint8_t& colIndex, uint8_t& colWeight)
 {
-  adjust(m_fuelMapRowIndex, m_fuelMapRowIndexDirection, 0, 7, 1);
-  return m_fuelMapRowIndex;
-}
-
-uint8_t SimulatedECUData::fuelMapRowWeighting()
-{
-  adjust(m_fuelMapRowWeight, m_fuelMapRowWeightDirection, 0, 15, 1);
-  return m_fuelMapRowWeight;
-}
-
-uint8_t SimulatedECUData::fuelMapColumnIndex()
-{
-  adjust(m_fuelMapColumnIndex, m_fuelMapColumnIndexDirection, 0, 15, 1);
-  return m_fuelMapColumnIndex;
-}
-
-uint8_t SimulatedECUData::fuelMapColumnWeighting()
-{
-  adjust(m_fuelMapColumnWeight, m_fuelMapColumnWeightDirection, 0, 15, 1);
-  return m_fuelMapColumnWeight;
+  adjustFuelMapRowCol();
+  rowIndex = m_fuelMapRowIndex;
+  rowWeight = m_fuelMapRowWeight;
+  colIndex = m_fuelMapColumnIndex;
+  colWeight = m_fuelMapColumnWeight;
 }
 
 uint16_t SimulatedECUData::targetIdle()
