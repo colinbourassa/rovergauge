@@ -44,16 +44,16 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
 endif ()
 
-include_directories ("${CMAKE_SOURCE_DIR}"
-                     "${CMAKE_SOURCE_DIR}/qledindicator"
-                     "${CMAKE_SOURCE_DIR}/analogwidgets"
+include_directories ("${CMAKE_SOURCE_DIR}/src"
+                     "${CMAKE_SOURCE_DIR}/src/qledindicator"
+                     "${CMAKE_SOURCE_DIR}/src/analogwidgets"
                      "${CMAKE_CURRENT_BINARY_DIR}"
                      "${Qt6Widgets_INCLUDE_DIRS}")
 
-qt6_wrap_ui (UI_SOURCE mainwindow.ui)
-qt6_wrap_ui (UI_SOURCE optionsdialog.ui)
-qt6_wrap_ui (UI_SOURCE batterybackeddisplay.ui)
-qt6_wrap_ui (UI_SOURCE idleaircontroldialog.ui)
+qt6_wrap_ui (UI_SOURCE src/mainwindow.ui)
+qt6_wrap_ui (UI_SOURCE src/optionsdialog.ui)
+qt6_wrap_ui (UI_SOURCE src/batterybackeddisplay.ui)
+qt6_wrap_ui (UI_SOURCE src/idleaircontroldialog.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
 qt6_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
@@ -63,45 +63,45 @@ add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
                  "-DROVERGAUGE_VER_PATCH=${ROVERGAUGE_VER_PATCH}")
 
 add_executable (rovergauge
-    main.cpp
-    simulatedecudata.cpp
-    simulatedecudata.h
-    cuxinterface.cpp
-    cuxinterface.h
-    helpviewer.cpp
-    helpviewer.h
-    idleaircontroldialog.cpp
-    idleaircontroldialog.h
-    logger.cpp
-    logger.h
-    serialdevenumerator.cpp
-    serialdevenumerator.h
-    fuelmapgrid.cpp
-    fuelmapgrid.h
-    fueltrimbar.cpp
-    fueltrimbar.h
-    mainwindow.cpp
-    mainwindow.h
-    faultcodedialog.cpp
-    faultcodedialog.h
-    aboutbox.cpp
-    aboutbox.h
-    optionsdialog.cpp
-    optionsdialog.h
-    batterybackeddisplay.cpp
-    batterybackeddisplay.h
-    qledindicator/qledindicator.cpp
-    qledindicator/qledindicator.h
-    analogwidgets/led.cpp
-    analogwidgets/led.h
-    analogwidgets/functions.cpp
-    analogwidgets/functions.h
-    analogwidgets/widgetwithbackground.cpp
-    analogwidgets/widgetwithbackground.h
-    analogwidgets/manometer.cpp
-    analogwidgets/manometer.h
-    analogwidgets/abstractmeter.cpp
-    analogwidgets/abstractmeter.h
+    src/main.cpp
+    src/simulatedecudata.cpp
+    src/simulatedecudata.h
+    src/cuxinterface.cpp
+    src/cuxinterface.h
+    src/helpviewer.cpp
+    src/helpviewer.h
+    src/idleaircontroldialog.cpp
+    src/idleaircontroldialog.h
+    src/logger.cpp
+    src/logger.h
+    src/serialdevenumerator.cpp
+    src/serialdevenumerator.h
+    src/fuelmapgrid.cpp
+    src/fuelmapgrid.h
+    src/fueltrimbar.cpp
+    src/fueltrimbar.h
+    src/mainwindow.cpp
+    src/mainwindow.h
+    src/faultcodedialog.cpp
+    src/faultcodedialog.h
+    src/aboutbox.cpp
+    src/aboutbox.h
+    src/optionsdialog.cpp
+    src/optionsdialog.h
+    src/batterybackeddisplay.cpp
+    src/batterybackeddisplay.h
+    src/qledindicator/qledindicator.cpp
+    src/qledindicator/qledindicator.h
+    src/analogwidgets/led.cpp
+    src/analogwidgets/led.h
+    src/analogwidgets/functions.cpp
+    src/analogwidgets/functions.h
+    src/analogwidgets/widgetwithbackground.cpp
+    src/analogwidgets/widgetwithbackground.h
+    src/analogwidgets/manometer.cpp
+    src/analogwidgets/manometer.h
+    src/analogwidgets/abstractmeter.cpp
+    src/analogwidgets/abstractmeter.h
     ${UI_SOURCE}
     ${RG_RESOURCE}
     rovergauge.rc)
