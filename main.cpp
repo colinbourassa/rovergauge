@@ -17,16 +17,17 @@ int main(int argc, char* argv[])
   parser.setApplicationDescription("Diagnostic utility that will interface with the Lucas 14CUX automotive ECU");
 
   const QCommandLineOption autoconnectOption
-      ({"a", "autoconnect"}, "Automatically connect to ECU when starting.");
+    ({"a", "autoconnect"}, "Automatically connect to ECU when starting.");
   const QCommandLineOption autologOption
-      ({"l", "autolog"}, "Automatically start logging to a file on startup.");
+    ({"l", "autolog"}, "Automatically start logging to a file on startup.");
   const QCommandLineOption fullscreenOption
-      ({"f", "fullscreen"}, "Start in fullscreen mode.");
+    ({"f", "fullscreen"}, "Start in fullscreen mode.");
   QCommandLineOption doublebaudOption
-      ({"d", "doublebaud"}, "Connect to an ECU that has customized firmware doubling the serial baud rate.");
+    ({"d", "doublebaud"}, "Connect to an ECU that has customized firmware doubling the serial baud rate.");
   doublebaudOption.setFlags(QCommandLineOption::HiddenFromHelp);
-  const QCommandLineOption simulatedData
-      ({"s", "simulated"}, "Simulate a connection to the ECU. Generally used only for internal RoverGauge testing.");
+  QCommandLineOption simulatedData
+    ({"s", "simulated"}, "Simulate a connection to the ECU. Generally used only for internal RoverGauge testing.");
+  simulatedData.setFlags(QCommandLineOption::HiddenFromHelp);
 
   parser.addHelpOption();
   parser.addVersionOption();

@@ -47,9 +47,9 @@ bool Logger::openLog(QString fileName)
       if (!alreadyExists)
       {
         m_logFileStream << "#datetime,roadSpeed,engineSpeed,waterTemp,fuelTemp," <<
-                           "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
-                           "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
-                           "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << Qt::endl;
+                        "throttlePos,mafPercentage,idleBypassPos,mainVoltage," <<
+                        "currentFuelMapIndex,currentFuelMapRow,currentFuelMapCol," <<
+                        "targetIdle,lambdaTrimOdd,lambdaTrimEven,pulseWidthMs" << Qt::endl;
       }
 
       success = true;
@@ -69,7 +69,7 @@ bool Logger::openLog(QString fileName)
         {
           m_staticDataLogged = false;
           m_staticLogFileStream << "#datetime,tune,ident,checksumFixer,fuelMapIndex," <<
-                                   "fuelMapMultiplier,rowScaler,rowOffset,mafCOTrim";
+                                "fuelMapMultiplier,rowScaler,rowOffset,mafCOTrim";
 
           // give each byte of the fuel map a separate field name
           for (fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
@@ -168,15 +168,15 @@ void Logger::logStaticData(unsigned int fuelMapId)
     }
 
     m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
-      << Qt::uppercasedigits
-      << m_cux.getTune() << ","
-      << Qt::hex << m_cux.getIdent() << ","
-      << Qt::hex << m_cux.getChecksumFixer() << ","
-      << Qt::dec << fuelMapId << ","
-      << Qt::hex << m_cux.getFuelMapAdjustmentFactor(fuelMapId) << ","
-      << Qt::hex << m_cux.getRowScaler(fuelMapId) << ","
-      << m_cux.getMAFRowScaler() << ","
-      << mafCoTrim;
+                          << Qt::uppercasedigits
+                          << m_cux.getTune() << ","
+                          << Qt::hex << m_cux.getIdent() << ","
+                          << Qt::hex << m_cux.getChecksumFixer() << ","
+                          << Qt::dec << fuelMapId << ","
+                          << Qt::hex << m_cux.getFuelMapAdjustmentFactor(fuelMapId) << ","
+                          << Qt::hex << m_cux.getRowScaler(fuelMapId) << ","
+                          << m_cux.getMAFRowScaler() << ","
+                          << mafCoTrim;
 
     if (fuelMapData)
     {
