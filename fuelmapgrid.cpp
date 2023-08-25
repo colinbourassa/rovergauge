@@ -6,12 +6,12 @@
 
 FuelMapGrid::FuelMapGrid(QWidget* parent) :
   QTableWidget(parent),
-	m_numberBase(16),
-	m_activeRow(0),
-	m_activeRowWeight(0),
-	m_activeCol(0),
-	m_activeColWeight(0),
-	m_lastCellHighlightCount(0)
+  m_numberBase(16),
+  m_activeRow(0),
+  m_activeRowWeight(0),
+  m_activeCol(0),
+  m_activeColWeight(0),
+  m_lastCellHighlightCount(0)
 {
   horizontalHeader()->setStyleSheet("QHeaderView { font-size: 11pt; }");
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -40,19 +40,19 @@ void FuelMapGrid::setup(int numberBase)
 void FuelMapGrid::moveCellHighlight(int row, int rowWeight, int col, int colWeight, bool soft)
 {
   m_activeRow = row;
-	m_activeRowWeight = rowWeight;
-	m_activeCol = col;
-	m_activeColWeight = colWeight;
+  m_activeRowWeight = rowWeight;
+  m_activeCol = col;
+  m_activeColWeight = colWeight;
   clearCellHighlight();
 
-	if (soft)
-	{
-	  moveCellHighlightSoft();
+  if (soft)
+  {
+    moveCellHighlightSoft();
   }
-	else
-	{
-	  moveCellHighlightHard();
-	}
+  else
+  {
+    moveCellHighlightHard();
+  }
 }
 
 void FuelMapGrid::moveCellHighlightHard()
@@ -84,8 +84,8 @@ void FuelMapGrid::moveCellHighlightHard()
 
 void FuelMapGrid::moveCellHighlightSoft()
 {
-	// Compute the distribution of shading that should be applied left/right
-	// and top/bottom to the block of four cells.
+  // Compute the distribution of shading that should be applied left/right
+  // and top/bottom to the block of four cells.
   const float leftPercent = 1.0 - (m_activeColWeight / 15.0);
   const float rightPercent = 1.0 - leftPercent;
   const float topPercent = 1.0 - (m_activeRowWeight / 15.0);
@@ -153,12 +153,12 @@ void FuelMapGrid::restoreCellHighlight()
 
 void FuelMapGrid::setData(const QByteArray& data)
 {
-	const int numRows = rowCount();
-	const int numCols = columnCount();
-	QTableWidgetItem* cellItem = nullptr;
+  const int numRows = rowCount();
+  const int numCols = columnCount();
+  QTableWidgetItem* cellItem = nullptr;
   unsigned char byte = 0;
 
-	clearCellHighlight();
+  clearCellHighlight();
   for (int row = 0; row < numRows; row++)
   {
     for (int col = 0; col < numCols; col++)

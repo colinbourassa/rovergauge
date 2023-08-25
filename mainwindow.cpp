@@ -176,11 +176,11 @@ void MainWindow::setupWidgets()
   connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
   connect(m_ui->m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
   connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-	        this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
+          this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
   connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-	        this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
+          this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
   connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-	        this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
+          this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
   connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
   connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
   connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
@@ -420,9 +420,9 @@ void MainWindow::moveFuelMapCellHighlight()
 void MainWindow::populateFuelMapDisplay(const QByteArray* data, unsigned int fuelMapMultiplier, unsigned int rowScaler)
 {
   if (data)
-	{
+  {
     m_ui->m_fuelMapDisplay->setData(*data);
-	}
+  }
 
   moveFuelMapCellHighlight();
 
@@ -451,8 +451,8 @@ void MainWindow::onFuelMapDataReady(unsigned int fuelMapId)
   if (data)
   {
     populateFuelMapDisplay(data,
-      m_cux->getFuelMapAdjustmentFactor(fuelMapId),
-      m_cux->getRowScaler(fuelMapId));
+                           m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+                           m_cux->getRowScaler(fuelMapId));
     m_fuelMapDataIsCurrent = true;
 
     m_logger->onFuelMapDataReady(fuelMapId);
@@ -577,11 +577,11 @@ void MainWindow::onDataReady()
 void MainWindow::setLambdaTrimIndicators(int lambdaTrimOdd, int lambdaTrimEven)
 {
   const QString oddLabel = (lambdaTrimOdd >= 0) ?
-    QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
-    QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
+                           QString("+%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->maximum()) :
+                           QString("-%1%").arg(lambdaTrimOdd * 100 / m_ui->m_oddFuelTrimBar->minimum());
   const QString evenLabel = (lambdaTrimEven >= 0) ?
-    QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
-    QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
+                            QString("+%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->maximum()) :
+                            QString("-%1%").arg(lambdaTrimEven * 100 / m_ui->m_evenFuelTrimBar->minimum());
 
   m_ui->m_oddFuelTrimBar->setValue(lambdaTrimOdd);
   m_ui->m_evenFuelTrimBar->setValue(lambdaTrimEven);
@@ -693,12 +693,12 @@ void MainWindow::onEditOptionsClicked()
 
     if (m_options->getDisplayNumberBaseChanged())
     {
-		  m_ui->m_fuelMapDisplay->setNumberBase(m_options->getDisplayNumberBase());
+      m_ui->m_fuelMapDisplay->setNumberBase(m_options->getDisplayNumberBase());
       const int fuelMapId = m_cux->getCurrentFuelMapIndex();
       const QByteArray* fuelMapData = m_cux->getFuelMap(fuelMapId);
       populateFuelMapDisplay(fuelMapData,
-        m_cux->getFuelMapAdjustmentFactor(fuelMapId),
-        m_cux->getRowScaler(fuelMapId));
+                             m_cux->getFuelMapAdjustmentFactor(fuelMapId),
+                             m_cux->getRowScaler(fuelMapId));
     }
   }
 }
@@ -878,7 +878,7 @@ void MainWindow::onDisconnect()
   m_ui->m_fuelPumpRelayStateLed->setChecked(false);
   m_ui->m_oddFuelTrimBar->setValue(0);
 
-	m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(
+  m_ui->m_oddFuelTrimBarAndMAFCOLabel->setText(
     (m_cux->getFeedbackMode() == C14CUX_FeedbackMode_ClosedLoop) ? "+0%" : "");
 
   m_ui->m_evenFuelTrimBar->setValue(0);
@@ -931,8 +931,8 @@ void MainWindow::startLogging()
     }
     else
     {
-      QMessageBox::warning(this, "Error",
-        "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
+      QMessageBox::warning(
+        this, "Error", "Failed to open log file (" + m_logger->getLogPath() + ")", QMessageBox::Ok);
     }
   }
 }
@@ -991,15 +991,15 @@ void MainWindow::onFailedToConnect(QString dev)
   if (dev.isEmpty() || dev.isNull())
   {
     QMessageBox::warning(this, "Error",
-      QString("Error connecting to 14CUX. No serial port name specified.\n\n") +
-      QString("Set a serial device using \"Options\" --> \"Edit Settings\""),
-      QMessageBox::Ok);
+                         QString("Error connecting to 14CUX. No serial port name specified.\n\n") +
+                         QString("Set a serial device using \"Options\" --> \"Edit Settings\""),
+                         QMessageBox::Ok);
   }
   else
   {
     QMessageBox::warning(this, "Error",
-      "Error connecting to 14CUX. Could not open serial device: " + dev,
-      QMessageBox::Ok);
+                         "Error connecting to 14CUX. Could not open serial device: " + dev,
+                         QMessageBox::Ok);
   }
 }
 
@@ -1014,8 +1014,8 @@ void MainWindow::onNotConnected()
     m_pleaseWaitBox->hide();
   }
 
-  QMessageBox::warning(this, "Error",
-    "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
+  QMessageBox::warning(
+    this, "Error", "This requires that the software first be connected to the ECU (using the \"Connect\" button.)",
     QMessageBox::Ok);
 }
 
@@ -1090,16 +1090,16 @@ void MainWindow::onROMImageReady()
     {
       if (saveFile.write(promData) != promData.capacity())
       {
-        QMessageBox::warning(this, "Error",
-          QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+        QMessageBox::warning(
+          this, "Error", QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
       }
 
       saveFile.close();
     }
     else
     {
-      QMessageBox::warning(this, "Error",
-        QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
+      QMessageBox::warning(
+        this, "Error", QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
     }
   }
 }
@@ -1114,8 +1114,8 @@ void MainWindow::onROMImageReadFailed()
     m_pleaseWaitBox->hide();
   }
 
-  QMessageBox::warning(this, "Error",
-                       "Communications error. ROM image could not be read.", QMessageBox::Ok);
+  QMessageBox::warning(
+    this, "Error", "Communications error. ROM image could not be read.", QMessageBox::Ok);
 }
 
 /**
@@ -1189,8 +1189,8 @@ void MainWindow::onBatteryBackedMemClicked()
  */
 void MainWindow::onLambdaTrimButtonClicked(QAbstractButton* button)
 {
-	m_cux->setLambdaTrimType((button == m_ui->m_lambdaTrimShortButton) ?
-	  C14CUX_LambdaTrimType_ShortTerm : C14CUX_LambdaTrimType_LongTerm);
+  m_cux->setLambdaTrimType((button == m_ui->m_lambdaTrimShortButton) ?
+                           C14CUX_LambdaTrimType_ShortTerm : C14CUX_LambdaTrimType_LongTerm);
 }
 
 /**
@@ -1198,8 +1198,8 @@ void MainWindow::onLambdaTrimButtonClicked(QAbstractButton* button)
  */
 void MainWindow::onMAFReadingButtonClicked(QAbstractButton* button)
 {
-	m_cux->setMAFReadingType((button == m_ui->m_mafReadingLinearButton) ?
-	  C14CUX_AirflowType_Linearized : C14CUX_AirflowType_Direct);
+  m_cux->setMAFReadingType((button == m_ui->m_mafReadingLinearButton) ?
+                           C14CUX_AirflowType_Linearized : C14CUX_AirflowType_Direct);
 }
 
 /**
@@ -1208,7 +1208,7 @@ void MainWindow::onMAFReadingButtonClicked(QAbstractButton* button)
 void MainWindow::onThrottleTypeButtonClicked(QAbstractButton* button)
 {
   m_cux->setThrottleReadingType((button == m_ui->m_throttleTypeAbsoluteButton) ?
-		C14CUX_ThrottlePosType_Absolute : C14CUX_ThrottlePosType_Corrected);
+                                C14CUX_ThrottlePosType_Absolute : C14CUX_ThrottlePosType_Corrected);
 }
 
 /**
@@ -1222,7 +1222,7 @@ void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int
   m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
   m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 4, 16).toUpper());
   m_ui->m_checksumFixerLabel->setText(
-	  QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
+    QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
 }
 
 /**
@@ -1308,7 +1308,7 @@ void MainWindow::setLambdaWidgetsForFeedbackMode(c14cux_feedback_mode mode, bool
 void MainWindow::onFeedbackModeChanged(c14cux_feedback_mode mode)
 {
   setLambdaWidgetsForFeedbackMode(
-	  mode,
+    mode,
     m_enabledSamples[SampleType_COTrimVoltage],
     m_enabledSamples[SampleType_LambdaTrimLong] || m_enabledSamples[SampleType_LambdaTrimShort]);
 }

@@ -351,8 +351,8 @@ bool CUXInterface::connectToECU()
     m_simConnected = true;
   }
 
-  const bool status = m_sim ?
-    true : c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
+  const bool status =
+    m_sim ? true : c14cux_connect(&m_cuxinfo, m_deviceName.toStdString().c_str(), m_baudRate);
 
   if (status)
   {
@@ -434,8 +434,8 @@ void CUXInterface::onShutdownThreadRequest()
 bool CUXInterface::isConnected()
 {
   return m_sim ?
-        (m_initComplete && m_simConnected) :
-        (m_initComplete && c14cux_isConnected(&m_cuxinfo));
+         (m_initComplete && m_simConnected) :
+         (m_initComplete && c14cux_isConnected(&m_cuxinfo));
 }
 
 /**
@@ -751,7 +751,7 @@ CUXInterface::ReadResult CUXInterface::readData()
       }
     }
   }
-  
+
   if (isDueForMeasurement(SampleType_COTrimVoltage))
   {
     result = mergeResult(result, c14cux_getCOTrimVoltage(&m_cuxinfo, &m_coTrimVoltage));
