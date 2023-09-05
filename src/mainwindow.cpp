@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "faultcodedialog.h"
+#include "batterybackeddisplay.h"
 
 const float MainWindow::s_speedometerMaxMPH = 160.0;
 const float MainWindow::s_speedometerMaxKPH = 240.0;
@@ -52,7 +53,6 @@ MainWindow::MainWindow (bool autoconnect,
     m_cux(nullptr),
     m_options(nullptr),
     m_iacDialog(nullptr),
-    m_batteryBackedDisplay(nullptr),
     m_aboutBox(nullptr),
     m_pleaseWaitBox(nullptr),
     m_helpViewerDialog(nullptr),
@@ -110,7 +110,6 @@ MainWindow::~MainWindow()
   delete m_options;
   delete m_cux;
   delete m_cuxThread;
-  delete m_batteryBackedDisplay;
 }
 
 /**
@@ -385,7 +384,7 @@ void MainWindow::onFaultCodesReadFailed()
  */
 void MainWindow::onBatteryBackedMemReady()
 {
-  BatteryBackedDisplay batteryDialog(this->windowTitle(), m_cux->getBatteryBackedMem(), 0x0040, this);
+  BatteryBackedDisplay batteryDialog(this->windowTitle(), m_cux->getBatteryBackedMem(), 0x0040, m_options->getRAMLabels(), this);
   batteryDialog.exec();
 }
 
