@@ -20,7 +20,9 @@ OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
   m_settingTemperatureUnits("TemperatureUnits"),
   m_settingSpeedoAdjust("SpeedometerAdjustment"),
   m_settingSpeedoMultiplier("SpeedometerMultiplier"),
-  m_settingSpeedoOffset("SpeedometerOffset")
+  m_settingSpeedoOffset("SpeedometerOffset"),
+  m_settingRAMLocGroupName("BatteryBackedRAMLocations"),
+  m_ramLabelPrefix("RAM_")
 {
   m_ui->setupUi(this);
 
@@ -98,12 +100,10 @@ void OptionsDialog::setupWidgets()
   }
 
   const unsigned char numCheckboxesPerColumn = m_enabledSamplesBoxes.count() / 2;
-
   m_ui->m_serialDeviceBox->addItems(getSerialDevList(m_serialDeviceName));
-
   setWidgetValues();
 
-  foreach(QCheckBox * sampleCheckBox, m_enabledSamplesBoxes)
+  foreach(QCheckBox* sampleCheckBox, m_enabledSamplesBoxes)
   {
     m_ui->m_checkboxLayout->addWidget(sampleCheckBox, row, column);
     column = (checkboxIndex < numCheckboxesPerColumn) ? 0 : 1;
@@ -113,10 +113,8 @@ void OptionsDialog::setupWidgets()
 
   connect(m_ui->m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
   connect(m_ui->m_uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
-
   connect(m_ui->m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(m_ui->m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
   connect(m_ui->m_adjustSpeedoCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggledSpeedoAdjust(bool)));
 }
 
@@ -256,9 +254,25 @@ void OptionsDialog::readSettings()
 
   // special case for the MIL; this is always enabled
   m_enabledSamples[SampleType_MIL] = true;
-
   groupLikeSettings();
+  settings.endGroup();
 
+  settings.beginGroup(m_settingRAMLocGroupName);
+  m_ramLocLabels[0x40] = settings.value(m_ramLabelPrefix + QString("40"), "secondaryLambdaR").toString();
+  m_ramLocLabels[0x42] = settings.value(m_ramLabelPrefix + QString("42"), "longLambdaTrimR (16 bit)").toString();
+  m_ramLocLabels[0x44] = settings.value(m_ramLabelPrefix + QString("44"), "secondaryLambdaL (16 bit)").toString();
+  m_ramLocLabels[0x46] = settings.value(m_ramLabelPrefix + QString("46"), "longLambdaTrimL").toString();
+  m_ramLocLabels[0x48] = settings.value(m_ramLabelPrefix + QString("48"), "hiFuelTemperature").toString();
+  m_ramLocLabels[0x49] = settings.value(m_ramLabelPrefix + QString("49"), "faultBits").toString();
+  m_ramLocLabels[0x4a] = settings.value(m_ramLabelPrefix + QString("4a"), "faultBits").toString();
+  m_ramLocLabels[0x4b] = settings.value(m_ramLabelPrefix + QString("4b"), "faultBits").toString();
+  m_ramLocLabels[0x4c] = settings.value(m_ramLabelPrefix + QString("4c"), "faultBits").toString();
+  m_ramLocLabels[0x4d] = settings.value(m_ramLabelPrefix + QString("4d"), "faultBits").toString();
+  m_ramLocLabels[0x4e] = settings.value(m_ramLabelPrefix + QString("4e"), "faultBits").toString();
+  m_ramLocLabels[0x4f] = settings.value(m_ramLabelPrefix + QString("4f"), "stprMtrSavedValue").toString();
+  m_ramLocLabels[0x50] = settings.value(m_ramLabelPrefix + QString("50"), "fuelMapNumberBackup").toString();
+  m_ramLocLabels[0x51] = settings.value(m_ramLabelPrefix + QString("51"), "throttlePotMinimum (16 bit)").toString();
+  m_ramLocLabels[0x53] = settings.value(m_ramLabelPrefix + QString("53"), "throttlePotMinCopy / RAM checksum").toString();
   settings.endGroup();
 }
 
@@ -286,7 +300,14 @@ void OptionsDialog::writeSettings()
   }
 
   groupLikeSettings();
+  settings.endGroup();
 
+  settings.beginGroup(m_settingRAMLocGroupName);
+  for (int addr : m_ramLocLabels.keys())
+  {
+    const QString settingName = QString("%1%2").arg(m_ramLabelPrefix).arg(addr, 2, 16, QChar('0'));
+    settings.setValue(settingName, m_ramLocLabels[addr]);
+  }
   settings.endGroup();
 }
 

@@ -1,6 +1,4 @@
-#ifndef OPTIONSDIALOG_H
-#define OPTIONSDIALOG_H
-
+#pragma once
 #include <QDialog>
 #include <QCheckBox>
 #include <QString>
@@ -81,6 +79,11 @@ public:
     return m_speedoOffset;
   }
 
+  inline const QMap<int,QString>& getRAMLabels() const
+  {
+    return m_ramLocLabels;
+  }
+
 protected:
   void accept();
   void reject();
@@ -111,10 +114,10 @@ private:
   int m_speedoOffset;
   int m_displayNumberBase;
   bool m_displayNumberBaseChanged;
+  QMap<int,QString> m_ramLocLabels;
 
   const QString m_settingsFileName;
   const QString m_settingsGroupName;
-
   const QString m_settingSerialDev;
   const QString m_settingRefreshFuelMap;
   const QString m_settingSoftHighlight;
@@ -124,6 +127,8 @@ private:
   const QString m_settingSpeedoAdjust;
   const QString m_settingSpeedoMultiplier;
   const QString m_settingSpeedoOffset;
+  const QString m_settingRAMLocGroupName;
+  const QString m_ramLabelPrefix;
 
   void groupLikeSettings();
   void setupWidgets();
@@ -131,6 +136,4 @@ private:
   void readSettings();
   void writeSettings();
 };
-
-#endif // OPTIONSDIALOG_H
 

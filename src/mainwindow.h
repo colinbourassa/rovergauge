@@ -27,7 +27,6 @@
 #include "logger.h"
 #include "commonunits.h"
 #include "helpviewer.h"
-#include "batterybackeddisplay.h"
 
 namespace Ui
 {
@@ -80,7 +79,6 @@ private:
   CUXInterface* m_cux;
   OptionsDialog* m_options;
   IdleAirControlDialog* m_iacDialog;
-  BatteryBackedDisplay* m_batteryBackedDisplay;
   AboutBox* m_aboutBox;
   QMessageBox* m_pleaseWaitBox;
   HelpViewer* m_helpViewerDialog;
