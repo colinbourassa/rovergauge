@@ -1,6 +1,6 @@
 # RoverGauge
 
-![RoverGauge screenshot](docs/rovergauge-0.10.7.png)
+![RoverGauge screenshot](docs/rovergauge-11.0.0.png)
 
 RoverGauge is a graphical display and diagnostic tool that reads runtime data from a Lucas 14CUX engine management system. The 14CUX was paired with the Rover V8 engine in Land Rover vehicles from 1990 to 1995, and also in sports cars made by low-volume automakers (TVR, Morgan, etc.) throughout the 1990s.
 
@@ -25,7 +25,7 @@ If you're running Linux, you can get a Debian package (.DEB) for your system's a
 
  - https://github.com/colinbourassa/rovergauge/releases/latest
 
-It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3 or newer) as well as version 5.x of the Qt SDK.
+It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3.18 or newer) as well as version 6.x of the Qt SDK.
 
 ## Building interface cable
 
