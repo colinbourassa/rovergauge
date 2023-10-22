@@ -357,6 +357,7 @@ bool CUXInterface::connectToECU()
   if (status)
   {
     emit connected();
+    readTuneRevID();
   }
 
   return status;
