@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.18)
 project (rovergauge)
 
 set (ROVERGAUGE_VER_MAJOR 11)
-set (ROVERGAUGE_VER_MINOR 0)
+set (ROVERGAUGE_VER_MINOR 1)
 set (ROVERGAUGE_VER_PATCH 0)
 
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -38,24 +38,24 @@ set (CPACK_SOURCE_IGNORE_FILES
       "release"
       "object_script.*")
 
-find_package (Qt6 COMPONENTS Core Widgets REQUIRED)
+find_package (Qt5 COMPONENTS Core Widgets REQUIRED)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
 endif ()
 
 include_directories ("${CMAKE_SOURCE_DIR}/src"
                      "${CMAKE_SOURCE_DIR}/src/qledindicator"
                      "${CMAKE_SOURCE_DIR}/src/analogwidgets"
                      "${CMAKE_CURRENT_BINARY_DIR}"
-                     "${Qt6Widgets_INCLUDE_DIRS}")
+                     "${Qt5Widgets_INCLUDE_DIRS}")
 
-qt6_wrap_ui (UI_SOURCE src/mainwindow.ui)
-qt6_wrap_ui (UI_SOURCE src/optionsdialog.ui)
-qt6_wrap_ui (UI_SOURCE src/batterybackeddisplay.ui)
-qt6_wrap_ui (UI_SOURCE src/idleaircontroldialog.ui)
+qt5_wrap_ui (UI_SOURCE src/mainwindow.ui)
+qt5_wrap_ui (UI_SOURCE src/optionsdialog.ui)
+qt5_wrap_ui (UI_SOURCE src/batterybackeddisplay.ui)
+qt5_wrap_ui (UI_SOURCE src/idleaircontroldialog.ui)
 message (STATUS "Generated: ${UI_SOURCE}")
-qt6_add_resources (RG_RESOURCE rovergauge_resources.qrc)
+qt5_add_resources (RG_RESOURCE rovergauge_resources.qrc)
 message (STATUS "Generated: ${RG_RESOURCE}")
 
 add_definitions ("-DROVERGAUGE_VER_MAJOR=${ROVERGAUGE_VER_MAJOR}"
@@ -149,39 +149,39 @@ if (MINGW)
     message (SEND_ERROR "Could not find libzstd!")
   endif ()
 
-  get_target_property (QT6CORE_LIB Qt6::Core LOCATION)
-  if (QT6CORE_LIB)
-    message (STATUS "Qt6::Core location is ${QT6CORE_LIB}")
+  get_target_property (QTCORE_LIB Qt5::Core LOCATION)
+  if (QTCORE_LIB)
+    message (STATUS "Qt::Core location is ${QTCORE_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt6Core library!")
+    message (SEND_ERROR "Could not find QtCore library!")
   endif ()
 
-  get_target_property (QT6WIDGETS_LIB Qt6::Widgets LOCATION)
-  if (QT6WIDGETS_LIB)
-    message (STATUS "Qt6::Widgets location is ${QT6WIDGETS_LIB}")
+  get_target_property (QTWIDGETS_LIB Qt5::Widgets LOCATION)
+  if (QTWIDGETS_LIB)
+    message (STATUS "Qt::Widgets location is ${QTWIDGETS_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt6Widgets library!")
+    message (SEND_ERROR "Could not find QtWidgets library!")
   endif ()
 
-  get_target_property (QT6GUI_LIB Qt6::Gui LOCATION)
-  if (QT6GUI_LIB)
-    message (STATUS "Qt6::Gui location is ${QT6GUI_LIB}")
+  get_target_property (QTGUI_LIB Qt5::Gui LOCATION)
+  if (QTGUI_LIB)
+    message (STATUS "Qt::Gui location is ${QTGUI_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt6Gui library!")
+    message (SEND_ERROR "Could not find QtGui library!")
   endif ()
 
-  get_target_property (QT6WINDOWS_LIB Qt6::QWindowsIntegrationPlugin LOCATION)
-  if (QT6WINDOWS_LIB)
-    message (STATUS "Qt6::QWindows location is ${QT6WINDOWS_LIB}")
+  get_target_property (QTWINDOWS_LIB Qt5::QWindowsIntegrationPlugin LOCATION)
+  if (QTWINDOWS_LIB)
+    message (STATUS "Qt::QWindows location is ${QTWINDOWS_LIB}")
   else ()
-    message (SEND_ERROR "Could not find Qt6 Windows GUI plugin!")
+    message (SEND_ERROR "Could not find Qt Windows GUI plugin!")
   endif ()
 
-  get_target_property (QT6WINDOWSVISTA_LIB Qt6::QWindowsVistaStylePlugin LOCATION)
-  if (QT6WINDOWSVISTA_LIB)
-    message (STATUS "Qt6::QWindowsVistaStyle location is ${QT6WINDOWSVISTA_LIB}")
+  get_target_property (QTWINDOWSVISTA_LIB Qt5::QWindowsVistaStylePlugin LOCATION)
+  if (QTWINDOWSVISTA_LIB)
+    message (STATUS "Qt::QWindowsVistaStyle location is ${QTWINDOWSVISTA_LIB}")
   else ()
-    message (WARNING "Could not find Qt6 Windows Vista style GUI plugin!")
+    message (WARNING "Could not find Qt Windows Vista style GUI plugin!")
   endif ()
 
   find_library (COMM14CUX_DLL libcomm14cux)
@@ -191,7 +191,7 @@ if (MINGW)
     message (SEND_ERROR "Could not find libcomm14cux!")
   endif ()
 
-  target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt6::Widgets)
+  target_link_libraries (rovergauge ${COMM14CUX_DLL} Qt5::Widgets)
 
   # convert Unix-style newline characters into Windows-style
   configure_file ("${CMAKE_SOURCE_DIR}/README.md" "${CMAKE_BINARY_DIR}/README.TXT" NEWLINE_STYLE WIN32)
@@ -201,16 +201,16 @@ if (MINGW)
                   ${LIBGCC}
                   ${LIBSTDCPP}
                   ${LIBWINPTHREAD}
-                  ${QT6CORE_LIB}
-                  ${QT6WIDGETS_LIB}
-                  ${QT6GUI_LIB}
+                  ${QTCORE_LIB}
+                  ${QTWIDGETS_LIB}
+                  ${QTGUI_LIB}
                   ${COMM14CUX_DLL}
                   ${LIBZSTD}
            DESTINATION ".")
   install (FILES "${CMAKE_BINARY_DIR}/README.TXT" "${CMAKE_BINARY_DIR}/LICENSE.TXT" DESTINATION "doc")
-  install (FILES ${QT6WINDOWS_LIB} DESTINATION "platforms")
-  if (QT6WINDOWSVISTA_LIB)
-    install (FILES ${QT6WINDOWSVISTA_LIB} DESTINATION "styles")
+  install (FILES ${QTWINDOWS_LIB} DESTINATION "platforms")
+  if (QTWINDOWSVISTA_LIB)
+    install (FILES ${QTWINDOWSVISTA_LIB} DESTINATION "styles")
   endif ()
 
   set (CPACK_GENERATOR "ZIP")
@@ -222,7 +222,7 @@ if (MINGW)
 else()
   message (STATUS "Defaulting to Linux build environment.")
 
-  target_link_libraries (rovergauge comm14cux Qt6::Widgets)
+  target_link_libraries (rovergauge comm14cux Qt5::Widgets)
 
   set (CMAKE_SKIP_RPATH TRUE)
   set (CMAKE_INSTALL_PREFIX "/usr")
@@ -262,7 +262,7 @@ else()
   set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Colin Bourassa <colin.bourassa@gmail.com>")
   set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Graphical display for data read from 14CUX engine management system")
   set (CPACK_DEBIAN_PACKAGE_SECTION "Science")
-  set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.13), libstdc++6 (>= 4.6.3), libcomm14cux (>= 2.1.0), libqt6core6 (>= 6.2.2), libqt6gui6 (>= 6.2.2), libqt6widgets6 (>= 6.2.2)")
+  set (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.13), libstdc++6 (>= 4.6.3), libcomm14cux (>= 2.1.0), libqt5core5 (>= 5.8.0) | libqt5core5a (>= 5.8.0), libqt5gui5 (>= 5.8.0), libqt5widgets5 (>= 5.8.0)")
   set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-${CMAKE_SYSTEM_NAME}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
   set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
   set (CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
