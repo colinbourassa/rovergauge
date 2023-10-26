@@ -100,7 +100,7 @@ QStringList getSerialDevList(const QString savedDevName)
   {
     swprintf(portName, (const wchar_t*)"COM%d", portNum);
 
-    if (GetDefaultCommConfig(portName, &cc, &dwSize))
+    if (GetDefaultCommConfigW(portName, &cc, &dwSize))
     {
       serialDevices.append(QString::fromWCharArray(portName));
     }
