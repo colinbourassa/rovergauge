@@ -15,7 +15,7 @@ class BatteryBackedDisplay : public QDialog
   Q_OBJECT
 
 public:
-  BatteryBackedDisplay(QString title,
+  BatteryBackedDisplay(const QString& title,
                        const QByteArray& batteryBackedMemory,
                        uint16_t startOffset,
                        const QMap<int,QString>& ramLabels,

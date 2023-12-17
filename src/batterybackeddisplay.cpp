@@ -1,7 +1,7 @@
 #include "ui_batterybackeddisplay.h"
 #include "batterybackeddisplay.h"
 
-BatteryBackedDisplay::BatteryBackedDisplay(QString title,
+BatteryBackedDisplay::BatteryBackedDisplay(const QString& title,
                                            const QByteArray& batteryBackedMemory,
                                            uint16_t startOffset,
                                            const QMap<int,QString>& ramOffsetLabels,
@@ -11,7 +11,7 @@ BatteryBackedDisplay::BatteryBackedDisplay(QString title,
 {
   m_ui->setupUi(this);
   this->setWindowTitle(title);
-  connect(m_ui->m_closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(m_ui->m_closeButton, &QPushButton::clicked, this, &QDialog::accept);
   QTableWidgetItem* item;
   uint8_t currentByte = 0;
 

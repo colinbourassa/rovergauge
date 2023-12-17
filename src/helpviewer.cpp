@@ -15,10 +15,10 @@ HelpViewer::HelpViewer(const QString title, QWidget* parent) :
 
   m_vbox = new QVBoxLayout(this);
   m_closeButton = new QPushButton("Close", this);
-  connect(m_closeButton, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
+  connect(m_closeButton, &QPushButton::clicked, this, &HelpViewer::onCloseClicked);
   m_viewer = new QTextBrowser(this);
   m_viewer->setOpenLinks(false);
-  connect(m_viewer, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+  connect(m_viewer, &QTextBrowser::anchorClicked, this, &HelpViewer::onAnchorClicked);
 
   QFile helpFile(":/help/help.html");
   helpFile.open(QFile::ReadOnly);

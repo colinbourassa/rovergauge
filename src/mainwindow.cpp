@@ -118,32 +118,32 @@ MainWindow::~MainWindow()
  */
 void MainWindow::connectInterfaceSignals()
 {
-  connect(&m_shortcutStartLogging, SIGNAL(activated()), this, SLOT(onStartLogging()));
-  connect(&m_shortcutStopLogging,  SIGNAL(activated()), this, SLOT(onStopLogging()));
+  connect(&m_shortcutStartLogging, &QShortcut::activated, this, &MainWindow::onStartLogging);
+  connect(&m_shortcutStopLogging,  &QShortcut::activated, this, &MainWindow::onStopLogging);
 
-  connect(m_cux, SIGNAL(dataReady()),                        this, SLOT(onDataReady()));
-  connect(m_cux, SIGNAL(connected()),                        this, SLOT(onConnect()));
-  connect(m_cux, SIGNAL(disconnected()),                     this, SLOT(onDisconnect()));
-  connect(m_cux, SIGNAL(readError()),                        this, SLOT(onReadError()));
-  connect(m_cux, SIGNAL(readSuccess()),                      this, SLOT(onReadSuccess()));
-  connect(m_cux, SIGNAL(failedToConnect(QString)),           this, SLOT(onFailedToConnect(QString)));
-  connect(m_cux, SIGNAL(faultCodesReady()),                  this, SLOT(onFaultCodesReady()));
-  connect(m_cux, SIGNAL(faultCodesReadFailed()),             this, SLOT(onFaultCodesReadFailed()));
-  connect(m_cux, SIGNAL(batteryBackedMemReady()),            this, SLOT(onBatteryBackedMemReady()));
-  connect(m_cux, SIGNAL(batteryBackedMemReadFailed()),       this, SLOT(onBatteryBackedMemReadFailed()));
-  connect(m_cux, SIGNAL(fuelMapReady(unsigned int)),         this, SLOT(onFuelMapDataReady(unsigned int)));
-  connect(m_cux, SIGNAL(revisionNumberReady(int, int, int)), this, SLOT(onTuneRevisionReady(int, int, int)));
-  connect(m_cux, SIGNAL(interfaceReadyForPolling()),         this, SLOT(onInterfaceReady()));
-  connect(m_cux, SIGNAL(notConnected()),                     this, SLOT(onNotConnected()));
-  connect(m_cux, SIGNAL(romImageReady()),                    this, SLOT(onROMImageReady()));
-  connect(m_cux, SIGNAL(romImageReadFailed()),               this, SLOT(onROMImageReadFailed()));
-  connect(m_cux, SIGNAL(rpmLimitReady(int)),                 this, SLOT(onRPMLimitReady(int)));
-  connect(m_cux, SIGNAL(rpmTableReady()),                    this, SLOT(onRPMTableReady()));
-  connect(m_cux, SIGNAL(feedbackModeHasChanged(c14cux_feedback_mode)), this, SLOT(onFeedbackModeChanged(c14cux_feedback_mode)));
-  connect(m_cux, SIGNAL(fuelMapIndexHasChanged(uint)),       this, SLOT(onFuelMapIndexChanged(uint)));
-  connect(&m_fuelPumpRefreshTimer, SIGNAL(timeout()), this, SLOT(onFuelPumpRunTimer()));
-  connect(this, SIGNAL(requestToStartPolling()), m_cux, SLOT(onStartPollingRequest()));
-  connect(this, SIGNAL(requestThreadShutdown()), m_cux, SLOT(onShutdownThreadRequest()));
+  connect(m_cux, &CUXInterface::dataReady,                  this, &MainWindow::onDataReady);
+  connect(m_cux, &CUXInterface::connected,                  this, &MainWindow::onConnect);
+  connect(m_cux, &CUXInterface::disconnected,               this, &MainWindow::onDisconnect);
+  connect(m_cux, &CUXInterface::readError,                  this, &MainWindow::onReadError);
+  connect(m_cux, &CUXInterface::readSuccess,                this, &MainWindow::onReadSuccess);
+  connect(m_cux, &CUXInterface::failedToConnect,            this, &MainWindow::onFailedToConnect);
+  connect(m_cux, &CUXInterface::faultCodesReady,            this, &MainWindow::onFaultCodesReady);
+  connect(m_cux, &CUXInterface::faultCodesReadFailed,       this, &MainWindow::onFaultCodesReadFailed);
+  connect(m_cux, &CUXInterface::batteryBackedMemReady,      this, &MainWindow::onBatteryBackedMemReady);
+  connect(m_cux, &CUXInterface::batteryBackedMemReadFailed, this, &MainWindow::onBatteryBackedMemReadFailed);
+  connect(m_cux, &CUXInterface::fuelMapReady,               this, &MainWindow::onFuelMapDataReady);
+  connect(m_cux, &CUXInterface::revisionNumberReady,        this, &MainWindow::onTuneRevisionReady);
+  connect(m_cux, &CUXInterface::interfaceReadyForPolling,   this, &MainWindow::onInterfaceReady);
+  connect(m_cux, &CUXInterface::notConnected,               this, &MainWindow::onNotConnected);
+  connect(m_cux, &CUXInterface::romImageReady,              this, &MainWindow::onROMImageReady);
+  connect(m_cux, &CUXInterface::romImageReadFailed,         this, &MainWindow::onROMImageReadFailed);
+  connect(m_cux, &CUXInterface::rpmLimitReady,              this, &MainWindow::onRPMLimitReady);
+  connect(m_cux, &CUXInterface::rpmTableReady,              this, &MainWindow::onRPMTableReady);
+  connect(m_cux, &CUXInterface::feedbackModeHasChanged,     this, &MainWindow::onFeedbackModeChanged);
+  connect(m_cux, &CUXInterface::fuelMapIndexHasChanged,     this, &MainWindow::onFuelMapIndexChanged);
+  connect(&m_fuelPumpRefreshTimer, &QTimer::timeout, this, &MainWindow::onFuelPumpRunTimer);
+  connect(this, &MainWindow::requestToStartPolling, m_cux, &CUXInterface::onStartPollingRequest);
+  connect(this, &MainWindow::requestThreadShutdown, m_cux, &CUXInterface::onShutdownThreadRequest);
 }
 
 /**
@@ -162,27 +162,27 @@ void MainWindow::setupWidgets()
   m_ui->m_stopLoggingButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
 
   // connect menu item signals
-  connect(m_ui->m_saveROMImageAction,   SIGNAL(triggered()), this, SLOT(onSaveROMImageSelected()));
-  connect(m_ui->m_exitAction,           SIGNAL(triggered()), this, SLOT(onExitSelected()));
-  connect(m_ui->m_idleAirControlAction, SIGNAL(triggered()), this, SLOT(onIdleAirControlClicked()));
-  connect(m_ui->m_showFaultCodesAction, SIGNAL(triggered()), this, SLOT(onShowFaultCodesClicked()));
-  connect(m_ui->m_batteryBackedAction,  SIGNAL(triggered()), this, SLOT(onBatteryBackedMemClicked()));
-  connect(m_ui->m_editSettingsAction,   SIGNAL(triggered()), this, SLOT(onEditOptionsClicked()));
-  connect(m_ui->m_helpContentsAction,   SIGNAL(triggered()), this, SLOT(onHelpContentsClicked()));
-  connect(m_ui->m_helpAboutAction,      SIGNAL(triggered()), this, SLOT(onHelpAboutClicked()));
+  connect(m_ui->m_saveROMImageAction,   &QAction::triggered, this, &MainWindow::onSaveROMImageSelected);
+  connect(m_ui->m_exitAction,           &QAction::triggered, this, &MainWindow::onExitSelected);
+  connect(m_ui->m_idleAirControlAction, &QAction::triggered, this, &MainWindow::onIdleAirControlClicked);
+  connect(m_ui->m_showFaultCodesAction, &QAction::triggered, this, &MainWindow::onShowFaultCodesClicked);
+  connect(m_ui->m_batteryBackedAction,  &QAction::triggered, this, &MainWindow::onBatteryBackedMemClicked);
+  connect(m_ui->m_editSettingsAction,   &QAction::triggered, this, &MainWindow::onEditOptionsClicked);
+  connect(m_ui->m_helpContentsAction,   &QAction::triggered, this, &MainWindow::onHelpContentsClicked);
+  connect(m_ui->m_helpAboutAction,      &QAction::triggered, this, &MainWindow::onHelpAboutClicked);
 
   // connect button signals
-  connect(m_ui->m_connectButton, SIGNAL(clicked()), this, SLOT(onConnectClicked()));
-  connect(m_ui->m_disconnectButton, SIGNAL(clicked()), this, SLOT(onDisconnectClicked()));
-  connect(m_ui->m_mafReadingButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-          this, SLOT(onMAFReadingButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_throttleTypeButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-          this, SLOT(onThrottleTypeButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_lambdaTrimButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)),
-          this, SLOT(onLambdaTrimButtonClicked(QAbstractButton*)));
-  connect(m_ui->m_fuelPumpContinuousButton, SIGNAL(clicked()), this, SLOT(onFuelPumpContinuous()));
-  connect(m_ui->m_startLoggingButton, SIGNAL(clicked()), this, SLOT(onStartLogging()));
-  connect(m_ui->m_stopLoggingButton, SIGNAL(clicked()), this, SLOT(onStopLogging()));
+  connect(m_ui->m_connectButton, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
+  connect(m_ui->m_disconnectButton, &QPushButton::clicked, this, &MainWindow::onDisconnectClicked);
+  connect(m_ui->m_mafReadingButtonGroup, qOverload<QAbstractButton*>(&QButtonGroup::buttonClicked),
+          this, &MainWindow::onMAFReadingButtonClicked);
+  connect(m_ui->m_throttleTypeButtonGroup, qOverload<QAbstractButton*>(&QButtonGroup::buttonClicked),
+          this, &MainWindow::onThrottleTypeButtonClicked);
+  connect(m_ui->m_lambdaTrimButtonGroup, qOverload<QAbstractButton*>(&QButtonGroup::buttonClicked),
+          this, &MainWindow::onLambdaTrimButtonClicked);
+  connect(m_ui->m_fuelPumpContinuousButton, &QPushButton::clicked, this, &MainWindow::onFuelPumpContinuous);
+  connect(m_ui->m_startLoggingButton, &QPushButton::clicked, this, &MainWindow::onStartLogging);
+  connect(m_ui->m_stopLoggingButton, &QPushButton::clicked, this, &MainWindow::onStopLogging);
 
   // set the LED colors
   m_ui->m_milLed->setOnColor1(QColor(255, 0, 0));
@@ -306,7 +306,7 @@ void MainWindow::doConnect()
   {
     m_cuxThread = new QThread(this);
     m_cux->moveToThread(m_cuxThread);
-    connect(m_cuxThread, SIGNAL(started()), m_cux, SLOT(onParentThreadStarted()));
+    connect(m_cuxThread, &QThread::started, m_cux, &CUXInterface::onParentThreadStarted);
   }
 
   // If the worker thread is already running, ask it to start polling the ECU.
@@ -358,10 +358,10 @@ void MainWindow::onFaultCodesReady()
 {
   c14cux_faultcodes faultCodes = m_cux->getFaultCodes();
   FaultCodeDialog faultDialog(this->windowTitle(), faultCodes);
-  connect(&faultDialog, SIGNAL(clearFaultCodes()), this, SLOT(onFaultCodesClearRequested()));
-  connect(m_cux, SIGNAL(faultCodesClearSuccess(c14cux_faultcodes)),
-          &faultDialog, SLOT(onFaultClearSuccess(c14cux_faultcodes)));
-  connect(m_cux, SIGNAL(faultCodesClearFailure()), &faultDialog, SLOT(onFaultClearFailure()));
+  connect(&faultDialog, &FaultCodeDialog::clearFaultCodes, this, &MainWindow::onFaultCodesClearRequested);
+  connect(m_cux, &CUXInterface::faultCodesClearSuccess,
+          &faultDialog, &FaultCodeDialog::onFaultClearSuccess);
+  connect(m_cux, &CUXInterface::faultCodesClearFailure, &faultDialog, &FaultCodeDialog::onFaultClearFailure);
   faultDialog.exec();
 }
 
@@ -1045,7 +1045,7 @@ void MainWindow::sendROMImageRequest(QString prompt)
           QString("Please wait while the ROM image is read.\n\n"),
           QMessageBox::Ok, this, Qt::Dialog);
         m_pleaseWaitBox->setStandardButtons(QMessageBox::Cancel);
-        connect(m_pleaseWaitBox, SIGNAL(finished(int)), this, SLOT(onROMReadCancelled()));
+        connect(m_pleaseWaitBox, &QMessageBox::finished, this, &MainWindow::onROMReadCancelled);
       }
 
       m_pleaseWaitBox->show();

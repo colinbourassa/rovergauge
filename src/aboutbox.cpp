@@ -57,7 +57,7 @@ void AboutBox::setupWidgets()
   m_urlLib->setOpenExternalLinks(true);
 
   m_ok = new QPushButton("Close", this);
-  connect(m_ok, SIGNAL(clicked()), SLOT(accept()));
+  connect(m_ok, &QPushButton::clicked, this, &AboutBox::accept);
 
   m_grid->addWidget(m_iconLabel, 0, 0, 1, 1, Qt::AlignCenter);
   m_grid->addWidget(m_name, 0, 1, 1, 1, Qt::AlignLeft);

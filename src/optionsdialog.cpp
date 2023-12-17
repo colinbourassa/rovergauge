@@ -111,11 +111,11 @@ void OptionsDialog::setupWidgets()
     checkboxIndex += 1;
   }
 
-  connect(m_ui->m_checkAllButton, SIGNAL(clicked()), this, SLOT(checkAll()));
-  connect(m_ui->m_uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
-  connect(m_ui->m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(m_ui->m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(m_ui->m_adjustSpeedoCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggledSpeedoAdjust(bool)));
+  connect(m_ui->m_checkAllButton, &QPushButton::clicked, this, &OptionsDialog::checkAll);
+  connect(m_ui->m_uncheckAllButton, &QPushButton::clicked, this, &OptionsDialog::uncheckAll);
+  connect(m_ui->m_okButton, &QPushButton::clicked, this, &OptionsDialog::accept);
+  connect(m_ui->m_cancelButton, &QPushButton::clicked, this, &OptionsDialog::reject);
+  connect(m_ui->m_adjustSpeedoCheckbox, &QCheckBox::toggled, this, &OptionsDialog::toggledSpeedoAdjust);
 }
 
 void OptionsDialog::setWidgetValues()

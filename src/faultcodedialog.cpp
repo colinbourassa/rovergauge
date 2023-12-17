@@ -107,11 +107,11 @@ void FaultCodeDialog::setupWidgets()
 
   m_clearButton = new QPushButton("Clear codes", this);
   m_grid->addWidget(m_clearButton, m_rows, position / m_rows * 2 - 1, Qt::AlignCenter);
-  connect(m_clearButton, SIGNAL(clicked()), this, SIGNAL(clearFaultCodes()));
+  connect(m_clearButton, &QPushButton::clicked, this, &FaultCodeDialog::clearFaultCodes);
 
   m_closeButton = new QPushButton("Close", this);
   m_grid->addWidget(m_closeButton, m_rows + 1, position / m_rows * 2 - 1, Qt::AlignCenter);
-  connect(m_closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(m_closeButton, &QPushButton::clicked, this, &QDialog::accept);
 }
 
 /**
