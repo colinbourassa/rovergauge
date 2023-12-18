@@ -25,7 +25,7 @@ If you're running Linux, you can get a Debian package (.DEB) for your system's a
 
  - https://github.com/colinbourassa/rovergauge/releases/latest
 
-It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3.18 or newer) as well as version 6.x of the Qt SDK.
+It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3.18 or newer) as well as version 5.x of the Qt SDK.
 
 ## Building interface cable
 
