@@ -3,6 +3,7 @@
 #include <QColor>
 #include <QFont>
 #include <QHeaderView>
+#include <iostream>
 
 FuelMapGrid::FuelMapGrid(QWidget* parent) :
   QTableWidget(parent),
@@ -23,18 +24,24 @@ FuelMapGrid::FuelMapGrid(QWidget* parent) :
 void FuelMapGrid::setup(int numberBase)
 {
   m_numberBase = numberBase;
-  QTableWidgetItem* item = 0;
   for (unsigned int col = 0; col < columnCount(); col++)
   {
     setHorizontalHeaderItem(col, new QTableWidgetItem(""));
     for (unsigned int row = 0; row < rowCount(); row++)
     {
-      item = new QTableWidgetItem("");
+      QTableWidgetItem* item = new QTableWidgetItem("");
       item->setTextAlignment(Qt::AlignCenter);
       item->setFlags(Qt::NoItemFlags);
       setItem(row, col, item);
     }
   }
+}
+
+QSize FuelMapGrid::getIdealSize()
+{
+  const int width = verticalHeader()->width() + horizontalHeader()->width() + frameWidth() * 2;
+  const int height = horizontalHeader()->height() + verticalHeader()->height() + frameWidth() * 2;
+  return QSize(width, height);
 }
 
 void FuelMapGrid::moveCellHighlight(int row, int rowWeight, int col, int colWeight, bool soft)
@@ -184,6 +191,16 @@ void FuelMapGrid::setData(const QByteArray& data)
     }
   }
   restoreCellHighlight();
+}
+
+void FuelMapGrid::resizeEvent(QResizeEvent* event)
+{
+  // TODO: use this information to shrink the font size to fit
+  const QSize ideal = getIdealSize();
+  std::cout << "Fuel map grid ideal size: " << ideal.width() << " x " << ideal.height() << std::endl;
+  std::cout << "             actual size: " << width() << " x " << height() << std::endl;
+  std::cout << "                sizeHint: " << sizeHint().width() << " x " << sizeHint().height() << std::endl;
+  QTableWidget::resizeEvent(event);
 }
 
 void FuelMapGrid::setNumberBase(int base)

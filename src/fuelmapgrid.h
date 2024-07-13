@@ -1,6 +1,7 @@
 #pragma once
 #include <QTableWidget>
 #include <QByteArray>
+#include <QSize>
 
 #define NUM_ACTIVE_FUEL_MAP_CELLS 4
 #define FUEL_MAP_ROWS 8
@@ -18,6 +19,9 @@ public:
   void setNumberBase(int base);
   void setup(int numberBase);
 
+protected:
+  void resizeEvent(QResizeEvent* event) override;
+
 private:
   QColor m_cellColors[FUEL_MAP_ROWS][FUEL_MAP_COLUMNS];
   QPair<int,int> m_lastCellHighlight[NUM_ACTIVE_FUEL_MAP_CELLS];
@@ -31,5 +35,6 @@ private:
   void moveCellHighlightHard();
   void moveCellHighlightSoft();
   QColor getColorForFuelMapCell(unsigned char value) const;
+  QSize getIdealSize();
 };
 
