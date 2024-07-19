@@ -13,7 +13,7 @@ FuelMapGrid::FuelMapGrid(QWidget* parent) :
   m_activeColWeight(0),
   m_lastCellHighlightCount(0)
 {
-  horizontalHeader()->setStyleSheet("QHeaderView { font-size: 11pt; }");
+  setStyleSheet("QTableWidget::item { padding: 0px }");
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   horizontalHeader()->setVisible(true);
   verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
