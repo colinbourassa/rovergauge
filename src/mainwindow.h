@@ -83,6 +83,7 @@ private:
   QMessageBox* m_pleaseWaitBox;
   HelpViewer* m_helpViewerDialog;
   bool m_doubleBaudRate;
+  bool m_requestedTuneID = false;
 
   QShortcut m_shortcutStartLogging;
   QShortcut m_shortcutStopLogging;

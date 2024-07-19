@@ -467,6 +467,12 @@ void MainWindow::onDataReady()
   int rpm = 0;
   float pulseWidth = 0;
 
+  if (!m_requestedTuneID)
+  {
+    m_cux->enqueueRequest(QueueableRequest_TuneRevID);
+    m_requestedTuneID = true;
+  }
+
   m_ui->m_milLed->setChecked(m_cux->isMILOn());
 
   // if fuel map display updates are enabled...
@@ -892,6 +898,7 @@ void MainWindow::onDisconnect()
 
   m_fuelMapDataIsCurrent = false;
   m_cux->invalidateFuelMapData();
+  m_requestedTuneID = false;
 }
 
 /**
