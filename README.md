@@ -98,9 +98,3 @@ A: No. The 14CUX system doesn't conform to the OBD-II standard. This software us
 Q: Can this software be used to modify the code or data in the ECU (such as the fuel maps)?  
 A: Unfortunately, no. When the ECU is running, it reads fueling values from the ROM. Modifying the ROM requires removing and reprogramming the chip.
 
-## Notes on building RoverGauge from source for Win32 target
-
-The most straightforward way to build from source is by using the M Cross Environment (MXE, http://mxe.cc). Within this environment, both Qt5 and libcomm14cux can be built for a Win32 target. The 'mxe-build.sh' script included with the RoverGauge source can then be called with the path to MXE. It will run CMake with the appropriate parameters.
-
-Note that the packaging portion of CMakeLists.txt does not take into account any run time (DLL) dependencies beyond Qt5Core, Qt5Widgets, Qt5Gui, zlib, and the C and C++ standard libs. If you build against an installation of Qt with support for other features (ICU, libpng, Freetype, etc.), you may find that the resulting RoverGauge .zip file does not include all the required DLLs.
-
