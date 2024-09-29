@@ -15,7 +15,7 @@ class OptionsDialog : public QDialog
   Q_OBJECT
 
 public:
-  OptionsDialog(QString title, QWidget* parent = 0);
+  OptionsDialog(QString title, QWidget* parent = nullptr);
 
   QString getSerialDeviceName() const;
 
@@ -106,14 +106,14 @@ private:
   QMap<SampleType, QString> m_sampleTypeNames;
   QMap<SampleType, QString> m_sampleTypeLabels;
   QHash<SampleType, unsigned int> m_readIntervalsMs;
-  bool m_serialDeviceChanged;
+  bool m_serialDeviceChanged = false;
   bool m_refreshFuelMap;
   bool m_softHighlight;
   bool m_speedoAdjust;
   double m_speedoMultiplier;
   int m_speedoOffset;
   int m_displayNumberBase;
-  bool m_displayNumberBaseChanged;
+  bool m_displayNumberBaseChanged = false;
   QMap<int,QString> m_ramLocLabels;
 
   const QString m_settingsFileName;

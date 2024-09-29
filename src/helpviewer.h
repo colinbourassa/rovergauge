@@ -1,6 +1,4 @@
-#ifndef HELPVIEWER_H
-#define HELPVIEWER_H
-
+#pragma once
 #include <QDialog>
 #include <QPushButton>
 #include <QTextBrowser>
@@ -12,17 +10,16 @@ class HelpViewer : public QDialog
 {
   Q_OBJECT
 public:
-  explicit HelpViewer(const QString title, QWidget* parent = 0);
+  explicit HelpViewer(const QString title, QWidget* parent = nullptr);
 
 private slots:
   void onCloseClicked();
   void onAnchorClicked(QUrl url);
 
 private:
-  QVBoxLayout* m_vbox;
-  QTextBrowser* m_viewer;
-  QPushButton* m_closeButton;
+  QVBoxLayout* m_vbox = nullptr;
+  QTextBrowser* m_viewer = nullptr;
+  QPushButton* m_closeButton = nullptr;
 
 };
 
-#endif // HELPVIEWER_H

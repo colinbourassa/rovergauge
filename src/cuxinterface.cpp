@@ -18,51 +18,13 @@ CUXInterface::CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
                            QObject* parent) :
   QObject(parent),
   m_sim(simulateConnection),
-  m_simConnected(false),
-  m_simEcu(nullptr),
   m_deviceName(device),
   m_baudRate(baud),
-  m_stopPolling(false),
-  m_shutdownThread(false),
   m_batteryBackedMem(21, 0x00),
-  m_readCanceled(false),
-  m_lambdaTrimType(C14CUX_LambdaTrimType_ShortTerm),
-  m_feedbackMode(C14CUX_FeedbackMode_ClosedLoop),
-  m_airflowType(C14CUX_AirflowType_Linearized),
-  m_throttlePosType(C14CUX_ThrottlePosType_Absolute),
-  m_roadSpeedMPH(0),
-  m_engineSpeedRPM(0),
-  m_targetIdleSpeed(0),
-  m_coolantTempF(0),
-  m_fuelTempF(0),
-  m_throttlePos(0.0),
-  m_gear(C14CUX_Gear_NoReading),
-  m_mainVoltage(0.0),
-  m_fuelMapIndexRead(false),
-  m_currentFuelMapIndex(0),
-  m_currentFuelMapRowIndex(0),
-  m_fuelMapRowWeighting(0),
-  m_currentFuelMapColumnIndex(0),
-  m_fuelMapColWeighting(0),
-  m_mafReading(0.0),
-  m_idleBypassPos(0.0),
-  m_fuelPumpRelayOn(false),
-  m_lambdaTrimOdd(0),
-  m_lambdaTrimEven(0),
-  m_coTrimVoltage(0.0),
-  m_milOn(false),
-  m_idleMode(false),
-  m_injectorPulseWidthUs(0),
-  m_injectorPulseWidthMs(0.0),
-  m_tune(0),
-  m_checksumFixer(0),
-  m_ident(0),
   m_romImage(16384, 0x00),
   m_speedUnits(sUnits),
   m_tempUnits(tUnits),
-  m_fuelMapRefresh(fuelMapRefresh),
-  m_initComplete(false),
-  m_rpmLimitRead(false)
+  m_fuelMapRefresh(fuelMapRefresh)
 {
   for (unsigned int idx = 0; idx < fuelMapCount; ++idx)
   {
@@ -1004,14 +966,14 @@ int CUXInterface::getFuelMapAdjustmentFactor(unsigned int fuelMapId) const
  */
 unsigned int CUXInterface::convertSpeed(unsigned int speedMph) const
 {
-  float speed = (float)speedMph;
+  float speed = static_cast<float>(speedMph);
 
-  if (m_speedUnits == KPH)
+  if (m_speedUnits == SpeedUnits::KPH)
   {
     speed *= 1.609344;
   }
 
-  return (unsigned int)speed;
+  return static_cast<unsigned int>(speed);
 }
 
 /**
@@ -1034,7 +996,7 @@ int CUXInterface::convertTemperature(int tempF) const
     break;
   }
 
-  return (int)temp;
+  return static_cast<int>(temp);
 }
 
 /**

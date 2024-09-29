@@ -5,13 +5,7 @@
 #include <QHeaderView>
 
 FuelMapGrid::FuelMapGrid(QWidget* parent) :
-  QTableWidget(parent),
-  m_numberBase(16),
-  m_activeRow(0),
-  m_activeRowWeight(0),
-  m_activeCol(0),
-  m_activeColWeight(0),
-  m_lastCellHighlightCount(0)
+  QTableWidget(parent)
 {
   setStyleSheet("QTableWidget::item { padding: 0px }");
   horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -23,7 +17,7 @@ FuelMapGrid::FuelMapGrid(QWidget* parent) :
 void FuelMapGrid::setup(int numberBase)
 {
   m_numberBase = numberBase;
-  QTableWidgetItem* item = 0;
+  QTableWidgetItem* item = nullptr;
   for (unsigned int col = 0; col < columnCount(); col++)
   {
     setHorizontalHeaderItem(col, new QTableWidgetItem(""));

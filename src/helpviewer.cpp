@@ -4,10 +4,7 @@
 #include <QDesktopServices>
 
 HelpViewer::HelpViewer(const QString title, QWidget* parent) :
-  QDialog(parent),
-  m_vbox(0),
-  m_viewer(0),
-  m_closeButton(0)
+  QDialog(parent)
 {
   this->setWindowTitle(title + " - Help");
   this->setMinimumWidth(850);

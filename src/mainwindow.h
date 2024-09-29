@@ -38,7 +38,11 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  MainWindow (bool autoconnect, bool autolog, bool doublebaud, bool simulateConnection, QWidget* parent = 0);
+  MainWindow (bool autoconnect,
+              bool autolog,
+              bool doublebaud,
+              bool simulateConnection,
+              QWidget* parent = nullptr);
   ~MainWindow();
 
 public slots:
@@ -75,28 +79,28 @@ private:
   Ui::MainWindow* m_ui;
 
   QTimer m_fuelPumpRefreshTimer;
-  QThread* m_cuxThread;
-  CUXInterface* m_cux;
-  OptionsDialog* m_options;
-  IdleAirControlDialog* m_iacDialog;
-  AboutBox* m_aboutBox;
-  QMessageBox* m_pleaseWaitBox;
-  HelpViewer* m_helpViewerDialog;
+  QThread* m_cuxThread = nullptr;
+  CUXInterface* m_cux = nullptr;
+  OptionsDialog* m_options = nullptr;
+  IdleAirControlDialog* m_iacDialog = nullptr;
+  AboutBox* m_aboutBox = nullptr;
+  QMessageBox* m_pleaseWaitBox = nullptr;
+  HelpViewer* m_helpViewerDialog = nullptr;
   bool m_doubleBaudRate;
   bool m_requestedTuneID = false;
 
   QShortcut m_shortcutStartLogging;
   QShortcut m_shortcutStopLogging;
 
-  Logger* m_logger;
+  Logger* m_logger = nullptr;
 
-  QGraphicsOpacityEffect* m_waterTempGaugeOpacity;
-  QGraphicsOpacityEffect* m_fuelTempGaugeOpacity;
-  QGraphicsOpacityEffect* m_speedometerOpacity;
-  QGraphicsOpacityEffect* m_revCounterOpacity;
-  QGraphicsOpacityEffect* m_fuelMapOpacity;
-  QGraphicsOpacityEffect* m_idleModeLedOpacity;
-  QGraphicsOpacityEffect* m_fuelPumpLedOpacity;
+  QGraphicsOpacityEffect* m_waterTempGaugeOpacity = nullptr;
+  QGraphicsOpacityEffect* m_fuelTempGaugeOpacity = nullptr;
+  QGraphicsOpacityEffect* m_speedometerOpacity = nullptr;
+  QGraphicsOpacityEffect* m_revCounterOpacity = nullptr;
+  QGraphicsOpacityEffect* m_fuelMapOpacity = nullptr;
+  QGraphicsOpacityEffect* m_idleModeLedOpacity = nullptr;
+  QGraphicsOpacityEffect* m_fuelPumpLedOpacity = nullptr;
 
   QMap<SampleType, bool> m_enabledSamples;
 

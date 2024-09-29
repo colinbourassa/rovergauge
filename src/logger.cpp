@@ -8,14 +8,10 @@
  * well as log directory and log file extension.
  */
 Logger::Logger(CUXInterface& cuxIFace, OptionsDialog& options) :
-  m_fuelMapDataIsReady(false),
-  m_miscStaticDataIsReady(false),
-  m_fuelMapId(0),
   m_cux(cuxIFace),
   m_options(options),
   m_logExtension(".txt"),
-  m_logDir("logs"),
-  m_staticDataLogged(false)
+  m_logDir("logs")
 {
 }
 
@@ -220,7 +216,7 @@ void Logger::onFuelMapDataReady(unsigned int fuelMapId)
  * Gets a fractional value that describes the current fuel map row index considering
  * the weighting.
  */
-float Logger::getRowWithWeighting()
+float Logger::getRowWithWeighting() const
 {
   return ((float)m_cux.getFuelMapRowIndex() +
           ((float)m_cux.getFuelMapRowWeighting() / 16.0));
@@ -230,7 +226,7 @@ float Logger::getRowWithWeighting()
  * Gets a fractional value that describes the current fuel map column index considering
  * the weighting.
  */
-float Logger::getColWithWeighting()
+float Logger::getColWithWeighting() const
 {
   return ((float)m_cux.getFuelMapColumnIndex() +
           ((float)m_cux.getFuelMapColumnWeighting() / 16.0));

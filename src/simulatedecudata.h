@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 #include "comm14cux.h"
 
 class SimulatedECUData
@@ -32,48 +32,48 @@ public:
   uint16_t injectorPulsewidthUs();
 
 private:
-  float m_maf;
-  bool m_mafDirection;
-  float m_throttle;
-  bool m_throttleDirection;
-  int m_lambdaShortOdd;
-  bool m_lambdaShortOddDirection;
-  int m_lambdaShortEven;
-  bool m_lambdaShortEvenDirection;
-  int m_lambdaLongOdd;
-  bool m_lambdaLongOddDirection;
-  int m_lambdaLongEven;
-  bool m_lambdaLongEvenDirection;
-  bool m_milOn;
-  float m_coolantTempF;
-  bool m_coolantTempDirection;
-  float m_fuelTempF;
-  bool m_fuelTempDirection;
-  float m_mainVoltage;
-  bool m_mainVoltageDirection;
-  float m_coTrimVoltage;
-  bool m_coTrimVoltageDirection;
-  int m_engineRPM;
-  bool m_engineRPMDirection;
-  int m_engineRPMLimit;
-  int m_fuelMapRowIndex;
-  int m_fuelMapRowWeight;
-  bool m_fuelMapRowDirection;
-  int m_fuelMapColumnIndex;
-  int m_fuelMapColumnWeight;
-  bool m_fuelMapColumnDirection;
-  bool m_fuelMapColumnWeightDirection;
-  int m_targetIdleRPM;
-  bool m_targetIdleRPMDirection;
-  int m_currentFuelMap;
-  int m_roadSpeedMPH;
-  bool m_roadSpeedMPHDirection;
-  float m_idleBypassPercentage;
-  bool m_idleBypassPercentageDirection;
-  int m_injectorPulseWidthUs;
-  bool m_injectorPulseWidthUsDirection;
+  float m_maf = 0.0;
+  bool m_mafDirection = true;
+  float m_throttle = 0.0;
+  bool m_throttleDirection = true;
+  int m_lambdaShortOdd = 0;
+  bool m_lambdaShortOddDirection = true;
+  int m_lambdaShortEven = 0;
+  bool m_lambdaShortEvenDirection = false;
+  int m_lambdaLongOdd = 0;
+  bool m_lambdaLongOddDirection = true;
+  int m_lambdaLongEven = 0;
+  bool m_lambdaLongEvenDirection = false;
+  bool m_milOn = false;
+  float m_coolantTempF = 40.0f;
+  bool m_coolantTempDirection = true;
+  float m_fuelTempF = 40.0f;
+  bool m_fuelTempDirection = true;
+  float m_mainVoltage = 12.0f;
+  bool m_mainVoltageDirection = true;
+  float m_coTrimVoltage = 4.0f;
+  bool m_coTrimVoltageDirection = true;
+  int m_engineRPM = 750;
+  bool m_engineRPMDirection = true;
+  int m_engineRPMLimit = 5750;
+  int m_fuelMapRowIndex = 0;
+  int m_fuelMapRowWeight = 0;
+  bool m_fuelMapRowDirection = true;
+  int m_fuelMapColumnIndex = 0;
+  int m_fuelMapColumnWeight = 0;
+  bool m_fuelMapColumnDirection = true;
+  int m_targetIdleRPM = 580;
+  bool m_targetIdleRPMDirection = true;
+  int m_currentFuelMap = 5;
+  int m_roadSpeedMPH = 0;
+  bool m_roadSpeedMPHDirection = true;
+  float m_idleBypassPercentage = 0.4f;
+  bool m_idleBypassPercentageDirection = false;
+  int m_injectorPulseWidthUs = 100;
+  bool m_injectorPulseWidthUsDirection = true;
 
   void adjust(int& val, bool& direction, int min, int max, int inc);
   void adjust(float& val, bool& direction, float min, float max, float inc);
   void adjustFuelMapRowCol();
 };
+

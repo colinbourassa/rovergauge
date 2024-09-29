@@ -9,8 +9,6 @@
  */
 OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
   m_ui(new Ui::OptionsDialog),
-  m_serialDeviceChanged(false),
-  m_displayNumberBaseChanged(false),
   m_settingsGroupName("Settings"),
   m_settingSerialDev("SerialDevice"),
   m_settingRefreshFuelMap("RefreshFuelMap"),

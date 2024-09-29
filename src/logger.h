@@ -1,6 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
-
+#pragma
 #include <QString>
 #include <QFile>
 #include <QTextStream>
@@ -20,9 +18,9 @@ public:
   void onDisconnect();
 
 private:
-  bool m_fuelMapDataIsReady;
-  bool m_miscStaticDataIsReady;
-  unsigned int m_fuelMapId;
+  bool m_fuelMapDataIsReady = false;
+  bool m_miscStaticDataIsReady = false;
+  unsigned int m_fuelMapId = 0;
   CUXInterface& m_cux;
   OptionsDialog& m_options;
   QString m_logExtension;
@@ -33,14 +31,12 @@ private:
   QTextStream m_staticLogFileStream;
   QString m_lastAttemptedLog;
   QString m_lastAttemptedStaticLog;
-  bool m_staticDataLogged;
+  bool m_staticDataLogged = false;
 
   void logStaticData(unsigned int fuelMapId);
-  float getRowWithWeighting();
-  float getColWithWeighting();
+  float getRowWithWeighting() const;
+  float getColWithWeighting() const;
 
   QMutex m_staticLogLock;
 };
-
-#endif // LOGGER_H
 

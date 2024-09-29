@@ -1,5 +1,4 @@
-#ifndef COMMONUNITS_H
-#define COMMONUNITS_H
+#pragma once
 
 enum SpeedUnits
 {
@@ -50,4 +49,3 @@ enum QueueableRequest
   QueueableRequest_BatteryBackedMem
 };
 
-#endif // COMMONUNITS_H

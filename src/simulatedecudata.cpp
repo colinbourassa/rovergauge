@@ -1,44 +1,6 @@
 #include "simulatedecudata.h"
 
-SimulatedECUData::SimulatedECUData() :
-  m_maf(0.0),
-  m_mafDirection(true),
-  m_throttle(0.0),
-  m_throttleDirection(true),
-  m_lambdaShortOdd(0),
-  m_lambdaShortOddDirection(true),
-  m_lambdaShortEven(0),
-  m_lambdaShortEvenDirection(false),
-  m_lambdaLongOdd(0),
-  m_lambdaLongOddDirection(true),
-  m_lambdaLongEven(0),
-  m_lambdaLongEvenDirection(false),
-  m_milOn(false),
-  m_coolantTempF(40.0f),
-  m_coolantTempDirection(true),
-  m_fuelTempF(40.0f),
-  m_fuelTempDirection(true),
-  m_mainVoltage(12.0f),
-  m_mainVoltageDirection(true),
-  m_coTrimVoltage(4.0f),
-  m_coTrimVoltageDirection(true),
-  m_engineRPM(750),
-  m_engineRPMDirection(true),
-  m_engineRPMLimit(5750),
-  m_fuelMapRowIndex(0),
-  m_fuelMapRowWeight(0),
-  m_fuelMapRowDirection(true),
-  m_fuelMapColumnIndex(0),
-  m_fuelMapColumnWeight(0),
-  m_fuelMapColumnDirection(true),
-  m_targetIdleRPM(580),
-  m_targetIdleRPMDirection(true),
-  m_currentFuelMap(5),
-  m_roadSpeedMPH(0),
-  m_idleBypassPercentage(0.4f),
-  m_idleBypassPercentageDirection(false),
-  m_injectorPulseWidthUs(100),
-  m_injectorPulseWidthUsDirection(true)
+SimulatedECUData::SimulatedECUData()
 {
 }
 

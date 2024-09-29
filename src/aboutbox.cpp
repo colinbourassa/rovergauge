@@ -5,6 +5,7 @@
  */
 AboutBox::AboutBox(QStyle* parentStyle, QString title, c14cux_version cuxVersion, QWidget* parent) :
   QDialog(parent),
+  m_style(parentStyle),
   m_urlString(QString("https://github.com/colinbourassa/rovergauge")),
   m_urlLibString(QString("https://github.com/colinbourassa/libcomm14cux")),
   m_aboutString(QString("A graphical interface to the 14CUX engine management system."))
@@ -13,7 +14,6 @@ AboutBox::AboutBox(QStyle* parentStyle, QString title, c14cux_version cuxVersion
   m_ver.major = cuxVersion.major;
   m_ver.minor = cuxVersion.minor;
   m_ver.patch = cuxVersion.patch;
-  m_style = parentStyle;
   setupWidgets();
 }
 

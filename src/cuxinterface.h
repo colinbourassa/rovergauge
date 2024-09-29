@@ -1,8 +1,6 @@
-#ifndef CUXINTERFACE_H
-#define CUXINTERFACE_H
-
-#include <QMutex>
+#pragma once
 #include <utility>
+#include <QMutex>
 #include <QObject>
 #include <QString>
 #include <QQueue>
@@ -26,9 +24,13 @@ class CUXInterface : public QObject
 
   Q_OBJECT
 public:
-  explicit CUXInterface(QString device, unsigned int baud, SpeedUnits sUnits,
-                        TemperatureUnits tUnits, bool fuelMapRefresh, bool simulateConnection,
-                        QObject* parent = 0);
+  explicit CUXInterface(QString device,
+                        unsigned int baud,
+                        SpeedUnits sUnits,
+                        TemperatureUnits tUnits,
+                        bool fuelMapRefresh,
+                        bool simulateConnection,
+                        QObject* parent = nullptr);
   ~CUXInterface();
 
   void setSerialDevice(QString device)
@@ -76,7 +78,7 @@ public:
 
   unsigned int getRoadSpeed() const
   {
-    return (m_speedUnits == MPH) ? m_roadSpeedMPH : convertSpeed(m_roadSpeedMPH);
+    return (m_speedUnits == SpeedUnits::MPH) ? m_roadSpeedMPH : convertSpeed(m_roadSpeedMPH);
   }
 
   int getEngineSpeedRPM() const
@@ -295,58 +297,58 @@ private:
   static const int s_lastOpenLoopMap = 3;
 
   const bool m_sim;
-  bool m_simConnected;
-  SimulatedECUData* m_simEcu;
+  bool m_simConnected = false;
+  SimulatedECUData* m_simEcu = nullptr;
   QMutex m_queueMutex;
   QQueue<std::pair<QueueableRequest, int> > m_reqQueue;
 
   QString m_deviceName;
   unsigned int m_baudRate;
   c14cux_info m_cuxinfo;
-  bool m_stopPolling;
-  bool m_shutdownThread;
+  bool m_stopPolling = false;
+  bool m_shutdownThread = false;
   c14cux_faultcodes m_faultCodes;
   QByteArray m_batteryBackedMem;
-  bool m_readCanceled;
+  bool m_readCanceled = false;
   QHash<SampleType, bool> m_enabledSamples;
   QHash<SampleType, qint64> m_lastReadTime;
   QHash<SampleType, unsigned int> m_readIntervals;
 
-  c14cux_lambda_trim_type m_lambdaTrimType;
-  c14cux_feedback_mode m_feedbackMode;
-  c14cux_airflow_type m_airflowType;
-  c14cux_throttle_pos_type m_throttlePosType;
+  c14cux_lambda_trim_type m_lambdaTrimType = C14CUX_LambdaTrimType_ShortTerm;
+  c14cux_feedback_mode m_feedbackMode = C14CUX_FeedbackMode_ClosedLoop;
+  c14cux_airflow_type m_airflowType = C14CUX_AirflowType_Linearized;
+  c14cux_throttle_pos_type m_throttlePosType = C14CUX_ThrottlePosType_Absolute;
 
-  uint8_t m_roadSpeedMPH;
-  uint16_t m_engineSpeedRPM;
-  uint16_t m_targetIdleSpeed;
-  int16_t m_coolantTempF;
-  int16_t m_fuelTempF;
-  float m_throttlePos;
-  c14cux_gear m_gear;
-  float m_mainVoltage;
-  bool m_fuelMapIndexRead;
-  uint8_t m_currentFuelMapIndex;
-  uint8_t m_currentFuelMapRowIndex;
-  uint8_t m_fuelMapRowWeighting;
-  uint8_t m_currentFuelMapColumnIndex;
-  uint8_t m_fuelMapColWeighting;
-  float m_mafReading;
-  float m_idleBypassPos;
-  bool m_fuelPumpRelayOn;
-  int16_t m_lambdaTrimOdd;
-  int16_t m_lambdaTrimEven;
-  float m_coTrimVoltage;
-  bool m_milOn;
-  uint16_t m_rpmLimit;
-  bool m_idleMode;
-  uint16_t m_injectorPulseWidthUs;
-  float m_injectorPulseWidthMs;
-  uint16_t m_tune;
-  uint8_t m_checksumFixer;
-  uint16_t m_ident;
+  uint8_t m_roadSpeedMPH = 0;
+  uint16_t m_engineSpeedRPM = 0;
+  uint16_t m_targetIdleSpeed = 0;
+  int16_t m_coolantTempF = 0;
+  int16_t m_fuelTempF = 0;
+  float m_throttlePos = 0.0f;
+  c14cux_gear m_gear = C14CUX_Gear_NoReading;
+  float m_mainVoltage = 0.0f;
+  bool m_fuelMapIndexRead = false;
+  uint8_t m_currentFuelMapIndex = 0;
+  uint8_t m_currentFuelMapRowIndex = 0;
+  uint8_t m_fuelMapRowWeighting = 0;
+  uint8_t m_currentFuelMapColumnIndex = 0;
+  uint8_t m_fuelMapColWeighting = 0;
+  float m_mafReading = 0.0f;
+  float m_idleBypassPos = 0.0f;
+  bool m_fuelPumpRelayOn = false;;
+  int16_t m_lambdaTrimOdd = 0;
+  int16_t m_lambdaTrimEven = 0;
+  float m_coTrimVoltage = 0.0f;
+  bool m_milOn = false;
+  uint16_t m_rpmLimit = 0;
+  bool m_idleMode = false;
+  uint16_t m_injectorPulseWidthUs = 0;
+  float m_injectorPulseWidthMs = 0.0f;
+  uint16_t m_tune = 0;
+  uint8_t m_checksumFixer = 0;
+  uint16_t m_ident = 0;
   uint8_t m_rowScaler[fuelMapCount];
-  uint16_t m_mafScaler;
+  uint16_t m_mafScaler = 0;
 
   QByteArray m_romImage;
 
@@ -359,8 +361,8 @@ private:
   TemperatureUnits m_tempUnits;
   bool m_fuelMapRefresh;
 
-  bool m_initComplete;
-  bool m_rpmLimitRead;
+  bool m_initComplete = false;
+  bool m_rpmLimitRead = false;
 
   void zeroDisabledSamples();
   void runServiceLoop();
@@ -385,6 +387,4 @@ private:
   void readTuneRevID();
   void readBatteryBackedMem();
 };
-
-#endif // CUXINTERFACE_H
 

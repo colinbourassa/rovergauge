@@ -1,6 +1,4 @@
-#ifndef IDLEAIRCONTROLDIALOG_H
-#define IDLEAIRCONTROLDIALOG_H
-
+#pragma once
 #include <QString>
 #include <QDialog>
 #include "cuxinterface.h"
@@ -25,4 +23,3 @@ private slots:
 
 };
 
-#endif // IDLEAIRCONTROLDIALOG_H
