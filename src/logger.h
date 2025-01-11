@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMutex>
+#include <QDateTime>
 #include "cuxinterface.h"
 #include "optionsdialog.h"
 
@@ -32,10 +33,13 @@ private:
   QString m_lastAttemptedLog;
   QString m_lastAttemptedStaticLog;
   bool m_staticDataLogged = false;
+  QDateTime m_timeOfFirstData;
+  bool m_timeOfFirstDataSet = false;
 
   void logStaticData(unsigned int fuelMapId);
   float getRowWithWeighting() const;
   float getColWithWeighting() const;
+  QString getTimestamp(bool forStaticData);
 
   QMutex m_staticLogLock;
 };

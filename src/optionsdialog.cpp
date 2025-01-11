@@ -13,6 +13,7 @@ OptionsDialog::OptionsDialog(QString title, QWidget* parent) : QDialog(parent),
   m_settingSerialDev("SerialDevice"),
   m_settingRefreshFuelMap("RefreshFuelMap"),
   m_settingSoftHighlight("SoftHighlight"),
+  m_settingLogTimesMsecsFromZero("LogTimesMsecsFromZero"),
   m_settingSpeedUnits("SpeedUnits"),
   m_settingDisplayNumBase("FuelMapDisplayNumberBase"),
   m_settingTemperatureUnits("TemperatureUnits"),
@@ -131,6 +132,7 @@ void OptionsDialog::setWidgetValues()
 
   m_ui->m_refreshFuelMapCheckbox->setChecked(m_refreshFuelMap);
   m_ui->m_softHighlightCheckbox->setChecked(m_softHighlight);
+  m_ui->m_logTimesMsecsFromZeroCheckbox->setChecked(m_logTimesMsecsFromZero);
 
   m_ui->m_adjustSpeedoCheckbox->setChecked(m_speedoAdjust);
   m_ui->m_speedoMultiplierSpinbox->setValue(m_speedoMultiplier);
@@ -190,6 +192,7 @@ void OptionsDialog::accept()
   m_speedUnits       = (SpeedUnits)(m_ui->m_speedUnitsBox->currentIndex());
   m_refreshFuelMap   = m_ui->m_refreshFuelMapCheckbox->isChecked();
   m_softHighlight    = m_ui->m_softHighlightCheckbox->isChecked();
+  m_logTimesMsecsFromZero = m_ui->m_logTimesMsecsFromZeroCheckbox->isChecked();
   m_speedoAdjust     = m_ui->m_adjustSpeedoCheckbox->isChecked();
   m_speedoMultiplier = m_ui->m_speedoMultiplierSpinbox->value();
   m_speedoOffset     = m_ui->m_speedoOffsetSpinbox->value();
@@ -241,6 +244,7 @@ void OptionsDialog::readSettings()
   m_displayNumberBase = settings.value(m_settingDisplayNumBase, 16).toInt();
   m_refreshFuelMap = settings.value(m_settingRefreshFuelMap, false).toBool();
   m_softHighlight = settings.value(m_settingSoftHighlight, false).toBool();
+  m_logTimesMsecsFromZero = settings.value(m_settingLogTimesMsecsFromZero, false).toBool();
   m_speedoAdjust = settings.value(m_settingSpeedoAdjust, false).toBool();
   m_speedoMultiplier = settings.value(m_settingSpeedoMultiplier, 1.0).toDouble();
   m_speedoOffset = settings.value(m_settingSpeedoOffset, 0).toInt();
@@ -288,6 +292,7 @@ void OptionsDialog::writeSettings()
   settings.setValue(m_settingDisplayNumBase, m_displayNumberBase);
   settings.setValue(m_settingRefreshFuelMap, m_refreshFuelMap);
   settings.setValue(m_settingSoftHighlight, m_softHighlight);
+  settings.setValue(m_settingLogTimesMsecsFromZero, m_logTimesMsecsFromZero);
   settings.setValue(m_settingSpeedoAdjust, m_speedoAdjust);
   settings.setValue(m_settingSpeedoMultiplier, m_speedoMultiplier);
   settings.setValue(m_settingSpeedoOffset, m_speedoOffset);

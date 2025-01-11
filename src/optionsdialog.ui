@@ -40,6 +40,20 @@
      <property name="bottomMargin">
       <number>20</number>
      </property>
+     <item row="5" column="0">
+      <widget class="QLabel" name="m_speedoMultiplierLabel">
+       <property name="text">
+        <string>Road speed multiplier:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="Line" name="m_horizontalLineA">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="m_serialDeviceLabel">
        <property name="text">
@@ -47,15 +61,50 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
-      <widget class="QPushButton" name="m_checkAllButton">
+     <item row="15" column="1">
+      <widget class="QComboBox" name="m_fuelMapDispBaseBox">
+       <item>
+        <property name="text">
+         <string>Decimal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Hexadecimal</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="13" column="0" colspan="2">
+      <widget class="QCheckBox" name="m_softHighlightCheckbox">
        <property name="text">
-        <string>Enable all</string>
+        <string>&quot;Soft&quot; fuel map cell highlight</string>
        </property>
       </widget>
      </item>
-     <item row="15" column="0" colspan="2">
+     <item row="9" column="1">
+      <widget class="QPushButton" name="m_uncheckAllButton">
+       <property name="text">
+        <string>Disable all</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="0" colspan="2">
       <widget class="Line" name="m_horizontalLineC">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0" colspan="2">
+      <widget class="Line" name="m_horizontalLineB">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -68,27 +117,13 @@
        </property>
       </widget>
      </item>
-     <item row="13" column="0" colspan="2">
-      <widget class="QCheckBox" name="m_softHighlightCheckbox">
-       <property name="text">
-        <string>&quot;Soft&quot; fuel map cell highlight</string>
+     <item row="6" column="1">
+      <widget class="QSpinBox" name="m_speedoOffsetSpinbox">
+       <property name="minimum">
+        <number>-100</number>
        </property>
-      </widget>
-     </item>
-     <item row="11" column="0" colspan="2">
-      <widget class="Line" name="m_horizontalLineB">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0" colspan="2">
-      <layout class="QGridLayout" name="m_checkboxLayout"/>
-     </item>
-     <item row="7" column="0" colspan="2">
-      <widget class="Line" name="m_horizontalLineA">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="maximum">
+        <number>100</number>
        </property>
       </widget>
      </item>
@@ -106,17 +141,31 @@
        </item>
       </widget>
      </item>
-     <item row="9" column="1">
-      <widget class="QPushButton" name="m_uncheckAllButton">
+     <item row="2" column="1">
+      <widget class="QComboBox" name="m_temperatureUnitsBox">
+       <item>
+        <property name="text">
+         <string>Fahrenheit</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Celsius</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="17" column="1">
+      <widget class="QPushButton" name="m_cancelButton">
        <property name="text">
-        <string>Disable all</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="m_adjustSpeedoCheckbox">
+     <item row="12" column="0" colspan="2">
+      <widget class="QCheckBox" name="m_refreshFuelMapCheckbox">
        <property name="text">
-        <string/>
+        <string>Periodically refresh fuel map data</string>
        </property>
       </widget>
      </item>
@@ -134,23 +183,6 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QSpinBox" name="m_speedoOffsetSpinbox">
-       <property name="minimum">
-        <number>-100</number>
-       </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="m_speedoOffsetLabel">
-       <property name="text">
-        <string>Road speed offset:</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="1">
       <widget class="QDoubleSpinBox" name="m_speedoMultiplierSpinbox">
        <property name="decimals">
@@ -164,10 +196,48 @@
        </property>
       </widget>
      </item>
+     <item row="15" column="0">
+      <widget class="QLabel" name="m_fuelMapDispBaseLabel">
+       <property name="text">
+        <string>Fuel map values:</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="m_speedUnitsLabel">
        <property name="text">
         <string>Speed units:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QPushButton" name="m_checkAllButton">
+       <property name="text">
+        <string>Enable all</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0" colspan="2">
+      <layout class="QGridLayout" name="m_checkboxLayout"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="m_speedoOffsetLabel">
+       <property name="text">
+        <string>Road speed offset:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="m_adjustSpeedoCheckbox">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="0">
+      <widget class="QPushButton" name="m_okButton">
+       <property name="text">
+        <string>OK</string>
        </property>
       </widget>
      </item>
@@ -178,74 +248,11 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="m_speedoMultiplierLabel">
+     <item row="14" column="0" colspan="2">
+      <widget class="QCheckBox" name="m_logTimesMsecsFromZeroCheckbox">
        <property name="text">
-        <string>Road speed multiplier:</string>
+        <string>Log timestamps in milliseconds from zero</string>
        </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="16" column="1">
-      <widget class="QPushButton" name="m_cancelButton">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0" colspan="2">
-      <widget class="QCheckBox" name="m_refreshFuelMapCheckbox">
-       <property name="text">
-        <string>Periodically refresh fuel map data</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="m_temperatureUnitsBox">
-       <item>
-        <property name="text">
-         <string>Fahrenheit</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Celsius</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="16" column="0">
-      <widget class="QPushButton" name="m_okButton">
-       <property name="text">
-        <string>OK</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="0">
-      <widget class="QLabel" name="m_fuelMapDispBaseLabel">
-       <property name="text">
-        <string>Fuel map values:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="1">
-      <widget class="QComboBox" name="m_fuelMapDispBaseBox">
-       <item>
-        <property name="text">
-         <string>Decimal</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Hexadecimal</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>

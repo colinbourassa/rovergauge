@@ -84,6 +84,11 @@ public:
     return m_ramLocLabels;
   }
 
+  inline bool logTimesMsecsFromZero() const
+  {
+    return m_logTimesMsecsFromZero;
+  }
+
 protected:
   void accept();
   void reject();
@@ -115,12 +120,14 @@ private:
   int m_displayNumberBase;
   bool m_displayNumberBaseChanged = false;
   QMap<int,QString> m_ramLocLabels;
+  bool m_logTimesMsecsFromZero = false;
 
   const QString m_settingsFileName;
   const QString m_settingsGroupName;
   const QString m_settingSerialDev;
   const QString m_settingRefreshFuelMap;
   const QString m_settingSoftHighlight;
+  const QString m_settingLogTimesMsecsFromZero;
   const QString m_settingSpeedUnits;
   const QString m_settingDisplayNumBase;
   const QString m_settingTemperatureUnits;

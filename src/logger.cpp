@@ -115,7 +115,7 @@ void Logger::logData()
       roadSpeed += m_options.getSpeedoOffset();
     }
 
-    m_logFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
+    m_logFileStream << getTimestamp(false) << ","
                     << roadSpeed << ","
                     << m_cux.getEngineSpeedRPM() << ","
                     << m_cux.getCoolantTemp() << ","
@@ -144,6 +144,45 @@ void Logger::logData()
 }
 
 /**
+ * Gets the timestamp string used when writing a log entry.
+ * Depending on settings, the time will either represent an absolute time or
+ * a delta time (against the time of the first log entry.)
+ */
+QString Logger::getTimestamp(bool forStaticData)
+{
+  if (!m_timeOfFirstDataSet)
+  {
+    m_timeOfFirstData = QDateTime::currentDateTime();
+    m_timeOfFirstDataSet = true;
+  }
+
+  QString timestampStr;
+
+  if (m_options.logTimesMsecsFromZero())
+  {
+    if (forStaticData)
+    {
+      // Because the static data does not reflect parametrics that change dynamically
+      // while the engine is running, we will always log it with a timestamp of 0
+      // milliseconds in this mode.
+      timestampStr = "0";
+    }
+    else
+    {
+      // For dynamic data, log it with the displacement in milliseconds from the
+      // first dynamic data log entry.
+      timestampStr = QString::number(m_timeOfFirstData.msecsTo(QDateTime::currentDateTime()));
+    }
+  }
+  else
+  {
+    timestampStr = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz");
+  }
+
+  return timestampStr;
+}
+
+/**
  * Writes a single entry in a 'static data' log for elements that will likely
  * not change (tune ID, ident byte, fuel map content, etc.)
  */
@@ -163,7 +202,7 @@ void Logger::logStaticData(unsigned int fuelMapId)
       mafCoTrim = m_cux.getCOTrimVoltage();
     }
 
-    m_staticLogFileStream << QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm:ss.zzz") << ","
+    m_staticLogFileStream << getTimestamp(true) << ","
                           << Qt::uppercasedigits
                           << m_cux.getTune() << ","
                           << Qt::hex << m_cux.getIdent() << ","
