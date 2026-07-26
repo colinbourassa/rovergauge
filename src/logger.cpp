@@ -188,46 +188,54 @@ QString Logger::getTimestamp(bool forStaticData)
  */
 void Logger::logStaticData(unsigned int fuelMapId)
 {
-  if (m_staticLogLock.tryLock())
+  // The callers already gate on m_staticDataLogged, but take the lock and
+  // re-check the flag here so that two concurrent calls can't both write the
+  // static block. Note: this previously used tryLock() with no matching
+  // unlock(), which left the mutex permanently held once acquired and stopped
+  // static data from ever being logged again after the first connection.
+  QMutexLocker locker(&m_staticLogLock);
+
+  if (m_staticDataLogged)
   {
-    m_staticDataLogged = true;
+    return;
+  }
+  m_staticDataLogged = true;
 
-    const QByteArray* fuelMapData = m_cux.getFuelMap(fuelMapId);
-    float mafCoTrim = 0.0;
-    unsigned char c;
+  const QByteArray* fuelMapData = m_cux.getFuelMap(fuelMapId);
+  float mafCoTrim = 0.0;
+  unsigned char c;
 
-    // only get the MAF CO trim if an open-loop map is selected
-    if ((fuelMapId > 0) && (fuelMapId < 4))
+  // only get the MAF CO trim if an open-loop map is selected
+  if ((fuelMapId > 0) && (fuelMapId < 4))
+  {
+    mafCoTrim = m_cux.getCOTrimVoltage();
+  }
+
+  m_staticLogFileStream << getTimestamp(true) << ","
+                        << Qt::uppercasedigits
+                        << m_cux.getTune() << ","
+                        << Qt::hex << m_cux.getIdent() << ","
+                        << Qt::hex << m_cux.getChecksumFixer() << ","
+                        << Qt::dec << fuelMapId << ","
+                        << Qt::hex << m_cux.getFuelMapAdjustmentFactor(fuelMapId) << ","
+                        << Qt::hex << m_cux.getRowScaler(fuelMapId) << ","
+                        << m_cux.getMAFRowScaler() << ","
+                        << mafCoTrim;
+
+  if (fuelMapData)
+  {
+    // write out every byte of the fuel map data
+    for (unsigned int fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
     {
-      mafCoTrim = m_cux.getCOTrimVoltage();
-    }
-
-    m_staticLogFileStream << getTimestamp(true) << ","
-                          << Qt::uppercasedigits
-                          << m_cux.getTune() << ","
-                          << Qt::hex << m_cux.getIdent() << ","
-                          << Qt::hex << m_cux.getChecksumFixer() << ","
-                          << Qt::dec << fuelMapId << ","
-                          << Qt::hex << m_cux.getFuelMapAdjustmentFactor(fuelMapId) << ","
-                          << Qt::hex << m_cux.getRowScaler(fuelMapId) << ","
-                          << m_cux.getMAFRowScaler() << ","
-                          << mafCoTrim;
-
-    if (fuelMapData)
-    {
-      // write out every byte of the fuel map data
-      for (unsigned int fmRow = 0; fmRow < FUEL_MAP_ROWS; fmRow += 1)
+      for (unsigned int fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
       {
-        for (unsigned int fmCol = 0; fmCol < FUEL_MAP_COLUMNS; fmCol += 1)
-        {
-          c = fuelMapData->at(fmRow * FUEL_MAP_COLUMNS + fmCol);
-          m_staticLogFileStream << "," << QString::number(c, 16).toUpper();
-        }
+        c = fuelMapData->at(fmRow * FUEL_MAP_COLUMNS + fmCol);
+        m_staticLogFileStream << "," << QString::number(c, 16).toUpper();
       }
     }
-
-    m_staticLogFileStream << Qt::endl;
   }
+
+  m_staticLogFileStream << Qt::endl;
 }
 
 /**
