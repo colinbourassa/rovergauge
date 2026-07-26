@@ -70,6 +70,7 @@ void FaultCodeDialog::populateFaultList()
   m_faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
   m_faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
   m_faultNames.insert(FaultCode_RAMChecksumFailure, QString("(03) Bad checksum on battery-backed RAM"));
+  m_faultNames.insert(FaultCode_MisfireGeneral, QString("(25) Misfire (general)"));
 }
 
 /**
@@ -144,6 +145,12 @@ void FaultCodeDialog::lightLEDs(c14cux_faultcodes faults)
   m_faultLights[FaultCode_FuelTempSensor]->setChecked(faults.Fuel_Temp_Sensor);
   m_faultLights[FaultCode_BatteryDisconnected]->setChecked(faults.Battery_Disconnected);
   m_faultLights[FaultCode_RAMChecksumFailure]->setChecked(faults.RAM_Checksum_Failure);
+  // Fault code 25 (general misfire) is stored in bit 3 of the first fault byte
+  // (0x0049), which libcomm14cux exposes as the 'Spare0' field. Pre-R3360
+  // firmware (early Land Rover builds and TVR applications) sets this bit; see
+  // the misfire handler in the 14CUX firmware disassembly (ignitionInt.asm,
+  // "set Fault Code 25 (general misfire)"). Later NAS firmware does not use it.
+  m_faultLights[FaultCode_MisfireGeneral]->setChecked(faults.Spare0);
 }
 
 /**

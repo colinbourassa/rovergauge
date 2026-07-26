@@ -39,7 +39,8 @@ enum FaultCode
   FaultCode_FuelTempSensor      = 21,
   FaultCode_BatteryDisconnected = 22,
   FaultCode_RAMChecksumFailure  = 23,
-  FaultCode_TotalCount          = 24
+  FaultCode_MisfireGeneral      = 24,
+  FaultCode_TotalCount          = 25
 };
 
 /**
