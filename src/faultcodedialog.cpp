@@ -66,7 +66,7 @@ void FaultCodeDialog::populateFaultList()
   m_faultNames.insert(FaultCode_IdleStepper, QString("(48) Idle Air Control stepper motor"));
   m_faultNames.insert(FaultCode_RoadSpeedSensor, QString("(68) Road speed sensor"));
   m_faultNames.insert(FaultCode_NeutralSwitch, QString("(69) Neutral (gear selector) switch"));
-  m_faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(58) Ambiguous: low fuel pressure or air leak"));
+  m_faultNames.insert(FaultCode_FuelPressureOrLeak, QString("(59) Ambiguous: low fuel pressure or air leak"));
   m_faultNames.insert(FaultCode_FuelTempSensor, QString("(15) Fuel temp sensor"));
   m_faultNames.insert(FaultCode_BatteryDisconnected, QString("(02) RAM contents unreliable (battery disconnected)"));
   m_faultNames.insert(FaultCode_RAMChecksumFailure, QString("(03) Bad checksum on battery-backed RAM"));
