@@ -25,7 +25,49 @@ If you're running Linux, you can get a Debian package (.DEB) for your system's a
 
  - https://github.com/colinbourassa/rovergauge/releases/latest
 
-It's also possible to build RoverGauge from the code yourself. This can be done with Linux or Windows. In either case, you'll need CMake (version 3.18 or newer) as well as version 5.x of the Qt SDK.
+It's also possible to build RoverGauge from the code yourself. This can be done with Linux, Windows, or macOS. In every case, you'll need CMake (version 3.18 or newer) as well as version 5.x of the Qt SDK.
+
+### Building on macOS
+
+RoverGauge can be built from source on macOS using [Homebrew](https://brew.sh/). The FTDI USB-to-serial cable is presented by macOS as a `/dev/cu.usbserial*` device.
+
+1. Install the build tools and Qt 5:
+
+   ```
+   brew install cmake qt@5
+   ```
+
+2. Build and install RoverGauge's serial communication dependency, libcomm14cux, into a local prefix. (The `CMAKE_POLICY_VERSION_MINIMUM` flag is currently required because libcomm14cux declares an older minimum CMake version than recent CMake releases accept.)
+
+   ```
+   git clone https://github.com/colinbourassa/libcomm14cux.git
+   cd libcomm14cux
+   cmake -B build -DCMAKE_BUILD_TYPE=Release \
+         -DCMAKE_INSTALL_PREFIX="$PWD/../comm14cux-install" \
+         -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+   cmake --build build
+   cmake --install build
+   cd ..
+   ```
+
+3. Configure and build RoverGauge, pointing CMake at Homebrew's Qt 5 and at the libcomm14cux install prefix:
+
+   ```
+   cd rovergauge
+   cmake -B build -DCMAKE_BUILD_TYPE=Release \
+         -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)" \
+         -DCMAKE_CXX_FLAGS="-I$PWD/../comm14cux-install/include" \
+         -DCMAKE_EXE_LINKER_FLAGS="-L$PWD/../comm14cux-install/lib"
+   cmake --build build
+   ```
+
+4. Run it, setting `DYLD_LIBRARY_PATH` so the executable can locate the libcomm14cux dynamic library:
+
+   ```
+   DYLD_LIBRARY_PATH="$PWD/../comm14cux-install/lib" ./build/rovergauge
+   ```
+
+   Pass `--simulated` to run without any hardware connected.
 
 ## Building interface cable
 
