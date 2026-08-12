@@ -34,45 +34,47 @@ class WidgetWithBackground : public QWidget
      /** Konstruktor */
      WidgetWithBackground(QWidget * parent = 0);
 
-     /** Destruktor - usuwa bitmapkê.  */
+     /** Destruktor - usuwa bitmapkï¿½.  */
      ~WidgetWithBackground ();
 
      /**
       * Operacja odmalowywania kontrolki  -
-      * wkleja bitmapê z t³em na kontrolkê -
-      * generuj±æ j± wcze¶niej je¿eli zajdzie taka potrzeba.
+      * wkleja bitmapï¿½ z tï¿½em na kontrolkï¿½ -
+      * generujï¿½ï¿½ jï¿½ wczeï¿½niej jeï¿½eli zajdzie taka potrzeba.
       */
      void  drawBackground ();
 
-     /** Odmalowywuje kontrolkê bezwarunkowo odmalowywuj±c t³o. */
+     /** Odmalowywuje kontrolkï¿½ bezwarunkowo odmalowywujï¿½c tï¿½o. */
      void  updateWithBackground ();
     
      /** 
-     * Zawraca informacje czy kontrolka zosta³a zmodyfikowana
-     * Ta informacja jest ustawiana gdy bitmapka t³a siê zmienia 
-     * to znaczy zmienia siê rozmiar komponentu lub istnieje 
-     * potrzeba przemalowania t³a. 
+     * Zawraca informacje czy kontrolka zostaï¿½a zmodyfikowana
+     * Ta informacja jest ustawiana gdy bitmapka tï¿½a siï¿½ zmienia 
+     * to znaczy zmienia siï¿½ rozmiar komponentu lub istnieje 
+     * potrzeba przemalowania tï¿½a. 
      */ 
      bool doRepaintBackground(); 
      
   protected:
-    /** Wywo³uje paintBackground - odmalowywuj±c t³o na nowo */
+    /** Wywoï¿½uje paintBackground - odmalowywujï¿½c tï¿½o na nowo */
     void repaintBackground();
 
     /**
-     * Odmalowywuje t³o kontrolki
-     * @param painter urz±dzenie na ktróym mamy malowaæ.
-     * @param background to t³o kontrolki
+     * Odmalowywuje tï¿½o kontrolki
+     * @param painter urzï¿½dzenie na ktrï¿½ym mamy malowaï¿½.
+     * @param background to tï¿½o kontrolki
      */
     virtual void  paintBackground (QPainter & painer) = 0;
     
     
 
   protected:
-     /** Bufor na t³o. */
+     /** Bufor na tï¿½o. */
      QPixmap * m_pixmap;
+     /** Device pixel ratio that m_pixmap was allocated for. */
+     qreal m_pixmapRatio;
      /**
-     * Ustawia t± zmienn± po zmianie w³a¶ciwo¶ci
+     * Ustawia tï¿½ zmiennï¿½ po zmianie wï¿½aï¿½ciwoï¿½ci
      */
      bool m_modified;
 };

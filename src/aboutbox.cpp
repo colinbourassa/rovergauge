@@ -1,3 +1,4 @@
+#include <QIcon>
 #include "aboutbox.h"
 
 /**
@@ -38,7 +39,9 @@ void AboutBox::setupWidgets()
   this->setLayout(m_grid);
 
   m_iconLabel = new QLabel(this);
-  m_iconLabel->setPixmap(QPixmap(":/icon/icon/rovergauge_48x48.png"));
+  // Sourced from the largest icon and scaled down via QIcon so that the result
+  // carries the display's device pixel ratio instead of being a fixed 48x48.
+  m_iconLabel->setPixmap(QIcon(":/icon/icon/rovergauge_256x256.png").pixmap(48, 48));
 
   m_name = new QLabel("RoverGauge " +
                       makeVersionString(ROVERGAUGE_VER_MAJOR, ROVERGAUGE_VER_MINOR, ROVERGAUGE_VER_PATCH),

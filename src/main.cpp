@@ -8,6 +8,14 @@ int main(int argc, char* argv[])
 {
   const QString versionStr = QString("%1.%2.%3").arg(ROVERGAUGE_VER_MAJOR).arg(ROVERGAUGE_VER_MINOR).arg(ROVERGAUGE_VER_PATCH);
 
+  // Qt 5 does not scale to high-DPI displays unless asked; Qt 6 always does,
+  // and these attributes are deprecated there. macOS handles Retina displays
+  // natively in either case, so this mainly affects Windows and Linux.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+
   QApplication a(argc, argv);
   a.setApplicationVersion(versionStr);
   a.setApplicationName("RoverGauge");

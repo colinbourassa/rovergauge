@@ -25,7 +25,9 @@
 
 WidgetWithBackground::WidgetWithBackground(QWidget * parent) : QWidget(parent)
 {
-  m_pixmap = new QPixmap(size());
+  m_pixmapRatio = devicePixelRatioF();
+  m_pixmap = new QPixmap(size() * m_pixmapRatio);
+  m_pixmap->setDevicePixelRatio(m_pixmapRatio);
   m_modified = false;
 }
 
@@ -40,11 +42,19 @@ WidgetWithBackground::~WidgetWithBackground()
 
 void WidgetWithBackground::drawBackground()
 {
-  if (m_pixmap->size() != size() || m_modified )
+  // The buffer is allocated in device pixels so that the background is drawn at
+  // the display's native resolution rather than being scaled up from logical
+  // pixels. The ratio is part of the cache key because a window can be dragged
+  // between displays that scale differently.
+  const qreal ratio = devicePixelRatioF();
+
+  if (m_pixmap->size() != (size() * ratio) || m_pixmapRatio != ratio || m_modified )
     {
 	delete m_pixmap;
-	m_pixmap = new QPixmap(size());
-	m_modified=true; // by wiadomo bylo ¿e jest przemalowywane tlo
+	m_pixmap = new QPixmap(size() * ratio);
+	m_pixmap->setDevicePixelRatio(ratio);
+	m_pixmapRatio = ratio;
+	m_modified=true; // by wiadomo bylo ï¿½e jest przemalowywane tlo
 	repaintBackground();
 	m_modified=false;
     }
