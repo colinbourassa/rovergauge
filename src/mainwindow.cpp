@@ -13,7 +13,18 @@
 const float MainWindow::s_speedometerMaxMPH = 160.0;
 const float MainWindow::s_speedometerMaxKPH = 240.0;
 
-#define ICON_PATH ":/icon/icon/rovergauge_48x48.png"
+// Supplying every available size lets Qt pick the one that matches the display,
+// rather than scaling the 48x48 up for window decorations, task switchers, and
+// the macOS Dock.
+static QIcon applicationIcon()
+{
+  QIcon icon;
+  icon.addFile(":/icon/icon/rovergauge_16x16.png");
+  icon.addFile(":/icon/icon/rovergauge_32x32.png");
+  icon.addFile(":/icon/icon/rovergauge_48x48.png");
+  icon.addFile(":/icon/icon/rovergauge_256x256.png");
+  return icon;
+}
 
 const QHash<TemperatureUnits, QPair<int,int> > MainWindow::s_tempLimits
 {
@@ -79,7 +90,7 @@ MainWindow::MainWindow (bool autoconnect,
   m_fuelPumpRefreshTimer.setInterval(1000);
 
   connectInterfaceSignals();
-  setWindowIcon(QIcon(ICON_PATH));
+  setWindowIcon(applicationIcon());
   setupWidgets();
   dimUnusedControls();
 
