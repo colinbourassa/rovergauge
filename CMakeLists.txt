@@ -8,6 +8,12 @@ set (ROVERGAUGE_VER_PATCH 0)
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
 
+# mainwindow.cpp uses qOverload<>(), which Qt only defines when the compiler
+# advertises C++14 support; AppleClang requires that the standard be requested
+# explicitly before it will do so.
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${ROVERGAUGE_VER_MAJOR}.${ROVERGAUGE_VER_MINOR}.${ROVERGAUGE_VER_PATCH}-src")
 set (CPACK_SOURCE_IGNORE_FILES
@@ -44,11 +50,24 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -s")
 endif ()
 
+# libcomm14cux may be installed under a prefix that isn't in the compiler's
+# default search path (such as Homebrew's /opt/homebrew on Apple Silicon)
+find_path (COMM14CUX_INCLUDE_DIR comm14cux.h)
+if (COMM14CUX_INCLUDE_DIR)
+  message (STATUS "Found comm14cux.h in ${COMM14CUX_INCLUDE_DIR}")
+else ()
+  message (STATUS "Could not locate comm14cux.h; relying on the compiler's default include path.")
+endif ()
+
 include_directories ("${CMAKE_SOURCE_DIR}/src"
                      "${CMAKE_SOURCE_DIR}/src/qledindicator"
                      "${CMAKE_SOURCE_DIR}/src/analogwidgets"
                      "${CMAKE_CURRENT_BINARY_DIR}"
                      "${Qt5Widgets_INCLUDE_DIRS}")
+
+if (COMM14CUX_INCLUDE_DIR)
+  include_directories ("${COMM14CUX_INCLUDE_DIR}")
+endif ()
 
 qt5_wrap_ui (UI_SOURCE src/mainwindow.ui)
 qt5_wrap_ui (UI_SOURCE src/optionsdialog.ui)
@@ -220,12 +239,25 @@ if (MINGW)
   include (CPack)
 
 else()
-  message (STATUS "Defaulting to Linux build environment.")
+  message (STATUS "Defaulting to Linux/Unix build environment.")
 
-  target_link_libraries (rovergauge comm14cux Qt5::Widgets)
+  find_library (COMM14CUX_LIB NAMES comm14cux)
+  if (COMM14CUX_LIB)
+    message (STATUS "Found libcomm14cux at ${COMM14CUX_LIB}")
+  else ()
+    message (SEND_ERROR "Could not find libcomm14cux!")
+  endif ()
 
-  set (CMAKE_SKIP_RPATH TRUE)
-  set (CMAKE_INSTALL_PREFIX "/usr")
+  target_link_libraries (rovergauge ${COMM14CUX_LIB} Qt5::Widgets)
+
+  # On macOS, leave RPATH generation enabled so that the executable records the
+  # location of libcomm14cux.dylib and can find it at runtime without help from
+  # DYLD_LIBRARY_PATH. The Linux packaging expects neither an RPATH nor the
+  # default /usr/local install prefix.
+  if (NOT APPLE)
+    set (CMAKE_SKIP_RPATH TRUE)
+    set (CMAKE_INSTALL_PREFIX "/usr")
+  endif ()
 
   # set the installation destinations for the header files,
   # shared library binaries, and reference utility

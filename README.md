@@ -55,19 +55,17 @@ RoverGauge can be built from source on macOS using [Homebrew](https://brew.sh/).
    ```
    cd rovergauge
    cmake -B build -DCMAKE_BUILD_TYPE=Release \
-         -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)" \
-         -DCMAKE_CXX_FLAGS="-I$PWD/../comm14cux-install/include" \
-         -DCMAKE_EXE_LINKER_FLAGS="-L$PWD/../comm14cux-install/lib"
+         -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5);$PWD/../comm14cux-install"
    cmake --build build
    ```
 
-4. Run it, setting `DYLD_LIBRARY_PATH` so the executable can locate the libcomm14cux dynamic library:
+4. Run it:
 
    ```
-   DYLD_LIBRARY_PATH="$PWD/../comm14cux-install/lib" ./build/rovergauge
+   ./build/rovergauge
    ```
 
-   Pass `--simulated` to run without any hardware connected.
+   The executable records the location of libcomm14cux.dylib in its RPATH at link time, so no `DYLD_LIBRARY_PATH` setting is needed. Pass `--simulated` to run without any hardware connected.
 
 ## Building interface cable
 
