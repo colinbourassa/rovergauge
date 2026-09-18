@@ -1,5 +1,5 @@
 #include <QStringList>
-#ifdef linux
+#if defined(linux) || defined(__APPLE__)
 #include <QDir>
 #include <QFileInfo>
 #include <QFileInfoList>
