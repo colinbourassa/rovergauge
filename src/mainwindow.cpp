@@ -1087,7 +1087,7 @@ void MainWindow::onROMImageReady()
 
     if (saveFile.open(QIODevice::WriteOnly))
     {
-      if (saveFile.write(promData) != promData.capacity())
+      if (saveFile.write(promData) != promData.size())
       {
         QMessageBox::warning(
           this, "Error", QString("Error writing the ROM image file:\n%1").arg(saveFileName), QMessageBox::Ok);
@@ -1218,7 +1218,7 @@ void MainWindow::onThrottleTypeButtonClicked(QAbstractButton* button)
  */
 void MainWindow::onTuneRevisionReady(int tuneRevisionNum, int checksumFixer, int ident)
 {
-  m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%04").arg(tuneRevisionNum));
+  m_ui->m_tuneRevNumberLabel->setText(QString("Tune: R%1").arg(tuneRevisionNum, 4, 10, QChar('0')));
   m_ui->m_identLabel->setText(QString("Ident: ") + QString("%1").arg(ident, 4, 16).toUpper());
   m_ui->m_checksumFixerLabel->setText(
     QString("Checksum fixer: ") + QString("%1").arg(checksumFixer, 2, 16, QChar('0')).toUpper());
